@@ -54,6 +54,10 @@ export interface CommitDiffItem {
   author: string;
   date: string;
   message: string;
+  repoId?: 'HUB' | 'BE' | 'FE' | 'MOBILE';
+  repoName?: string;
+  repoOwner?: string;
+  repoSlug?: string;
   files: CommitChangedFile[];
 }
 

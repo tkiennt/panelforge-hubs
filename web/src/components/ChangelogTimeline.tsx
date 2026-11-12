@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { CommitsDiffData, CommitDiffItem, CommitChangedFile, GitHubApiStatus } from '../types/hub';
 import { formatRelativeDate } from '../services/dataService';
+import { MONITORED_REPOS, type RepoFilterId } from '../services/githubService';
 import { CommitDiffView } from './CommitDiffView';
 import {
   GitCommit,
@@ -31,22 +32,28 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
   refreshing = false,
 }) => {
   const [searchFilter, setSearchFilter] = useState('');
+  const [selectedRepo, setSelectedRepo] = useState<RepoFilterId>('ALL');
   const [selectedCommit, setSelectedCommit] = useState<CommitDiffItem | null>(null);
   const [selectedFile, setSelectedFile] = useState<CommitChangedFile | null>(null);
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
-  // Lọc commit theo từ khóa
+  // Lọc commit theo repo và từ khóa
   const filteredCommits = useMemo(() => {
-    if (!searchFilter.trim()) return commitsData.commits;
+    let list = commitsData.commits;
+    if (selectedRepo !== 'ALL') {
+      list = list.filter((c) => c.repoId === selectedRepo);
+    }
+    if (!searchFilter.trim()) return list;
     const q = searchFilter.toLowerCase();
-    return commitsData.commits.filter(
+    return list.filter(
       (c) =>
         c.message.toLowerCase().includes(q) ||
         c.author.toLowerCase().includes(q) ||
         c.hash.toLowerCase().includes(q) ||
+        c.repoName?.toLowerCase().includes(q) ||
         c.files.some((f) => f.path.toLowerCase().includes(q))
     );
-  }, [commitsData.commits, searchFilter]);
+  }, [commitsData.commits, selectedRepo, searchFilter]);
 
   // Nhóm commits theo ngày
   const groupedCommits = useMemo(() => {
@@ -108,24 +115,24 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
       {/* Overview & Filter Bar */}
       <div className="p-5 bg-paper-subtle border border-hairline rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-accent/10 border border-accent/20 text-accent font-semibold">
-              Live GitHub API Audit
+              Live Multi-Repo Audit
             </span>
             <span className="text-xs text-ink-muted">
-              {commitsData.totalCommits} commits • tkiennt/panelforge-hubs
+              {commitsData.totalCommits} commits trên 4 repositories
             </span>
             {gitHubStatus && (
               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded border border-hairline bg-white text-stone-600">
-                ● {gitHubStatus.source === 'live-api' ? 'Trực tiếp' : gitHubStatus.source === 'cached' ? 'Cache' : 'Fallback'}
+                ● {gitHubStatus.source === 'live-api' ? 'GitHub API trực tiếp' : gitHubStatus.source === 'cached' ? 'Cache' : 'Fallback'}
               </span>
             )}
           </div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink mt-1.5">
-            Nhật ký kiểm toán & Thay đổi Specs
+            Nhật ký kiểm toán & Commit Đa Repository (FE, BE, Mobile, Hub)
           </h2>
           <p className="text-xs text-ink-muted mt-1 leading-relaxed max-w-2xl">
-            Tất cả các lần cập nhật tài liệu, bổ sung sơ đồ Mermaid và thay đổi quy tắc nghiệp vụ từ các tác giả được nạp trực tiếp từ GitHub REST API.
+            Tập trung dòng commit thời gian thực từ toàn bộ 4 kho mã nguồn (Backend .NET 9, Frontend React 19, Mobile Flutter và Hub Docs) để kiểm soát tiến độ triển khai đồng bộ.
           </p>
         </div>
 
@@ -156,6 +163,43 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
         </div>
       </div>
 
+      {/* Multi-Repo Switcher Tabs */}
+      <div className="flex flex-wrap items-center gap-2 pb-1 text-xs">
+        <span className="text-stone-500 font-mono text-[11px] uppercase mr-1">Kho mã nguồn:</span>
+        <button
+          onClick={() => setSelectedRepo('ALL')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono transition-colors border ${
+            selectedRepo === 'ALL'
+              ? 'bg-ink text-paper border-ink font-semibold shadow-sm'
+              : 'bg-white text-stone-700 border-[#E5E2DC] hover:border-stone-400'
+          }`}
+        >
+          <span>Tất cả (4 Repos)</span>
+          <span className="text-[10px] opacity-75 font-mono">({commitsData.totalCommits})</span>
+        </button>
+
+        {MONITORED_REPOS.map((repo) => {
+          const count = commitsData.commits.filter((c) => c.repoId === repo.id).length;
+          const isSelected = selectedRepo === repo.id;
+
+          return (
+            <button
+              key={repo.id}
+              onClick={() => setSelectedRepo(repo.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono transition-colors border ${
+                isSelected
+                  ? 'bg-ink text-paper border-ink font-semibold shadow-sm'
+                  : 'bg-white text-stone-700 border-[#E5E2DC] hover:border-stone-400'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-accent' : 'bg-stone-400'}`} />
+              <span>{repo.name}</span>
+              <span className="text-[10px] opacity-75 font-mono">({count})</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Timeline Stream */}
       <div className="space-y-8">
         {groupedCommits.length === 0 ? (
@@ -184,10 +228,28 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                     >
                       {/* Commit Header */}
                       <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="space-y-1 max-w-2xl">
-                          <p className="font-medium text-sm text-ink leading-snug">
-                            {c.message}
-                          </p>
+                        <div className="space-y-1.5 max-w-2xl">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {c.repoId && (
+                              <span
+                                className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border font-bold ${
+                                  c.repoId === 'BE'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : c.repoId === 'FE'
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : c.repoId === 'MOBILE'
+                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                    : 'bg-orange-50 text-orange-700 border-orange-200'
+                                }`}
+                              >
+                                {c.repoName || c.repoId}
+                              </span>
+                            )}
+                            <p className="font-medium text-sm text-ink leading-snug">
+                              {c.message}
+                            </p>
+                          </div>
+
                           <div className="flex items-center gap-3 text-xs text-ink-muted flex-wrap">
                             <span className="flex items-center gap-1 font-semibold text-ink">
                               <User className="w-3 h-3 text-stone-400" />
@@ -195,10 +257,14 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                             </span>
                             <span>•</span>
                             <span title={c.date}>{formatRelativeDate(c.date)}</span>
-                            <span>•</span>
-                            <span className="text-stone-400">
-                              {c.files.length} file tài liệu thay đổi
-                            </span>
+                            {c.files.length > 0 && (
+                              <>
+                                <span>•</span>
+                                <span className="text-stone-400">
+                                  {c.files.length} file thay đổi
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
 
@@ -218,7 +284,11 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                             )}
                           </button>
                           <a
-                            href={`https://github.com/tkiennt/panelforge-hubs/commit/${c.fullHash}`}
+                            href={
+                              c.repoOwner && c.repoSlug
+                                ? `https://github.com/${c.repoOwner}/${c.repoSlug}/commit/${c.fullHash}`
+                                : `https://github.com/tkiennt/panelforge-hubs/commit/${c.fullHash}`
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1 rounded bg-paper-subtle border border-hairline text-ink-muted hover:text-accent hover:bg-stone-100 transition-colors"
