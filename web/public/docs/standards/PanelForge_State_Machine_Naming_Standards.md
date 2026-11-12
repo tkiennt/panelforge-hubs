@@ -3,7 +3,7 @@
 
 > **Dự án:** PanelForge Manga Production Platform (`FA26SE251` / `GFA26SE140`)  
 > **Căn cứ lý thuyết:** Dựa trên chuẩn Statecharts (David Harel, 1987), hướng dẫn State Machine Naming của Stately.ai (Kevin, 2024: *"State Machines - What’s in a name?"*), và tài liệu Mô hình hóa hành vi đồ án tốt nghiệp SEP490 (FPT University).  
-> **Phạm vi áp dụng:** Toàn bộ thành viên phát triển Backend (.NET 8), Frontend (React + XState v5), Mobile (Flutter), và nhóm biên soạn tài liệu kỹ thuật (Report 3 SRS, Report 4 SDD, BM04 Review).
+> **Phạm vi áp dụng:** Toàn bộ thành viên phát triển Backend (.NET 9), Frontend (React + XState v5), Mobile (Flutter), và nhóm biên soạn tài liệu kỹ thuật (Report 3 SRS, Report 4 SDD, BM04 Review).
 
 ---
 
@@ -160,28 +160,31 @@ Dưới đây là kết quả refactor chuẩn hóa toàn bộ các State Machin
 
 ### 5.1. Chapter Lifecycle (`ChapterStatus`)
 - **Thực thể sở hữu:** `Chapter`
-- **Người quyết định (Actors):** `Producer` & `Publisher`
-- **Nguyên tắc refactor:** Loại bỏ triệt để từ `Locked` (lỗi thời) và không đưa trạng thái của kịch bản/vẽ vào Chapter.
+- **Người quyết định (Actors):** `Producer`
+- **Nguyên tắc refactor:** Gộp `Locked` vào `ChapterApproved` (Q1), dùng `HandedOffAndPublished` cho trạng thái bàn giao/phát hành của Chapter (`Published` nằm ở từng `ChapterEdition`), và không đưa trạng thái của kịch bản/vẽ vào Chapter.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> InProduction: chapter.create
-    InProduction --> Approved: chapter.approve [isAllPagesApproved && isProducer] / recordApproval()
-    Approved --> InProduction: chapter.reopen [hasValidReason] / notifyTeam()
-    Approved --> Published: chapter.publish [isReleaseDateReached && isPublisher] / makePublic()
-    Published --> [*]
+    [*] --> PreProduction: chapter.create
+    PreProduction --> InProduction: chapter.start_production [isProducer] / freezeScript()
+    InProduction --> ChapterApproved: chapter.approve [isAllPagesApproved && isProducer] / recordApproval()
+    ChapterApproved --> InProduction: chapter.reopen [hasValidReason && isProducer] / notifyTeam()
+    ChapterApproved --> HandedOffAndPublished: chapter.publish [isReleaseDateReached && isProducer] / makePublic()
+    HandedOffAndPublished --> [*]
 ```
 
 #### Bảng chi tiết phần tử:
 - **States (PascalCase, Adjective/Participle):**
-  - `InProduction`: Đang trong chu kỳ sản xuất nội dung (kịch bản + vẽ).
-  - `Approved`: Đã được Producer nghiệm thu toàn bộ chất lượng (Thay thế hoàn toàn `Locked` cũ).
-  - `Published`: Đã phát hành ra nền tảng công khai cho độc giả.
+  - `PreProduction`: Đang trong giai đoạn tiền kỳ (soạn kịch bản & Bible) trước Gate 1.
+  - `InProduction`: Đang trong chu kỳ sản xuất nội dung vẽ và đặt thoại.
+  - `ChapterApproved`: Đã được Producer nghiệm thu toàn bộ chất lượng tại Gate 3 (gộp `Locked` cũ, Q1).
+  - `HandedOffAndPublished`: Đã bàn giao gói xuất bản và phát hành công khai cho độc giả (do Producer thực hiện, Q7).
 - **Events (dot.case):**
   - `chapter.create`: Khởi tạo chương mới.
+  - `chapter.start_production`: Producer duyệt Gate 1 (Script Freeze) chuyển sang sản xuất.
   - `chapter.approve`: Producer bấm nút nghiệm thu chương.
-  - `chapter.reopen`: Mở lại chương để sửa đổi bổ sung.
-  - `chapter.publish`: Xuất bản chương lên kệ truyện.
+  - `chapter.reopen`: Producer mở lại chương để sửa đổi bổ sung.
+  - `chapter.publish`: Producer phát hành chương (các ấn bản `ChapterEdition` mở bán theo giá Publisher đặt).
 - **Guards (camelCase, boolean predicate):**
   - `isAllPagesApproved`: Tất cả các trang trong chương đã đạt stage cuối cùng.
   - `isReleaseDateReached`: Thời gian hiện tại đã vượt qua `releaseDate`.
@@ -195,12 +198,12 @@ stateDiagram-v2
 ### 5.2. Script Lifecycle (`ScriptLifecycle`)
 - **Thực thể sở hữu:** Cờ `IsScriptFrozen` và enum `ScriptReopenStatus` trên `Chapter`
 - **Người quyết định:** `Writer` & `Producer`
-- **Nguyên tắc refactor:** Tách bạch hoàn toàn khỏi `ChapterStatus`. Kịch bản chỉ quản lý việc soạn thảo văn bản và đóng băng.
+- **Nguyên tắc refactor:** Tách bạch hoàn toàn khỏi `ChapterStatus`. Kịch bản quản lý việc soạn thảo theo `Page -> Panel -> Content` (ẩn `Scene` khỏi UI theo D2, bỏ `ChapterScript` theo D5) và đóng băng tại Gate 1.
 
 ```mermaid
 stateDiagram-v2
     [*] --> Open: script.initialize
-    Open --> Frozen: script.freeze [isWriterOrProducer] / lockScriptEditor()
+    Open --> Frozen: script.freeze [isProducer] / lockScriptEditor()
     Frozen --> ReopenRequested: script.request_reopen [isWriter] / submitReopenReason()
     ReopenRequested --> Open: script.approve_reopen [isProducer] / unlockScriptEditor()
     ReopenRequested --> Frozen: script.reject_reopen [isProducer] / notifyWriter()
@@ -208,15 +211,15 @@ stateDiagram-v2
 
 #### Bảng chi tiết phần tử:
 - **States:**
-  - `Open`: Kịch bản đang mở, Writer được phép thêm/sửa/xóa Scene và ScriptLine.
+  - `Open`: Kịch bản đang mở, Writer độc quyền thêm/sửa/xóa nội dung trong `Page -> Panel -> Content`.
   - `Frozen`: Kịch bản đã đóng băng (Read-only), ngăn chặn sửa đổi để các Artist tiến hành phân trang và vẽ.
   - `ReopenRequested`: Kịch bản đang bị khóa nhưng Writer đã gửi đơn xin mở lại kèm lý do.
 - **Events:**
-  - `script.freeze`: Đóng băng kịch bản.
+  - `script.freeze`: Đóng băng kịch bản tại Gate 1.
   - `script.request_reopen`: Gửi yêu cầu mở lại kịch bản.
   - `script.approve_reopen`: Producer chấp thuận mở lại.
   - `script.reject_reopen`: Producer bác bỏ yêu cầu mở lại.
-- **Guards:** `isWriterOrProducer`, `isWriter`, `isProducer`.
+- **Guards:** `isWriter`, `isProducer`.
 - **Actions:** `lockScriptEditor`, `unlockScriptEditor`, `submitReopenReason`.
 
 ---
@@ -327,9 +330,9 @@ Trong quá trình bảo vệ đồ án tốt nghiệp, giảng viên thẩm đ�
 - *Lỗi:* Ghi trạng thái `Chapter: InProduction -> Frozen -> Approved -> ReworkRequired`.
 - *Nguyên nhân:* `Frozen` là của Kịch bản (`Script`), `ReworkRequired` là của Công việc (`Assignment`), không phải của Chương (`Chapter`).
 - *Cách khắc phục:* Chia thành các máy trạng thái độc lập:
-  - `ChapterStatus`: `InProduction` $\rightarrow$ `Approved` $\rightarrow$ `Published`.
+  - `ChapterStatus`: `PreProduction` $\rightarrow$ `InProduction` $\rightarrow$ `ChapterApproved` $\rightarrow$ `HandedOffAndPublished`.
   - `ScriptLifecycle`: `Open` $\rightarrow$ `Frozen` $\rightarrow$ `ReopenRequested`.
-  - `AssignmentStatus`: `Assigned` $\rightarrow$ `InProgress` $\rightarrow$ `Submitted` $\rightarrow$ `UnderReview` $\rightarrow$ `Approved` / `ReworkRequired`.
+  - `Page/Panel Stage`: `PencilInProgress` $\rightarrow$ `InkAndLetterTrack` $\rightarrow$ `CompositeUnderReview` $\rightarrow$ `PanelReworkRequired` $\rightarrow$ `Approved`.
 
 ### ❌ Anti-pattern 3: Đồng nhất casing một màu (Lack of Contrast)
 - *Lỗi:* Viết tất cả bằng chữ thường: `state: inproduction`, `on: submit`, `guard: isvalid` trên sơ đồ báo cáo.
@@ -360,4 +363,4 @@ Mỗi khi thiết kế hoặc cập nhật bất kỳ máy trạng thái nào tr
 > **Tài liệu tham chiếu:**
 > - [Stately.ai Blog - State Machines: What's in a name? (Kevin, 2024)](https://stately.ai/blog/2024-01-23-state-machines-whats-in-a-name)
 > - [David Harel - Statecharts: A visual formalism for complex systems (1987)](https://www.inf.ed.ac.uk/teaching/courses/seoc/2005_2006/resources/statecharts.pdf)
-> - [PanelForge Ubiquitous Language & State Glossary](file:///d:/FPT-STUDY/10_FALL-2026/SEP490/Report/02_Reports/PanelForge_Ubiquitous_Language_and_State_Glossary.md)
+> - [PanelForge Ubiquitous Language & State Glossary](./PanelForge_Ubiquitous_Language_and_State_Glossary.md)

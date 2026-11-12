@@ -1,6 +1,6 @@
 # KẾ HOẠCH TRIỂN KHAI & ĐỐI CHIẾU CODEBASE — PANELFORGE SPEC V2.6
 
-> **Nguồn đặc tả:** `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (bản duy nhất, có trong git FE). Plan này là kế hoạch riêng trong `note/`, không push. Việc của cả nhóm: `panelforge-fe/docs/TEAM_WORKBOARD.md`.
+> **Nguồn đặc tả:** `panelforge-hub/docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (bản SSOT duy nhất, đồng bộ trên GitHub). Việc của cả nhóm: `panelforge-hub/docs/tracking/TEAM_WORKBOARD.md`.
 > **Ngày đối chiếu:** 2026-11-12 · **Phạm vi quét:** `PanelForge_FA26SE251/src`, `panelforge-fe/src`, `panelforge-mobile/lib` (nhánh đang checkout ở thư mục gốc).
 > **Mục đích:** Bảng tra cứu cho AI Agent ở các phase sau: chọn task theo ID, đọc bằng chứng (file đã có), làm sub-task, cập nhật trạng thái.
 > **Plan module (chi tiết task):** [`note/plans/`](plans/README.md) — 8 plan: Kịch bản, Bible, Giao việc, Bàn vẽ, Gate 2, Phát hành, Độc giả, Chất lượng UI.
@@ -203,6 +203,7 @@
 | 2026-11-12 | Q12–Q14 | Đối chiếu spec | — (chỉ tài liệu) | Một Publisher duy nhất; tiền nạp về tài khoản nền tảng (Admin duyệt); ấn bản dịch Editor duyệt, Producer cho phép phát hành. Plan: REL-04, REL-09, RDR-07, RDR-10 sửa; RDR-12 thêm. Đóng câu hỏi mở 15–17 |
 | 2026-11-12 | — | Rà tài liệu repo & phối hợp | `feature/repo-docs-sync-*` (BE, FE, MO) | Archive CF1/CF4/CF5 (BE `docs/archive/implementation/`), sửa README Publisher/Producer (FE), trỏ `CLAUDE.md` 3 repo về `note/plans/`; thêm quy tắc phối hợp `note/plans/README.md` §2 + bảng "Đang làm" §5; thêm REL-05 (gắn Snapshot vào ExportJob), REL-10 (kiểm thử trình duyệt); câu hỏi mở 18 (phạm vi phiếu V1.2) |
 | 2026-11-12 | — | Bỏ phiếu V1.2 | BE `feature/repo-docs-sync-be` | Archive `PanelForge_Scope_V1.2.md`, `project-plan.md`; đóng câu hỏi 18 |
+| 2026-11-12 | — | Hub là SSOT tài liệu | hub `main`; BE, FE, MO `trungkien` | Spec ở `docs/V2.6/`; gộp bảng "Đang làm" về `TEAM_WORKBOARD.md`; bỏ bản sao spec/workboard/DESIGN_RULES/đặc tả Chương khỏi repo code; quy tắc mọi lần sửa `docs/` phải commit + push hub ngay (plans/README §2.5) |
 
 ---
 
@@ -218,7 +219,7 @@
 6. ✅ ~~Người cấu hình Free/Trả phí, giá, số trang xem trước: chỉ Producer~~ → **thay bằng mục 11** (Publisher quy định).
 7. ✅ ~~Đơn vị trong Ví: token mua theo gói cố định (Q6)~~ → **thay bằng mục 14**.
 
-Các quyết định trên đã được ghi vào đặc tả `PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (bản trong `note/`, `PanelForge_FA26SE251/docs/`, `panelforge-fe/docs/` giống nhau).
+Các quyết định trên đã được ghi vào đặc tả `PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (bản SSOT duy nhất `docs/V2.6/` trong `panelforge-hub`).
 
 8. ✅ **Gói VIP:** bỏ; quyền đọc ấn bản trả phí chỉ đến từ mở khoá ấn bản đó → RDR-08.
 9. ✅ **Scene (D2 của kế hoạch kịch bản):** giữ một Scene mặc định ẩn mỗi chương, `scene_id` không đổi sang nullable → P4-01 thay bằng SCR-04..SCR-07 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md). Đã ghi vào đặc tả master §1.2 (cả 3 bản).
@@ -233,7 +234,7 @@ Các quyết định trên đã được ghi vào đặc tả `PANELFORGE_MASTER
 16. ✅ **Tiền nạp vào tài khoản ngân hàng của nền tảng** (Q13): Admin quản lý tài khoản và duyệt giao dịch nạp; doanh thu Workspace tính từ giao dịch mở khoá ấn bản → RDR-12, RDR-06.
 17. ✅ **Ấn bản dịch: Editor duyệt, Producer cho phép phát hành** (Q14): `Draft → InReview → EditorApproved → Approved → Published`, luật 4 mắt giữa Editor và người dịch → REL-09.
 
-Các mục 11–17 đã ghi vào đặc tả (bảng "Nhật ký quyết định" Q1–Q14 ở đầu `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`).
+Các mục 11–17 đã ghi vào đặc tả (bảng "Nhật ký quyết định" Q1–Q14 ở đầu `docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`).
 
 ### Đã chốt thêm
 

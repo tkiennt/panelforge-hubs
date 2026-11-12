@@ -9,7 +9,7 @@
 
 Trong PanelForge, ảnh **không phải là avatar hay tệp đính kèm đơn giản**, mà là lõi của quy trình sáng tác với các đặc tính:
 - **Dung lượng lớn:** Bản vẽ in ấn từ 300–600 DPI, kích thước file từ 10MB đến 50MB/trang.
-- **Nhiều phiên bản (Revisions):** Mỗi panel trải qua nhiều công đoạn (Sketch → Pencil → Ink → Color), mỗi công đoạn lại có các lần chỉnh sửa theo yêu cầu của Editor.
+- **Nhiều phiên bản (Revisions):** Mỗi trang/panel trải qua các công đoạn chuẩn V2.6 (`PencilInProgress` → `InkAndLetterTrack` → `CompositeUnderReview` → `Approved`), mỗi công đoạn lại có các lần chỉnh sửa theo Change Request của Editor ở Gate 2.
 - **Yêu cầu bất biến (Immutability & Event Sourcing):** Khi một phiên bản trong quá khứ được lưu vào Event Store, file ảnh tại thời điểm đó **tuyệt đối không được phép bị ghi đè hay thay đổi âm thầm**.
 - **Chống rò rỉ (Leak Protection):** Chương truyện chưa phát hành là bí mật thương mại, không thể dùng đường link public thông thường.
 

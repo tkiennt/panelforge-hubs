@@ -10,9 +10,9 @@
 
 | Loại dữ liệu | Nơi lưu | Lý do ngắn |
 |---|---|---|
-| Tài khoản, workspace, series, chapter, scene, page, panel, pipeline, assignment | **PostgreSQL** (EF Core, quan hệ) | Cần ràng buộc khóa ngoại và truy vấn |
-| Phần tử trên canvas (balloon, chữ, layer, vị trí) | **PostgreSQL qua Marten event store** (đang dùng) | Mỗi thao tác kéo thả là một sự kiện, tua lại được |
-| Cốt truyện (script, thoại, người nói) | **PostgreSQL**: bảng `ScriptLine` (bản làm việc) + `ContentRevision` (bản chụp bất biến có hash) | Vừa truy vấn được từng dòng, vừa giữ lịch sử |
+| Tài khoản, workspace, series, chapter, page, panel, pipeline, assignment (lưu `scene_id` mặc định ẩn dưới DB) | **PostgreSQL** (EF Core, quan hệ) | Cần ràng buộc khóa ngoại và truy vấn |
+| Phần tử trên canvas (balloon, chữ đa ngôn ngữ `texts[lang]`, layer, vị trí) | **PostgreSQL qua Marten event store** (đang dùng) | Mỗi thao tác kéo thả là một sự kiện, tua lại được |
+| Cốt truyện (nội dung `Page -> Panel -> Content` + lịch sử) | **PostgreSQL**: `PanelContentElement` / `ContentRevision` (bản chụp bất biến có hash) | Vừa truy vấn được từng khối, vừa giữ lịch sử |
 | Series Bible | **PostgreSQL**: `BibleEntry` + `BibleEntryRevision` | Đã có, bất biến, có hash |
 | Ảnh gốc (artwork, ảnh tham chiếu, avatar, ảnh AI, ảnh tách nền) | **Object storage S3-tương thích** (bucket private) | Ảnh lớn không nên nằm trong DB |
 | Metadata của ảnh (hash, kích thước, chủ sở hữu, nguồn gốc) | **PostgreSQL**: bảng `Assets` | Truy vấn, hạn mức, phân quyền |
@@ -111,8 +111,8 @@ Bảng giá R2 tham khảo: lưu trữ chuẩn khoảng 0,015 USD/GB-tháng, Cla
 
 | Kịch bản | Giả định | Dung lượng | Chi phí lưu trữ |
 |---|---|---|---|
-| Bộ dữ liệu demo | 3 chương × 20 trang × 4 phiên bản (Thumbnail, Pencil, Ink, Color) × 20 MB | khoảng 5 GB | Nằm trong gói miễn phí 10 GB |
-| Một series dài | 100 chương × 20 trang × 4 phiên bản × 20 MB | khoảng 156 GB | khoảng 2–3 USD/tháng |
+| Bộ dữ liệu demo | 3 chương × 20 trang × 3 giai đoạn ảnh chính (`Pencil`, `Ink`, `Composite`) × 20 MB | khoảng 3.6 GB | Nằm trong gói miễn phí 10 GB |
+| Một series dài | 100 chương × 20 trang × 3 giai đoạn ảnh chính (`Pencil`, `Ink`, `Composite`) × 20 MB | khoảng 117 GB | khoảng 1.8–2.5 USD/tháng |
 
 Chi phí lưu trữ nhỏ; phần đáng cân nhắc hơn là **quyền riêng tư** (nội dung chưa phát hành nằm trên dịch vụ ngoài) và **hạn mức theo Workspace** mà Admin cấu hình (`requirements.md` 3.1).
 

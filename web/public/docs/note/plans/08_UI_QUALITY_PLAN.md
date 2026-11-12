@@ -1,6 +1,6 @@
 # 08 · CHẤT LƯỢNG GIAO DIỆN: CHỐNG AI-SLOP, TOKEN, I18N, MOBILE (`UIQ`)
 
-> **Chuẩn:** `.agents/AGENTS.md` §7, `panelforge-fe/docs/DESIGN_RULES.md`, `panelforge-mobile/lib/theme/app_theme.dart`, skill `antislop`, `antislop-ui`, `antislop-code`, `antislop-copywriting`, `antislop-layoutmobile`.
+> **Chuẩn:** `.agents/AGENTS.md` §7, `panelforge-hub/docs/spec/DESIGN_RULES.md`, `panelforge-mobile/lib/theme/app_theme.dart`, skill `antislop`, `antislop-ui`, `antislop-code`, `antislop-copywriting`, `antislop-layoutmobile`.
 > **Thay cho:** `note/ANTI_SLOP_REFACTOR_PLAN.md` (GĐ5–GĐ12); phần còn mở của `UI_REFACTOR_CHECKLIST.md`, `LUCIAN_UXUI_ENHANCEMENT_INTEGRATION_PLAN.md`; bảng thuật ngữ của `UI_UX_COPY_STANDARDIZATION_AND_I18N_PLAN.md`. Các plan thiết kế/màu/font/i18n cũ đã hoàn thành, quy chuẩn nằm trong `DESIGN_RULES.md`.
 > **Tách file theo màn hình** nằm ở plan module tương ứng: Writer → [SCR-20](01_SCRIPT_PLAN.md), Bible → [BIB-04..07](02_BIBLE_PLAN.md), Artist/Letterer → [ART-11/12](04_ARTWORK_PLAN.md), Editor → [REV-06](05_REVIEW_PLAN.md). File này giữ phần **quét toàn bộ** và **chốt chặn**.
 

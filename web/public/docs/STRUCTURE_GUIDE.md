@@ -19,7 +19,7 @@ SEP490-PanelForge/                     <-- Mở IDE / AI Agent tại cấp thư 
 ├── panelforge-fe/                     <-- [Git Repo 2] Frontend React 19 + page-diff
 │   ├── src/                           # Roles (Producer, Writer, Artist, Letterer, Editor)
 │   ├── page-diff/                     # Microservice / module so sánh ảnh trang (visual diff)
-│   └── docs/                          # Chứa PANELFORGE_MASTER_SPECIFICATION_V2_6.md (SSOT gốc)
+│   └── docs/                          # Docs riêng của FE (audit, archive); không giữ bản sao spec
 │
 ├── panelforge-mobile/                 <-- [Git Repo 3] Mobile Flutter
 │   ├── lib/                           # Mobile Reader App (Webtoon / Manga)
@@ -56,7 +56,9 @@ SEP490-PanelForge/                     <-- Mở IDE / AI Agent tại cấp thư 
 
 | Tài liệu | Bản gốc duy nhất (chỉ sửa ở đây) | Bản sao chỉ đọc | Ghi chú |
 |---|---|---|---|
-| **Master Spec V2.6** | `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (trong repo git FE) | `panelforge-hub/docs/V2.6/`, `panelforge-reports/docs/V2.6/` | Sửa bản gốc qua worktree FE rồi merge `trungkien`, sau đó chép đè sang các bản sao trong `panelforge-hub/` và `panelforge-reports/` (cùng SHA-256). |
-| **Plan tổng & plan module** | `panelforge-hub/docs/note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md`, `panelforge-hub/docs/note/plans/` | Không có bản sao | Không chép plan vào repo code. Dùng chung để phân chia task cho BE, FE, Mobile. Việc hiển thị cho toàn nhóm xem được push ở `panelforge-fe/docs/TEAM_WORKBOARD.md`. |
+| **Master Spec V2.6** | `panelforge-hub/docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` | `panelforge-reports/docs/V2.6/` | Sửa bản gốc trong hub, commit + push `main`, rồi chép đè sang `panelforge-reports/`. Repo code (BE, FE, MO) không giữ bản sao. |
+| **Đặc tả Chương & Kịch bản, Quy chuẩn UI** | `panelforge-hub/docs/spec/CHAPTER_AND_SCRIPT_SPECIFICATION.md`, `panelforge-hub/docs/spec/DESIGN_RULES.md` | Không có bản sao | Repo code chỉ trỏ đường dẫn về hub. |
+| **Plan tổng & plan module** | `panelforge-hub/docs/note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md`, `panelforge-hub/docs/note/plans/` | Không có bản sao | Không chép plan vào repo code. Dùng chung để phân chia task cho BE, FE, Mobile. |
+| **Bảng theo dõi nhóm** | `panelforge-hub/docs/tracking/TEAM_WORKBOARD.md` | Không có bản sao | Nơi duy nhất ghi "Đang làm" / "Đã xong". Mọi lần sửa tài liệu trong hub đều commit + push `main` ngay (xem `docs/note/plans/README.md` §2.5). |
 | **File Excel Yêu cầu** | Sinh từ script trong `panelforge-reports/docs/scripts/` | `panelforge-reports/02_Reports/`, `panelforge-hub/docs/V2.6/` | Chạy script cập nhật sau mỗi lần sửa Master Spec. |
 | **Đồng bộ tiến độ Hub** | `panelforge-hub/scripts/sync-hub.mjs` | Tự động qua Git post-commit hooks hoặc chạy tay | Cập nhật tiến độ vào `panelforge-hub/web/public/data/hub-state.json`. |

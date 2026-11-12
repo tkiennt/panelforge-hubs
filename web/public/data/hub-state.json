@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-12T08:43:09.134Z",
+  "lastSyncedAt": "2026-11-12T10:43:02.030Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,72 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-MOBILE-d22d2e73c86c203f80944cf9bc0ed55125fbb4e9",
+      "timestamp": "2026-11-12T17:40:56+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "d22d2e73c86c203f80944cf9bc0ed55125fbb4e9",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/d22d2e73c86c203f80944cf9bc0ed55125fbb4e9",
+      "message": "docs(notes): point mobile docs to panelforge-hub as single source",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0c5c1d26fd2b198b6fb9b22a68b7d24604630e5a",
+      "timestamp": "2026-11-12T17:40:52+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "0c5c1d26fd2b198b6fb9b22a68b7d24604630e5a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0c5c1d26fd2b198b6fb9b22a68b7d24604630e5a",
+      "message": "docs(notes): extend business rules skill to BR-34 for spec v2.6",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-7a83f6dd12d1d0bdac5b0503b112f3710fc62ade",
+      "timestamp": "2026-11-12T17:40:53+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "7a83f6dd12d1d0bdac5b0503b112f3710fc62ade",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7a83f6dd12d1d0bdac5b0503b112f3710fc62ade",
+      "message": "chore(config): ignore local page-diff service folder",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-1efa393c086c612b2a0fefe622da2dfc36913bc8",
+      "timestamp": "2026-11-12T17:40:55+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "1efa393c086c612b2a0fefe622da2dfc36913bc8",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1efa393c086c612b2a0fefe622da2dfc36913bc8",
+      "message": "docs(notes): move spec, workboard and design rules to panelforge-hub",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-de318537da5a460d16521dd87751033d8825478b",
+      "timestamp": "2026-11-12T17:40:50+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "de318537da5a460d16521dd87751033d8825478b",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/de318537da5a460d16521dd87751033d8825478b",
+      "message": "docs(notes): extend business rules skill to BR-34 for spec v2.6",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-8b66b5c219edec5c1c9c08395e09a4b03037dd0e",
+      "timestamp": "2026-11-12T17:40:51+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "8b66b5c219edec5c1c9c08395e09a4b03037dd0e",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8b66b5c219edec5c1c9c08395e09a4b03037dd0e",
+      "message": "docs(notes): point backend docs to panelforge-hub as single source",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-MOBILE-49b61b2ab2e88026a2f5f7964703280129492ee7",
       "timestamp": "2026-10-27T14:11:16+07:00",
@@ -2124,72 +2190,6 @@
       "commitHash": "f0b2e1e",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f0b2e1e",
       "message": "feat(assignment): add pending editor reviews count to workspace dto",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-472b36e",
-      "timestamp": "2026-11-10T23:31:31+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "472b36e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/472b36e",
-      "message": "feat(canvas): fix panel template reading order and diagonal borders",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d722c2a",
-      "timestamp": "2026-11-10T23:02:24+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d722c2a",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d722c2a",
-      "message": "feat(canvas): expand frame templates by narrative storytelling groups",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-a53c26d",
-      "timestamp": "2026-11-10T22:42:06+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "a53c26d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/a53c26d",
-      "message": "feat(canvas): optimize frame template margins to manga print standards",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-161017a",
-      "timestamp": "2026-11-10T22:37:22+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "161017a",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/161017a",
-      "message": "chore(merge): sync remote origin trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d663571",
-      "timestamp": "2026-11-10T11:07:25+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d663571",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d663571",
-      "message": "fix(api): resolve build warnings and nullability issues",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-0189bc1",
-      "timestamp": "2026-11-10T10:51:42+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "0189bc1",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0189bc1",
-      "message": "feat(bible): enforce writer endorsement for canon lock",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }

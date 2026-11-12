@@ -170,7 +170,7 @@ sequenceDiagram
     actor User as Artist (Frontend)
     participant API as PanelForge API
     participant DB as PostgreSQL
-    participant S3 as Object Storage (MinIO/R2)
+    participant S3 as Object Storage (Local/R2)
 
     User->>API: POST /api/assets/prepare-upload (fileName, size, sha256Hash)
     API->>DB: Kiểm tra (WorkspaceId, Sha256Hash) đã tồn tại chưa?
