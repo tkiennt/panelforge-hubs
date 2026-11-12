@@ -31,9 +31,11 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
   const [selectedRepo, setSelectedRepo] = useState<RepoFilterId>('ALL');
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
-  // Lọc commit theo repo và từ khóa
+  // Lọc commit theo repo, từ khóa và luôn sắp xếp từ mới nhất -> cũ nhất giống GitHub
   const filteredCommits = useMemo(() => {
-    let list = commitsData.commits;
+    let list = [...commitsData.commits].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
     if (selectedRepo !== 'ALL') {
       list = list.filter((c) => c.repoId === selectedRepo);
     }

@@ -72,6 +72,7 @@ export type DiffViewMode = 'split' | 'unified';
 
 export interface GitHubApiStatus {
   source: 'live-api' | 'cached' | 'fallback';
+  rateLimited?: boolean;
   rateLimitRemaining?: number;
   lastFetchedAt?: string;
   errorMessage?: string;

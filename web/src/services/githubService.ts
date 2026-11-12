@@ -58,8 +58,8 @@ export const MONITORED_REPOS: MonitoredRepoConfig[] = [
 export const GITHUB_API_BASE = 'https://api.github.com';
 
 const STORAGE_GH_TOKEN = 'panelforge_hub_gh_token';
-const CACHE_COMMITS_DATA_KEY = 'panelforge_hub_gh_multirepo_cache_v3';
-const CACHE_TTL_MS = 3 * 60 * 1000; // 3 phút TTL cho cache tự động
+const CACHE_COMMITS_DATA_KEY = 'panelforge_hub_gh_multirepo_cache_v4';
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 phút TTL trong localStorage để tránh chạm Rate Limit 60 req/giờ
 
 export function getGitHubToken(): string {
   try {
@@ -135,54 +135,68 @@ export async function fetchCommitDetail(
   return files;
 }
 
-// Lấy commits cho một repository đơn lẻ
+// Lấy commits cho một repository đơn lẻ (mặc định đọc từ mới nhất giống GitHub)
 async function fetchSingleRepoCommits(
   repoConfig: MonitoredRepoConfig,
-  perPage = 10
-): Promise<CommitDiffItem[]> {
-  const cacheKey = `gh_commits_${repoConfig.id}_${perPage}`;
+  perPage = 20,
+  forceRefresh = false
+): Promise<{ items: CommitDiffItem[]; rateLimited: boolean }> {
+  const cacheKey = `gh_commits_v4_${repoConfig.id}_${perPage}`;
+  let staleItems: CommitDiffItem[] = [];
+
   try {
-    const cached = sessionStorage.getItem(cacheKey);
+    const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < CACHE_TTL_MS) {
-        return parsed.items;
+      if (Array.isArray(parsed.items)) {
+        staleItems = parsed.items;
+        if (!forceRefresh && Date.now() - parsed.timestamp < CACHE_TTL_MS) {
+          return { items: parsed.items, rateLimited: false };
+        }
       }
     }
   } catch {}
 
-  const listUrl = `${GITHUB_API_BASE}/repos/${repoConfig.owner}/${repoConfig.repo}/commits?per_page=${perPage}`;
-  const res = await fetch(listUrl, { headers: getAuthHeaders() });
-
-  if (!res.ok) {
-    console.warn(`[githubService] Không tải được commits từ ${repoConfig.owner}/${repoConfig.repo}: HTTP ${res.status}`);
-    return [];
-  }
-
-  const commitsList: any[] = await res.json();
-  if (!Array.isArray(commitsList)) return [];
-
-  const commitsWithFiles: CommitDiffItem[] = commitsList.map((c: any) => ({
-    fullHash: c.sha,
-    hash: c.sha.substring(0, 7),
-    author: c.commit?.author?.name || c.author?.login || 'Team Member',
-    date: c.commit?.author?.date || new Date().toISOString(),
-    message: c.commit?.message || '',
-    repoId: repoConfig.id,
-    repoName: repoConfig.name,
-    repoOwner: repoConfig.owner,
-    repoSlug: repoConfig.repo,
-    files: [],
-  }));
-
   try {
-    sessionStorage.setItem(
-      cacheKey,
-      JSON.stringify({ items: commitsWithFiles, timestamp: Date.now() })
-    );
-  } catch {}
+    const listUrl = `${GITHUB_API_BASE}/repos/${repoConfig.owner}/${repoConfig.repo}/commits?per_page=${perPage}`;
+    const res = await fetch(listUrl, { headers: getAuthHeaders() });
 
-  return commitsWithFiles;
+    if (!res.ok) {
+      const isRateLimit = res.status === 403 || res.status === 429;
+      console.warn(
+        `[githubService] Không tải được commits từ ${repoConfig.owner}/${repoConfig.repo}: HTTP ${res.status}`
+      );
+      return { items: staleItems, rateLimited: isRateLimit };
+    }
+
+    const commitsList: any[] = await res.json();
+    if (!Array.isArray(commitsList)) return { items: staleItems, rateLimited: false };
+
+    const items: CommitDiffItem[] = commitsList.map((c: any) => ({
+      fullHash: c.sha,
+      hash: c.sha.substring(0, 7),
+      author: c.commit?.author?.name || c.author?.login || 'Team Member',
+      date: c.commit?.author?.date || new Date().toISOString(),
+      message: c.commit?.message || '',
+      repoId: repoConfig.id,
+      repoName: repoConfig.name,
+      repoOwner: repoConfig.owner,
+      repoSlug: repoConfig.repo,
+      files: [],
+    }));
+
+    try {
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({ items, timestamp: Date.now() })
+      );
+    } catch {}
+
+    return { items, rateLimited: false };
+  } catch (err) {
+    console.warn(`[githubService] Lỗi kết nối ${repoConfig.owner}/${repoConfig.repo}:`, err);
+    return { items: staleItems, rateLimited: false };
+  }
 }
 
 // Gọi trực tiếp GitHub Commits API cho toàn bộ 4 repositories (Multi-Repo Stream)
@@ -192,13 +206,13 @@ export async function fetchLiveCommitsFromGitHub(
   data: CommitsDiffData;
   status: GitHubApiStatus;
 }> {
-  // 1. Kiểm tra cache tổng nếu không ép buộc làm mới
+  // 1. Kiểm tra cache tổng trong localStorage nếu không ép buộc làm mới
   if (!forceRefresh) {
     try {
-      const raw = sessionStorage.getItem(CACHE_COMMITS_DATA_KEY);
+      const raw = localStorage.getItem(CACHE_COMMITS_DATA_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Date.now() - parsed.timestamp < CACHE_TTL_MS) {
+        if (Date.now() - parsed.timestamp < CACHE_TTL_MS && parsed.data?.commits?.length > 0) {
           return {
             data: parsed.data,
             status: {
@@ -211,18 +225,24 @@ export async function fetchLiveCommitsFromGitHub(
     } catch {}
   }
 
-  // 2. Tải song song commits từ cả 4 repositories
+  // 2. Tải song song 20 commits mới nhất từ cả 4 repositories
   const allRepoResults = await Promise.all(
-    MONITORED_REPOS.map((repo) => fetchSingleRepoCommits(repo, 10))
+    MONITORED_REPOS.map((repo) => fetchSingleRepoCommits(repo, 20, forceRefresh))
   );
 
-  // Ghép và sắp xếp theo ngày giảm dần
+  const anyRateLimited = allRepoResults.some((r) => r.rateLimited);
+
+  // Ghép và sắp xếp từ mới nhất -> cũ nhất (giống GitHub)
   const combinedCommits: CommitDiffItem[] = allRepoResults
-    .flat()
+    .flatMap((r) => r.items)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (combinedCommits.length === 0) {
-    throw new Error('Không thể tải commits từ bất kỳ repository nào qua GitHub API.');
+    throw new Error(
+      anyRateLimited
+        ? 'GitHub API tạm hết hạn mức (60 req/giờ theo IP). Đang dùng dữ liệu build gần nhất.'
+        : 'Không thể tải commits từ bất kỳ repository nào qua GitHub API.'
+    );
   }
 
   const diffData: CommitsDiffData = {
@@ -232,7 +252,7 @@ export async function fetchLiveCommitsFromGitHub(
   };
 
   try {
-    sessionStorage.setItem(
+    localStorage.setItem(
       CACHE_COMMITS_DATA_KEY,
       JSON.stringify({ data: diffData, timestamp: Date.now() })
     );
@@ -241,7 +261,8 @@ export async function fetchLiveCommitsFromGitHub(
   return {
     data: diffData,
     status: {
-      source: 'live-api',
+      source: anyRateLimited ? 'cached' : 'live-api',
+      rateLimited: anyRateLimited,
       lastFetchedAt: new Date().toLocaleTimeString('vi-VN'),
     },
   };

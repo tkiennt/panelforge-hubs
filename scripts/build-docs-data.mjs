@@ -95,8 +95,8 @@ function scanMarkdownFiles(dir, baseDir = dir) {
   return results;
 }
 
-// 2. Lấy 50 commit gần nhất kèm danh sách file thay đổi & patch diff
-function extractCommits(limit = 50) {
+// 2. Lấy commits gần nhất của Hub Docs từ Git local (không lọc bỏ commit code)
+function extractLocalHubCommits(limit = 20) {
   const rawLog = git(
     `log -n ${limit} --pretty=format:"---COMMIT---%n%H|%h|%an|%cI|%s"`
   );
@@ -110,7 +110,6 @@ function extractCommits(limit = 50) {
       const [fullHash, hash, author, date, ...msgParts] = headerLine.split('|');
       const message = msgParts.join('|');
 
-      // Lấy danh sách file .md thay đổi trong commit này
       const changedFilesRaw = git(
         `diff-tree --no-commit-id --name-status -r ${fullHash}`
       );
@@ -120,30 +119,97 @@ function extractCommits(limit = 50) {
         .filter((line) => line.includes('.md'))
         .map((line) => {
           const [status, filePath] = line.split('\t');
-          // Trích xuất patch diff của file
-          const patch = git(`diff ${fullHash}~1..${fullHash} -- "${filePath}"`) ||
+          const patch =
+            git(`diff ${fullHash}~1..${fullHash} -- "${filePath}"`) ||
             git(`show ${fullHash} --pretty="" -- "${filePath}"`);
           return { status, path: filePath, patch };
         });
 
-      return { fullHash, hash, author, date, message, files };
-    })
-    .filter((c) => c.files.length > 0);
+      return {
+        fullHash,
+        hash,
+        author,
+        date,
+        message,
+        repoId: 'HUB',
+        repoName: 'Hub Docs',
+        repoOwner: 'tkiennt',
+        repoSlug: 'panelforge-hubs',
+        files,
+      };
+    });
 }
 
-console.log('🔍 [Build Docs Data] Đang quét toàn bộ file Markdown & Git history...');
-const docs = scanMarkdownFiles(DOCS_DIR);
-const commits = extractCommits(50);
+// 3. Lấy commits từ các repo FE, BE, Mobile qua GitHub API khi build (sử dụng GITHUB_TOKEN nếu có)
+async function fetchRemoteRepoCommits(repoConfig, limit = 20) {
+  const headers = {
+    Accept: 'application/vnd.github.v3+json',
+    'User-Agent': 'panelforge-hub-builder',
+  };
+  if (process.env.GITHUB_TOKEN) {
+    headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
 
-// Ghi ra JSON
-fs.writeFileSync(
-  path.join(OUT_DIR, 'docs-manifest.json'),
-  JSON.stringify({ generatedAt: new Date().toISOString(), totalDocs: docs.length, docs }, null, 2)
-);
+  try {
+    const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/commits?per_page=${limit}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.warn(`⚠️ [Build Docs Data] Không tải được commits từ ${repoConfig.owner}/${repoConfig.repo}: HTTP ${res.status}`);
+      return [];
+    }
+    const list = await res.json();
+    if (!Array.isArray(list)) return [];
 
-fs.writeFileSync(
-  path.join(OUT_DIR, 'commits-diff.json'),
-  JSON.stringify({ latestHash: commits[0]?.hash || '', totalCommits: commits.length, commits }, null, 2)
-);
+    return list.map((c) => ({
+      fullHash: c.sha,
+      hash: c.sha.substring(0, 7),
+      author: c.commit?.author?.name || c.author?.login || 'Team Member',
+      date: c.commit?.author?.date || new Date().toISOString(),
+      message: c.commit?.message || '',
+      repoId: repoConfig.id,
+      repoName: repoConfig.name,
+      repoOwner: repoConfig.owner,
+      repoSlug: repoConfig.repo,
+      files: [],
+    }));
+  } catch (err) {
+    console.warn(`⚠️ [Build Docs Data] Lỗi kết nối ${repoConfig.owner}/${repoConfig.repo}:`, err.message);
+    return [];
+  }
+}
 
-console.log(`✅ [Build Docs Data] Đã đóng gói thành công ${docs.length} file Markdown và ${commits.length} commit diff vào web/public/generated/`);
+async function main() {
+  console.log('🔍 [Build Docs Data] Đang quét toàn bộ file Markdown & Git history...');
+  const docs = scanMarkdownFiles(DOCS_DIR);
+
+  const localHubCommits = extractLocalHubCommits(20);
+  const remoteRepos = [
+    { id: 'BE', name: 'Backend .NET 9', owner: 'DontPassAway', repo: 'PanelForge_FA26SE251' },
+    { id: 'FE', name: 'Frontend React 19', owner: 'tkiennt', repo: 'panelforge-fe' },
+    { id: 'MOBILE', name: 'Mobile Flutter', owner: 'tranbaoming', repo: 'panelforge-mobile' },
+  ];
+
+  const remoteCommitLists = await Promise.all(
+    remoteRepos.map((r) => fetchRemoteRepoCommits(r, 20))
+  );
+
+  // Ghép tất cả commits và sắp xếp từ mới nhất -> cũ nhất (giống GitHub)
+  const commits = [localHubCommits, ...remoteCommitLists]
+    .flat()
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Ghi ra JSON
+  fs.writeFileSync(
+    path.join(OUT_DIR, 'docs-manifest.json'),
+    JSON.stringify({ generatedAt: new Date().toISOString(), totalDocs: docs.length, docs }, null, 2)
+  );
+
+  fs.writeFileSync(
+    path.join(OUT_DIR, 'commits-diff.json'),
+    JSON.stringify({ latestHash: commits[0]?.hash || '', totalCommits: commits.length, commits }, null, 2)
+  );
+
+  console.log(`✅ [Build Docs Data] Đã đóng gói thành công ${docs.length} file Markdown và ${commits.length} commits (4 repos) vào web/public/generated/`);
+}
+
+main();

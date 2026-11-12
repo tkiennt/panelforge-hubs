@@ -33,6 +33,8 @@ jobs:
         run: npm --prefix web install
 
       - name: Build docs data & web app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build
 
       - name: Setup Pages
