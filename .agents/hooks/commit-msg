@@ -1,0 +1,59 @@
+#!/bin/sh
+# ----------------------------------------------------------------------
+# PanelForge Conventional Commits v1.0.0 Git Hook (commit-msg)
+# Enforces strictly formatted commit messages across all repositories & worktrees.
+# ----------------------------------------------------------------------
+
+COMMIT_MSG_FILE="$1"
+
+if [ ! -f "$COMMIT_MSG_FILE" ]; then
+    echo "❌ [PanelForge Git Hook] ERROR: Commit message file not found: $COMMIT_MSG_FILE" >&2
+    exit 1
+fi
+
+# Read first line that is not a comment or empty, stripping BOM and Windows CRLF (\r)
+FIRST_LINE=$(sed -e 's/^\xEF\xBB\xBF//' -e 's/\r$//' "$COMMIT_MSG_FILE" | grep -v '^[[:space:]]*#' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | sed '/^$/d' | head -n 1)
+
+if [ -z "$FIRST_LINE" ]; then
+    echo "❌ [PanelForge Git Hook] ERROR: Commit message cannot be empty." >&2
+    exit 1
+fi
+
+# Check maximum header length of 72 characters
+MSG_LEN=$(printf "%s" "$FIRST_LINE" | wc -m)
+if [ "$MSG_LEN" -gt 72 ]; then
+    echo "❌ [PanelForge Git Hook] ERROR: Commit header length is $MSG_LEN chars (max allowed: 72 chars)." >&2
+    echo "   Header: $FIRST_LINE" >&2
+    exit 1
+fi
+
+# Check no trailing period at the end of the subject
+case "$FIRST_LINE" in
+    *.)
+        echo "❌ [PanelForge Git Hook] ERROR: Commit header must NOT end with a period ('.')." >&2
+        echo "   Header: $FIRST_LINE" >&2
+        exit 1
+        ;;
+esac
+
+# Validate Conventional Commits pattern:
+# <type>(<scope>): <description> or <type>: <description>
+VALID_TYPES="feat|fix|docs|style|refactor|perf|test|chore"
+PATTERN="^($VALID_TYPES)(\([a-zA-Z0-9_.-]+\))?: [a-z0-9].+"
+
+if ! echo "$FIRST_LINE" | grep -Eq "$PATTERN"; then
+    echo "❌ [PanelForge Git Hook] ERROR: Invalid commit message format!" >&2
+    echo "----------------------------------------------------------------------" >&2
+    echo "   Actual message  : $FIRST_LINE" >&2
+    echo "   Required format : <type>(<scope>): <description>" >&2
+    echo "   Allowed types   : feat | fix | docs | style | refactor | perf | test | chore" >&2
+    echo "   Common scopes   : api, auth, assignment, canvas, script, asset, ai, consistency," >&2
+    echo "                     chapter, export, ui, letterer, writer, artist, editor, publisher," >&2
+    echo "                     producer, reader, bible, service, mobile, review, tracker, notes" >&2
+    echo "   Rule            : Use imperative verb, lowercase description, no period at end." >&2
+    echo "   Example         : feat(script): add chapter dialogue freeze validation rule" >&2
+    echo "----------------------------------------------------------------------" >&2
+    exit 1
+fi
+
+exit 0

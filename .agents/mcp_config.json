@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "Figma": {
+      "serverUrl": "https://mcp.figma.com/mcp",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "agentmemory": {
+      "command": "agentmemory-mcp",
+      "args": []
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      }
+    },
+    "graphify": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\ASUS\\AppData\\Roaming\\npm\\node_modules\\mcp-remote\\dist\\proxy.js",
+        "https://api.graphify.com/mcp"
+      ]
+    }
+  }
+}

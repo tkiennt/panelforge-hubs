@@ -1,0 +1,46 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Default rules for all files
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C# and .NET files
+[*.{cs,csx,cake}]
+indent_size = 4
+
+[*.{sln,slnx,csproj,props,targets,xml,config}]
+indent_size = 2
+
+# Web / Frontend (TypeScript, JavaScript, CSS, HTML, JSON)
+[*.{ts,tsx,js,jsx,mjs,cjs,json,css,scss,html}]
+indent_size = 2
+
+# Dart / Flutter files
+[*.dart]
+indent_size = 2
+
+# Markdown and Docs
+[*.{md,txt}]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Shell and Scripts
+[*.{sh,bash,zsh}]
+end_of_line = lf
+indent_size = 2
+
+[*.{ps1,psm1,psd1,bat,cmd}]
+end_of_line = crlf
+indent_size = 2
+
+# YAML configuration
+[*.{yml,yaml}]
+indent_size = 2

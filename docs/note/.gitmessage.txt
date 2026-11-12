@@ -1,0 +1,25 @@
+# <type>(<scope>): <mô tả ngắn gọn bằng thể mệnh lệnh dưới 72 ký tự>
+#
+# --- DANH MỤC TYPE BẮT BUỘC ---
+# feat     : Thêm tính năng mới (Feature)
+# fix      : Sửa lỗi (Bug fix)
+# docs     : Cập nhật tài liệu, README, Note, Master Tracker
+# style    : Format code (khoảng trắng, formatting) không đổi logic
+# refactor : Tái cấu trúc code (Clean Architecture, tách hàm)
+# perf     : Tối ưu hiệu năng (truy vấn, bundle size, render)
+# test     : Thêm hoặc sửa Unit Test (xUnit, Vitest)
+# chore    : Cấu hình dependencies, build, CI/CD, scripts
+#
+# --- DANH MỤC SCOPE TIÊU BIỂU CỦA PANELFORGE ---
+# BE : api, auth, assignment, canvas, script, asset, ai, consistency, chapter, export
+# FE : ui, letterer, writer, artist, editor, publisher, producer, reader, bible, service
+# DOC: tracker, notes, convention
+#
+# --- NỘI DUNG CHI TIẾT (BODY) ---
+# Giải thích TẠI SAO (Why) và NHƯ THẾ NÀO (How) thay vì chỉ nhắc lại cái gì:
+# - Vấn đề cần giải quyết là gì?
+# - Đã xử lý bằng giải pháp nào?
+#
+# --- CHÂN TRANG (FOOTER) ---
+# Ghi chú breaking change hoặc liên kết mã công việc:
+# Refs: #WP2-CF2 | Closes #123

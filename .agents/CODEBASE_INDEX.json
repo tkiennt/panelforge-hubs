@@ -1,0 +1,218 @@
+{
+  "version": "1.0.0",
+  "project": "PanelForge Manga Production Platform",
+  "repositories": {
+    "backend": {
+      "path": "PanelForge_FA26SE251",
+      "framework": "ASP.NET Core .NET 9",
+      "architecture": "Clean Architecture + CQRS (MediatR) + EF Core",
+      "build_command": "dotnet build PanelForge_FA26SE251/PanelForge.slnx",
+      "test_command": "dotnet test PanelForge_FA26SE251/PanelForge.slnx"
+    },
+    "frontend": {
+      "path": "panelforge-fe",
+      "framework": "React 19 + Vite + TypeScript + Tailwind CSS",
+      "typecheck_command": "npm run typecheck",
+      "test_command": "npx vitest run"
+    },
+    "mobile": {
+      "path": "panelforge-mobile",
+      "framework": "Flutter 3.44 + Dart 3.12 + Riverpod + GoRouter",
+      "analyze_command": "flutter analyze",
+      "test_command": "flutter test"
+    }
+  },
+  "domains": {
+    "auth": {
+      "description": "Authentication, user profiles, login, registration, and tokens",
+      "endpoints": ["/api/auth/login", "/api/auth/register", "/api/users/me"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/AuthController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Auth",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Identity/User.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/auth.service.ts", "panelforge-fe/src/services/user.service.ts"],
+        "views": ["panelforge-fe/src/roles/guest/views/LoginPage.tsx", "panelforge-fe/src/shared/views/UserProfileView.tsx"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/auth_service.dart"],
+        "screens": ["panelforge-mobile/lib/screens/auth/login_page.dart"],
+        "widgets": ["panelforge-mobile/lib/widgets/auth_modal_sheet.dart"]
+      }
+    },
+    "workspace": {
+      "description": "Workspaces, member permissions, workspace roles and zero-trust RBAC",
+      "endpoints": ["/api/workspaces"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/WorkspacesController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Workspaces",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Workspaces/StudioWorkspace.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Workspaces/WorkspaceMember.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/workspace.service.ts"],
+        "views": ["panelforge-fe/src/shared/views/WorkspaceListView.tsx"]
+      },
+      "mobile": null
+    },
+    "series": {
+      "description": "Series metadata, project setup, members and collaborator assignments",
+      "endpoints": ["/api/series", "/api/series/{id}/members"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/SeriesController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Series",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Series.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/SeriesMember.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/series.service.ts", "panelforge-fe/src/services/project.service.ts"],
+        "views": ["panelforge-fe/src/roles/producer/views/ProjectDetailView.tsx", "panelforge-fe/src/roles/producer/views/ProjectMembersView.tsx"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/catalog_service.dart"],
+        "screens": ["panelforge-mobile/lib/screens/explore/series_detail_page.dart"]
+      }
+    },
+    "chapters_and_pipeline": {
+      "description": "Chapters, workflow stages, stage approvals, assignment dispatching and status",
+      "endpoints": ["/api/chapters", "/api/series-pipeline", "/api/assignments"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/ChaptersController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Chapters",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Chapter.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Workflow/PipelineStage.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/chapter.service.ts", "panelforge-fe/src/services/pipeline.service.ts", "panelforge-fe/src/services/assignment.service.ts"],
+        "views": ["panelforge-fe/src/roles/producer/views/ProducerWorkspaceView.tsx", "panelforge-fe/src/roles/editor/views/ChapterReviewView.tsx"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/catalog_service.dart"],
+        "models": ["panelforge-mobile/lib/models/comic_model.dart"]
+      }
+    },
+    "bible": {
+      "description": "Series bible: Character designs, location lore, and consistency references",
+      "endpoints": ["/api/bible/characters", "/api/bible/locations"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/BibleController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Bible",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Bible/BibleEntry.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Bible/BibleEntryRevision.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/bible.service.ts"],
+        "views": ["panelforge-fe/src/shared/features/series-bible/SeriesBibleView.tsx"]
+      },
+      "mobile": null
+    },
+    "script": {
+      "description": "Scenes, script lines, dialogue parsing, script freezing and approvals",
+      "endpoints": ["/api/scenes", "/api/scriptlines"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/ScenesController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/ScriptLines",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Scene.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/ScriptLine.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/scriptLine.service.ts"],
+        "views": ["panelforge-fe/src/roles/writer/views/ScriptEditorView.tsx"]
+      },
+      "mobile": null
+    },
+    "canvas_and_panels": {
+      "description": "Manga pages, panel splits, canvas elements, bubbles, balloons and artwork layers",
+      "endpoints": ["/api/pages", "/api/panels", "/api/elements"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/PagesController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Panels",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Page.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Panel.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/ElementState.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/page.service.ts", "panelforge-fe/src/services/panel.service.ts", "panelforge-fe/src/services/element.service.ts"],
+        "views": ["panelforge-fe/src/roles/artist/views/ArtistDeskView.tsx", "panelforge-fe/src/roles/letterer/views/LetteringWorkspace.tsx"]
+      },
+      "mobile": null
+    },
+    "ai_agents": {
+      "description": "AI agent workflows, OCR script-to-bubble matching, style consistency and stream events",
+      "endpoints": ["/api/aiagents", "/api/internal-ai"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/AiAgentsController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/AiAgents",
+        "projects": ["PanelForge_FA26SE251/src/PanelForge.AI", "PanelForge_FA26SE251/src/PanelForge.AI.Contracts"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/aiAgents.service.ts", "panelforge-fe/src/services/aiStream.service.ts", "panelforge-fe/src/services/aiStream.service.ts"],
+        "views": ["panelforge-fe/src/shared/features/ai-agents/AiAssistPanel.tsx"]
+      },
+      "mobile": null
+    },
+    "review_and_preview": {
+      "description": "Pre-release secure preview links, tokens, watermark overlays, voice notes and sketch reviews",
+      "endpoints": ["/api/preview/open", "/api/preview/feedback", "/api/preview-links"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/PreviewLinksController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/PreviewLinks",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Publishing/PreviewLink.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Preview/PreviewFeedback.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/previewLink.service.ts"],
+        "views": ["panelforge-fe/src/shared/modals/PreviewLinksModal.tsx", "panelforge-fe/src/roles/editor/views/ChapterReviewView.tsx"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/preview_service.dart"],
+        "screens": ["panelforge-mobile/lib/screens/review/review_canvas_page.dart", "panelforge-mobile/lib/screens/review/review_hub_page.dart"],
+        "widgets": ["panelforge-mobile/lib/widgets/watermark_overlay.dart", "panelforge-mobile/lib/widgets/sketch_drawing_dialog.dart", "panelforge-mobile/lib/widgets/annotation_sheet.dart"]
+      }
+    },
+    "catalog_and_reader": {
+      "description": "Public series catalog, multi-mode reader (RTL, LTR, Webtoon), cached images and offline bookmarks",
+      "endpoints": ["/api/catalog/series", "/api/catalog/chapters/{id}/pages/{id}/image"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/CatalogController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Catalog",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Series.cs", "PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Content/Chapter.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/catalog.service.ts"],
+        "views": ["panelforge-fe/src/roles/reader/views/PublicCatalogView.tsx"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/catalog_service.dart", "panelforge-mobile/lib/services/preferences_service.dart"],
+        "screens": ["panelforge-mobile/lib/screens/explore/explore_page.dart", "panelforge-mobile/lib/screens/reader/comic_reader_page.dart"],
+        "widgets": ["panelforge-mobile/lib/widgets/adaptive_webtoon_view.dart", "panelforge-mobile/lib/widgets/guided_panel_viewer.dart"]
+      }
+    },
+    "monetization": {
+      "description": "User wallet, coin balance, chapter paywall unlocking and transaction history",
+      "endpoints": ["/api/catalog/wallet", "/api/catalog/chapters/{id}/unlock"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/CatalogController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Catalog",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Payments/ReaderWallet.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/catalog.service.ts"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/monetization_service.dart"],
+        "widgets": ["panelforge-mobile/lib/widgets/wallet_chip.dart", "panelforge-mobile/lib/widgets/wallet_topup_dialog.dart", "panelforge-mobile/lib/widgets/unlock_chapter_bottom_sheet.dart"]
+      }
+    },
+    "export_and_packages": {
+      "description": "CBZ packaging, PDF compilation, webtoon slice export and packaging provenance",
+      "endpoints": ["/api/exports"],
+      "backend": {
+        "controller": "PanelForge_FA26SE251/src/PanelForge.API/Controllers/ExportsController.cs",
+        "cqrs_folder": "PanelForge_FA26SE251/src/PanelForge.Application/Features/Exports",
+        "entities": ["PanelForge_FA26SE251/src/PanelForge.Domain/Entities/Publishing/ExportJob.cs"]
+      },
+      "frontend": {
+        "services": ["panelforge-fe/src/services/export.service.ts"],
+        "views": ["panelforge-fe/src/roles/producer/views/ExportView.tsx"]
+      },
+      "mobile": {
+        "services": ["panelforge-mobile/lib/services/cbz_package_service.dart"],
+        "models": ["panelforge-mobile/lib/models/comic_package_models.dart"]
+      }
+    }
+  }
+}
