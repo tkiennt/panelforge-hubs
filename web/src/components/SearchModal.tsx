@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { DocItem } from '../types/hub';
-import { Search, FileText, Hash, CornerDownLeft, X } from 'lucide-react';
+import { QUICK_PINNED_DOCS } from './QuickAccessBar';
+import { Search, FileText, Hash, CornerDownLeft, X, Zap } from 'lucide-react';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -151,10 +152,37 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         {/* Results List */}
         <div className="max-h-[60vh] overflow-y-auto divide-y divide-hairline">
           {query.trim() === '' ? (
-            <div className="p-8 text-center text-xs text-ink-muted space-y-2">
-              <p className="font-serif text-sm text-ink font-medium">Tìm kiếm toàn bộ tài liệu & đặc tả</p>
-              <p className="max-w-md mx-auto text-stone-400">
-                Gõ từ khóa để tra cứu nội dung trong 33+ tài liệu của dự án. Dùng phím <kbd className="font-mono bg-paper-subtle px-1 rounded border border-hairline">↑</kbd> <kbd className="font-mono bg-paper-subtle px-1 rounded border border-hairline">↓</kbd> để di chuyển, <kbd className="font-mono bg-paper-subtle px-1 rounded border border-hairline">Enter</kbd> để chọn.
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-stone-500 font-semibold px-2">
+                <Zap className="w-3.5 h-3.5 text-accent" />
+                <span>Lối tắt tài liệu truy cập nhanh:</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {QUICK_PINNED_DOCS.map((item) => (
+                  <button
+                    key={item.slug}
+                    onClick={() => {
+                      onSelectDoc(item.slug);
+                      onClose();
+                    }}
+                    className="flex items-center justify-between p-2.5 rounded-md border border-[#E5E2DC] bg-[#FAF9F5] hover:bg-white hover:border-accent text-left transition-colors group"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-3.5 h-3.5 text-stone-400 group-hover:text-accent shrink-0" />
+                      <span className="font-serif font-semibold text-xs text-ink truncate">
+                        {item.title}
+                      </span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-stone-100 text-stone-500 shrink-0">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-stone-400 text-center pt-2">
+                Gõ từ khóa bất kỳ để tìm kiếm toàn văn trong 33+ tài liệu.
               </p>
             </div>
           ) : results.length === 0 ? (

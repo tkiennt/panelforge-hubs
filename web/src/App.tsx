@@ -20,6 +20,7 @@ import { SearchModal } from './components/SearchModal';
 import { ChangelogTimeline } from './components/ChangelogTimeline';
 import { GitHubTokenModal } from './components/GitHubTokenModal';
 import { MermaidGalleryView } from './views/MermaidGalleryView';
+import { QuickAccessBar } from './components/QuickAccessBar';
 import {
   BookOpen,
   GitCommit,
@@ -37,6 +38,10 @@ import {
   Menu,
   X,
   Key,
+  Link as LinkIcon,
+  History,
+  FileText,
+  ExternalLink,
 } from 'lucide-react';
 
 interface ContentSegment {
@@ -95,9 +100,25 @@ export const App: React.FC = () => {
   const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean>(false);
   const [unreadSlugs, setUnreadSlugs] = useState<Set<string>>(new Set());
   const [showUnreadBanner, setShowUnreadBanner] = useState<boolean>(true);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [sidebarSearch, setSidebarSearch] = useState<string>('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
+  const [copyToast, setCopyToast] = useState<string | null>(null);
+
+  // Danh sách vừa xem gần đây
+  const [recentSlugs, setRecentSlugs] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('panelforge_hub_recent_slugs_v1');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const copyWithToast = (text: string, message: string) => {
+    navigator.clipboard.writeText(text);
+    setCopyToast(message);
+    setTimeout(() => setCopyToast(null), 2500);
+  };
 
   // Tải dữ liệu lúc khởi tạo (Hỗ trợ gọi trực tiếp GitHub REST API)
   const loadData = useCallback(async (forceRefresh = false) => {
@@ -224,6 +245,53 @@ export const App: React.FC = () => {
     }
   };
 
+  // Đồng bộ URL Hash (#/docs/:slug, #/diff/:slug, #/changelog, #/diagrams)
+  useEffect(() => {
+    if (!docsManifest) return;
+
+    const handleHashSync = () => {
+      const hash = window.location.hash;
+      if (!hash) return;
+
+      if (hash === '#/changelog') {
+        setActiveTab('changelog');
+        return;
+      }
+      if (hash === '#/diagrams') {
+        setActiveTab('diagrams');
+        return;
+      }
+      if (hash.startsWith('#/docs/')) {
+        const slug = decodeURIComponent(hash.substring(7));
+        const doc = docsManifest.docs.find((d) => d.slug === slug);
+        if (doc) {
+          setSelectedDocSlug(slug);
+          setActiveTab('docs');
+          setActiveMode('reader');
+        }
+      } else if (hash.startsWith('#/diff/')) {
+        const slug = decodeURIComponent(hash.substring(7));
+        const doc = docsManifest.docs.find((d) => d.slug === slug);
+        if (doc) {
+          setSelectedDocSlug(slug);
+          setActiveTab('docs');
+          setActiveMode('diff');
+        }
+      }
+    };
+
+    handleHashSync();
+    window.addEventListener('hashchange', handleHashSync);
+    return () => window.removeEventListener('hashchange', handleHashSync);
+  }, [docsManifest]);
+
+  const recentDocsList = useMemo(() => {
+    if (!docsManifest) return [];
+    return recentSlugs
+      .map((slug) => docsManifest.docs.find((d) => d.slug === slug))
+      .filter((d): d is DocItem => Boolean(d));
+  }, [docsManifest, recentSlugs]);
+
   // Cuộn mượt đến anchor heading
   const scrollToHeading = (id: string) => {
     const el = document.getElementById(id);
@@ -232,12 +300,31 @@ export const App: React.FC = () => {
     }
   };
 
-  // Chọn doc từ Modal Search hoặc Changelog
-  const handleSelectDoc = (slug: string, headingId?: string) => {
+  // Chọn doc với Deep Link Hash & Lưu Recent
+  const handleSelectDoc = (
+    slug: string,
+    headingId?: string,
+    mode: ActiveMode = 'reader'
+  ) => {
     setSelectedDocSlug(slug);
     setActiveTab('docs');
-    setActiveMode('reader');
+    setActiveMode(mode);
     setMobileSidebarOpen(false);
+
+    // Cập nhật URL Hash để có deep link tức thì
+    const targetHash = mode === 'diff' ? `#/diff/${slug}` : `#/docs/${slug}`;
+    if (window.location.hash !== targetHash) {
+      window.location.hash = targetHash;
+    }
+
+    // Cập nhật danh sách vừa xem gần đây
+    setRecentSlugs((prev) => {
+      const next = [slug, ...prev.filter((s) => s !== slug)].slice(0, 5);
+      try {
+        localStorage.setItem('panelforge_hub_recent_slugs_v1', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
 
     if (headingId) {
       setTimeout(() => scrollToHeading(headingId), 200);
@@ -248,18 +335,9 @@ export const App: React.FC = () => {
   const handleOpenDocDiff = (filePath: string, commitHash: string) => {
     const matchedDoc = docsManifest?.docs.find((d) => d.repoPath === filePath);
     if (matchedDoc) {
-      setSelectedDocSlug(matchedDoc.slug);
       setSelectedDiffHash(commitHash);
-      setActiveMode('diff');
-      setActiveTab('docs');
+      handleSelectDoc(matchedDoc.slug, undefined, 'diff');
     }
-  };
-
-  // Sao chép link tài liệu
-  const copyCurrentDocLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   if (loading && !docsManifest) {
@@ -309,8 +387,16 @@ export const App: React.FC = () => {
         onRefreshLive={() => loadData(true)}
       />
 
+      {/* Toast Notification */}
+      {copyToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#171717] text-white text-xs font-semibold shadow-xl border border-stone-700 animate-fade-in">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{copyToast}</span>
+        </div>
+      )}
+
       {/* 1. Header Bar (Editorial Paper & Ink) */}
-      <header className="sticky top-0 z-40 bg-white border-b border-hairline px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-white border-b border-[#E5E2DC] px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
           <button
@@ -446,6 +532,12 @@ export const App: React.FC = () => {
         </div>
       </header>
 
+      {/* Quick Pinned Access Bar */}
+      <QuickAccessBar
+        currentSlug={selectedDocSlug}
+        onSelectDoc={(slug) => handleSelectDoc(slug)}
+      />
+
       {/* Main Container */}
       {activeTab === 'changelog' ? (
         <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
@@ -525,6 +617,44 @@ export const App: React.FC = () => {
               </div>
             </div>
 
+            {/* Vừa xem gần đây (Recently Viewed) */}
+            {recentDocsList.length > 0 && !sidebarSearch && (
+              <div className="p-3 pb-2 border-b border-hairline space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold px-1">
+                  <div className="flex items-center gap-1">
+                    <History className="w-3 h-3 text-stone-400" />
+                    <span>Vừa xem:</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setRecentSlugs([]);
+                      localStorage.removeItem('panelforge_hub_recent_slugs_v1');
+                    }}
+                    className="hover:text-ink text-[10px] lowercase"
+                    title="Xóa danh sách vừa xem"
+                  >
+                    xóa
+                  </button>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  {recentDocsList.map((doc) => (
+                    <button
+                      key={doc.slug}
+                      onClick={() => handleSelectDoc(doc.slug)}
+                      className={`text-left px-2 py-1 rounded text-[11.5px] transition-colors truncate border ${
+                        doc.slug === selectedDocSlug
+                          ? 'bg-white text-ink font-semibold border-hairline shadow-sm'
+                          : 'bg-transparent text-stone-600 border-transparent hover:bg-stone-200/50 hover:text-ink'
+                      }`}
+                      title={doc.title}
+                    >
+                      {doc.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Document Navigation Tree */}
             <div className="flex-1 overflow-y-auto p-3 space-y-4">
               {categorizedDocs.map(([category, items]) => (
@@ -541,11 +671,7 @@ export const App: React.FC = () => {
                       return (
                         <button
                           key={doc.slug}
-                          onClick={() => {
-                            setSelectedDocSlug(doc.slug);
-                            setSelectedDiffHash(null);
-                            setMobileSidebarOpen(false);
-                          }}
+                          onClick={() => handleSelectDoc(doc.slug)}
                           className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center justify-between gap-2 transition-colors ${
                             isSelected
                               ? 'bg-white text-ink font-semibold border border-hairline shadow-sm'
@@ -589,41 +715,92 @@ export const App: React.FC = () => {
               <div className="w-full max-w-[72ch] space-y-6">
                 {/* Breadcrumb & Mode Switcher Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-hairline text-xs">
-                  {/* Breadcrumb */}
-                  <div className="flex items-center gap-1.5 text-ink-muted font-mono text-[11px]">
-                    <span>docs</span>
+                  {/* Interactive Breadcrumb */}
+                  <div className="flex items-center gap-1.5 text-ink-muted font-mono text-[11px] flex-wrap">
+                    <button
+                      onClick={() => setSidebarSearch('')}
+                      className="hover:text-ink text-stone-500"
+                    >
+                      docs
+                    </button>
                     <ChevronRight className="w-3 h-3 text-stone-400" />
-                    <span>{currentDoc.category}</span>
+                    <button
+                      onClick={() => setSidebarSearch(currentDoc.category)}
+                      className="hover:text-accent font-medium text-stone-600 underline underline-offset-2"
+                      title="Lọc tài liệu theo danh mục này"
+                    >
+                      {currentDoc.category}
+                    </button>
                     <ChevronRight className="w-3 h-3 text-stone-400" />
-                    <span className="text-ink font-semibold truncate max-w-[200px]">
+                    <span className="text-ink font-semibold truncate max-w-[180px]">
                       {currentDoc.repoPath.split('/').pop()}
                     </span>
                   </div>
 
-                  {/* Mode Toggle [Đọc chuẩn | So sánh Diff] */}
-                  <div className="flex items-center bg-paper-subtle border border-hairline rounded-md p-0.5">
+                  {/* Quick Copy Shortcuts & Mode Switcher */}
+                  <div className="flex items-center gap-1.5">
+                    {/* Deep Link Button */}
                     <button
-                      onClick={() => setActiveMode('reader')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors ${
-                        activeMode === 'reader'
-                          ? 'bg-white text-ink shadow-sm font-semibold'
-                          : 'text-ink-muted hover:text-ink'
-                      }`}
+                      onClick={() => {
+                        const directUrl = `${window.location.origin}${window.location.pathname}#/docs/${currentDoc.slug}`;
+                        copyWithToast(directUrl, 'Đã sao chép liên kết trực tiếp (Deep Link)!');
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                      title="Sao chép liên kết web trực tiếp tới tài liệu này"
                     >
-                      <BookOpen className="w-3.5 h-3.5" />
-                      <span>Đọc tài liệu</span>
+                      <LinkIcon className="w-3 h-3 text-accent" />
+                      <span className="hidden sm:inline">Deep Link</span>
                     </button>
+
+                    {/* Copy Markdown Link */}
                     <button
-                      onClick={() => setActiveMode('diff')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors ${
-                        activeMode === 'diff'
-                          ? 'bg-white text-ink shadow-sm font-semibold'
-                          : 'text-ink-muted hover:text-ink'
-                      }`}
+                      onClick={() => {
+                        const mdLink = `[${currentDoc.title}](https://github.com/tkiennt/panelforge-hubs/blob/main/${currentDoc.repoPath})`;
+                        copyWithToast(mdLink, 'Đã sao chép link Markdown!');
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                      title="Sao chép cú pháp Markdown [Tiêu đề](đường dẫn)"
                     >
-                      <Split className="w-3.5 h-3.5" />
-                      <span>So sánh Diff</span>
+                      <FileText className="w-3 h-3 text-stone-500" />
+                      <span className="hidden sm:inline">Markdown</span>
                     </button>
+
+                    {/* Open on GitHub */}
+                    <a
+                      href={`https://github.com/tkiennt/panelforge-hubs/blob/main/${currentDoc.repoPath}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1 rounded border border-hairline bg-white hover:bg-stone-50 text-stone-500 hover:text-accent transition-colors"
+                      title="Xem file gốc trên GitHub"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+
+                    {/* Mode Toggle [Đọc chuẩn | So sánh Diff] */}
+                    <div className="flex items-center bg-paper-subtle border border-hairline rounded-md p-0.5 ml-1">
+                      <button
+                        onClick={() => handleSelectDoc(currentDoc.slug, undefined, 'reader')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          activeMode === 'reader'
+                            ? 'bg-white text-ink shadow-sm font-semibold'
+                            : 'text-ink-muted hover:text-ink'
+                        }`}
+                      >
+                        <BookOpen className="w-3 h-3" />
+                        <span>Đọc</span>
+                      </button>
+                      <button
+                        onClick={() => handleSelectDoc(currentDoc.slug, undefined, 'diff')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                          activeMode === 'diff'
+                            ? 'bg-white text-ink shadow-sm font-semibold'
+                            : 'text-ink-muted hover:text-ink'
+                        }`}
+                      >
+                        <Split className="w-3 h-3" />
+                        <span>Diff</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -756,22 +933,68 @@ export const App: React.FC = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-2 pt-4 border-t border-hairline">
-              <div className="text-[11px] uppercase tracking-wider font-mono text-stone-500 font-semibold">
-                Tiện ích
+            {currentDoc && (
+              <div className="space-y-2 pt-4 border-t border-hairline">
+                <div className="text-[11px] uppercase tracking-wider font-mono text-stone-500 font-semibold">
+                  Lối tắt & Đường dẫn
+                </div>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => {
+                      const directUrl = `${window.location.origin}${window.location.pathname}#/docs/${currentDoc.slug}`;
+                      copyWithToast(directUrl, 'Đã sao chép liên kết trực tiếp (Deep Link)!');
+                    }}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <LinkIcon className="w-3.5 h-3.5 text-accent" />
+                      <span>Sao chép Deep Link</span>
+                    </span>
+                    <Copy className="w-3 h-3 text-stone-400" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const mdLink = `[${currentDoc.title}](https://github.com/tkiennt/panelforge-hubs/blob/main/${currentDoc.repoPath})`;
+                      copyWithToast(mdLink, 'Đã sao chép link Markdown!');
+                    }}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Sao chép Markdown Link</span>
+                    </span>
+                    <Copy className="w-3 h-3 text-stone-400" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      copyWithToast(currentDoc.repoPath, 'Đã sao chép đường dẫn repo!');
+                    }}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Folder className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Sao chép Repo Path</span>
+                    </span>
+                    <Copy className="w-3 h-3 text-stone-400" />
+                  </button>
+
+                  <a
+                    href={`https://github.com/tkiennt/panelforge-hubs/blob/main/${currentDoc.repoPath}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <ExternalLink className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Mở file trên GitHub</span>
+                    </span>
+                    <ExternalLink className="w-3 h-3 text-stone-400" />
+                  </a>
+                </div>
               </div>
-              <button
-                onClick={copyCurrentDocLink}
-                className="w-full flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
-              >
-                {copiedLink ? (
-                  <Check className="w-3.5 h-3.5 text-green-600" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5 text-stone-400" />
-                )}
-                <span>{copiedLink ? 'Đã sao chép liên kết' : 'Sao chép liên kết tài liệu'}</span>
-              </button>
-            </div>
+            )}
           </aside>
         </div>
       )}
