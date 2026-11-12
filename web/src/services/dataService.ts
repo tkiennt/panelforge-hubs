@@ -139,46 +139,132 @@ export function resolveDocFromPath(
   return undefined;
 }
 
-// Render markdown sang HTML (tự động chuyển đường dẫn file .md thành link nội bộ trên web)
+// Render markdown sang HTML (tự động chuyển đường dẫn file .md thành link nội bộ, đồng bộ heading IDs, metadata grid & tables)
 export function renderMarkdown(
   md: string,
   docs?: DocItem[],
-  currentDoc?: DocItem
+  currentDoc?: DocItem,
+  segmentIndex = 0
 ): string {
   try {
     const rawHtml = marked.parse(md) as string;
-    if (!docs || docs.length === 0 || typeof DOMParser === 'undefined') {
+    if (typeof DOMParser === 'undefined') {
       return rawHtml;
     }
 
     const parsed = new DOMParser().parseFromString(rawHtml, 'text/html');
 
-    // Chuyển các thẻ <a> trỏ tới file .md thành link mở trực tiếp trên web
-    parsed.querySelectorAll('a[href]').forEach((el) => {
-      const href = el.getAttribute('href') || '';
-      const matched = resolveDocFromPath(href, currentDoc, docs);
-      if (matched) {
-        el.setAttribute('href', `#/docs/${matched.slug}`);
-        el.setAttribute('data-doc-slug', matched.slug);
-        el.setAttribute('title', `Mở tài liệu: ${matched.title}`);
-      } else if (/^https?:\/\//i.test(href)) {
-        el.setAttribute('target', '_blank');
-        el.setAttribute('rel', 'noopener noreferrer');
+    // 1. Gán ID chuẩn cho h1, h2, h3 để TOC & IntersectionObserver cuộn chính xác + gắn badge số mục cho h2
+    let h2Counter = 0;
+    parsed.querySelectorAll('h1, h2, h3').forEach((el) => {
+      const text = (el.textContent || '').trim();
+      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      if (id && !el.id) {
+        el.id = id;
+      }
+      if (el.tagName === 'H2') {
+        h2Counter++;
+        const numMatch = text.match(/^(\d+(?:\.\d+)?)\s*[.):\-–]\s*(.+)$/);
+        const badge = parsed.createElement('span');
+        badge.className = 'h2-section-badge';
+        if (numMatch) {
+          badge.textContent = numMatch[1].padStart(2, '0');
+          // Giữ nguyên phần text phía sau số mục nếu là text thuần
+          if (el.childNodes.length === 1 && el.firstChild?.nodeType === 3) {
+            el.textContent = numMatch[2];
+          }
+          el.prepend(badge);
+        } else {
+          badge.textContent = String(h2Counter).padStart(2, '0');
+          el.prepend(badge);
+        }
       }
     });
 
-    // Biến các inline code chứa đường dẫn file .md / thư mục docs/ thành nút bấm mở file
-    parsed.querySelectorAll('code').forEach((el) => {
-      if (el.closest('pre') || el.closest('a')) return;
-      const text = el.textContent?.trim() || '';
-      if (!text || (!text.includes('/') && !text.endsWith('.md'))) return;
-      const matched = resolveDocFromPath(text, currentDoc, docs);
-      if (matched) {
-        el.setAttribute('data-doc-slug', matched.slug);
-        el.setAttribute('title', `Mở tài liệu trên web: ${matched.title}`);
-        el.classList.add('doc-path-link');
+    // 2. Biến danh sách metadata đầu bài (nếu ở segment đầu tiên) thành 2-column key-value grid
+    if (segmentIndex === 0) {
+      const firstUl = parsed.body.querySelector(':scope > ul');
+      if (firstUl && firstUl.children.length >= 2 && firstUl.children.length <= 8) {
+        const items = Array.from(firstUl.children);
+        const kvPairs: { key: string; valHtml: string }[] = [];
+        let allKv = true;
+
+        for (const li of items) {
+          const strong = li.querySelector(':scope > strong:first-child');
+          if (!strong) {
+            allKv = false;
+            break;
+          }
+          const rawKey = (strong.textContent || '').replace(/[:：]\s*$/, '').trim();
+          const clone = li.cloneNode(true) as HTMLElement;
+          const cloneStrong = clone.querySelector(':scope > strong:first-child');
+          cloneStrong?.remove();
+          const valHtml = clone.innerHTML.replace(/^[\s:：-]+/, '').trim();
+          if (!rawKey || !valHtml) {
+            allKv = false;
+            break;
+          }
+          kvPairs.push({ key: rawKey, valHtml });
+        }
+
+        if (allKv && kvPairs.length >= 2) {
+          const grid = parsed.createElement('div');
+          grid.className = 'doc-metadata-grid';
+          for (const kv of kvPairs) {
+            const item = parsed.createElement('div');
+            item.className = 'doc-metadata-item';
+            const kEl = parsed.createElement('span');
+            kEl.className = 'doc-metadata-key';
+            kEl.textContent = kv.key;
+            const vEl = parsed.createElement('span');
+            vEl.className = 'doc-metadata-val';
+            vEl.innerHTML = kv.valHtml;
+            item.appendChild(kEl);
+            item.appendChild(vEl);
+            grid.appendChild(item);
+          }
+          firstUl.replaceWith(grid);
+        }
       }
+    }
+
+    // 3. Bọc <table> trong .table-wrap để cuộn ngang mượt
+    parsed.querySelectorAll('table').forEach((table) => {
+      if (table.parentElement?.classList.contains('table-wrap')) return;
+      const wrap = parsed.createElement('div');
+      wrap.className = 'table-wrap';
+      table.parentNode?.insertBefore(wrap, table);
+      wrap.appendChild(table);
     });
+
+    // 4. Chuyển các thẻ <a> trỏ tới file .md thành link mở trực tiếp trên web
+    if (docs && docs.length > 0) {
+      parsed.querySelectorAll('a[href]').forEach((el) => {
+        const href = el.getAttribute('href') || '';
+        const matched = resolveDocFromPath(href, currentDoc, docs);
+        if (matched) {
+          el.setAttribute('href', `#/docs/${matched.slug}`);
+          el.setAttribute('data-doc-slug', matched.slug);
+          el.setAttribute('title', `Mở tài liệu: ${matched.title}`);
+        } else if (/^https?:\/\//i.test(href)) {
+          el.setAttribute('target', '_blank');
+          el.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+
+      // 5. Biến các inline code chứa đường dẫn file .md / thư mục docs/ thành nút bấm mở file
+      parsed.querySelectorAll('code').forEach((el) => {
+        if (el.closest('pre') || el.closest('a')) return;
+        const text = el.textContent?.trim() || '';
+        if (!text || (!text.includes('/') && !text.endsWith('.md'))) return;
+        const matched = resolveDocFromPath(text, currentDoc, docs);
+        if (matched) {
+          el.setAttribute('data-doc-slug', matched.slug);
+          el.setAttribute('title', `Mở tài liệu trên web: ${matched.title}`);
+          el.classList.add('doc-path-link');
+        }
+      });
+    }
 
     return parsed.body.innerHTML;
   } catch (e) {

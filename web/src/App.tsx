@@ -20,13 +20,14 @@ import { SearchModal } from './components/SearchModal';
 import { ChangelogTimeline } from './components/ChangelogTimeline';
 import { GitHubTokenModal } from './components/GitHubTokenModal';
 import { MermaidGalleryView } from './views/MermaidGalleryView';
-import { QuickAccessBar } from './components/QuickAccessBar';
+import { QUICK_PINNED_DOCS } from './components/QuickAccessBar';
 import {
   BookOpen,
   GitCommit,
   Layers,
   Search,
   ChevronRight,
+  ChevronDown,
   Github,
   Clock,
   User,
@@ -37,11 +38,11 @@ import {
   Folder,
   Menu,
   X,
-  Key,
   Link as LinkIcon,
   History,
   FileText,
   ExternalLink,
+  Pin,
 } from 'lucide-react';
 
 interface ContentSegment {
@@ -103,6 +104,8 @@ export const App: React.FC = () => {
   const [sidebarSearch, setSidebarSearch] = useState<string>('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const [copyToast, setCopyToast] = useState<string | null>(null);
+  const [activeHeadingId, setActiveHeadingId] = useState<string>('');
+  const [showRecent, setShowRecent] = useState<boolean>(false);
 
   // Danh sách vừa xem gần đây
   const [recentSlugs, setRecentSlugs] = useState<string[]>(() => {
@@ -203,11 +206,54 @@ export const App: React.FC = () => {
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
   }, [docsManifest, sidebarSearch]);
 
-  // Segment nội dung doc để render
+  // Segment nội dung doc để render (loại bỏ dòng # H1 trùng lặp ở đầu bài vì đã có Hero Header)
   const contentSegments = useMemo(() => {
     if (!currentDoc) return [];
-    return parseMarkdownSegments(currentDoc.content);
+    let body = currentDoc.content.replace(/^\uFEFF/, '');
+    const firstH1Match = body.match(/^\s*#\s+(.+?)(?:\r?\n|$)/);
+    if (firstH1Match) {
+      const h1Text = firstH1Match[1].trim().toLowerCase();
+      const docTitle = currentDoc.title.trim().toLowerCase();
+      if (h1Text === docTitle || body.trimStart().startsWith('# ')) {
+        body = body.slice(firstH1Match[0].length).replace(/^\s*\r?\n/, '');
+      }
+    }
+    return parseMarkdownSegments(body);
   }, [currentDoc]);
+
+  // IntersectionObserver theo dõi heading đang đọc để highlight trên Mục lục bên phải
+  useEffect(() => {
+    if (activeTab !== 'docs' || activeMode !== 'reader' || !currentDoc) return;
+
+    const timer = setTimeout(() => {
+      const headingEls = Array.from(
+        document.querySelectorAll('.editorial-prose h1[id], .editorial-prose h2[id], .editorial-prose h3[id]')
+      );
+      if (headingEls.length === 0) return;
+
+      setActiveHeadingId(headingEls[0].id);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (visible.length > 0) {
+            setActiveHeadingId(visible[0].target.id);
+          }
+        },
+        {
+          rootMargin: '-72px 0px -70% 0px',
+          threshold: [0, 1],
+        }
+      );
+
+      headingEls.forEach((el) => observer.observe(el));
+      return () => observer.disconnect();
+    }, 80);
+
+    return () => clearTimeout(timer);
+  }, [currentDoc, activeTab, activeMode, contentSegments]);
 
   // Tìm commit diff tương ứng với file hiện tại
   const currentFileDiff = useMemo(() => {
@@ -370,7 +416,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#171717] font-sans flex flex-col selection:bg-accent/20 selection:text-ink">
+    <div className="min-h-screen bg-[#F4F2ED] text-[#1C1917] font-sans flex flex-col selection:bg-accent/20 selection:text-ink">
       {/* Search Modal */}
       <SearchModal
         isOpen={isSearchOpen}
@@ -389,154 +435,145 @@ export const App: React.FC = () => {
 
       {/* Toast Notification */}
       {copyToast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#171717] text-white text-xs font-semibold shadow-xl border border-stone-700 animate-fade-in">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#1C1917] text-white text-xs font-semibold shadow-xl border border-stone-700 animate-fade-in">
           <Check className="w-4 h-4 text-emerald-400" />
           <span>{copyToast}</span>
         </div>
       )}
 
-      {/* 1. Header Bar (Editorial Paper & Ink) */}
-      <header className="sticky top-0 z-40 bg-white border-b border-[#E5E2DC] px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
+      {/* 1. Primary Top Bar (h-14, Editorial Paper & Ink) */}
+      <header className="sticky top-0 z-40 h-14 bg-[#FAF9F5]/90 backdrop-blur-sm border-b border-[#E5E2DC] px-4 lg:px-6 flex items-center justify-between gap-3">
+        {/* Left: Brand mark + SSOT DOCS pill */}
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="lg:hidden p-1.5 text-ink-muted hover:text-ink rounded-md hover:bg-stone-100"
+            className="lg:hidden p-1.5 text-stone-600 hover:text-[#1C1917] rounded-md hover:bg-[#EFECE6]"
+            aria-label="Mở menu tài liệu"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-serif font-extrabold text-base sm:text-lg tracking-tight text-ink">
-                PANELFORGE HUB
-              </span>
-              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-accent/10 border border-accent/20 text-accent font-semibold">
-                SSOT Docs
-              </span>
-            </div>
-            <div className="text-[11px] text-ink-muted hidden sm:block">
-              Single Source of Truth • Technical Specs & Audit Logs
-            </div>
-          </div>
+          <button
+            onClick={() => {
+              setActiveTab('docs');
+              if (docsManifest.docs[0]) handleSelectDoc(docsManifest.docs[0].slug);
+            }}
+            className="flex items-center gap-2 text-left"
+          >
+            <span className="font-serif font-bold text-base tracking-tight text-[#1C1917] whitespace-nowrap">
+              PANELFORGE HUB
+            </span>
+            <span className="hidden sm:inline-block text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-orange-50 border border-orange-200/80 text-[#EA580C] font-semibold tracking-wider">
+              SSOT DOCS
+            </span>
+          </button>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex items-center gap-1 bg-paper-subtle p-0.5 rounded-lg border border-hairline text-xs font-medium">
+        {/* Center: Clean 3-tab segmented switch */}
+        <nav className="flex items-center gap-0.5 bg-[#EFECE6] p-1 rounded-lg border border-[#E5E2DC] text-xs font-medium">
           <button
             onClick={() => setActiveTab('docs')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
               activeTab === 'docs'
-                ? 'bg-white text-ink shadow-sm font-semibold'
-                : 'text-ink-muted hover:text-ink'
+                ? 'bg-white text-[#1C1917] shadow-sm font-semibold'
+                : 'text-[#78716C] hover:text-[#1C1917]'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Tài liệu ({docsManifest.totalDocs})</span>
+            <span>Tài liệu</span>
+            <span className="hidden md:inline text-[10px] font-mono text-stone-400">
+              {docsManifest.totalDocs}
+            </span>
           </button>
           <button
             onClick={() => setActiveTab('changelog')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
               activeTab === 'changelog'
-                ? 'bg-white text-ink shadow-sm font-semibold'
-                : 'text-ink-muted hover:text-ink'
+                ? 'bg-white text-[#1C1917] shadow-sm font-semibold'
+                : 'text-[#78716C] hover:text-[#1C1917]'
             }`}
           >
             <GitCommit className="w-3.5 h-3.5" />
-            <span>Changelog ({commitsDiff?.totalCommits || 0})</span>
+            <span className="hidden sm:inline">Changelog & Diff</span>
+            <span className="sm:hidden">Changelog</span>
           </button>
           <button
             onClick={() => setActiveTab('diagrams')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
               activeTab === 'diagrams'
-                ? 'bg-white text-ink shadow-sm font-semibold'
-                : 'text-ink-muted hover:text-ink'
+                ? 'bg-white text-[#1C1917] shadow-sm font-semibold'
+                : 'text-[#78716C] hover:text-[#1C1917]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Sơ đồ Mermaid</span>
+            <span className="hidden sm:inline">Sơ đồ kiến trúc</span>
+            <span className="sm:hidden">Sơ đồ</span>
           </button>
         </nav>
 
-        {/* Right Tools: Search Button, Live GitHub Indicator, Settings & Git Info */}
-        <div className="flex items-center gap-2">
-          {/* GitHub Live API Status Indicator */}
+        {/* Right: Compact ⌘K search trigger + Git sync status indicator dot */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center gap-2 px-2.5 py-1.5 bg-white border border-[#E5E2DC] rounded-md text-xs text-[#78716C] hover:text-[#1C1917] hover:border-stone-400 transition-colors"
+            title="Tìm kiếm nhanh (Ctrl/Cmd + K)"
+          >
+            <Search className="w-3.5 h-3.5 text-stone-400" />
+            <span className="hidden lg:inline">Tìm...</span>
+            <kbd className="font-mono text-[10px] bg-[#FAF9F5] border border-[#E5E2DC] px-1 rounded text-stone-500">
+              ⌘K
+            </kbd>
+          </button>
+
+          {/* Compact Git Sync Status Dot (opens Token & API Modal) */}
           <button
             onClick={() => setIsTokenModalOpen(true)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors ${
+            className="flex items-center gap-1.5 px-2 py-1.5 bg-white border border-[#E5E2DC] rounded-md text-[11px] font-mono text-[#57534E] hover:border-stone-400 transition-colors"
+            title={
               gitHubStatus?.source === 'live-api'
-                ? 'bg-emerald-50/80 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                ? 'GitHub API: Đã đồng bộ trực tiếp (Nhấp để cấu hình Token)'
                 : gitHubStatus?.source === 'cached'
-                ? 'bg-amber-50/80 border-amber-200 text-amber-800 hover:bg-amber-100'
-                : 'bg-stone-100 border-hairline text-stone-600 hover:bg-stone-200'
-            }`}
-            title="Nhấp để cấu hình GitHub API Token và xem hạn mức"
+                ? 'GitHub API: Đang dùng cache (Nhấp để cấu hình Token)'
+                : 'GitHub API: Đang dùng bản chụp build (Nhấp để cấu hình Token)'
+            }
           >
             <span
               className={`w-2 h-2 rounded-full ${
                 gitHubStatus?.source === 'live-api'
-                  ? 'bg-emerald-600 animate-pulse'
+                  ? 'bg-emerald-500'
                   : gitHubStatus?.source === 'cached'
                   ? 'bg-amber-500'
                   : 'bg-stone-400'
               }`}
             />
-            <span className="hidden sm:inline font-semibold">
+            <span className="hidden xl:inline">
               {gitHubStatus?.source === 'live-api'
-                ? 'GitHub API: Live'
+                ? 'Live'
                 : gitHubStatus?.source === 'cached'
-                ? 'GitHub: Cache'
-                : 'GitHub: Fallback'}
+                ? 'Cache'
+                : 'Sync'}
             </span>
           </button>
 
-          {/* Refresh Commits Live Button */}
           <button
             onClick={() => loadData(true)}
             disabled={refreshingCommits}
-            className="p-1.5 text-ink-muted hover:text-ink hover:bg-paper-subtle border border-hairline rounded-md transition-colors disabled:opacity-50"
-            title="Làm mới commits từ GitHub API"
+            className="p-1.5 bg-white border border-[#E5E2DC] text-[#78716C] hover:text-[#1C1917] hover:border-stone-400 rounded-md transition-colors disabled:opacity-50"
+            title="Làm mới commits từ GitHub"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-accent ${refreshingCommits ? 'animate-spin' : ''}`} />
-          </button>
-
-          {/* Search Trigger */}
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-paper-subtle border border-hairline rounded-md text-xs text-ink-muted hover:text-ink hover:border-stone-400 transition-colors"
-          >
-            <Search className="w-3.5 h-3.5 text-stone-400" />
-            <span className="hidden md:inline">Tìm kiếm...</span>
-            <kbd className="hidden md:inline font-mono text-[10px] bg-white border border-hairline px-1 rounded text-stone-500">
-              ⌘K
-            </kbd>
-          </button>
-
-          {/* GitHub Token Config Key Button */}
-          <button
-            onClick={() => setIsTokenModalOpen(true)}
-            className="p-1.5 text-ink-muted hover:text-ink hover:bg-paper-subtle rounded-md transition-colors"
-            title="Cấu hình Token GitHub API"
-          >
-            <Key className="w-4 h-4 text-stone-500" />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshingCommits ? 'animate-spin text-[#EA580C]' : ''}`} />
           </button>
 
           <a
             href="https://github.com/tkiennt/panelforge-hubs"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-1.5 text-ink-muted hover:text-ink hover:bg-paper-subtle rounded-md transition-colors"
-            title="Xem GitHub Repo"
+            className="hidden sm:flex p-1.5 bg-white border border-[#E5E2DC] text-[#78716C] hover:text-[#1C1917] hover:border-stone-400 rounded-md transition-colors"
+            title="Mở kho lưu trữ GitHub"
           >
-            <Github className="w-4 h-4" />
+            <Github className="w-3.5 h-3.5" />
           </a>
         </div>
       </header>
-
-      {/* Quick Pinned Access Bar */}
-      <QuickAccessBar
-        currentSlug={selectedDocSlug}
-        onSelectDoc={(slug) => handleSelectDoc(slug)}
-      />
 
       {/* Main Container */}
       {activeTab === 'changelog' ? (
@@ -570,41 +607,39 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* LEFT SIDEBAR (260px Fixed & Sticky) */}
+          {/* LEFT SIDEBAR (270px Fixed & Sticky) */}
           <aside
-            className={`fixed lg:sticky top-12 lg:top-[53px] lg:self-start shrink-0 z-30 h-[calc(100vh-53px)] w-[280px] lg:w-[260px] bg-[#F3F1EC] border-r border-[#E5E2DC] flex flex-col transition-transform duration-200 ${
+            className={`fixed lg:sticky top-14 lg:top-[56px] lg:self-start shrink-0 z-30 h-[calc(100vh-56px)] w-[280px] lg:w-[270px] bg-[#FAF9F5] border-r border-[#E5E2DC] flex flex-col transition-transform duration-200 ${
               mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             }`}
           >
-            {/* Unread Docs Banner */}
+            {/* Slim Single-Line Dismissible Pill for Unread Updates */}
             {showUnreadBanner && unreadSlugs.size > 0 && (
-              <div className="p-3 bg-orange-50 border-b border-accent/20 flex flex-col gap-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold text-accent">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                    <span>Có {unreadSlugs.size} tài liệu mới</span>
-                  </div>
+              <div className="px-3 pt-2.5">
+                <div className="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-full bg-orange-50 border border-orange-200/80 text-[11px] font-medium text-[#EA580C]">
                   <button
-                    onClick={() => setShowUnreadBanner(false)}
-                    className="text-stone-400 hover:text-ink text-[11px]"
+                    onClick={() => {
+                      setActiveTab('changelog');
+                      handleMarkAllAsRead();
+                    }}
+                    className="flex items-center gap-1.5 truncate hover:underline text-left"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#F97316] shrink-0 animate-pulse" />
+                    <span className="truncate">{unreadSlugs.size} cập nhật mới • Xem diff →</span>
+                  </button>
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="text-stone-400 hover:text-[#1C1917] shrink-0 p-0.5"
+                    title="Đánh dấu tất cả đã đọc"
+                  >
+                    <X className="w-3 h-3" />
                   </button>
                 </div>
-                <p className="text-[11px] text-stone-600 leading-snug">
-                  Đã có cập nhật kể từ lần truy cập gần nhất của bạn.
-                </p>
-                <button
-                  onClick={handleMarkAllAsRead}
-                  className="self-start text-[11px] text-accent font-semibold hover:underline"
-                >
-                  ✓ Đánh dấu tất cả đã đọc
-                </button>
               </div>
             )}
 
             {/* Sidebar Search Filter */}
-            <div className="p-3 border-b border-hairline">
+            <div className="p-3 border-b border-[#EFECE6]">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
                 <input
@@ -612,127 +647,184 @@ export const App: React.FC = () => {
                   placeholder="Lọc tài liệu..."
                   value={sidebarSearch}
                   onChange={(e) => setSidebarSearch(e.target.value)}
-                  className="w-full pl-8 pr-2.5 py-1 bg-white border border-hairline rounded text-xs text-ink placeholder:text-stone-400 focus:outline-none focus:border-accent"
+                  className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-[#E5E2DC] rounded-md text-xs text-[#292524] placeholder:text-stone-400 focus:outline-none focus:border-[#F97316]"
                 />
               </div>
             </div>
 
-            {/* Vừa xem gần đây (Recently Viewed) */}
-            {recentDocsList.length > 0 && !sidebarSearch && (
-              <div className="p-3 pb-2 border-b border-hairline space-y-1.5">
-                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold px-1">
-                  <div className="flex items-center gap-1">
-                    <History className="w-3 h-3 text-stone-400" />
-                    <span>Vừa xem:</span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setRecentSlugs([]);
-                      localStorage.removeItem('panelforge_hub_recent_slugs_v1');
-                    }}
-                    className="hover:text-ink text-[10px] lowercase"
-                    title="Xóa danh sách vừa xem"
-                  >
-                    xóa
-                  </button>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  {recentDocsList.map((doc) => (
-                    <button
-                      key={doc.slug}
-                      onClick={() => handleSelectDoc(doc.slug)}
-                      className={`text-left px-2 py-1 rounded text-[11.5px] transition-colors truncate border ${
-                        doc.slug === selectedDocSlug
-                          ? 'bg-white text-ink font-semibold border-hairline shadow-sm'
-                          : 'bg-transparent text-stone-600 border-transparent hover:bg-stone-200/50 hover:text-ink'
-                      }`}
-                      title={doc.title}
-                    >
-                      {doc.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Document Navigation Tree */}
+            {/* Scrollable Navigation Content */}
             <div className="flex-1 overflow-y-auto p-3 space-y-4">
-              {categorizedDocs.map(([category, items]) => (
-                <div key={category} className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-stone-500 font-semibold px-2 py-1">
-                    <Folder className="w-3 h-3 text-stone-400" />
-                    <span>{category}</span>
+              {/* Pinned Core Specs Section */}
+              {!sidebarSearch && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-[#78716C] font-semibold px-2 py-0.5">
+                    <Pin className="w-3 h-3 text-[#EA580C]" />
+                    <span>Tài liệu cốt lõi (Pinned)</span>
                   </div>
                   <div className="space-y-0.5">
-                    {items.map((doc) => {
-                      const isSelected = doc.slug === selectedDocSlug;
-                      const isUnread = unreadSlugs.has(doc.slug);
-
+                    {QUICK_PINNED_DOCS.slice(0, 5).map((item) => {
+                      const isSelected = selectedDocSlug === item.slug;
+                      const Icon = item.icon;
                       return (
                         <button
-                          key={doc.slug}
-                          onClick={() => handleSelectDoc(doc.slug)}
+                          key={item.slug}
+                          onClick={() => handleSelectDoc(item.slug)}
                           className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center justify-between gap-2 transition-colors ${
                             isSelected
-                              ? 'bg-white text-ink font-semibold border border-hairline shadow-sm'
-                              : 'text-stone-600 hover:text-ink hover:bg-stone-200/50'
+                              ? 'bg-white text-[#1C1917] font-semibold border border-[#E5E2DC] shadow-sm'
+                              : 'text-[#292524] hover:bg-[#EFECE6]/70'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span
-                              className={`w-1 h-3 rounded-full shrink-0 ${
-                                isSelected ? 'bg-accent' : 'bg-transparent'
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Icon
+                              className={`w-3.5 h-3.5 shrink-0 ${
+                                isSelected ? 'text-[#EA580C]' : 'text-[#78716C]'
                               }`}
                             />
-                            <span className="truncate">{doc.title}</span>
+                            <span className="truncate">{item.title}</span>
                           </div>
-
-                          {/* Unread Orange Dot */}
-                          {isUnread && (
+                          {item.badge && (
                             <span
-                              className="shrink-0 w-2 h-2 rounded-full bg-accent ring-2 ring-orange-200"
-                              title="Tài liệu vừa cập nhật"
-                            />
+                              className={`text-[9.5px] font-mono px-1.5 py-0.5 rounded shrink-0 ${
+                                item.highlight
+                                  ? 'bg-orange-50 text-[#EA580C] border border-orange-200/70 font-semibold'
+                                  : 'bg-[#F4F2ED] text-[#78716C]'
+                              }`}
+                            >
+                              {item.badge}
+                            </span>
                           )}
                         </button>
                       );
                     })}
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* Collapsible Recently Viewed ("Vừa xem") */}
+              {recentDocsList.length > 0 && !sidebarSearch && (
+                <div className="pt-2 border-t border-[#EFECE6]">
+                  <button
+                    onClick={() => setShowRecent(!showRecent)}
+                    className="w-full flex items-center justify-between text-[10.5px] font-mono uppercase tracking-wider text-[#78716C] hover:text-[#292524] font-semibold px-2 py-1 rounded transition-colors"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <History className="w-3 h-3" />
+                      <span>Vừa xem ({recentDocsList.length})</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform ${
+                        showRecent ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  {showRecent && (
+                    <div className="mt-1 space-y-0.5">
+                      {recentDocsList.map((doc) => (
+                        <button
+                          key={doc.slug}
+                          onClick={() => handleSelectDoc(doc.slug)}
+                          className={`w-full text-left px-2.5 py-1 rounded-md text-[11.5px] flex items-center gap-1.5 transition-colors truncate ${
+                            doc.slug === selectedDocSlug
+                              ? 'bg-white text-[#1C1917] font-semibold border border-[#E5E2DC] shadow-sm'
+                              : 'text-[#57534E] hover:bg-[#EFECE6]/70 hover:text-[#292524]'
+                          }`}
+                          title={doc.title}
+                        >
+                          <Clock className="w-3 h-3 text-stone-400 shrink-0" />
+                          <span className="truncate">{doc.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Categorized Document Navigation Tree */}
+              <div className="pt-2 border-t border-[#EFECE6] space-y-4">
+                {categorizedDocs.map(([category, items]) => (
+                  <div key={category} className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-[#78716C] font-semibold px-2 py-0.5">
+                      <Folder className="w-3 h-3 text-[#78716C]" />
+                      <span>{category}</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      {items.map((doc) => {
+                        const isSelected = doc.slug === selectedDocSlug;
+                        const isUnread = unreadSlugs.has(doc.slug);
+
+                        return (
+                          <button
+                            key={doc.slug}
+                            onClick={() => handleSelectDoc(doc.slug)}
+                            className={`group w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center justify-between gap-2 transition-colors ${
+                              isSelected
+                                ? 'bg-white text-[#1C1917] font-semibold border border-[#E5E2DC] shadow-sm'
+                                : 'text-[#292524] hover:bg-[#EFECE6]/70'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span
+                                className={`w-1 h-3 rounded-full shrink-0 ${
+                                  isSelected ? 'bg-[#F97316]' : 'bg-transparent'
+                                }`}
+                              />
+                              <span className="truncate">{doc.title}</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {/* Subtle commit hash badge on hover */}
+                              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[9.5px] text-[#78716C] bg-[#EFECE6] px-1 rounded">
+                                {doc.lastCommit.hash}
+                              </span>
+                              {/* Solid 6px Tangerine dot for updated docs */}
+                              {isUnread && (
+                                <span
+                                  className="w-1.5 h-1.5 rounded-full bg-[#F97316]"
+                                  title="Tài liệu vừa cập nhật"
+                                />
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Sidebar Footer */}
-            <div className="p-3 border-t border-hairline bg-paper-subtle/50 text-[11px] text-ink-muted flex items-center justify-between font-mono">
+            <div className="px-3 py-2.5 border-t border-[#E5E2DC] bg-[#F4F2ED]/60 text-[11px] text-[#78716C] flex items-center justify-between font-mono">
               <span>{docsManifest.totalDocs} tài liệu</span>
-              <span>Build tĩnh Git</span>
+              <span>SSOT Hub</span>
             </div>
           </aside>
 
-          {/* CENTER READING & DIFF CANVAS (Flexible, max-w 72ch centered) */}
-          <main className="flex-1 min-w-0 bg-[#FAF9F5] px-4 sm:px-8 lg:px-12 py-8 flex justify-center">
+          {/* CENTER READING & DIFF CANVAS (Elevated Editorial Paper Sheet on Warm Stone Backdrop) */}
+          <main className="flex-1 min-w-0 bg-[#F4F2ED] px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
             {currentDoc ? (
-              <div className="w-full max-w-[72ch] space-y-6">
-                {/* Breadcrumb & Mode Switcher Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-hairline text-xs">
+              <article className="bg-[#FFFFFF] border border-[#E5E2DC] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] px-6 sm:px-10 py-8 sm:py-10 max-w-[780px] mx-auto w-full space-y-6">
+                {/* Breadcrumb & Prominent Đọc | Diff Segmented Pill */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#EFECE6] text-xs">
                   {/* Interactive Breadcrumb */}
-                  <div className="flex items-center gap-1.5 text-ink-muted font-mono text-[11px] flex-wrap">
+                  <div className="flex items-center gap-1.5 text-[#78716C] font-mono text-[11px] flex-wrap">
                     <button
                       onClick={() => setSidebarSearch('')}
-                      className="hover:text-ink text-stone-500"
+                      className="hover:text-[#1C1917]"
                     >
                       docs
                     </button>
                     <ChevronRight className="w-3 h-3 text-stone-400" />
                     <button
                       onClick={() => setSidebarSearch(currentDoc.category)}
-                      className="hover:text-accent font-medium text-stone-600 underline underline-offset-2"
+                      className="hover:text-[#EA580C] font-medium text-[#57534E] underline underline-offset-2"
                       title="Lọc tài liệu theo danh mục này"
                     >
                       {currentDoc.category}
                     </button>
                     <ChevronRight className="w-3 h-3 text-stone-400" />
-                    <span className="text-ink font-semibold truncate max-w-[180px]">
+                    <span className="text-[#1C1917] font-semibold truncate max-w-[200px]">
                       {currentDoc.repoPath.split('/').pop()}
                     </span>
                   </div>
@@ -776,48 +868,48 @@ export const App: React.FC = () => {
                       <ExternalLink className="w-3 h-3" />
                     </a>
 
-                    {/* Mode Toggle [Đọc chuẩn | So sánh Diff] */}
-                    <div className="flex items-center bg-paper-subtle border border-hairline rounded-md p-0.5 ml-1">
+                    {/* Prominent Mode Toggle [Đọc | Diff] */}
+                    <div className="flex items-center bg-[#F4F2ED] border border-[#E5E2DC] rounded-lg p-1 ml-1 shadow-inner">
                       <button
                         onClick={() => handleSelectDoc(currentDoc.slug, undefined, 'reader')}
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                           activeMode === 'reader'
-                            ? 'bg-white text-ink shadow-sm font-semibold'
-                            : 'text-ink-muted hover:text-ink'
+                            ? 'bg-white text-[#1C1917] shadow-sm font-semibold'
+                            : 'text-[#78716C] hover:text-[#1C1917]'
                         }`}
                       >
-                        <BookOpen className="w-3 h-3" />
+                        <BookOpen className="w-3.5 h-3.5" />
                         <span>Đọc</span>
                       </button>
                       <button
                         onClick={() => handleSelectDoc(currentDoc.slug, undefined, 'diff')}
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                           activeMode === 'diff'
-                            ? 'bg-white text-ink shadow-sm font-semibold'
-                            : 'text-ink-muted hover:text-ink'
+                            ? 'bg-[#EA580C] text-white shadow-sm font-semibold'
+                            : 'text-[#78716C] hover:text-[#1C1917]'
                         }`}
                       >
-                        <Split className="w-3 h-3" />
+                        <Split className="w-3.5 h-3.5" />
                         <span>Diff</span>
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Document Header Info */}
-                <div className="space-y-2">
-                  <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink tracking-tight leading-tight">
+                {/* Document Hero Header */}
+                <div className="space-y-2.5 pb-2">
+                  <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1C1917] tracking-tight leading-tight">
                     {currentDoc.title}
                   </h1>
 
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-ink-muted pt-1">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#78716C] pt-1">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5 text-stone-400" />
                       Cập nhật: {formatRelativeDate(currentDoc.lastCommit.date)}
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1 font-mono">
-                      <GitCommit className="w-3.5 h-3.5 text-accent" />
+                      <GitCommit className="w-3.5 h-3.5 text-[#EA580C]" />
                       commit {currentDoc.lastCommit.hash}
                     </span>
                     <span>•</span>
@@ -830,7 +922,7 @@ export const App: React.FC = () => {
 
                 {/* Center Content: Reader Mode vs Diff Mode */}
                 {activeMode === 'reader' ? (
-                  <div className="space-y-6 pt-2">
+                  <div className="space-y-6">
                     {contentSegments.map((seg, idx) => {
                       if (seg.type === 'mermaid') {
                         return (
@@ -873,7 +965,7 @@ export const App: React.FC = () => {
                             }
                           }}
                           dangerouslySetInnerHTML={{
-                            __html: renderMarkdown(seg.content, docsManifest.docs, currentDoc),
+                            __html: renderMarkdown(seg.content, docsManifest.docs, currentDoc, idx),
                           }}
                         />
                       );
@@ -889,69 +981,83 @@ export const App: React.FC = () => {
                     />
                   </div>
                 )}
-              </div>
+              </article>
             ) : (
-              <div className="p-8 text-center text-ink-muted">Chưa chọn tài liệu nào.</div>
+              <div className="p-8 text-center text-[#78716C]">Chưa chọn tài liệu nào.</div>
             )}
           </main>
 
           {/* RIGHT INSPECTOR (240px Fixed & Sticky) */}
-          <aside className="hidden xl:block sticky top-[53px] self-start shrink-0 h-[calc(100vh-53px)] w-[240px] border-l border-[#E5E2DC] p-4 space-y-6 overflow-y-auto bg-[#F7F5F0]/70 text-xs text-[#171717]">
-            {/* Table of Contents (TOC) */}
+          <aside className="hidden xl:block sticky top-[56px] self-start shrink-0 h-[calc(100vh-56px)] w-[240px] border-l border-[#E5E2DC] p-4 space-y-6 overflow-y-auto bg-[#FAF9F5] text-xs text-[#1C1917]">
+            {/* Table of Contents (TOC) with IntersectionObserver Active Highlight */}
             <div className="space-y-2">
-              <div className="text-[11px] uppercase tracking-wider font-mono text-stone-500 font-semibold">
+              <div className="text-[10.5px] uppercase tracking-wider font-mono text-[#78716C] font-semibold">
                 Mục lục trang
               </div>
               {currentDoc?.headings && currentDoc.headings.length > 0 ? (
-                <div className="space-y-1 pl-1 border-l border-hairline">
-                  {currentDoc.headings.map((h, hIdx) => {
-                    const indent =
-                      h.level === 1 ? 'pl-1 font-semibold text-ink' : h.level === 2 ? 'pl-3 text-stone-600' : 'pl-5 text-stone-500 text-[11px]';
+                <div className="space-y-0.5 border-l border-[#E5E2DC]">
+                  {currentDoc.headings
+                    .filter((h, i) => !(i === 0 && h.level === 1 && h.text.trim().toLowerCase() === currentDoc.title.trim().toLowerCase()))
+                    .map((h, hIdx) => {
+                      const isActive = activeHeadingId === h.id;
+                      const indent =
+                        h.level === 1 ? 'pl-2.5' : h.level === 2 ? 'pl-2.5' : 'pl-5 text-[11px]';
 
-                    return (
-                      <button
-                        key={hIdx}
-                        onClick={() => scrollToHeading(h.id)}
-                        className={`block text-left w-full truncate py-0.5 hover:text-accent transition-colors ${indent}`}
-                      >
-                        {h.text}
-                      </button>
-                    );
-                  })}
+                      return (
+                        <button
+                          key={hIdx}
+                          onClick={() => {
+                            setActiveHeadingId(h.id);
+                            scrollToHeading(h.id);
+                          }}
+                          className={`block text-left w-full truncate py-1 pr-1 transition-all -ml-[1px] ${indent} ${
+                            isActive
+                              ? 'border-l-2 border-[#F97316] text-[#171717] font-medium'
+                              : 'border-l-2 border-transparent text-[#78716C] hover:text-[#1C1917]'
+                          }`}
+                          title={h.text}
+                        >
+                          {h.text}
+                        </button>
+                      );
+                    })}
                 </div>
               ) : (
-                <div className="text-[11px] text-ink-muted">Không có mục lục.</div>
+                <div className="text-[11px] text-[#78716C]">Không có mục lục.</div>
               )}
             </div>
 
-            {/* File Commit History */}
-            <div className="space-y-2 pt-4 border-t border-hairline">
-              <div className="text-[11px] uppercase tracking-wider font-mono text-stone-500 font-semibold">
-                Lịch sử file này
+            {/* Compact Mini-Timeline: Last 3 Commits for Active File */}
+            <div className="space-y-2.5 pt-4 border-t border-[#EFECE6]">
+              <div className="text-[10.5px] uppercase tracking-wider font-mono text-[#78716C] font-semibold">
+                Lịch sử thay đổi file này
               </div>
               <div className="space-y-2">
                 {currentDoc?.fileCommits && currentDoc.fileCommits.length > 0 ? (
-                  currentDoc.fileCommits.map((fc) => (
-                    <div
+                  currentDoc.fileCommits.slice(0, 3).map((fc, idx) => (
+                    <button
                       key={fc.fullHash}
                       onClick={() => {
                         setSelectedDiffHash(fc.hash);
                         setActiveMode('diff');
                       }}
-                      className="p-2 rounded border border-hairline bg-white hover:border-accent cursor-pointer transition-colors space-y-1"
+                      className="w-full text-left p-2 rounded-lg border border-[#E5E2DC] bg-white hover:border-[#F97316] cursor-pointer transition-colors space-y-1 group"
                     >
-                      <div className="flex items-center justify-between font-mono text-[10.5px]">
-                        <span className="text-accent font-semibold">{fc.hash}</span>
-                        <span className="text-stone-400">{fc.date}</span>
+                      <div className="flex items-center justify-between font-mono text-[10px]">
+                        <span className="text-[#EA580C] font-semibold flex items-center gap-1">
+                          <span className={`w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-[#F97316]' : 'bg-stone-300'}`} />
+                          {fc.hash}
+                        </span>
+                        <span className="text-[#78716C]">{formatRelativeDate(fc.date)}</span>
                       </div>
-                      <div className="text-[11px] text-ink line-clamp-2 leading-tight">
+                      <div className="text-[11px] text-[#292524] group-hover:text-[#1C1917] line-clamp-2 leading-snug">
                         {fc.subject}
                       </div>
-                      <div className="text-[10px] text-stone-500">{fc.author}</div>
-                    </div>
+                      <div className="text-[10px] text-[#78716C]">{fc.author}</div>
+                    </button>
                   ))
                 ) : (
-                  <div className="text-[11px] text-ink-muted">Chưa có commit history.</div>
+                  <div className="text-[11px] text-[#78716C]">Chưa có commit history.</div>
                 )}
               </div>
             </div>

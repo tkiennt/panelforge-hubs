@@ -188,17 +188,19 @@ export const CommitDiffView: React.FC<CommitDiffViewProps> = ({
         </div>
       </div>
 
-      {/* Commit Info Banner */}
+      {/* Commit Info Comparison Header (Previous Commit → Current Commit) */}
       {commit && (
-        <div className="p-3 bg-white border border-hairline rounded-lg text-xs space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-ink">{commit.message}</span>
-            <span className="text-ink-muted font-mono">{commit.date}</span>
+        <div className="p-3.5 bg-[#FAF9F5] border border-[#E5E2DC] border-l-[3px] border-l-[#F97316] rounded-lg text-xs space-y-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-semibold text-[#1C1917]">{commit.message}</span>
+            <span className="text-[#78716C] font-mono text-[11px]">{commit.date}</span>
           </div>
-          <div className="flex items-center gap-2 text-ink-muted">
-            <span>Tác giả: <strong className="text-ink">{commit.author}</strong></span>
+          <div className="flex flex-wrap items-center gap-2 text-[#57534E]">
+            <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-white border border-[#E5E2DC] text-[#78716C]">
+              Previous Commit → <strong className="text-[#EA580C]">{commit.hash || commit.fullHash.substring(0, 7)}</strong>
+            </span>
             <span>•</span>
-            <span className="font-mono">{commit.fullHash.substring(0, 8)}</span>
+            <span>Tác giả: <strong className="text-[#1C1917]">{commit.author}</strong></span>
           </div>
         </div>
       )}
