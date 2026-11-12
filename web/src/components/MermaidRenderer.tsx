@@ -11,18 +11,18 @@ mermaid.initialize({
   fontFamily: '"Be Vietnam Pro", Inter, sans-serif',
   themeVariables: {
     darkMode: false,
-    background: '#FAF9F5',
-    primaryColor: '#F3F1EC',
-    primaryTextColor: '#171717',
-    primaryBorderColor: '#D6D2CA',
-    lineColor: '#57534E',
+    background: '#F8FAFC',
+    primaryColor: '#E0F2FE',
+    primaryTextColor: '#0F172A',
+    primaryBorderColor: '#7DD3FC',
+    lineColor: '#475569',
     secondaryColor: '#FFFFFF',
-    tertiaryColor: '#FAF9F5',
+    tertiaryColor: '#F8FAFC',
     mainBkg: '#FFFFFF',
-    nodeBorder: '#D6D2CA',
-    clusterBkg: '#F3F1EC80',
-    titleColor: '#171717',
-    edgeLabelBackground: '#FAF9F5',
+    nodeBorder: '#CBD5E1',
+    clusterBkg: '#F1F5F9',
+    titleColor: '#0F172A',
+    edgeLabelBackground: '#F8FAFC',
   },
 });
 
@@ -97,9 +97,9 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
       onClick={(e) => e.stopPropagation()}
     >
       {/* Editorial Header bar */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-hairline bg-[#F3F1EC] text-xs text-ink-muted shrink-0">
-        <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-ink">
-          <span className="w-2 h-2 rounded-full bg-accent"></span>
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#64748B] shrink-0">
+        <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-[#0F172A]">
+          <span className="w-2 h-2 rounded-full bg-[#0284C7]"></span>
           <span>{title || 'Mermaid Diagram'}</span>
         </div>
 
@@ -107,34 +107,34 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
           <button
             onClick={() => setScale((s) => Math.max(0.5, Number((s - 0.15).toFixed(2))))}
             title="Thu nhỏ"
-            className="p-1 rounded hover:bg-stone-200/70 text-ink-muted hover:text-ink transition"
+            className="p-1 rounded hover:bg-sky-50 text-[#64748B] hover:text-[#0284C7] transition"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
-          <span className="text-[11px] font-mono px-1 min-w-[42px] text-center">
+          <span className="text-[11px] font-mono px-1 min-w-[42px] text-center text-[#0F172A]">
             {Math.round(scale * 100)}%
           </span>
           <button
             onClick={() => setScale((s) => Math.min(2.5, Number((s + 0.15).toFixed(2))))}
             title="Phóng to"
-            className="p-1 rounded hover:bg-stone-200/70 text-ink-muted hover:text-ink transition"
+            className="p-1 rounded hover:bg-sky-50 text-[#64748B] hover:text-[#0284C7] transition"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setScale(1)}
             title="Đặt lại zoom"
-            className="p-1 rounded hover:bg-stone-200/70 text-ink-muted hover:text-ink transition ml-0.5"
+            className="p-1 rounded hover:bg-sky-50 text-[#64748B] hover:text-[#0284C7] transition ml-0.5"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
-          <div className="h-3.5 w-[1px] bg-hairline mx-1" />
+          <div className="h-3.5 w-[1px] bg-[#E2E8F0] mx-1" />
 
           <button
             onClick={handleCopy}
             title="Sao chép cú pháp Mermaid"
-            className="p-1 rounded hover:bg-stone-200/70 text-ink-muted hover:text-ink transition flex items-center gap-1"
+            className="p-1 rounded hover:bg-sky-50 text-[#64748B] hover:text-[#0284C7] transition flex items-center gap-1"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
@@ -142,9 +142,9 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
           <button
             onClick={() => setIsFullscreen(!fullscreenMode)}
             title={fullscreenMode ? 'Thu nhỏ lại (ESC)' : 'Phóng to toàn màn hình'}
-            className="p-1 rounded hover:bg-stone-200/70 text-ink-muted hover:text-ink transition"
+            className="p-1 rounded hover:bg-sky-50 text-[#64748B] hover:text-[#0284C7] transition"
           >
-            {fullscreenMode ? <X className="w-4 h-4 text-ink" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            {fullscreenMode ? <X className="w-4 h-4 text-[#0F172A]" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
@@ -152,7 +152,7 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
       {/* Diagram Canvas: sử dụng CSS zoom để khung cuộn tự co giãn chuẩn xác, không bị đè lên header hay giao diện */}
       <div
         ref={fullscreenMode ? undefined : containerRef}
-        className={`p-4 overflow-auto bg-[#FAF9F5] ${
+        className={`p-4 overflow-auto bg-[#F8FAFC] ${
           fullscreenMode ? 'flex-1' : 'min-h-[240px] max-h-[70vh]'
         }`}
       >

@@ -6,30 +6,30 @@ export default {
     extend: {
       colors: {
         paper: {
-          DEFAULT: '#FAF9F5',
-          subtle: '#F3F1EC',
-          sidebar: '#F3F1EC',
-          hover: '#EBE8E1',
+          DEFAULT: '#F1F5F9',
+          subtle: '#F8FAFC',
+          sidebar: '#F8FAFC',
+          hover: '#E2E8F0',
           card: '#FFFFFF',
         },
         sidebar: {
-          DEFAULT: '#F3F1EC',
-          hover: '#E8E5DD',
-          border: '#E5E2DC',
+          DEFAULT: '#F8FAFC',
+          hover: '#EFF6FF',
+          border: '#E2E8F0',
         },
         ink: {
-          DEFAULT: '#171717',
-          muted: '#57534E',
-          subtle: '#78716C',
+          DEFAULT: '#0F172A',
+          muted: '#475569',
+          subtle: '#64748B',
         },
         hairline: {
-          DEFAULT: '#E5E2DC',
-          dark: '#D6D2CA',
+          DEFAULT: '#E2E8F0',
+          dark: '#CBD5E1',
         },
         accent: {
-          DEFAULT: '#EA580C',
-          hover: '#C2410C',
-          light: '#FFF7ED',
+          DEFAULT: '#0284C7',
+          hover: '#0369A1',
+          light: '#E0F2FE',
         },
         diff: {
           added: '#ECFDF5',
