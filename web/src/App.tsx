@@ -570,9 +570,9 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* LEFT SIDEBAR (260px Fixed) */}
+          {/* LEFT SIDEBAR (260px Fixed & Sticky) */}
           <aside
-            className={`fixed lg:sticky top-12 lg:top-[53px] z-30 h-[calc(100vh-53px)] w-[280px] lg:w-[260px] bg-[#F3F1EC] border-r border-[#E5E2DC] flex flex-col transition-transform duration-200 ${
+            className={`fixed lg:sticky top-12 lg:top-[53px] lg:self-start shrink-0 z-30 h-[calc(100vh-53px)] w-[280px] lg:w-[260px] bg-[#F3F1EC] border-r border-[#E5E2DC] flex flex-col transition-transform duration-200 ${
               mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             }`}
           >
@@ -871,8 +871,8 @@ export const App: React.FC = () => {
             )}
           </main>
 
-          {/* RIGHT INSPECTOR (240px Fixed) */}
-          <aside className="hidden xl:block sticky top-[53px] h-[calc(100vh-53px)] w-[240px] border-l border-[#E5E2DC] p-4 space-y-6 overflow-y-auto bg-[#F7F5F0]/70 text-xs text-[#171717]">
+          {/* RIGHT INSPECTOR (240px Fixed & Sticky) */}
+          <aside className="hidden xl:block sticky top-[53px] self-start shrink-0 h-[calc(100vh-53px)] w-[240px] border-l border-[#E5E2DC] p-4 space-y-6 overflow-y-auto bg-[#F7F5F0]/70 text-xs text-[#171717]">
             {/* Table of Contents (TOC) */}
             <div className="space-y-2">
               <div className="text-[11px] uppercase tracking-wider font-mono text-stone-500 font-semibold">
