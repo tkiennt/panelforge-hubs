@@ -292,7 +292,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-sans flex flex-col selection:bg-accent/20 selection:text-ink">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#171717] font-sans flex flex-col selection:bg-accent/20 selection:text-ink">
       {/* Search Modal */}
       <SearchModal
         isOpen={isSearchOpen}
@@ -480,7 +480,7 @@ export const App: React.FC = () => {
 
           {/* LEFT SIDEBAR (260px Fixed) */}
           <aside
-            className={`fixed lg:sticky top-12 lg:top-[53px] z-30 h-[calc(100vh-53px)] w-[280px] lg:w-[260px] bg-sidebar border-r border-hairline flex flex-col transition-transform duration-200 ${
+            className={`fixed lg:sticky top-12 lg:top-[53px] z-30 h-[calc(100vh-53px)] w-[280px] lg:w-[260px] bg-[#F3F1EC] border-r border-[#E5E2DC] flex flex-col transition-transform duration-200 ${
               mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             }`}
           >
@@ -584,7 +584,7 @@ export const App: React.FC = () => {
           </aside>
 
           {/* CENTER READING & DIFF CANVAS (Flexible, max-w 72ch centered) */}
-          <main className="flex-1 min-w-0 px-4 sm:px-8 lg:px-12 py-8 flex justify-center">
+          <main className="flex-1 min-w-0 bg-[#FAF9F5] px-4 sm:px-8 lg:px-12 py-8 flex justify-center">
             {currentDoc ? (
               <div className="w-full max-w-[72ch] space-y-6">
                 {/* Breadcrumb & Mode Switcher Bar */}
@@ -695,7 +695,7 @@ export const App: React.FC = () => {
           </main>
 
           {/* RIGHT INSPECTOR (240px Fixed) */}
-          <aside className="hidden xl:block sticky top-[53px] h-[calc(100vh-53px)] w-[240px] border-l border-hairline p-4 space-y-6 overflow-y-auto bg-paper/60 text-xs">
+          <aside className="hidden xl:block sticky top-[53px] h-[calc(100vh-53px)] w-[240px] border-l border-[#E5E2DC] p-4 space-y-6 overflow-y-auto bg-[#F7F5F0]/70 text-xs text-[#171717]">
             {/* Table of Contents (TOC) */}
             <div className="space-y-2">
               <div className="text-[11px] uppercase tracking-wider font-mono text-stone-500 font-semibold">
