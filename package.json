@@ -1,0 +1,17 @@
+{
+  "name": "panelforge-hub",
+  "private": true,
+  "version": "2.6.0",
+  "description": "PanelForge SSOT Documentation & Architecture Hub",
+  "scripts": {
+    "dev": "npm --prefix web run dev",
+    "build": "npm --prefix web run build",
+    "preview": "npm --prefix web run preview",
+    "sync": "node scripts/sync-hub.mjs"
+  },
+  "workspaces": [
+    "web"
+  ],
+  "author": "PanelForge Team",
+  "license": "MIT"
+}
