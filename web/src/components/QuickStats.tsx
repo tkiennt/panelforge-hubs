@@ -1,6 +1,6 @@
 import React from 'react';
 import type { HubState } from '../types/hub';
-import { GitCommit, Layers, CheckCircle2, ShieldCheck, Cpu } from 'lucide-react';
+import { Layers, CheckCircle2, ShieldCheck, GitCommit } from 'lucide-react';
 
 interface QuickStatsProps {
   state: HubState;
@@ -11,6 +11,15 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ state }) => {
   const doneSubtasks = allSubtasks.filter((s) => s.status === 'Done').length;
   const totalSubtasks = allSubtasks.length;
   const percentDone = totalSubtasks > 0 ? Math.round((doneSubtasks / totalSubtasks) * 100) : 0;
+  
+  const beTasks = allSubtasks.filter((s) => s.platform === 'BE');
+  const feTasks = allSubtasks.filter((s) => s.platform === 'FE');
+  const moTasks = allSubtasks.filter((s) => s.platform === 'MOBILE');
+
+  const beDone = beTasks.filter((s) => s.status === 'Done').length;
+  const feDone = feTasks.filter((s) => s.status === 'Done').length;
+  const moDone = moTasks.filter((s) => s.status === 'Done').length;
+
   const totalDiagrams = state.diagrams?.length || 0;
   const totalLogs = state.syncLogs?.length || 0;
 
@@ -36,6 +45,11 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ state }) => {
             style={{ width: `${percentDone}%` }}
           />
         </div>
+        <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2">
+          <span>BE: {beDone}/{beTasks.length}</span>
+          <span>FE: {feDone}/{feTasks.length}</span>
+          <span>MO: {moDone}/{moTasks.length}</span>
+        </div>
       </div>
 
       {/* Stat 2: Core Flows & State Machines */}
@@ -48,46 +62,45 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ state }) => {
         </div>
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-black text-slate-100 font-mono">{totalDiagrams}</span>
-          <span className="text-xs text-slate-400">Flows & State Machines</span>
+          <span className="text-xs text-slate-400">Diagrams & Machines</span>
         </div>
-        <p className="text-[11px] text-indigo-400 font-mono mt-2">
+        <p className="text-[11px] text-indigo-400 font-mono mt-2.5">
           CF1–CF5 + 5 Core Life Cycles
         </p>
       </div>
 
-      {/* Stat 3: Zero-Trust Gates & Tests */}
+      {/* Stat 3: Zero-Trust Quality Gates */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-sm backdrop-blur-sm">
         <div className="flex items-center justify-between text-slate-400 mb-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Verification Gates
+            Quality Gates V2.6
           </span>
           <ShieldCheck className="w-4 h-4 text-cyan-400" />
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-black text-slate-100 font-mono">100%</span>
-          <span className="text-xs text-emerald-400 font-semibold">Active & Enforced</span>
+          <span className="text-2xl font-black text-cyan-400 font-mono">100%</span>
+          <span className="text-xs text-slate-400">Gate Integrity</span>
         </div>
-        <p className="text-[11px] text-slate-400 font-mono mt-2">
-          Bible Gate + CAS SHA-256 + RBAC
+        <p className="text-[11px] text-slate-400 mt-2.5">
+          Bible Gate · Script Freeze · SHA-256
         </p>
       </div>
 
-      {/* Stat 4: Git Sync Events */}
+      {/* Stat 4: Commits & Audit Trail */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-sm backdrop-blur-sm">
         <div className="flex items-center justify-between text-slate-400 mb-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Sync Events
+            Audit Logs Trail
           </span>
-          <Cpu className="w-4 h-4 text-purple-400" />
+          <GitCommit className="w-4 h-4 text-purple-400" />
         </div>
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-black text-slate-100 font-mono">{totalLogs}</span>
-          <span className="text-xs text-slate-400">Commits Tracked</span>
+          <span className="text-xs text-slate-400">Tracked Commits</span>
         </div>
-        <div className="flex items-center gap-2 mt-2 text-[11px] text-purple-300 font-mono">
-          <GitCommit className="w-3.5 h-3.5" />
-          <span>Across BE, FE & Mobile</span>
-        </div>
+        <p className="text-[11px] text-purple-400 font-mono mt-2.5 truncate">
+          Last Sync: {new Date(state.lastSyncedAt || Date.now()).toLocaleTimeString('vi-VN')}
+        </p>
       </div>
     </div>
   );

@@ -1,46 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import type { HubState, TaskStatus } from './types/hub';
-import {
-  subscribeToHubState,
-  saveHubStateToCloud,
-} from './config/firebase';
-import { Navbar } from './components/Navbar';
+import { fetchHubState, saveLocalCustomState } from './services/dataService';
+import { Navbar, type ActiveTabType } from './components/Navbar';
 import { QuickStats } from './components/QuickStats';
 import { DiagramsView } from './views/DiagramsView';
 import { TasksView } from './views/TasksView';
+import { FeatureAuditView } from './views/FeatureAuditView';
 import { SyncLogView } from './views/SyncLogView';
-import { ExternalLink, Github, Sparkles } from 'lucide-react';
+import { DocsView } from './views/DocsView';
+import { ExternalLink, Github, Sparkles, RefreshCw } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [hubState, setHubState] = useState<HubState | null>(null);
-  const [currentTab, setCurrentTab] = useState<'diagrams' | 'tasks' | 'synclog'>('diagrams');
+  const [currentTab, setCurrentTab] = useState<ActiveTabType>('diagrams');
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    const unsubscribe = subscribeToHubState(
-      (state) => {
-        setHubState(state);
-        setLoading(false);
-      },
-      (err) => {
-        console.warn('subscribeToHubState notice:', err);
-        setError(err.message);
-        setLoading(false);
-      }
-    );
+  const loadData = useCallback(async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
+    setRefreshing(true);
+    setError(null);
 
-    return () => unsubscribe();
+    try {
+      const state = await fetchHubState();
+      setHubState(state);
+    } catch (err: any) {
+      console.error('Error fetching hub state:', err);
+      setError(err?.message || 'Không thể tải dữ liệu hub-state.json');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleSubtaskStatusChange = async (
+  const handleSubtaskStatusChange = (
     taskId: string,
     subtaskId: string,
     newStatus: TaskStatus
@@ -50,160 +54,162 @@ export const App: React.FC = () => {
     const updatedTasks = hubState.tasks.map((task) => {
       if (task.id !== taskId) return task;
 
-      const updatedSubtasks = task.subTasks?.map((st) => {
-        if (st.id !== subtaskId) return st;
-        return {
-          ...st,
-          status: newStatus,
-          completedAt: newStatus === 'Done' ? new Date().toISOString() : st.completedAt,
-        };
-      }) || [];
+      const updatedSubtasks =
+        task.subTasks?.map((st) => {
+          if (st.id !== subtaskId) return st;
+          return {
+            ...st,
+            status: newStatus,
+            completedAt: newStatus === 'Done' ? new Date().toISOString() : st.completedAt,
+          };
+        }) || [];
 
-      // Auto update parent task status
-      const allDone = updatedSubtasks.every((st) => st.status === 'Done');
-      const someInProgress = updatedSubtasks.some(
-        (st) => st.status === 'InProgress' || st.status === 'InReview'
+      const allDone = updatedSubtasks.length > 0 && updatedSubtasks.every((st) => st.status === 'Done');
+      const anyActive = updatedSubtasks.some(
+        (st) => st.status === 'InProgress' || st.status === 'Done' || st.status === 'InReview'
       );
-
-      let parentStatus: TaskStatus = task.status;
-      if (allDone) parentStatus = 'Done';
-      else if (someInProgress) parentStatus = 'InProgress';
-      else if (updatedSubtasks.every((st) => st.status === 'Todo')) parentStatus = 'Todo';
 
       return {
         ...task,
-        status: parentStatus,
+        status: (allDone ? 'Done' : anyActive ? 'InProgress' : 'Todo') as TaskStatus,
         subTasks: updatedSubtasks,
       };
     });
 
-    const updatedState: HubState = {
+    const newState: HubState = {
       ...hubState,
       tasks: updatedTasks,
-      lastSyncedAt: new Date().toISOString(),
     };
 
-    setHubState(updatedState);
-    showToast(`Sub-task updated to "${newStatus}"`);
-
-    // Sync to Firestore if cloud is connected
-    try {
-      await saveHubStateToCloud(updatedState);
-    } catch (e) {
-      console.warn('Could not save to cloud:', e);
-    }
+    setHubState(newState);
+    saveLocalCustomState('tasks_override', updatedTasks);
+    showToast(`Đã chuyển trạng thái ${subtaskId} sang ${newStatus}`);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-200 font-semibold text-sm">Loading PanelForge Hub Architecture & Task State...</p>
-        <p className="text-slate-500 text-xs font-mono mt-1">Connecting to Firestore / Static Hub State</p>
-      </div>
-    );
-  }
-
-  if (error && !hubState) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <div className="max-w-md p-6 bg-slate-900 border border-rose-800 rounded-xl text-center">
-          <p className="text-rose-400 font-bold text-lg mb-2">Error Loading Hub Data</p>
-          <p className="text-slate-300 text-xs mb-4">{error || 'Could not parse hub state'}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
-          >
-            Retry Connection
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-indigo-600 text-white text-xs font-medium px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2 animate-fade-in border border-indigo-400/50">
-          <Sparkles className="w-4 h-4 text-indigo-200" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900 border border-indigo-500/50 text-indigo-300 shadow-2xl shadow-indigo-500/20 text-xs font-semibold animate-fade-in backdrop-blur-md">
+          <Sparkles className="w-4 h-4 text-indigo-400 animate-spin" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Main Navbar */}
+      {/* Main Navigation Header */}
       {hubState && (
         <Navbar
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           state={hubState}
+          onRefresh={() => loadData(true)}
+          isRefreshing={refreshing}
         />
       )}
 
-      {/* Main Container */}
-      {hubState && (
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Quick Stats Overview */}
-          <QuickStats state={hubState} />
+      {/* Body Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+            <RefreshCw className="w-8 h-8 animate-spin text-indigo-400" />
+            <div className="text-sm text-slate-400 font-medium">
+              Đang nạp dữ liệu kiến trúc & tài liệu tĩnh...
+            </div>
+          </div>
+        ) : error ? (
+          <div className="p-8 rounded-2xl bg-rose-950/20 border border-rose-800/40 text-center space-y-3">
+            <h3 className="text-lg font-bold text-rose-300">Không thể nạp dữ liệu Hub</h3>
+            <p className="text-sm text-slate-400">{error}</p>
+            <button
+              onClick={() => loadData()}
+              className="px-4 py-2 rounded-lg bg-slate-800 text-xs font-semibold text-slate-200 hover:bg-slate-700"
+            >
+              Thử lại
+            </button>
+          </div>
+        ) : hubState ? (
+          <div className="space-y-6">
+            {/* Quick Metrics Bar */}
+            <QuickStats state={hubState} />
 
-          {/* Active Tab View */}
-          {currentTab === 'diagrams' && (
-            <DiagramsView diagrams={hubState.diagrams || []} />
-          )}
+            {/* Active Tab Views */}
+            {currentTab === 'diagrams' && (
+              <DiagramsView diagrams={hubState.diagrams || []} />
+            )}
 
-          {currentTab === 'tasks' && (
-            <TasksView
-              tasks={hubState.tasks || []}
-              onSubtaskStatusChange={handleSubtaskStatusChange}
-            />
-          )}
+            {currentTab === 'tasks' && (
+              <TasksView
+                tasks={hubState.tasks || []}
+                onSubtaskStatusChange={handleSubtaskStatusChange}
+              />
+            )}
 
-          {currentTab === 'synclog' && (
-            <SyncLogView logs={hubState.syncLogs || []} />
-          )}
-        </main>
-      )}
+            {currentTab === 'audit' && (
+              <FeatureAuditView />
+            )}
+
+            {currentTab === 'synclog' && (
+              <SyncLogView logs={hubState.syncLogs || []} />
+            )}
+
+            {currentTab === 'docs' && (
+              <DocsView />
+            )}
+          </div>
+        ) : null}
+      </main>
 
       {/* Footer */}
-      <footer className="bg-slate-950/80 border-t border-slate-900 py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
+      <footer className="border-t border-slate-800/80 bg-slate-950/80 py-8 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-slate-400">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span>PanelForge Platform &copy; 2026.</span>
-            <span>Clean Architecture CQRS + React 19 + Flutter.</span>
+            <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+            <span>PanelForge Hub V2.6 Final · Static Markdown Architecture</span>
           </div>
 
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono">
             <a
               href="https://github.com/DontPassAway/PanelForge_FA26SE251"
               target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1 hover:text-slate-300 transition"
+              rel="noopener noreferrer"
+              className="hover:text-indigo-400 flex items-center gap-1 transition"
             >
               <Github className="w-3.5 h-3.5" />
-              <span>Backend (.NET)</span>
-              <ExternalLink className="w-2.5 h-2.5" />
+              <span>Backend (.NET 9)</span>
+              <ExternalLink className="w-2.5 h-2.5 opacity-60" />
             </a>
 
             <a
               href="https://github.com/tkiennt/panelforge-fe"
               target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1 hover:text-slate-300 transition"
+              rel="noopener noreferrer"
+              className="hover:text-indigo-400 flex items-center gap-1 transition"
             >
               <Github className="w-3.5 h-3.5" />
-              <span>Frontend (React)</span>
-              <ExternalLink className="w-2.5 h-2.5" />
+              <span>Frontend (React 19)</span>
+              <ExternalLink className="w-2.5 h-2.5 opacity-60" />
             </a>
 
             <a
               href="https://github.com/tranbaoming/panelforge-mobile"
               target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1 hover:text-slate-300 transition"
+              rel="noopener noreferrer"
+              className="hover:text-indigo-400 flex items-center gap-1 transition"
             >
               <Github className="w-3.5 h-3.5" />
               <span>Mobile (Flutter)</span>
-              <ExternalLink className="w-2.5 h-2.5" />
+              <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+            </a>
+
+            <a
+              href="https://github.com/tkiennt/panelforge-hubs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-indigo-400 flex items-center gap-1 transition text-indigo-300 font-semibold"
+            >
+              <Github className="w-3.5 h-3.5" />
+              <span>Hub & Docs</span>
+              <ExternalLink className="w-2.5 h-2.5 opacity-60" />
             </a>
           </div>
         </div>
@@ -213,3 +219,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+
