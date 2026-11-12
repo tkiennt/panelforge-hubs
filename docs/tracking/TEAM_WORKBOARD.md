@@ -26,7 +26,6 @@
 | Người | Repo | Việc | Spec (BR / Module / Q) | Nhánh | File chính | Bắt đầu |
 |---|---|---|---|---|---|---|
 | DontPassAway | BE + FE | Series Bible: refactor màn hình, quyền thẩm định theo §5.1 (Writer/Editor endorse, Producer khoá, Admin không khoá), khoá Canon cho Nhân vật/Bối cảnh/Đạo cụ | Module 1, §5.1, §5.2, BR-01, BR-15 | `feature/series-bible-spec-v26` | `src/shared/features/series-bible/*`, `roles/editor/views/BibleReviewView.tsx`; BE `BibleController.cs` | 2026-11-12 |
-| trungkien (AI agent) | FE | Sửa CI Frontend: lint đỏ (Prettier 4.7k lỗi + ~70 lỗi ESLint) | — | `feature/fe-ci-lint-fe` | Format toàn bộ `src/`, `e2e/`; sửa tay `ScriptEditorView.tsx`, `LetteringWorkspace.tsx`, `ScreenplayFlowEditor.tsx`, converter kịch bản; import chéo role (writer↔editor, letterer↔artist) | 2026-11-12 |
 
 ---
 
@@ -34,4 +33,5 @@
 
 | Ngày | Người | Repo | Việc | Commit merge | Ảnh hưởng người khác (API / DB / enum) |
 |---|---|---|---|---|---|
+| 2026-11-12 | trungkien (AI agent) | FE | Sửa CI Frontend bị đỏ ở bước lint: format Prettier toàn bộ, sửa lỗi ESLint, chuyển module dùng chung sang `shared/` | FE `b252442` (trungkien) | Không đổi API/DB. FE đổi đường dẫn import: `ReasonForm` → `shared/components/`, `reviewModel` + `scriptReviewModel` → `shared/features/script-review/`, `AutoAssignScriptLinesModal` → `shared/modals/`, `DependencyGraphModal` → `shared/features/pipeline-board/`, `tempBibleCodes` → `shared/utils/`. Nhánh đang mở cần rebase/merge lại vì 172 file đổi định dạng |
 | 2026-11-12 | trungkien | FE | Đưa đặc tả V2.6 vào `docs/` và tạo bảng theo dõi này | — | Không |
