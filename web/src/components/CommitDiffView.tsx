@@ -281,7 +281,7 @@ export const CommitDiffView: React.FC<CommitDiffViewProps> = ({
                           {isAdded ? '+' : isRemoved ? '-' : ' '}
                         </div>
                         {/* Line content */}
-                        <div className="py-0.5 px-2 whitespace-pre-wrap break-all flex-1">
+                        <div className="py-0.5 px-2 whitespace-pre-wrap break-words flex-1 min-w-0">
                           {line.text}
                         </div>
                       </div>
@@ -361,7 +361,7 @@ export const CommitDiffView: React.FC<CommitDiffViewProps> = ({
                           <div className="w-5 py-0.5 text-center font-bold select-none shrink-0 text-red-700">
                             {row.left?.type === 'removed' ? '-' : ''}
                           </div>
-                          <div className="py-0.5 px-2 whitespace-pre-wrap break-all flex-1 min-h-[1.5rem]">
+                          <div className="py-0.5 px-2 whitespace-pre-wrap break-words flex-1 min-w-0 min-h-[1.5rem]">
                             {row.left?.text || ''}
                           </div>
                         </div>
@@ -382,7 +382,7 @@ export const CommitDiffView: React.FC<CommitDiffViewProps> = ({
                           <div className="w-5 py-0.5 text-center font-bold select-none shrink-0 text-green-700">
                             {row.right?.type === 'added' ? '+' : ''}
                           </div>
-                          <div className="py-0.5 px-2 whitespace-pre-wrap break-all flex-1 min-h-[1.5rem]">
+                          <div className="py-0.5 px-2 whitespace-pre-wrap break-words flex-1 min-w-0 min-h-[1.5rem]">
                             {row.right?.text || ''}
                           </div>
                         </div>
