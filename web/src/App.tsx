@@ -848,8 +848,32 @@ export const App: React.FC = () => {
                         <div
                           key={idx}
                           className="editorial-prose"
+                          onClick={(e) => {
+                            const target = e.target as HTMLElement | null;
+                            if (!target) return;
+
+                            const docTrigger = target.closest('[data-doc-slug]') as HTMLElement | null;
+                            if (docTrigger) {
+                              const slug = docTrigger.getAttribute('data-doc-slug');
+                              if (slug) {
+                                e.preventDefault();
+                                handleSelectDoc(slug);
+                                return;
+                              }
+                            }
+
+                            const anchor = target.closest('a') as HTMLAnchorElement | null;
+                            if (anchor) {
+                              const href = anchor.getAttribute('href') || '';
+                              if (href.startsWith('#') && !href.startsWith('#/')) {
+                                e.preventDefault();
+                                const id = href.slice(1);
+                                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }
+                          }}
                           dangerouslySetInnerHTML={{
-                            __html: renderMarkdown(seg.content),
+                            __html: renderMarkdown(seg.content, docsManifest.docs, currentDoc),
                           }}
                         />
                       );

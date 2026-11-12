@@ -67,10 +67,120 @@ export async function fetchCommitsDiffWithStatus(
   }
 }
 
-// Render markdown sang HTML
-export function renderMarkdown(md: string): string {
+// Tìm tài liệu khớp với đường dẫn nội bộ hoặc link GitHub
+export function resolveDocFromPath(
+  rawPath: string,
+  currentDoc: DocItem | undefined,
+  docs: DocItem[]
+): DocItem | undefined {
+  if (!rawPath || !docs.length) return undefined;
+
+  let cleaned = rawPath.trim();
+
+  // Nếu là link GitHub trỏ về chính repo panelforge-hubs
+  const ghMatch = cleaned.match(
+    /^https?:\/\/github\.com\/tkiennt\/panelforge-hubs\/(?:blob|tree)\/[^/]+\/(.+)$/i
+  );
+  if (ghMatch) {
+    cleaned = ghMatch[1];
+  } else if (/^https?:\/\//i.test(cleaned) || cleaned.startsWith('mailto:') || cleaned.startsWith('#')) {
+    return undefined;
+  }
+
+  // Bỏ anchor #... và query ?...
+  cleaned = cleaned.split('#')[0].split('?')[0];
   try {
-    return marked.parse(md) as string;
+    cleaned = decodeURIComponent(cleaned);
+  } catch {}
+  cleaned = cleaned.replace(/\\/g, '/').trim();
+  if (!cleaned) return undefined;
+
+  // Xử lý đường dẫn tương đối (./ hoặc ../) so với file hiện tại
+  if ((cleaned.startsWith('./') || cleaned.startsWith('../')) && currentDoc) {
+    const baseParts = currentDoc.path.split('/').slice(0, -1);
+    for (const seg of cleaned.split('/')) {
+      if (!seg || seg === '.') continue;
+      if (seg === '..') baseParts.pop();
+      else baseParts.push(seg);
+    }
+    cleaned = baseParts.join('/');
+  }
+
+  cleaned = cleaned.replace(/^\/+/, '').replace(/^\.\//, '');
+  const withoutDocsPrefix = cleaned.replace(/^docs\//i, '');
+  const lowerClean = cleaned.toLowerCase();
+  const lowerNoDocs = withoutDocsPrefix.toLowerCase();
+  const lowerNoExt = lowerNoDocs.replace(/\.md$/i, '');
+
+  // 1. Khớp chính xác repoPath, path hoặc slug
+  const exact = docs.find(
+    (d) =>
+      d.repoPath.toLowerCase() === lowerClean ||
+      d.path.toLowerCase() === lowerNoDocs ||
+      d.slug.toLowerCase() === lowerNoExt
+  );
+  if (exact) return exact;
+
+  // 2. Nếu trỏ tới thư mục (ví dụ: docs/V2.6/ hoặc docs/spec/)
+  if (cleaned.endsWith('/') || !withoutDocsPrefix.includes('.')) {
+    const folderPrefix = lowerNoDocs.endsWith('/') ? lowerNoDocs : `${lowerNoDocs}/`;
+    const folderDoc =
+      docs.find((d) => d.path.toLowerCase() === `${folderPrefix}readme.md`) ||
+      docs.find((d) => d.path.toLowerCase().startsWith(folderPrefix));
+    if (folderDoc) return folderDoc;
+  }
+
+  // 3. Khớp theo tên file (nếu chỉ ghi tên file.md)
+  const fileName = lowerNoDocs.split('/').pop();
+  if (fileName && fileName.endsWith('.md')) {
+    return docs.find((d) => d.path.split('/').pop()?.toLowerCase() === fileName);
+  }
+
+  return undefined;
+}
+
+// Render markdown sang HTML (tự động chuyển đường dẫn file .md thành link nội bộ trên web)
+export function renderMarkdown(
+  md: string,
+  docs?: DocItem[],
+  currentDoc?: DocItem
+): string {
+  try {
+    const rawHtml = marked.parse(md) as string;
+    if (!docs || docs.length === 0 || typeof DOMParser === 'undefined') {
+      return rawHtml;
+    }
+
+    const parsed = new DOMParser().parseFromString(rawHtml, 'text/html');
+
+    // Chuyển các thẻ <a> trỏ tới file .md thành link mở trực tiếp trên web
+    parsed.querySelectorAll('a[href]').forEach((el) => {
+      const href = el.getAttribute('href') || '';
+      const matched = resolveDocFromPath(href, currentDoc, docs);
+      if (matched) {
+        el.setAttribute('href', `#/docs/${matched.slug}`);
+        el.setAttribute('data-doc-slug', matched.slug);
+        el.setAttribute('title', `Mở tài liệu: ${matched.title}`);
+      } else if (/^https?:\/\//i.test(href)) {
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+
+    // Biến các inline code chứa đường dẫn file .md / thư mục docs/ thành nút bấm mở file
+    parsed.querySelectorAll('code').forEach((el) => {
+      if (el.closest('pre') || el.closest('a')) return;
+      const text = el.textContent?.trim() || '';
+      if (!text || (!text.includes('/') && !text.endsWith('.md'))) return;
+      const matched = resolveDocFromPath(text, currentDoc, docs);
+      if (matched) {
+        el.setAttribute('data-doc-slug', matched.slug);
+        el.setAttribute('title', `Mở tài liệu trên web: ${matched.title}`);
+        el.classList.add('doc-path-link');
+      }
+    });
+
+    return parsed.body.innerHTML;
   } catch (e) {
     return `<pre>${md}</pre>`;
   }
