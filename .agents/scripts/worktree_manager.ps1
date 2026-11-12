@@ -40,12 +40,14 @@ $ErrorActionPreference = "Stop"
 
 # Paths
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$WorkspaceRoot = (Resolve-Path "$ScriptDir\..\..").Path
+# Script nam trong panelforge-hub/.agents/scripts; cac repo code nam canh panelforge-hub.
+$HubRoot = (Resolve-Path "$ScriptDir\..\..").Path
+$WorkspaceRoot = (Resolve-Path "$HubRoot\..").Path
 $BackendRoot = Join-Path $WorkspaceRoot "PanelForge_FA26SE251"
 $FrontendRoot = Join-Path $WorkspaceRoot "panelforge-fe"
 $MobileRoot = Join-Path $WorkspaceRoot "panelforge-mobile"
-$WorktreeBaseDir = (Resolve-Path "$WorkspaceRoot\..").Path
-$HookSource = Join-Path $WorkspaceRoot ".agents\hooks\commit-msg"
+$WorktreeBaseDir = $WorkspaceRoot
+$HookSource = Join-Path $HubRoot ".agents\hooks\commit-msg"
 $CommitTemplateRel = "../Note/.gitmessage.txt"
 
 function Show-Header {
@@ -152,6 +154,16 @@ function Create-AgentWorktree {
     Write-Host "    - Module muc tieu:  $Module" -ForegroundColor Gray
     Write-Host "    - Target scope:     $Target" -ForegroundColor Gray
 
+    $required = @()
+    if ($Target -eq "all" -or $Target -eq "backend") { $required += $BackendRoot }
+    if ($Target -eq "all" -or $Target -eq "frontend") { $required += $FrontendRoot }
+    if ($Target -eq "all" -or $Target -eq "mobile") { $required += $MobileRoot }
+    foreach ($repoRoot in $required) {
+        if (-not (Test-Path (Join-Path $repoRoot ".git"))) {
+            throw "Khong tim thay repo tai: $repoRoot"
+        }
+    }
+
     if (-not (Test-Path $SandboxDir)) {
         New-Item -ItemType Directory -Path $SandboxDir -Force | Out-Null
     }
@@ -218,14 +230,14 @@ function Create-AgentWorktree {
 
     # Junction .agents folder into sandbox for AI agent context routing
     $sandboxAgents = Join-Path $SandboxDir ".agents"
-    $sourceAgents = Join-Path $WorkspaceRoot ".agents"
+    $sourceAgents = Join-Path $HubRoot ".agents"
     if (-not (Test-Path $sandboxAgents) -and (Test-Path $sourceAgents)) {
         cmd /c mklink /J "$sandboxAgents" "$sourceAgents" 2>$null | Out-Null
     }
 
     # Junction note folder into sandbox so agents can access module plans & master plan
     $sandboxNote = Join-Path $SandboxDir "note"
-    $sourceNote = Join-Path $WorkspaceRoot "note"
+    $sourceNote = Join-Path $HubRoot "docs\note"
     if (-not (Test-Path $sandboxNote) -and (Test-Path $sourceNote)) {
         cmd /c mklink /J "$sandboxNote" "$sourceNote" 2>$null | Out-Null
     }
