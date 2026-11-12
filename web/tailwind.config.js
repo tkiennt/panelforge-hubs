@@ -47,9 +47,9 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['"Source Serif 4"', 'Georgia', 'Cambria', 'serif'],
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        serif: ['"Lora"', '"Merriweather"', 'Georgia', 'Cambria', 'serif'],
+        sans: ['"Be Vietnam Pro"', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'Consolas', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         sm: '4px',
