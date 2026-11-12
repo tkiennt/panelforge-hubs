@@ -1,40 +1,49 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+        paper: {
+          DEFAULT: '#FAF9F5',
+          sidebar: '#F3F1EC',
+          hover: '#EBE8E1',
+          card: '#FFFFFF',
         },
-        forge: {
-          dark: '#0f172a',
-          card: '#1e293b',
-          border: '#334155',
-          accent: '#6366f1',
-          crimson: '#ef4444',
-          gold: '#f59e0b',
-        }
+        ink: {
+          DEFAULT: '#171717',
+          muted: '#57534E',
+          subtle: '#78716C',
+        },
+        hairline: {
+          DEFAULT: '#E5E2DC',
+          dark: '#D6D2CA',
+        },
+        accent: {
+          DEFAULT: '#EA580C',
+          hover: '#C2410C',
+          light: '#FFF7ED',
+        },
+        diff: {
+          addBg: '#ECFDF5',
+          addBorder: '#A7F3D0',
+          addText: '#065F46',
+          remBg: '#FEF2F2',
+          remBorder: '#FECACA',
+          remText: '#991B1B',
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
-      }
+        serif: ['"Source Serif 4"', 'Georgia', 'Cambria', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      borderRadius: {
+        sm: '4px',
+        md: '6px',
+        lg: '8px',
+      },
     },
   },
   plugins: [],
-}
-
+};

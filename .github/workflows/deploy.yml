@@ -21,18 +21,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
-        run: npm ci || npm install
+        run: npm --prefix web install
 
-      - name: Build with Vite
+      - name: Build docs data & web app
         run: npm run build
 
       - name: Setup Pages
@@ -41,7 +41,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'dist'
+          path: 'web/dist'
 
   deploy:
     name: Deploy to GitHub Pages
@@ -54,4 +54,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

@@ -4,8 +4,9 @@
   "version": "2.6.0",
   "description": "PanelForge SSOT Documentation & Architecture Hub",
   "scripts": {
-    "dev": "npm --prefix web run dev",
-    "build": "npm --prefix web run build",
+    "dev": "npm run build:data && npm --prefix web run dev",
+    "build:data": "node scripts/build-docs-data.mjs",
+    "build": "npm run build:data && npm --prefix web run build",
     "preview": "npm --prefix web run preview",
     "sync": "node scripts/sync-hub.mjs"
   },
