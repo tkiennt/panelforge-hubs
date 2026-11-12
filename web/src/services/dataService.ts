@@ -1,6 +1,7 @@
 // panelforge-hub/web/src/services/dataService.ts
 import { marked } from 'marked';
-import type { DocsManifestData, CommitsDiffData, DocItem } from '../types/hub';
+import type { DocsManifestData, CommitsDiffData, DocItem, GitHubApiStatus } from '../types/hub';
+import { fetchLiveCommitsFromGitHub } from './githubService';
 
 const STORAGE_LAST_SEEN_HASH = 'panelforge_hub_last_seen_hash_v1';
 
@@ -23,8 +24,8 @@ export async function fetchDocsManifest(): Promise<DocsManifestData> {
   return res.json();
 }
 
-// Nạp commits diff sinh ra lúc build
-export async function fetchCommitsDiff(): Promise<CommitsDiffData> {
+// Nạp static commits diff làm dự phòng (fallback) khi offline hoặc rate-limited
+export async function fetchStaticCommitsDiff(): Promise<CommitsDiffData> {
   const baseUrl = import.meta.env.BASE_URL || './';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const url = `${cleanBase}generated/commits-diff.json?t=${Date.now()}`;
@@ -34,6 +35,36 @@ export async function fetchCommitsDiff(): Promise<CommitsDiffData> {
     throw new Error(`HTTP ${res.status}: Không tải được commits-diff.json`);
   }
   return res.json();
+}
+
+// Nạp commits từ GitHub API trực tiếp, fallback về static file nếu gặp lỗi
+export async function fetchCommitsDiff(forceRefresh = false): Promise<CommitsDiffData> {
+  const result = await fetchCommitsDiffWithStatus(forceRefresh);
+  return result.data;
+}
+
+export async function fetchCommitsDiffWithStatus(
+  forceRefresh = false
+): Promise<{ data: CommitsDiffData; status: GitHubApiStatus }> {
+  try {
+    const liveResult = await fetchLiveCommitsFromGitHub(forceRefresh);
+    return liveResult;
+  } catch (liveErr: any) {
+    console.warn('[dataService] Lỗi GitHub Live API, chuyển sang static fallback:', liveErr);
+    try {
+      const fallbackData = await fetchStaticCommitsDiff();
+      return {
+        data: fallbackData,
+        status: {
+          source: 'fallback',
+          errorMessage: liveErr?.message || 'Không thể kết nối GitHub API trực tiếp',
+          lastFetchedAt: new Date().toLocaleTimeString('vi-VN'),
+        },
+      };
+    } catch (fallbackErr) {
+      throw liveErr;
+    }
+  }
 }
 
 // Render markdown sang HTML

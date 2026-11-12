@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { CommitsDiffData, CommitDiffItem, CommitChangedFile } from '../types/hub';
+import type { CommitsDiffData, CommitDiffItem, CommitChangedFile, GitHubApiStatus } from '../types/hub';
 import { formatRelativeDate } from '../services/dataService';
 import { CommitDiffView } from './CommitDiffView';
 import {
@@ -11,16 +11,24 @@ import {
   ArrowLeft,
   Copy,
   Check,
+  ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
 
 interface ChangelogTimelineProps {
   commitsData: CommitsDiffData;
   onOpenDocDiff?: (filePath: string, commitHash: string) => void;
+  gitHubStatus?: GitHubApiStatus;
+  onRefreshLive?: () => void;
+  refreshing?: boolean;
 }
 
 export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
   commitsData,
   onOpenDocDiff,
+  gitHubStatus,
+  onRefreshLive,
+  refreshing = false,
 }) => {
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedCommit, setSelectedCommit] = useState<CommitDiffItem | null>(null);
@@ -102,30 +110,49 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-accent/10 border border-accent/20 text-accent font-semibold">
-              Audit Logs & Git Changelog
+              Live GitHub API Audit
             </span>
             <span className="text-xs text-ink-muted">
-              {commitsData.totalCommits} commits • SSOT Tracking
+              {commitsData.totalCommits} commits • tkiennt/panelforge-hubs
             </span>
+            {gitHubStatus && (
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded border border-hairline bg-white text-stone-600">
+                ● {gitHubStatus.source === 'live-api' ? 'Trực tiếp' : gitHubStatus.source === 'cached' ? 'Cache' : 'Fallback'}
+              </span>
+            )}
           </div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink mt-1.5">
             Nhật ký kiểm toán & Thay đổi Specs
           </h2>
           <p className="text-xs text-ink-muted mt-1 leading-relaxed max-w-2xl">
-            Tất cả các lần cập nhật tài liệu, bổ sung sơ đồ Mermaid và thay đổi quy tắc nghiệp vụ từ các tác giả đều được ghi vết minh bạch từ git commit.
+            Tất cả các lần cập nhật tài liệu, bổ sung sơ đồ Mermaid và thay đổi quy tắc nghiệp vụ từ các tác giả được nạp trực tiếp từ GitHub REST API.
           </p>
         </div>
 
-        {/* Search Input */}
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-          <input
-            type="text"
-            placeholder="Lọc commit, tác giả, file..."
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-white border border-hairline rounded-md text-xs text-ink placeholder:text-stone-400 focus:outline-none focus:border-accent"
-          />
+        {/* Search & Refresh Actions */}
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          {onRefreshLive && (
+            <button
+              onClick={onRefreshLive}
+              disabled={refreshing}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-hairline rounded-md text-xs text-ink hover:border-accent transition-colors shrink-0 disabled:opacity-50"
+              title="Làm mới từ GitHub API"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-accent ${refreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Làm mới</span>
+            </button>
+          )}
+
+          <div className="relative w-full md:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              placeholder="Lọc commit, tác giả, file..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 bg-white border border-hairline rounded-md text-xs text-ink placeholder:text-stone-400 focus:outline-none focus:border-accent"
+            />
+          </div>
         </div>
       </div>
 
@@ -175,7 +202,7 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                           </div>
                         </div>
 
-                        {/* Hash Badge & Copy */}
+                        {/* Hash Badge, Copy & GitHub Link */}
                         <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             onClick={(e) => copyHash(c.hash, e)}
@@ -190,6 +217,15 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                               <Copy className="w-3 h-3" />
                             )}
                           </button>
+                          <a
+                            href={`https://github.com/tkiennt/panelforge-hubs/commit/${c.fullHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 rounded bg-paper-subtle border border-hairline text-ink-muted hover:text-accent hover:bg-stone-100 transition-colors"
+                            title="Xem commit trên GitHub"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
                         </div>
                       </div>
 

@@ -65,3 +65,11 @@ export interface CommitsDiffData {
 
 export type ActiveMode = 'reader' | 'diff';
 export type DiffViewMode = 'split' | 'unified';
+
+export interface GitHubApiStatus {
+  source: 'live-api' | 'cached' | 'fallback';
+  rateLimitRemaining?: number;
+  lastFetchedAt?: string;
+  errorMessage?: string;
+}
+

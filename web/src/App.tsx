@@ -4,10 +4,11 @@ import type {
   CommitsDiffData,
   DocItem,
   ActiveMode,
+  GitHubApiStatus,
 } from './types/hub';
 import {
   fetchDocsManifest,
-  fetchCommitsDiff,
+  fetchCommitsDiffWithStatus,
   renderMarkdown,
   getUnreadDocs,
   saveLastSeenCommitHash,
@@ -17,6 +18,7 @@ import { MermaidRenderer } from './components/MermaidRenderer';
 import { CommitDiffView } from './components/CommitDiffView';
 import { SearchModal } from './components/SearchModal';
 import { ChangelogTimeline } from './components/ChangelogTimeline';
+import { GitHubTokenModal } from './components/GitHubTokenModal';
 import { MermaidGalleryView } from './views/MermaidGalleryView';
 import {
   BookOpen,
@@ -34,6 +36,7 @@ import {
   Folder,
   Menu,
   X,
+  Key,
 } from 'lucide-react';
 
 interface ContentSegment {
@@ -76,7 +79,9 @@ function parseMarkdownSegments(markdown: string): ContentSegment[] {
 export const App: React.FC = () => {
   const [docsManifest, setDocsManifest] = useState<DocsManifestData | null>(null);
   const [commitsDiff, setCommitsDiff] = useState<CommitsDiffData | null>(null);
+  const [gitHubStatus, setGitHubStatus] = useState<GitHubApiStatus | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshingCommits, setRefreshingCommits] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Điều hướng chính
@@ -85,26 +90,33 @@ export const App: React.FC = () => {
   const [activeMode, setActiveMode] = useState<ActiveMode>('reader');
   const [selectedDiffHash, setSelectedDiffHash] = useState<string | null>(null);
 
-  // Tìm kiếm & Unread indicator
+  // Tìm kiếm & Modals
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean>(false);
   const [unreadSlugs, setUnreadSlugs] = useState<Set<string>>(new Set());
   const [showUnreadBanner, setShowUnreadBanner] = useState<boolean>(true);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [sidebarSearch, setSidebarSearch] = useState<string>('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
-  // Tải dữ liệu lúc khởi tạo
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  // Tải dữ liệu lúc khởi tạo (Hỗ trợ gọi trực tiếp GitHub REST API)
+  const loadData = useCallback(async (forceRefresh = false) => {
+    if (forceRefresh) {
+      setRefreshingCommits(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
+
     try {
-      const [manifest, diffData] = await Promise.all([
+      const [manifest, commitsResult] = await Promise.all([
         fetchDocsManifest(),
-        fetchCommitsDiff(),
+        fetchCommitsDiffWithStatus(forceRefresh),
       ]);
 
       setDocsManifest(manifest);
-      setCommitsDiff(diffData);
+      setCommitsDiff(commitsResult.data);
+      setGitHubStatus(commitsResult.status);
 
       // Thiết lập doc mặc định
       if (manifest.docs.length > 0 && !selectedDocSlug) {
@@ -112,13 +124,14 @@ export const App: React.FC = () => {
       }
 
       // Xác định tài liệu unread
-      const unreads = getUnreadDocs(manifest.docs, diffData.latestHash);
+      const unreads = getUnreadDocs(manifest.docs, commitsResult.data.latestHash);
       setUnreadSlugs(unreads);
     } catch (err: any) {
       console.error('Lỗi khi tải dữ liệu Hub:', err);
       setError(err?.message || 'Không thể nạp dữ liệu manifest');
     } finally {
       setLoading(false);
+      setRefreshingCommits(false);
     }
   }, [selectedDocSlug]);
 
@@ -288,6 +301,14 @@ export const App: React.FC = () => {
         onSelectDoc={handleSelectDoc}
       />
 
+      {/* GitHub Token & API Settings Modal */}
+      <GitHubTokenModal
+        isOpen={isTokenModalOpen}
+        onClose={() => setIsTokenModalOpen(false)}
+        status={gitHubStatus}
+        onRefreshLive={() => loadData(true)}
+      />
+
       {/* 1. Header Bar (Editorial Paper & Ink) */}
       <header className="sticky top-0 z-40 bg-white border-b border-hairline px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
         {/* Brand */}
@@ -350,8 +371,49 @@ export const App: React.FC = () => {
           </button>
         </nav>
 
-        {/* Right Tools: Search Button & Git Info */}
+        {/* Right Tools: Search Button, Live GitHub Indicator, Settings & Git Info */}
         <div className="flex items-center gap-2">
+          {/* GitHub Live API Status Indicator */}
+          <button
+            onClick={() => setIsTokenModalOpen(true)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors ${
+              gitHubStatus?.source === 'live-api'
+                ? 'bg-emerald-50/80 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                : gitHubStatus?.source === 'cached'
+                ? 'bg-amber-50/80 border-amber-200 text-amber-800 hover:bg-amber-100'
+                : 'bg-stone-100 border-hairline text-stone-600 hover:bg-stone-200'
+            }`}
+            title="Nhấp để cấu hình GitHub API Token và xem hạn mức"
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                gitHubStatus?.source === 'live-api'
+                  ? 'bg-emerald-600 animate-pulse'
+                  : gitHubStatus?.source === 'cached'
+                  ? 'bg-amber-500'
+                  : 'bg-stone-400'
+              }`}
+            />
+            <span className="hidden sm:inline font-semibold">
+              {gitHubStatus?.source === 'live-api'
+                ? 'GitHub API: Live'
+                : gitHubStatus?.source === 'cached'
+                ? 'GitHub: Cache'
+                : 'GitHub: Fallback'}
+            </span>
+          </button>
+
+          {/* Refresh Commits Live Button */}
+          <button
+            onClick={() => loadData(true)}
+            disabled={refreshingCommits}
+            className="p-1.5 text-ink-muted hover:text-ink hover:bg-paper-subtle border border-hairline rounded-md transition-colors disabled:opacity-50"
+            title="Làm mới commits từ GitHub API"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-accent ${refreshingCommits ? 'animate-spin' : ''}`} />
+          </button>
+
+          {/* Search Trigger */}
           <button
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center gap-2 px-3 py-1.5 bg-paper-subtle border border-hairline rounded-md text-xs text-ink-muted hover:text-ink hover:border-stone-400 transition-colors"
@@ -361,6 +423,15 @@ export const App: React.FC = () => {
             <kbd className="hidden md:inline font-mono text-[10px] bg-white border border-hairline px-1 rounded text-stone-500">
               ⌘K
             </kbd>
+          </button>
+
+          {/* GitHub Token Config Key Button */}
+          <button
+            onClick={() => setIsTokenModalOpen(true)}
+            className="p-1.5 text-ink-muted hover:text-ink hover:bg-paper-subtle rounded-md transition-colors"
+            title="Cấu hình Token GitHub API"
+          >
+            <Key className="w-4 h-4 text-stone-500" />
           </button>
 
           <a
@@ -381,6 +452,9 @@ export const App: React.FC = () => {
           <ChangelogTimeline
             commitsData={commitsDiff!}
             onOpenDocDiff={handleOpenDocDiff}
+            gitHubStatus={gitHubStatus}
+            onRefreshLive={() => loadData(true)}
+            refreshing={refreshingCommits}
           />
         </main>
       ) : activeTab === 'diagrams' ? (
