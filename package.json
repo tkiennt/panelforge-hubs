@@ -8,7 +8,8 @@
     "build:data": "node scripts/build-docs-data.mjs",
     "build": "npm run build:data && npm --prefix web run build",
     "preview": "npm --prefix web run preview",
-    "sync": "node scripts/sync-hub.mjs"
+    "sync": "node scripts/sync-hub.mjs",
+    "hooks:install": "node scripts/install-hooks.mjs"
   },
   "workspaces": [
     "web"

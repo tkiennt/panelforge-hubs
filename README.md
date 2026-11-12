@@ -48,6 +48,7 @@
 cd panelforge-hub
 npm install
 npm --prefix web install
+npm run hooks:install   # cài commit-msg + post-commit cho BE, FE, Mobile (chạy lại khi đổi vị trí thư mục)
 npm run dev
 ```
 
