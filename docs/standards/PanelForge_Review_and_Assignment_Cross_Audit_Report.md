@@ -22,7 +22,7 @@ flowchart TD
         P1[Thiết lập Pipeline & Phân công việc: Assignment] --> P2{Gate 1: Chốt Kịch bản & Canon}
         P2 -->|Frozen & CanonLocked| P3[Mở chu kỳ sản xuất InProduction]
         P3 -.->|Theo dõi tiến độ cuốn chiếu| P4{Gate 3: Release Gate - Nghiệm thu Chapter}
-        P4 -->|Approved| P5[Publisher: Xuất bản lên Catalog]
+        P4 -->|ChapterApproved| P5[Producer: Bàn giao & Phát hành lên Catalog]
     end
 
     subgraph MicroPipelining ["TẦNG THỰC THI & VI MÔ: ARTIST / LETTERER (Dòng chảy tác vụ)"]
@@ -49,7 +49,7 @@ flowchart TD
 |---|---|---|
 | **Cấp độ can thiệp** | Vi mô (Micro) & Chất lượng tổng thể (Quality & Composite). | Vĩ mô (Macro) & Pháp lý phát hành (Governance & Release). |
 | **Thực thể quản lý** | `Submission`, `ChangeRequest`, `StageProgress`, `ConsistencyFinding`. | `Workspace`, `Series`, `Chapter`, `BibleEntryRevision`, `AssignmentPlan`. |
-| **Cổng duyệt sở hữu** | **Gate 1** (Storyboard/Name) & **Gate 2** (Quality & Composite Review). | **Gate 1** (Canon Lock, Script Freeze) & **Gate 3** (Chapter Final Approval). |
+| **Cổng duyệt sở hữu** | **Gate 2** (Quality & Composite Review) & duyệt bản dịch `ChapterEdition`. | **Gate 1** (Script Freeze & giao Page), **Canon Lock** & **Gate 3** (Chapter Final Approval & Publish). |
 | **Quyền duyệt bài nộp** | Duyệt đạt bài nộp kỹ thuật của Artist/Letterer (`ApproveAssignment`). | **Không** duyệt lắt nhắt từng nét vẽ, chỉ duyệt nghiệm thu toàn bộ Chapter. |
 | **Quy tắc chống vượt quyền** | Tuân thủ nghiêm ngặt **4-Eyes Principle (BR-26)**: Không được tự duyệt việc của mình. | Tuân thủ **Script Boundary (G1/BR-27)**: Không can thiệp sửa trực tiếp kịch bản. |
 
@@ -59,11 +59,10 @@ flowchart TD
 
 Editor đóng vai trò là "người gác cổng chất lượng" xuyên suốt từ bản phân khung nháp đến trang truyện hoàn thiện.
 
-### 2.1. Hai cổng duyệt chiến lược của Editor
+### 2.1. Cổng kiểm duyệt chiến lược của Editor (Gate 2)
 
-1. **Gate 1: Storyboard / Thumbnail Gate (Thẩm định tiền kỳ):**
-   - **Mục tiêu:** Thẩm định nhịp điệu kể chuyện (Pacing), góc máy thị giác (Camera angles), phân bố khung tranh (Panel layout) và độ hợp lý của kịch bản trước khi đổ tài nguyên vẽ nét chi tiết.
-   - **Xử lý:** Artist nộp bản phân trang thô. Editor duyệt `Approved`. Sau khi Gate 1 qua, hệ thống chốt bố cục (`LayoutLocked`), ngăn ngừa 90% nguy cơ phải vẽ lại toàn bộ cảnh (Late Rework).
+1. **Gate 1 (Tiền kỳ — thuộc Producer, không qua Editor):**
+   - Producer duyệt **Script Freeze** & khóa **Bible Canon** để mở sản xuất và giao Page/Panel cho Artist/Letterer.
 2. **Gate 2: Quality & Composite Gate (Trang hoàn thiện tổng thể):**
    - **Mục tiêu:** Kiểm tra trang hoàn thiện tổng thể trong bối cảnh thực tế (Composite 1200×1800), đối chiếu giữa Layer nét vẽ hoàn thiện (`Ink`) và Layer bóng thoại (`Lettering`).
    - **Nội dung kiểm tra:** Độ tương phản nét vẽ, thứ tự đọc Manga (phải qua trái - RTL), bóng thoại không được che mặt nhân vật, tính dễ đọc và ngắt dòng ngữ pháp tiếng Việt.
@@ -91,7 +90,7 @@ stateDiagram-v2
 ### 2.3. Cơ chế Khoanh vùng lỗi (Region Annotation) & Phân cấp Yêu cầu Sửa đổi
 Khi Editor phát hiện lỗi ở Gate 2, hệ thống PanelForge kích hoạt cơ chế sửa đổi chính xác:
 - **Tọa độ chuẩn hóa Box 0..1:** Chuỗi JSON `{x, y, w, h}` đại diện tỷ lệ tương đối trên trang ảnh (1200×1800), không phụ thuộc vào độ phân giải màn hình hay zoom.
-- **Tự động dò tìm Panel bị ảnh hưởng (`findIntersectingPanelId`):** Thuật toán tính diện tích giao thoa cực đại giữa vùng khoanh của Editor với `boundingBox` của các Panel trên trang để gán trực tiếp `panelId`.
+- **Tự động dò tìm các Panel bị ảnh hưởng (`FindIntersectingPanelIds` — Q2):** Thuật toán tính diện tích giao thoa giữa vùng khoanh của Editor với `boundingBox` của các Panel trên trang; nếu vùng khoanh vắt qua nhiều Panel có tỷ lệ giao thoa **≥ 15%**, hệ thống tự động sinh nhiều `ChangeRequest` liên kết bằng chung `group_id`.
 - **Gợi ý công đoạn sửa (`suggestTargetAssignment`):**
   - Nếu vùng khoanh đè lên các phần tử chữ (`SPEECH_BALLOON`, `THOUGHT_BALLOON`, `SFX`, `TEXT`) $\rightarrow$ Gợi ý trả về cho **Letterer** (Level 2: Dialogue Correction).
   - Nếu vùng khoanh nằm trọn trong nét vẽ $\rightarrow$ Gợi ý trả về cho **Artist** (`Ink` hoặc `Pencil`) (Level 1: Minor Polish hoặc Level 3: Panel Redraw).
@@ -137,10 +136,10 @@ Tại lệnh `ApproveChapterCommand`, hệ thống quét tự động toàn bộ
 
 ### 3.3. Xử lý sau khi Producer Approve Chapter
 Ngay trong cùng một giao thức cơ sở dữ liệu (`DbContext.SaveChangesAsync`):
-1. Cập nhật `ChapterStatus: InProduction -> Approved`.
+1. Cập nhật `ChapterStatus: InProduction -> ChapterApproved`.
 2. Tạo bản chụp dữ liệu bất biến **`ChapterSnapshot`** (gồm manifest toàn bộ trang, panel, ảnh CAS SHA-256, tọa độ bóng thoại tại thời điểm duyệt theo Rule **BR-01, BR-18**).
 3. Ghi vết kiểm toán `ChapterReview` với hành động `ProducerApproved`.
-4. Bắn thông báo `NotificationType.ChapterReadyForPublication` tới toàn bộ các Publisher trong hệ thống và workspace.
+4. Bắn thông báo `NotificationType.ChapterReadyForPublication` tới tài khoản **Publisher** duy nhất của hệ thống (để xem gói bàn giao chỉ đọc và cấu hình giá VNĐ trên Publisher Portal; quyền phát hành thuộc **Producer** theo Q7, Q12).
 5. Khóa đóng băng toàn bộ tiến độ sản xuất: không ai được phép sửa đổi assignment hay bài nộp trừ khi Producer chủ động mở lại chương (`chapter.reopen` - Rule **BR-12**).
 
 ---
@@ -236,8 +235,8 @@ Bảng đối chiếu kiểm toán chéo giữa 5 nguồn tài liệu kỹ thu�
 
 | Hạng mục đối chiếu | 1. Cam kết BM04 (Review 2) | 2. Báo cáo SRS (Report 3) | 3. Báo cáo SDD (Report 4) | 4. Chuẩn State Machine & Glossary | 5. Hiện trạng Code (.NET / React) | Đánh giá & Kết luận đồng bộ |
 |---|---|---|---|---|---|---|
-| **Vòng đời Chapter** | `InProduction → Approved → Published` (Đã loại bỏ `Locked`) | Ghi nhận 3 trạng thái chính | Xóa bỏ `Locked`, thay bằng `Approved` | `InProduction → Approved → Published` | Enums: `InProduction`, `Approved`, `Published` (Đã xóa `Locked`) | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Khắc phục hoàn tất RF-16). |
-| **Vòng đời Kịch bản** | Tách riêng: `Open → Frozen → ReopenRequested → Open` | Tách biệt khỏi Chapter, điều hướng bởi Writer | `ChapterScript` có cờ `IsScriptFrozen` | `ScriptLifecycle`: `Open, Frozen, ReopenRequested` | `IsScriptFrozen` & `ScriptReopenStatus` trên `Chapter.cs` | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Khắc phục triệt để lỗi gộp WF-03). |
+| **Vòng đời Chapter** | `PreProduction → InProduction → ChapterApproved → HandedOffAndPublished` | Ghi nhận 4 trạng thái chuẩn V2.6 | Gộp `Locked` vào `ChapterApproved` (Q1) | `PreProduction → InProduction → ChapterApproved → HandedOffAndPublished` | Enums: `PreProduction`, `InProduction`, `ChapterApproved`, `HandedOffAndPublished` | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Khắc phục hoàn tất Q1, Q7). |
+| **Vòng đời Kịch bản** | Tách riêng: `Open → Frozen → ReopenRequested → Open` | Tách biệt khỏi Chapter, điều hướng bởi Writer | Bỏ `ChapterScript` (D5), ẩn `Scene` (D2), dùng `IsScriptFrozen` | `ScriptLifecycle`: `Open, Frozen, ReopenRequested` | `IsScriptFrozen` & `ScriptReopenStatus` trên `Chapter.cs` | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Khắc phục triệt để lỗi gộp WF-03). |
 | **Tên trạng thái Review** | Ghi nhãn `Reviewing` (kèm chú thích `UnderReview`) | `UnderReview` | Ghi rõ: Enum `UnderReview`, UI Label `Reviewing` | Enum: `UnderReview`, UI Label: `Reviewing / In Review` | C# Enum: `AssignmentStatus.UnderReview`; UI: hiển thị "Reviewing" | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Quy ước Code identifier vs UI label rõ ràng). |
 | **Quy tắc 4-Eyes (BR-26)** | Cấm tự duyệt bài của mình; trả về HTTP 403 Forbidden | Đặc tả trong Use Case Review & BR-26 | Mô tả trong sơ đồ Sequence `33-seq-submit-approve` | `ReviewRules`: Chặn cả người được giao và người từng nộp bài | `ReviewRules.LoadAsync`: Chặn `AssigneeUserId == reviewerId` và check `Submissions` | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Được kiểm thử tự động trong CI). |
 | **Điều kiện duyệt Chapter (BR-28)** | 100% Page Approved; cấm duyệt nếu còn dở dang (409 Conflict) | Chặn ở UC-20 / BR-28 | Kiểm tra `ChapterLockGate` tại SDD §5.5 | Guard: `isAllPagesApproved && isProducer` | `ApproveChapterCommandHandler`: Chặn bởi `ChapterLockGate.EvaluateAsync` | ✅ **HOÀN TOÀN ĐỒNG BỘ** (Bảo đảm tính toàn vẹn dữ liệu). |

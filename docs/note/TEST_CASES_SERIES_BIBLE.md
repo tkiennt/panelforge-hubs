@@ -4,7 +4,7 @@
 > **Module:** Series Bible Collaborative Production (Thực thể - Thời đại - Phiên bản - Duyệt 2 tầng - Gate Chapter)  
 > **Tài liệu tham chiếu:** `note/plans/02_BIBLE_PLAN.md`  
 > **Quy chuẩn UI/UX:** Lucian UX/UI Standards  
-> **Phiên bản:** 2.5  
+> **Phiên bản:** 2.6 (Đồng bộ Master Spec V2.6 Final)  
 
 ---
 
@@ -17,11 +17,11 @@
    │
 [Artist] Nhận việc trong Design Queue ──> Vẽ & Nộp Concept Art (ConceptSubmitted)
    │
-   ├──> [Writer] Kiểm tra kịch bản:
+   ├──> [Writer / Editor] Kiểm tra kịch bản & thiết kế:
    │      ├── Không khớp ──> [Request Rework] (Kèm lý do) ──> Trả về Artist vẽ lại
-   │      └── Khớp ý đồ  ──> [Writer Endorse] (Xác nhận ý đồ hợp lệ)
+   │      └── Khớp ý đồ  ──> [Endorse] (WriterEndorsed)
    │
-[Producer] Thẩm định chất lượng tổng thể ──> [Lock Canon] (Khóa bất biến)
+[Producer] Thẩm định chất lượng tổng thể ──> [Lock Canon] (CanonLocked - bất biến; đổi sau đó phải /supersede)
    │
 [Chapter Production Gate] Kiểm tra toàn bộ nhân vật trong Chapter đã có Canon chưa trước khi cho vẽ Manga
 ```
@@ -32,11 +32,11 @@
 
 | Hành động | Producer | Writer | Artist | Editor |
 | :--- | :---: | :---: | :---: | :---: |
-| Tạo Thực thể / Era mới | ✅ | ✅ | ❌ | ✅ |
+| Tạo Thực thể / Era mới | ❌ (Chỉ xem) | ✅ | ❌ | ❌ |
 | Nộp Concept Art / Nộp lại (Resubmit) | ❌ | ❌ | ✅ | ❌ |
-| Yêu cầu vẽ lại (Request Rework) | ✅ | ✅ | ❌ | ✅ |
-| Xác nhận ý đồ kịch bản (Endorse) | ✅ | ✅ | ❌ | ✅ |
-| Phê duyệt & Khóa bất biến (Lock Canon) | ✅ | ❌ | ❌ | ❌ |
+| Yêu cầu vẽ lại (Request Rework) | ❌ | ✅ | ❌ | ✅ |
+| Xác nhận ý đồ (Endorse) | ❌ | ✅ | ❌ | ✅ |
+| Phê duyệt & Khóa bất biến (Lock Canon / Supersede) | ✅ | ❌ | ❌ | ❌ |
 | Xóa Era / Version chưa khóa | ✅ | ✅ | ❌ | ❌ |
 | Xóa Era / Version đã khóa Canon | ⛔ Chặn | ⛔ Chặn | ⛔ Chặn | ⛔ Chặn |
 
@@ -75,7 +75,7 @@
 | **TC-REV-03** | Writer yêu cầu vẽ lại (Request Rework) | Trạng thái đang là `ConceptSubmitted`, đăng nhập Writer | 1. Mở modal nhân vật.<br/>2. Bấm nút `↺ Yêu cầu vẽ lại`.<br/>3. Modal ReworkFeedback hiển thị.<br/>4. Nhập lý do (chọn gợi ý "Sai màu tóc" và viết thêm chi tiết).<br/>5. Bấm `Gửi yêu cầu`. | Feedback: "Tóc của Akira phải là màu đen theo kịch bản Chương 1, không phải màu nâu." | - Trạng thái chuyển thành `ReworkRequired`.<br/>- Nút chuyển trạng thái cập nhật.<br/>- Lý do phản hồi được lưu trữ trong DB. | **Critical** |
 | **TC-REV-04** | Artist nhận phản hồi Rework và sửa lại | Đăng nhập tài khoản Artist sau khi bị yêu cầu sửa | 1. Vào `Bible Design Queue`.<br/>2. Tìm card nhân vật vừa bị yêu cầu sửa.<br/>3. Bấm `Nộp bản sửa lại`. | Quan sát hộp thoại | - Khối cảnh báo màu cam hiển thị rõ ràng nội dung feedback của Writer.<br/>- Artist nộp ảnh mới thành công, trạng thái trở lại `ConceptSubmitted`. | **Critical** |
 | **TC-REV-05** | Writer duyệt ý đồ kịch bản (Writer Endorse) | Trạng thái là `ConceptSubmitted`, đăng nhập Writer | 1. Mở xem Model Sheet đã nộp.<br/>2. Thấy chuẩn kịch bản, bấm `✓ Duyệt ý đồ (Endorse)`.<br/>3. Xác nhận trên hộp thoại. | Action: Writer Endorse | - Trạng thái chuyển thành `WriterEndorsed`.<br/>- Hiển thị badge: *"Biên kịch đã duyệt · Chờ Producer khóa Canon"*. | **High** |
-| **TC-REV-06** | Producer thẩm định & Khóa Canon (Lock Canon) | Trạng thái là `WriterEndorsed` (hoặc `ConceptSubmitted`), đăng nhập Producer | 1. Đăng nhập tài khoản Producer.<br/>2. Mở modal nhân vật.<br/>3. Bấm nút `🔒 Duyệt & Khóa Canon`.<br/>4. Xác nhận qua hộp thoại bảo vệ. | Action: Lock Canon | - Trạng thái chuyển thành `Canon Locked` (Biểu tượng 🔒).<br/>- Model Sheet này chính thức trở thành chuẩn tham chiếu toàn dự án.<br/>- Khóa toàn bộ quyền sửa/xóa trên version này. | **Critical** |
+| **TC-REV-06** | Producer thẩm định & Khóa Canon (Lock Canon) | Trạng thái bắt buộc là `WriterEndorsed`, đăng nhập Producer | 1. Đăng nhập tài khoản Producer.<br/>2. Mở modal nhân vật.<br/>3. Bấm nút `🔒 Duyệt & Khóa Canon`.<br/>4. Xác nhận qua hộp thoại bảo vệ (nếu đang ở `ConceptSubmitted` chưa Endorse thì nút bị khóa / API trả 400). | Action: Lock Canon | - Trạng thái chuyển thành `CanonLocked` (Biểu tượng 🔒).<br/>- Model Sheet này chính thức trở thành chuẩn tham chiếu toàn dự án.<br/>- Cấm `/unlock`, muốn thay đổi phải dùng `/supersede`. | **Critical** |
 
 ---
 

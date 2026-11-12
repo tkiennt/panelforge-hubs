@@ -45,9 +45,9 @@ Một Backend duy nhất phục vụ **ba loại client**:
 
 | Client | Người dùng | Phạm vi dữ liệu | Core Flow |
 |---|---|---|---|
-| **Web Studio** (`Frontend/panelforge-fe`) | Admin, Producer, Writer, Artist, Letterer, Editor | Nội dung trong Workspace mà user là thành viên | CF1 → CF5 |
-| **PreviewLink** (web, không tài khoản) | Reviewer bên ngoài | Đúng 1 Chapter đang `Locked`, qua token | CF5 |
-| **Mobile Reader app** | Reader (tài khoản `ReaderAccount` riêng) | Chỉ các Series/Chapter đã `Published` | CF5 (BR-24, E-36) |
+| **Web Studio** (`Frontend/panelforge-fe`) | Admin, Producer, Writer, Artist, Letterer, Editor, Publisher | Nội dung trong Workspace mà user là thành viên (hoặc Publisher Portal chỉ đọc & cấu hình giá VNĐ) | CF1 → CF5 |
+| **PreviewLink** (web, không tài khoản) | Reviewer bên ngoài / Publisher | Đúng 1 Chapter / `ChapterEdition` đang `ChapterApproved`, qua token | CF5 |
+| **Mobile Reader app** | Reader (tài khoản `User` + Ví VNĐ `wallets` + `edition_entitlements`) | Chỉ các Series/ấn bản `ChapterEdition` đã `Published` | CF5 (BR-32, BR-33, BR-34) |
 
 > **Nguyên tắc vàng:** Web và Mobile chỉ là hai **cửa vào** (Presentation) khác nhau. Logic nghiệp vụ (Application và Domain) **dùng chung, không viết lại**.
 
@@ -92,7 +92,7 @@ Bảng này cho biết **mỗi Core Flow nằm ở đâu trong code**. Khi nhậ
 | **CF2** Chapter Production | `Content/Chapter, Scene, ScriptLine, Page, Panel, Element`, `Workflow/Assignment, StageProgress`, `Assets/`, `Ai/AiSuggestion` | `Chapters`, `Scenes`, `Pages`, `Panels`, `CanvasElements`, `PanelContentElements`, `Scripts` 🆕, `Assignments` 🆕, `Assets` 🆕, `AiSuggestions` 🆕 | `Chapters`, `Scenes`, `Pages`, `Panels`, `Elements`, `PanelElements`, … | ✅ khung nội dung, 🆕 phần còn lại |
 | **CF3** Quality Control | `Review/Comment, ChangeRequest, ConsistencyFinding` | `Reviews` 🆕, `ChangeRequests` 🆕, `ConsistencyChecks` 🆕, `StageGates` 🆕 | 🆕 | 🆕 |
 | **CF4** Version & Provenance *(xương sống)* | `Provenance/VersionEvent`, `Audit/AuditLog`, event của `Page` | `Versions` 🆕 (history, compare, restore), `Provenance` 🆕 (report) | 🆕 | ✅ event store Page, 🆕 phần còn lại |
-| **CF5** Approval, Release & Export | `Publishing/PreviewLink, ExportJob, ReaderFeedback`, `Reader/ReaderAccount, ReaderSubscription` | `ChapterApproval` 🆕 (approve/lock/reopen/publish), `PreviewLinks` 🆕, `Exports` 🆕, `ReaderFeedback` 🆕, `Catalog` ✅, **`Reader/*` 🆕 (Mobile)** | `Catalog` ✅, 🆕 `Mobile/*` | ✅ Catalog, 🆕 phần còn lại |
+| **CF5** Approval, Release & Export | `Publishing/PreviewLink, ExportJob, ReaderFeedback`, `Content/ChapterEdition`, `Monetization/Wallet, EditionEntitlement` | `ChapterApproval` 🆕 (`approve/reopen/publish`), `ChapterEditions` 🆕, `PreviewLinks` 🆕, `Exports` 🆕, `Wallets` 🆕, `ReaderFeedback` 🆕, `Catalog` ✅, **`Reader/*` 🆕 (Mobile)** | `Catalog` ✅, 🆕 `Mobile/*` | ✅ Catalog, 🆕 phần còn lại |
 | **Cross-cutting** | `Notification` | `Notifications` 🆕, `Search` 🆕 | 🆕 | 🆕 |
 
 > CF4 là **cơ chế hệ thống**, không phải một màn hình riêng. Mọi Command làm thay đổi trạng thái ở CF1, CF2, CF3 và CF5 đều phải sinh bản ghi lịch sử (BR-18). Nếu không ghi được lịch sử thì Command bị từ chối.

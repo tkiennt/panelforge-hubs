@@ -8,16 +8,17 @@
 
 ## 🗺️ Mục lục Tri thức Hệ thống (System Knowledge Map)
 
-### 1. Đặc tả & Nghiệp vụ Cốt lõi (`docs/spec/` & `docs/V2.6/`)
-- **[PANELFORGE_MASTER_SPECIFICATION_V2_6.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/spec/PANELFORGE_MASTER_SPECIFICATION_V2_6.md)**: **Bản đặc tả tối cao duy nhất (Master Spec V2.6)**. Định nghĩa toàn bộ 5 luồng cốt lõi (CF1–CF5), 8 module nghiệp vụ, quyền hạn 5 vai trò (Producer, Writer, Artist, Letterer, Editor), cấu trúc xuất bản Webtoon/Manga, cơ chế kiểm soát chất lượng & chữ ký số.
-- **[CHAPTER_AND_SCRIPT_SPECIFICATION.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/spec/CHAPTER_AND_SCRIPT_SPECIFICATION.md)**: Quy chuẩn chi tiết về kịch bản, lời thoại, bong bóng thoại, phân đoạn khung tranh và trạng thái kịch bản.
-- **[CORE_PRODUCTION_ARCHITECTURE.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/spec/CORE_PRODUCTION_ARCHITECTURE.md)**: Kiến trúc quy trình sản xuất truyện tranh, sự phối hợp giữa Canvas Editor, AI Assistant và Pipeline.
-- **[DESIGN_RULES.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/spec/DESIGN_RULES.md)**: Quy chuẩn thiết kế giao diện (UI/UX), bảng màu, typography và trải nghiệm người dùng Studio.
+### 1. Đặc tả & Nghiệp vụ Cốt lõi (`docs/V2.6/` & `docs/spec/`)
+- **[PANELFORGE_MASTER_SPECIFICATION_V2_6.md](./V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md)**: **Bản đặc tả tối cao duy nhất (Master Spec V2.6 Final)**. Định nghĩa toàn bộ 5 luồng cốt lõi (CF1–CF5), 8 module nghiệp vụ, quyền hạn 5 vai trò Studio (`Producer`, `Writer`, `Artist`, `Letterer`, `Editor`) cùng `Admin`, `Publisher`, `Reader`, cấu trúc xuất bản đa ngôn ngữ, ví VNĐ và kiểm soát chất lượng.
+- **[CHAPTER_AND_SCRIPT_SPECIFICATION.md](./spec/CHAPTER_AND_SCRIPT_SPECIFICATION.md)**: Quy chuẩn chi tiết về kịch bản (`Page -> Panel -> Content`), lời thoại đa ngôn ngữ, bong bóng thoại và vòng đời chương V2.6.
+- **[DESIGN_RULES.md](./spec/DESIGN_RULES.md)**: Quy chuẩn thiết kế giao diện (UI/UX), bảng màu, typography và trải nghiệm người dùng Studio.
 
 ### 2. Thuật ngữ & Trạng thái Chuẩn (`docs/standards/`)
-- **[PanelForge_Ubiquitous_Language_and_State_Glossary.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/standards/PanelForge_Ubiquitous_Language_and_State_Glossary.md)**: Từ điển thuật ngữ thống nhất (Ubiquitous Language) giữa Backend, Frontend, Mobile và Báo cáo.
-- **[PanelForge_State_Machine_Naming_Standards.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/standards/PanelForge_State_Machine_Naming_Standards.md)**: Chuẩn đặt tên và định nghĩa trạng thái của 5 State Machines: `AssignmentStatus`, `StageProgress`, `Submission`, `ChapterStatus`, và `SeriesBibleRevision`.
-- **[glossary-and-rules.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/standards/glossary-and-rules.md)**: Bộ quy tắc nghiệp vụ Business Rules (BR-xx) chi tiết cho kiểm thử và logic backend.
+- **[PanelForge_Ubiquitous_Language_and_State_Glossary.md](./standards/PanelForge_Ubiquitous_Language_and_State_Glossary.md)**: Từ điển thuật ngữ thống nhất (Ubiquitous Language) giữa Backend, Frontend, Mobile và Báo cáo theo V2.6.
+- **[PanelForge_State_Machine_Naming_Standards.md](./standards/PanelForge_State_Machine_Naming_Standards.md)**: Chuẩn đặt tên và định nghĩa trạng thái của 5 State Machines chuẩn V2.6 (`.NET 9`).
+- **[PanelForge_Review_and_Assignment_Cross_Audit_Report.md](./standards/PanelForge_Review_and_Assignment_Cross_Audit_Report.md)**: Báo cáo đối chiếu chéo Review Gate 2 & Assignment theo V2.6.
+
+*(Các tài liệu tiền-V2.5 như `CORE_PRODUCTION_ARCHITECTURE.md` và `glossary-and-rules.md` đã được lưu trữ tại `docs/note/archive/`.)*
 
 ### 3. Kiến trúc Kỹ thuật & Sơ đồ (`docs/architecture/`)
 - **[clean-architecture-structure.md](file:///D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-hub/docs/architecture/clean-architecture-structure.md)**: Kiến trúc Clean Architecture, CQRS, MediatR, Repository Pattern của Backend .NET 9.

@@ -1,6 +1,6 @@
 # KẾ HOẠCH TRIỂN KHAI & ĐỐI CHIẾU CODEBASE — PANELFORGE SPEC V2.6
 
-> **Nguồn đặc tả:** `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (bản duy nhất, có trong git FE). Plan này là kế hoạch riêng trong `note/`, không push. Việc của cả nhóm: `panelforge-fe/docs/TEAM_WORKBOARD.md`.
+> **Nguồn đặc tả:** `panelforge-hub/docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (bản SSOT duy nhất, đồng bộ trên GitHub). Việc của cả nhóm: `panelforge-hub/docs/tracking/TEAM_WORKBOARD.md`.
 > **Ngày đối chiếu:** 2026-11-12 · **Phạm vi quét:** `PanelForge_FA26SE251/src`, `panelforge-fe/src`, `panelforge-mobile/lib` (nhánh đang checkout ở thư mục gốc).
 > **Mục đích:** Bảng tra cứu cho AI Agent ở các phase sau: chọn task theo ID, đọc bằng chứng (file đã có), làm sub-task, cập nhật trạng thái.
 > **Plan module (chi tiết task):** [`note/plans/`](plans/README.md) — 8 plan: Kịch bản, Bible, Giao việc, Bàn vẽ, Gate 2, Phát hành, Độc giả, Chất lượng UI.

@@ -1,7 +1,55 @@
 {
-  "latestHash": "b8e6ac8",
-  "totalCommits": 68,
+  "latestHash": "2f1d044",
+  "totalCommits": 72,
   "commits": [
+    {
+      "fullHash": "2f1d04486d57b42354db5f6335d9987c6208bbf1",
+      "hash": "2f1d044",
+      "author": "trung kien",
+      "date": "2026-11-12T17:08:48+07:00",
+      "message": "feat(ui): distinct semantic colors per UI element and fix heading text splitting",
+      "repoId": "HUB",
+      "repoName": "Hub Docs",
+      "repoOwner": "tkiennt",
+      "repoSlug": "panelforge-hubs",
+      "files": []
+    },
+    {
+      "fullHash": "ad1e22c0d158887825d20ff46354f6c398deac84",
+      "hash": "ad1e22c",
+      "author": "trung kien",
+      "date": "2026-11-12T17:03:23+07:00",
+      "message": "feat(theme): apply crisp sky-blue header, buttons, and fresh daylight accents",
+      "repoId": "HUB",
+      "repoName": "Hub Docs",
+      "repoOwner": "tkiennt",
+      "repoSlug": "panelforge-hubs",
+      "files": []
+    },
+    {
+      "fullHash": "520277f630a2ed1c8ae0fa59ca004175d524085a",
+      "hash": "520277f",
+      "author": "trung kien",
+      "date": "2026-11-12T16:58:44+07:00",
+      "message": "feat(ui): elevate Editorial Paper & Ink design with elevated sheet, 2-tier header, pinned sidebar, metadata grid, H2 section badges, and TOC IntersectionObserver",
+      "repoId": "HUB",
+      "repoName": "Hub Docs",
+      "repoOwner": "tkiennt",
+      "repoSlug": "panelforge-hubs",
+      "files": []
+    },
+    {
+      "fullHash": "f2fc0f9b3b7390167bae37ee5875a3ad76dd240c",
+      "hash": "f2fc0f9",
+      "author": "trung kien",
+      "date": "2026-11-12T16:53:49+07:00",
+      "message": "fix(commits): always load multi-repo commits newest-first with persistent cache and CI snapshot fallback",
+      "repoId": "HUB",
+      "repoName": "Hub Docs",
+      "repoOwner": "tkiennt",
+      "repoSlug": "panelforge-hubs",
+      "files": []
+    },
     {
       "fullHash": "b8e6ac8399c479ef23c37eee6c54374ad081f98f",
       "hash": "b8e6ac8",

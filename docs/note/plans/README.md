@@ -1,6 +1,6 @@
 # BỘ KẾ HOẠCH TRIỂN KHAI THEO MODULE — PANELFORGE SPEC V2.6
 
-> **Nguồn đặc tả:** [`panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`](../../panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md) — bản duy nhất, nằm trong repo `panelforge-fe` (được push cho cả nhóm). Bộ plan trong `note/` là **kế hoạch riêng, không push lên GitHub**; việc của cả nhóm được ghi ở [`panelforge-fe/docs/TEAM_WORKBOARD.md`](../../panelforge-fe/docs/TEAM_WORKBOARD.md).
+> **Nguồn đặc tả:** [`docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`](../../V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md) — bản SSOT duy nhất trong `panelforge-hub`. Bộ plan trong `docs/note/plans/` được quản lý tập trung trong `panelforge-hub` và push lên GitHub cùng `docs/tracking/TEAM_WORKBOARD.md`.
 > **Plan tổng (đối chiếu codebase, quyết định đã chốt, changelog chung):** [`note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md`](../PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md).
 > **Lập ngày:** 2026-11-12. Thay thế toàn bộ plan cũ: `SCRIPT_FLOW_REFACTOR_PLAN.md`, `SERIES_BIBLE_REDESIGN_PLAN.md`, `ANTI_SLOP_REFACTOR_PLAN.md`, `archive/IMPLEMENTATION_PLAN_V2_5.md`, `archive/implement-plan/**`. Phần còn giá trị tham khảo của chúng đã được chép vào plan module tương ứng.
 
@@ -31,9 +31,9 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 | Loại | Vị trí duy nhất | Ghi chú |
 |---|---|---|
-| Đặc tả nghiệp vụ | `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` | Bản duy nhất, có trong git của repo FE. Chỉ đổi khi user chốt quyết định (ghi vào bảng "Nhật ký quyết định" Q-n), sửa qua worktree FE rồi merge `trungkien` như code. Không giữ bản sao ở `note/` hay `docs/` của BE. |
-| Plan tổng | `note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md` | Đối chiếu codebase, quyết định đã chốt, changelog chung. |
-| Task | `note/plans/0X_*.md` | Một task chỉ nằm ở **một** plan module. Không tạo file plan trong repo; plan cũ đã xong trong repo thì chuyển vào `docs/archive/`. |
+| Đặc tả nghiệp vụ | `panelforge-hub/docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` | Bản SSOT duy nhất trên GitHub. Chỉ đổi khi user chốt quyết định (ghi vào bảng "Nhật ký quyết định" Q-n). Không giữ bản sao ở các repo code BE/FE/Mobile. |
+| Plan tổng | `panelforge-hub/docs/note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md` | Đối chiếu codebase, quyết định đã chốt, changelog chung. |
+| Task | `panelforge-hub/docs/note/plans/0X_*.md` | Một task chỉ nằm ở **một** plan module. Không tạo file plan trong các repo code; plan cũ đã xong chuyển vào `docs/note/archive/`. |
 
 ### 2.2. Cấu trúc một task dùng chung nhiều repo
 
@@ -52,7 +52,7 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 ### 2.4. Nhận task để không đụng nhau
 
-1. **Trước khi code**, thêm một dòng vào bảng §5 "Đang làm" **và** một dòng vào §2 "Đang làm" của `panelforge-fe/docs/TEAM_WORKBOARD.md` (commit `docs(tracker): start …` lên `trungkien` của FE, push ngay để cả nhóm thấy) (task, repo, người/phiên, nhánh, file chính dự kiến) và đổi trạng thái task sang 🔄. Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
+1. **Trước khi code**, thêm một dòng vào bảng §5 "Đang làm" **và** một dòng vào §2 "Đang làm" của `panelforge-hub/docs/tracking/TEAM_WORKBOARD.md` (commit `docs(tracker): start …` lên `main` của `panelforge-hub`, push ngay để cả nhóm thấy) (task, repo, người/phiên, nhánh, file chính dự kiến) và đổi trạng thái task sang 🔄. Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
 2. **Không nhận** task mà cột "File chính" đụng file đang có trong bảng §5 của task khác; chờ hoặc phối hợp với người đang giữ.
 3. **Worktree theo task:** `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường, vd asg-03> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`), tránh dùng lại worktree cũ. Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
 4. **Xong:** merge + push, dọn worktree, xoá dòng ở bảng §5, đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB (commit `docs(tracker): finish …`). Sau mỗi lần `git pull` FE, đọc `TEAM_WORKBOARD.md` để biết người khác đang làm gì.

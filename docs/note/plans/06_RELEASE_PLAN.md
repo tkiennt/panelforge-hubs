@@ -26,12 +26,12 @@
 ## 3. Task
 
 #### REL-01 · Chuẩn hoá máy trạng thái Chương — DB + BE + FE + MO · 🟡 · cũ P1-01 · **làm cùng [SCR-08](01_SCRIPT_PLAN.md)**
-- [ ] Enum: thêm `PreProduction = 0` (mặc định khi tạo), `HandedOff`; giữ `Approved`; xoá `Locked = 3` (không code nào dùng).
+- [ ] Enum: thêm `PreProduction = 0` (mặc định khi tạo), `HandedOffAndPublished`; chuẩn hoá `ChapterApproved`; xoá `Locked = 3` (gộp vào `ChapterApproved`, Q1).
 - [ ] Migration: `UPDATE chapters SET status = 2 WHERE status = 3`; chương chưa freeze → `PreProduction`.
-- [ ] Domain `Chapter`: `StartProduction()`, `MarkHandedOff()`; `Reopen()` chỉ Approved → InProduction kèm lý do.
+- [ ] Domain `Chapter`: `StartProduction()`, `MarkHandedOffAndPublished()`; `Reopen()` chỉ `ChapterApproved → InProduction` kèm lý do.
 - [ ] Rà mọi điều kiện `Status == InProduction` (~24 file).
 - [ ] FE/Mobile: type enum, badge, i18n.
-- **DoD:** `PreProduction → InProduction → Approved → HandedOff/Published` chạy end-to-end; Reopen có audit.
+- **DoD:** `PreProduction → InProduction → ChapterApproved → HandedOffAndPublished` chạy end-to-end; Reopen có audit.
 
 #### REL-02 · Gate 3 hoàn chỉnh — BE · 🟡 · phần còn lại P0-02
 - [ ] Sau [ASG-01](03_ASSIGNMENT_PLAN.md): `PAGES_WITHOUT_WORK` chuyển từ cảnh báo thành **chặn**; cập nhật test `LockGate_PageWithoutProductionWork_IsWarningOnly`.
