@@ -30,6 +30,11 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Header dính cao 56px (h-14): chừa chỗ để tiêu đề cuộn tới (mục lục, deep link #id) không bị che */
+html {
+  scroll-padding-top: 72px;
+}
+
 /* Editorial Serif Headings with full Vietnamese support */
 .font-serif-editorial {
   font-family: 'Lora', 'Merriweather', Georgia, Cambria, 'Times New Roman', serif;

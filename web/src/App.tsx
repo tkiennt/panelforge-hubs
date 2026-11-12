@@ -453,9 +453,9 @@ export const App: React.FC = () => {
       )}
 
       {/* 1. Primary Top Bar (h-14, Crisp Sky Blue Daylight Header) */}
-      <header className="sticky top-0 z-40 h-14 bg-[#0284C7] border-b border-[#0369A1] text-white px-4 lg:px-6 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 h-14 bg-[#0284C7] border-b border-[#0369A1] text-white px-3 sm:px-4 lg:px-6 flex items-center justify-between gap-2 sm:gap-3">
         {/* Left: Brand mark + SSOT DOCS pill */}
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
             className="lg:hidden p-1.5 text-white/90 hover:text-white rounded-md hover:bg-white/15 transition-colors"
@@ -468,31 +468,33 @@ export const App: React.FC = () => {
               setActiveTab('docs');
               if (docsManifest.docs[0]) handleSelectDoc(docsManifest.docs[0].slug);
             }}
-            className="flex items-center gap-2 text-left"
+            className="flex items-center gap-2 text-left min-w-0"
           >
-            <span className="font-serif font-bold text-base tracking-tight text-white whitespace-nowrap">
-              PANELFORGE HUB
+            <span className="font-serif font-bold text-base tracking-tight text-white whitespace-nowrap truncate">
+              PANELFORGE<span className="hidden sm:inline"> HUB</span>
             </span>
-            <span className="hidden sm:inline-block text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-white/15 border border-white/25 text-white font-semibold tracking-wider">
+            <span className="hidden lg:inline-block whitespace-nowrap text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-white/15 border border-white/25 text-white font-semibold tracking-wider">
               SSOT DOCS
             </span>
           </button>
         </div>
 
         {/* Center: Clean 3-tab segmented switch */}
-        <nav className="flex items-center gap-0.5 bg-[#0369A1]/80 p-1 rounded-lg border border-[#0369A1] text-xs font-medium">
+        <nav className="flex shrink-0 items-center gap-0.5 bg-[#0369A1]/80 p-1 rounded-lg border border-[#0369A1] text-xs font-medium">
           <button
             onClick={() => setActiveTab('docs')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
+            aria-label="Tài liệu"
+            title="Tài liệu"
+            className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-1 rounded-md transition-all ${
               activeTab === 'docs'
                 ? 'bg-white text-[#0284C7] shadow-sm font-semibold'
                 : 'text-sky-100 hover:text-white'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Tài liệu</span>
+            <span className="hidden md:inline">Tài liệu</span>
             <span
-              className={`hidden md:inline text-[10px] font-mono ${
+              className={`hidden lg:inline text-[10px] font-mono ${
                 activeTab === 'docs' ? 'text-[#0284C7]/70' : 'text-sky-200/80'
               }`}
             >
@@ -501,27 +503,31 @@ export const App: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('changelog')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
+            aria-label="Changelog & Diff"
+            title="Changelog & Diff"
+            className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-1 rounded-md transition-all ${
               activeTab === 'changelog'
                 ? 'bg-white text-[#0284C7] shadow-sm font-semibold'
                 : 'text-sky-100 hover:text-white'
             }`}
           >
             <GitCommit className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Changelog & Diff</span>
-            <span className="sm:hidden">Changelog</span>
+            <span className="hidden lg:inline">Changelog & Diff</span>
+            <span className="hidden md:inline lg:hidden">Changelog</span>
           </button>
           <button
             onClick={() => setActiveTab('diagrams')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
+            aria-label="Sơ đồ kiến trúc"
+            title="Sơ đồ kiến trúc"
+            className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-1 rounded-md transition-all ${
               activeTab === 'diagrams'
                 ? 'bg-white text-[#0284C7] shadow-sm font-semibold'
                 : 'text-sky-100 hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sơ đồ kiến trúc</span>
-            <span className="sm:hidden">Sơ đồ</span>
+            <span className="hidden lg:inline">Sơ đồ kiến trúc</span>
+            <span className="hidden md:inline lg:hidden">Sơ đồ</span>
           </button>
         </nav>
 
@@ -531,10 +537,11 @@ export const App: React.FC = () => {
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center gap-2 px-2.5 py-1.5 bg-white/15 border border-white/20 rounded-md text-xs text-white hover:bg-white/25 transition-colors"
             title="Tìm kiếm nhanh (Ctrl/Cmd + K)"
+            aria-label="Tìm kiếm tài liệu"
           >
             <Search className="w-3.5 h-3.5 text-sky-100" />
             <span className="hidden lg:inline">Tìm...</span>
-            <kbd className="font-mono text-[10px] bg-white/20 border border-white/25 px-1 rounded text-white">
+            <kbd className="hidden sm:inline font-mono text-[10px] bg-white/20 border border-white/25 px-1 rounded text-white">
               ⌘K
             </kbd>
           </button>
@@ -542,7 +549,7 @@ export const App: React.FC = () => {
           {/* Compact Git Sync Status Dot (opens Token & API Modal) */}
           <button
             onClick={() => setIsTokenModalOpen(true)}
-            className="flex items-center gap-1.5 px-2 py-1.5 bg-white/15 border border-white/20 rounded-md text-[11px] font-mono text-white hover:bg-white/25 transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-2 py-1.5 bg-white/15 border border-white/20 rounded-md text-[11px] font-mono text-white hover:bg-white/25 transition-colors"
             title={
               gitHubStatus?.source === 'live-api'
                 ? 'GitHub API: Đã đồng bộ trực tiếp (Nhấp để cấu hình Token)'
@@ -572,7 +579,7 @@ export const App: React.FC = () => {
           <button
             onClick={() => loadData(true)}
             disabled={refreshingCommits}
-            className="p-1.5 bg-white/15 border border-white/20 text-white hover:bg-white/25 rounded-md transition-colors disabled:opacity-50"
+            className="hidden sm:block p-1.5 bg-white/15 border border-white/20 text-white hover:bg-white/25 rounded-md transition-colors disabled:opacity-50"
             title="Làm mới commits từ GitHub"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshingCommits ? 'animate-spin text-white' : ''}`} />
