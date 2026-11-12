@@ -147,7 +147,8 @@ export function renderMarkdown(
   segmentIndex = 0
 ): string {
   try {
-    const rawHtml = marked.parse(md) as string;
+    const normalizedMd = md.normalize('NFC');
+    const rawHtml = marked.parse(normalizedMd) as string;
     if (typeof DOMParser === 'undefined') {
       return rawHtml;
     }

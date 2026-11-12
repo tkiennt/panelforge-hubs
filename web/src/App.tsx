@@ -82,6 +82,17 @@ function parseMarkdownSegments(markdown: string): ContentSegment[] {
   return segments;
 }
 
+function getCategoryColorClass(category: string): string {
+  const c = category.toLowerCase();
+  if (c.includes('v2.6')) return 'text-sky-600';
+  if (c.includes('spec')) return 'text-indigo-600';
+  if (c.includes('arch')) return 'text-teal-600';
+  if (c.includes('standard')) return 'text-violet-600';
+  if (c.includes('track')) return 'text-emerald-600';
+  if (c.includes('note') || c.includes('plan')) return 'text-amber-600';
+  return 'text-slate-500';
+}
+
 export const App: React.FC = () => {
   const [docsManifest, setDocsManifest] = useState<DocsManifestData | null>(null);
   const [commitsDiff, setCommitsDiff] = useState<CommitsDiffData | null>(null);
@@ -661,8 +672,8 @@ export const App: React.FC = () => {
               {/* Pinned Core Specs Section */}
               {!sidebarSearch && (
                 <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-[#64748B] font-semibold px-2 py-0.5">
-                    <Pin className="w-3 h-3 text-[#0284C7]" />
+                  <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-amber-700 font-semibold px-2 py-0.5">
+                    <Pin className="w-3 h-3 text-amber-600" />
                     <span>Tài liệu cốt lõi (Pinned)</span>
                   </div>
                   <div className="space-y-0.5">
@@ -676,13 +687,13 @@ export const App: React.FC = () => {
                           className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center justify-between gap-2 transition-colors ${
                             isSelected
                               ? 'bg-white text-[#0F172A] font-semibold border border-[#E2E8F0] shadow-sm'
-                              : 'text-[#334155] hover:bg-[#E0F2FE]/50 hover:text-[#0F172A]'
+                              : 'text-[#334155] hover:bg-amber-50/70 hover:text-[#0F172A]'
                           }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <Icon
                               className={`w-3.5 h-3.5 shrink-0 ${
-                                isSelected ? 'text-[#0284C7]' : 'text-[#64748B]'
+                                isSelected ? 'text-amber-600' : 'text-amber-500/80'
                               }`}
                             />
                             <span className="truncate">{item.title}</span>
@@ -691,7 +702,7 @@ export const App: React.FC = () => {
                             <span
                               className={`text-[9.5px] font-mono px-1.5 py-0.5 rounded shrink-0 ${
                                 item.highlight
-                                  ? 'bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD] font-semibold'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200 font-semibold'
                                   : 'bg-slate-100 text-[#64748B]'
                               }`}
                             >
@@ -710,10 +721,10 @@ export const App: React.FC = () => {
                 <div className="pt-2 border-t border-[#E2E8F0]">
                   <button
                     onClick={() => setShowRecent(!showRecent)}
-                    className="w-full flex items-center justify-between text-[10.5px] font-mono uppercase tracking-wider text-[#64748B] hover:text-[#0F172A] font-semibold px-2 py-1 rounded transition-colors"
+                    className="w-full flex items-center justify-between text-[10.5px] font-mono uppercase tracking-wider text-violet-700 hover:text-violet-900 font-semibold px-2 py-1 rounded transition-colors"
                   >
                     <div className="flex items-center gap-1.5">
-                      <History className="w-3 h-3" />
+                      <History className="w-3 h-3 text-violet-600" />
                       <span>Vừa xem ({recentDocsList.length})</span>
                     </div>
                     <ChevronDown
@@ -731,11 +742,11 @@ export const App: React.FC = () => {
                           className={`w-full text-left px-2.5 py-1 rounded-md text-[11.5px] flex items-center gap-1.5 transition-colors truncate ${
                             doc.slug === selectedDocSlug
                               ? 'bg-white text-[#0F172A] font-semibold border border-[#E2E8F0] shadow-sm'
-                              : 'text-[#475569] hover:bg-[#E0F2FE]/50 hover:text-[#0F172A]'
+                              : 'text-[#475569] hover:bg-violet-50/70 hover:text-[#0F172A]'
                           }`}
                           title={doc.title}
                         >
-                          <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                          <Clock className="w-3 h-3 text-violet-400 shrink-0" />
                           <span className="truncate">{doc.title}</span>
                         </button>
                       ))}
@@ -748,8 +759,8 @@ export const App: React.FC = () => {
               <div className="pt-2 border-t border-[#E2E8F0] space-y-4">
                 {categorizedDocs.map(([category, items]) => (
                   <div key={category} className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-[#64748B] font-semibold px-2 py-0.5">
-                      <Folder className="w-3 h-3 text-[#64748B]" />
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-[#475569] font-semibold px-2 py-0.5">
+                      <Folder className={`w-3.5 h-3.5 ${getCategoryColorClass(category)}`} />
                       <span>{category}</span>
                     </div>
                     <div className="space-y-0.5">
@@ -822,7 +833,7 @@ export const App: React.FC = () => {
                     <ChevronRight className="w-3 h-3 text-slate-400" />
                     <button
                       onClick={() => setSidebarSearch(currentDoc.category)}
-                      className="hover:text-[#0284C7] font-medium text-[#475569] underline underline-offset-2"
+                      className="px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-medium transition-colors"
                       title="Lọc tài liệu theo danh mục này"
                     >
                       {currentDoc.category}
@@ -841,10 +852,10 @@ export const App: React.FC = () => {
                         const directUrl = `${window.location.origin}${window.location.pathname}#/docs/${currentDoc.slug}`;
                         copyWithToast(directUrl, 'Đã sao chép liên kết trực tiếp (Deep Link)!');
                       }}
-                      className="flex items-center gap-1 px-2 py-1 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                      className="flex items-center gap-1 px-2 py-1 rounded border border-[#E2E8F0] bg-white hover:bg-sky-50 hover:border-sky-300 text-[11px] text-slate-700 transition-colors"
                       title="Sao chép liên kết web trực tiếp tới tài liệu này"
                     >
-                      <LinkIcon className="w-3 h-3 text-accent" />
+                      <LinkIcon className="w-3 h-3 text-sky-600" />
                       <span className="hidden sm:inline">Deep Link</span>
                     </button>
 
@@ -854,10 +865,10 @@ export const App: React.FC = () => {
                         const mdLink = `[${currentDoc.title}](https://github.com/tkiennt/panelforge-hubs/blob/main/${currentDoc.repoPath})`;
                         copyWithToast(mdLink, 'Đã sao chép link Markdown!');
                       }}
-                      className="flex items-center gap-1 px-2 py-1 rounded border border-hairline bg-white hover:bg-stone-50 text-[11px] text-stone-700 transition-colors"
+                      className="flex items-center gap-1 px-2 py-1 rounded border border-[#E2E8F0] bg-white hover:bg-violet-50 hover:border-violet-300 text-[11px] text-slate-700 transition-colors"
                       title="Sao chép cú pháp Markdown [Tiêu đề](đường dẫn)"
                     >
-                      <FileText className="w-3 h-3 text-stone-500" />
+                      <FileText className="w-3 h-3 text-violet-600" />
                       <span className="hidden sm:inline">Markdown</span>
                     </button>
 
@@ -866,7 +877,7 @@ export const App: React.FC = () => {
                       href={`https://github.com/tkiennt/panelforge-hubs/blob/main/${currentDoc.repoPath}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1 rounded border border-hairline bg-white hover:bg-stone-50 text-stone-500 hover:text-accent transition-colors"
+                      className="p-1 rounded border border-[#E2E8F0] bg-white hover:bg-slate-50 text-slate-600 hover:text-[#0F172A] transition-colors"
                       title="Xem file gốc trên GitHub"
                     >
                       <ExternalLink className="w-3 h-3" />
@@ -878,7 +889,7 @@ export const App: React.FC = () => {
                         onClick={() => handleSelectDoc(currentDoc.slug, undefined, 'reader')}
                         className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                           activeMode === 'reader'
-                            ? 'bg-white text-[#0F172A] shadow-sm font-semibold'
+                            ? 'bg-[#0284C7] text-white shadow-sm font-semibold'
                             : 'text-[#64748B] hover:text-[#0F172A]'
                         }`}
                       >
@@ -889,7 +900,7 @@ export const App: React.FC = () => {
                         onClick={() => handleSelectDoc(currentDoc.slug, undefined, 'diff')}
                         className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                           activeMode === 'diff'
-                            ? 'bg-[#0284C7] text-white shadow-sm font-semibold'
+                            ? 'bg-[#D97706] text-white shadow-sm font-semibold'
                             : 'text-[#64748B] hover:text-[#0F172A]'
                         }`}
                       >
@@ -902,23 +913,21 @@ export const App: React.FC = () => {
 
                 {/* Document Hero Header */}
                 <div className="space-y-2.5 pb-2">
-                  <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight leading-tight">
+                  <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#0F172A] leading-tight">
                     {currentDoc.title}
                   </h1>
 
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#64748B] pt-1">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-[#64748B] pt-1">
+                    <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium">
+                      <Clock className="w-3.5 h-3.5 text-emerald-600" />
                       Cập nhật: {formatRelativeDate(currentDoc.lastCommit.date)}
                     </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1 font-mono">
-                      <GitCommit className="w-3.5 h-3.5 text-[#0284C7]" />
-                      commit {currentDoc.lastCommit.hash}
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-mono">
+                      <GitCommit className="w-3.5 h-3.5 text-indigo-600" />
+                      {currentDoc.lastCommit.hash}
                     </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 font-medium">
+                      <User className="w-3.5 h-3.5 text-violet-600" />
                       {currentDoc.lastCommit.author}
                     </span>
                   </div>
@@ -995,7 +1004,7 @@ export const App: React.FC = () => {
           <aside className="hidden xl:block sticky top-[56px] self-start shrink-0 h-[calc(100vh-56px)] w-[240px] border-l border-[#E2E8F0] p-4 space-y-6 overflow-y-auto bg-[#F8FAFC] text-xs text-[#0F172A]">
             {/* Table of Contents (TOC) with IntersectionObserver Active Highlight */}
             <div className="space-y-2">
-              <div className="text-[10.5px] uppercase tracking-wider font-mono text-[#64748B] font-semibold">
+              <div className="text-[10.5px] uppercase tracking-wider font-mono text-[#0284C7] font-semibold">
                 Mục lục trang
               </div>
               {currentDoc?.headings && currentDoc.headings.length > 0 ? (
@@ -1033,7 +1042,7 @@ export const App: React.FC = () => {
 
             {/* Compact Mini-Timeline: Last 3 Commits for Active File */}
             <div className="space-y-2.5 pt-4 border-t border-[#E2E8F0]">
-              <div className="text-[10.5px] uppercase tracking-wider font-mono text-[#64748B] font-semibold">
+              <div className="text-[10.5px] uppercase tracking-wider font-mono text-emerald-700 font-semibold">
                 Lịch sử thay đổi file này
               </div>
               <div className="space-y-2">
@@ -1048,8 +1057,8 @@ export const App: React.FC = () => {
                       className="w-full text-left p-2 rounded-lg border border-[#E2E8F0] bg-white hover:border-[#0284C7] cursor-pointer transition-colors space-y-1 group"
                     >
                       <div className="flex items-center justify-between font-mono text-[10px]">
-                        <span className="text-[#0284C7] font-semibold flex items-center gap-1">
-                          <span className={`w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-[#0284C7]' : 'bg-slate-300'}`} />
+                        <span className="text-indigo-600 font-semibold flex items-center gap-1">
+                          <span className={`w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-[#10B981]' : 'bg-slate-300'}`} />
                           {fc.hash}
                         </span>
                         <span className="text-[#64748B]">{formatRelativeDate(fc.date)}</span>
