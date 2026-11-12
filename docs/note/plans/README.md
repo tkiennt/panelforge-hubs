@@ -25,7 +25,7 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 ## 2. Quy tắc phối hợp: một bộ plan cho cả BE, FE, Mobile
 
-> Đây là **nguồn quy tắc duy nhất** cho mọi agent và thành viên làm ở `PanelForge_FA26SE251` (BE), `panelforge-fe` (FE), `panelforge-mobile` (MO). `CLAUDE.md` của từng repo và `panelforge-fe/docs/DOCUMENTATION_PROCESS.md` chỉ trỏ về đây; nếu có chỗ khác nhau thì theo mục này.
+> Đây là **nguồn quy tắc duy nhất** cho mọi agent và thành viên làm ở `PanelForge_FA26SE251` (BE), `panelforge-fe` (FE), `panelforge-mobile` (MO). `CLAUDE.md` của từng repo chỉ trỏ về đây; nếu có chỗ khác nhau thì theo mục này.
 
 ### 2.1. Nguồn sự thật
 
@@ -52,13 +52,14 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 ### 2.4. Nhận task để không đụng nhau
 
-1. **Trước khi code**, thêm một dòng vào bảng §5 "Đang làm" **và** một dòng vào §2 "Đang làm" của `panelforge-hub/docs/tracking/TEAM_WORKBOARD.md` (commit `docs(tracker): start …` lên `main` của `panelforge-hub`, push ngay để cả nhóm thấy) (task, repo, người/phiên, nhánh, file chính dự kiến) và đổi trạng thái task sang 🔄. Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
-2. **Không nhận** task mà cột "File chính" đụng file đang có trong bảng §5 của task khác; chờ hoặc phối hợp với người đang giữ.
+1. **Trước khi code**, thêm một dòng vào §2 "Đang làm" của [`TEAM_WORKBOARD.md`](../../tracking/TEAM_WORKBOARD.md) (người/phiên, repo, ID task, nhánh, file chính dự kiến), đổi trạng thái task sang 🔄, rồi commit `docs(tracker): start …` lên `main` của `panelforge-hub` và push ngay để cả nhóm thấy. Workboard là bảng nhận task duy nhất (§5 dưới đây chỉ trỏ về đó). Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
+2. **Không nhận** task mà cột "File chính" đụng file đang có ở §2 workboard của task khác; chờ hoặc phối hợp với người đang giữ.
 3. **Worktree theo task:** `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường, vd asg-03> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`), tránh dùng lại worktree cũ. Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
-4. **Xong:** merge + push, dọn worktree, xoá dòng ở bảng §5, đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB (commit `docs(tracker): finish …`). Sau mỗi lần `git pull` FE, đọc `TEAM_WORKBOARD.md` để biết người khác đang làm gì.
+4. **Xong:** merge + push repo code, dọn worktree, đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …` và push hub. Đầu mỗi phiên, `git pull` hub và đọc `TEAM_WORKBOARD.md` để biết người khác đang làm gì.
 
-### 2.5. Sửa file plan an toàn (thư mục `note/` không có git, không chia sẻ)
+### 2.5. Sửa file plan an toàn (`docs/` của `panelforge-hub`, chia sẻ qua GitHub)
 
+0. `git -C panelforge-hub pull` trước khi sửa; sửa xong commit `docs(<scope>): …` và `git push origin main` **ngay trong cùng lượt làm việc**. Không để thay đổi tài liệu nằm chưa commit trên máy.
 1. Đọc lại file ngay trước khi sửa; chỉ sửa **khối task của mình** và **thêm dòng** vào Changelog/bảng §5. Không viết lại cả file, không sắp xếp lại task của người khác.
 2. Task đã xong không xoá, không di chuyển; giữ làm lịch sử.
 3. Việc mới phát sinh: thêm task mới (ID tiếp theo) vào plan module đúng mảng, kèm tiền tố repo; quyết định cần user chốt thì ghi vào mục "Còn mở" của plan tổng, không tự quyết.
@@ -102,7 +103,7 @@ REL-08 ─► RDR-11 (độc giả chọn ngôn ngữ)
 | `SCRIPT_END_TO_END_REFACTOR_MASTER_PLAN.md`, `PAGE_BASED_SCRIPT_EDITOR_AND_DYNAMIC_ENTITY_LINKING_PLAN.md` | Toàn bộ | Bị thay bởi `01_SCRIPT_PLAN.md` (thiết kế mới có `ScriptStatus`, `ScriptLineKind`, Scene ẩn) |
 | `LUCIAN_UXUI_ENHANCEMENT_INTEGRATION_PLAN.md` | #017 thanh trượt nghiêng, #020 hiệu ứng mực dâng, #280 mô phỏng khử nhiễu AI, #093 hạt mừng hoàn thành, #255 thẻ kéo nghiêng | Trang trí, trái AGENTS.md §7.2 (anti-slop). Các mục có chức năng thật được giữ trong plan module |
 | `IMPLEMENTATION_PLAN_V2_5.md` | Phase 1–2 | Đã xong; phần còn lại (Phase 3) chuyển vào `03_ASSIGNMENT_PLAN.md` |
-| `archive/implement-plan/completed/*` (13 file) | Toàn bộ | Đã hoàn thành; quy chuẩn màu/chữ đã nằm trong `panelforge-fe/docs/DESIGN_RULES.md`. Bảng thuật ngữ và checklist còn mở chép vào `08_UI_QUALITY_PLAN.md` |
+| `archive/implement-plan/completed/*` (13 file) | Toàn bộ | Đã hoàn thành; quy chuẩn màu/chữ đã nằm trong `panelforge-hub/docs/spec/DESIGN_RULES.md`. Bảng thuật ngữ và checklist còn mở chép vào `08_UI_QUALITY_PLAN.md` |
 | `panelforge-fe/docs/implement-plan/ongoing/editor-review-screens.md` | Phần "Next" | Chép vào REV-06 và REL-03. Đã gỡ khỏi repo (FE `9b4577b`) cùng việc đổi quy trình tài liệu sang `note/plans/` |
 | `PanelForge_FA26SE251/docs/superpowers/plans/2026-10-31-native-dotnet-panel-splitter.md` | Task 5–6 | Chép vào ART-13. Đã gỡ khỏi repo (BE `c74649d`) |
 
@@ -110,6 +111,4 @@ REL-08 ─► RDR-11 (độc giả chọn ngôn ngữ)
 
 ## 5. Đang làm (bảng nhận task — §2.4)
 
-| Task | Repo | Người / phiên | Nhánh | File chính dự kiến | Bắt đầu |
-|---|---|---|---|---|---|
-| — | — | — | — | — | — |
+Gộp vào §2 "Đang làm" của [`docs/tracking/TEAM_WORKBOARD.md`](../../tracking/TEAM_WORKBOARD.md) từ 2026-11-12 để chỉ còn một bảng nhận task.

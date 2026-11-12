@@ -14,7 +14,8 @@
    `docs(tracker): finish <việc ngắn gọn>`
 4. **Đổi API, DTO, DB hoặc enum** mà repo khác dùng: ghi rõ ở cột "Ảnh hưởng người khác" (endpoint, trường, migration). Không ghi được thì việc chưa xong.
 5. Chỉ **thêm hoặc xoá dòng của chính mình**; không sửa dòng của người khác, không sắp xếp lại bảng. Gặp conflict khi pull thì giữ cả hai dòng.
-6. Làm việc ở repo khác (backend, mobile) vẫn cập nhật file này trong `panelforge-fe`, vì đây là nơi duy nhất cả nhóm cùng đọc.
+6. Làm ở repo nào (BE, FE, MO) cũng cập nhật file này trong `panelforge-hub`, vì đây là nơi duy nhất cả nhóm cùng đọc. Repo code không giữ bản sao workboard.
+7. **AI Agent:** mỗi lần sửa bất kỳ file nào trong `panelforge-hub/docs/` (workboard, plan, spec) thì commit theo `docs(<scope>): …` và `git push origin main` ngay trong cùng lượt làm việc, để cả nhóm thấy thay đổi khi pull.
 
 **Cột "Repo":** `BE` = `PanelForge_FA26SE251` · `FE` = `panelforge-fe` · `MO` = `panelforge-mobile`.
 

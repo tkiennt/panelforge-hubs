@@ -17,7 +17,7 @@ Repo `panelforge-hub/` là Git Repo quản lý tài liệu trung tâm (SSOT Docs
 ## Mục lục Tri thức Hệ thống tại `docs/`
 
 - **Bản đồ tri thức chi tiết:** Xem tại `docs/README.md`.
-- **Master Spec V2.6:** `docs/spec/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (SSOT bản gốc duy nhất).
+- **Master Spec V2.6:** `docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md` (SSOT bản gốc duy nhất).
 - **Kế hoạch triển khai (Master plan):** `docs/note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md` · Module plans: `docs/note/plans/`.
 - **Quy tắc cấu trúc tổng thể:** `docs/STRUCTURE_GUIDE.md`.
 - **Thuật ngữ & State Machines:** `docs/standards/`.

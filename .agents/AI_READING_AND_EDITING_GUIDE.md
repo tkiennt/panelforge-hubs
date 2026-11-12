@@ -75,7 +75,7 @@ Xác định đúng file ở tầng nào cần can thiệp:
   - **Frontend:** Không gọi trực tiếp `axios.get/post` trong component; luôn bọc qua `src/services/<domain>.service.ts`.
   - **Mobile:** Không đặt logic HTTP trong hàm `build()`; luôn gọi qua Provider hoặc Service.
   - **Thiết kế Giao diện (UI/UX) & Đa ngôn ngữ (i18n):**
-    - Bắt buộc tham chiếu `panelforge-fe/docs/DESIGN_RULES.md` ("UI Constitution") khi tạo mới hoặc sửa component/view.
+    - Bắt buộc tham chiếu `panelforge-hub/docs/spec/DESIGN_RULES.md` ("UI Constitution") khi tạo mới hoặc sửa component/view.
     - Duy trì nền giấy manga ấm (`bg-[#FAF9F5]`, `stone-50`), mặt thẻ trắng (`bg-white`), viền `border-stone-200/80`, màu nhấn Mực Cam Studio (`#F97316` / `#EA580C`). Tuyệt đối không dùng màu xám lạnh (`gray-*`, `slate-*`).
     - Cỡ chữ hiển thị tối thiểu là `text-xs` (12px), tuyệt đối không dùng `text-[10px]` hay `text-[11px]`.
     - Không hardcode chuỗi text trực tiếp vào JSX; luôn bổ sung key vào cả 2 file `src/locales/vi/*.json` và `src/locales/en/*.json`, kiểm tra đồng bộ bằng `npm run i18n:check`.
@@ -92,6 +92,6 @@ powershell -ExecutionPolicy Bypass -File .agents/scripts/worktree_manager.ps1 -A
 
 ## 3. DUY TRÌ NGỮ CẢNH GIỮA CÁC PHIÊN
 Không có MCP `agentmemory`. Ngữ cảnh dùng chung nằm ở:
-1. `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`: nghiệp vụ và bảng "Nhật ký quyết định".
+1. `panelforge-hub/docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`: nghiệp vụ và bảng "Nhật ký quyết định".
 2. `note/plans/`: task, quyết định kỹ thuật, Hợp đồng API, Changelog (quy tắc ở `note/plans/README.md` §2).
 3. `.agents/CODEBASE_MAP.md` / `CODEBASE_INDEX.json`: vị trí file. Khi thêm/đổi tên file chính của một domain, cập nhật 2 file này trong cùng lượt.

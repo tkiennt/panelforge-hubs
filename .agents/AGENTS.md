@@ -50,7 +50,7 @@ flowchart TD
 | Tên Sub-Agent | Phạm vi thư mục | Trọng tâm công nghệ | Tiêu chuẩn chất lượng / Lệnh kiểm tra (Pre-commit) |
 |---|---|---|---|
 | **`backend-expert`** | `PanelForge_FA26SE251/src/PanelForge.*` | C# 13, .NET 9, Clean Architecture, MediatR CQRS, Domain Rules, CAS SHA-256 | `dotnet build PanelForge_FA26SE251/PanelForge.slnx`<br/>`dotnet test PanelForge_FA26SE251/PanelForge.slnx` |
-| **`frontend-expert`** | `panelforge-fe/src/*` | React 19, TypeScript, Vite, Tailwind CSS, Lucian UX/UI, Fabric/Canvas, Zustand, `docs/DESIGN_RULES.md` | `cd panelforge-fe && npm run typecheck`<br/>`cd panelforge-fe && npm run i18n:check`<br/>`cd panelforge-fe && npx vitest run` |
+| **`frontend-expert`** | `panelforge-fe/src/*` | React 19, TypeScript, Vite, Tailwind CSS, Lucian UX/UI, Fabric/Canvas, Zustand, `panelforge-hub/docs/spec/DESIGN_RULES.md` | `cd panelforge-fe && npm run typecheck`<br/>`cd panelforge-fe && npm run i18n:check`<br/>`cd panelforge-fe && npx vitest run` |
 | **`mobile-expert`** | `panelforge-mobile/lib/*` | Flutter 3.44, Dart 3.12, Riverpod, GoRouter, Dio, CachedNetworkImage, Mobile Reader & Review Canvas, `lib/theme/app_theme.dart` | `cd panelforge-mobile && flutter analyze`<br/>`cd panelforge-mobile && flutter test` |
 | **`db-architect`** | `db/*`, `PanelForge_FA26SE251/src/PanelForge.Infrastructure/Persistence/Migrations/*` | PostgreSQL 16, EF Core Migrations, snake_case mapping, Data Safety | `dotnet ef migrations add`<br/>`powershell -File db/check_db_sync.ps1` |
 | **`qa-tester`** | `PanelForge_FA26SE251/test/*`, `panelforge-fe/src/**/*.test.*`, `panelforge-mobile/test/*` | xUnit, Moq, FluentAssertions, Vitest, Edge cases, Role gate assertions | Viết/cập nhật test cho mọi đổi luật nghiệp vụ; chỉ chạy test runner khi user yêu cầu |
@@ -90,7 +90,7 @@ flowchart TD
    - Khi `frontend-expert` / `mobile-expert` hoàn thành UI: Bàn giao danh sách component và file test tương ứng cho `qa-tester` nghiệm thu.
 
 8. **Nguyên tắc Đồng bộ UI Design System & Đa ngôn ngữ (UI Consistency & i18n Guardrail):**
-   - **Frontend UI:** Bắt buộc tuân thủ `panelforge-fe/docs/DESIGN_RULES.md` ("UI Constitution") và hệ token `src/styles/tokens/studio-tokens.css`.
+   - **Frontend UI:** Bắt buộc tuân thủ `panelforge-hub/docs/spec/DESIGN_RULES.md` ("UI Constitution") và hệ token `src/styles/tokens/studio-tokens.css`.
      - Tuyệt đối không dùng màu xám lạnh (`slate-*`, `gray-*`); chỉ dùng nền giấy manga ấm (`bg-[#FAF9F5]`, `stone-50`), mặt thẻ trắng (`bg-white`), và viền giấy (`border-stone-200/80`).
      - Màu thương hiệu chính là Mực Cam Studio (`#F97316` / `#EA580C`, `.btn-cta-primary`).
      - Màu ngữ nghĩa chuẩn: Tím (`violet-*`) cho AI/Bible, Xanh ngọc (`emerald-*`) cho Duyệt/Xong, Hổ phách (`amber-*`) cho Cảnh báo/Chờ duyệt, Đỏ (`rose-*`) cho Lỗi/Sửa, Lam (`blue-*`) cho Đang làm.
@@ -107,8 +107,8 @@ flowchart TD
 
 ## 3B. KẾ HOẠCH TRIỂN KHAI DÙNG CHUNG (SHARED IMPLEMENT PLAN)
 
-- Cả `backend-expert`, `frontend-expert`, `mobile-expert`, `db-architect`, `qa-tester` làm theo **một bộ plan duy nhất** ở `note/plans/` (plan tổng: `note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md`; đặc tả: `panelforge-fe/docs/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`).
-- Quy tắc phối hợp ở `note/plans/README.md` §2: nhận task ở bảng §5 trước khi code, worktree riêng theo ID task, mỗi agent chỉ làm sub-task có tiền tố repo của mình (`[BE]`/`[FE]`/`[MO]`/`[DB]`/`[QA]`), BE ghi Hợp đồng API vào task trước khi FE/MO nối API, merge từng repo vào `trungkien` của repo đó.
+- Cả `backend-expert`, `frontend-expert`, `mobile-expert`, `db-architect`, `qa-tester` làm theo **một bộ plan duy nhất** ở `note/plans/` (plan tổng: `note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md`; đặc tả: `docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`).
+- Quy tắc phối hợp ở `note/plans/README.md` §2: nhận task ở §2 "Đang làm" của `docs/tracking/TEAM_WORKBOARD.md` trước khi code (commit + push hub ngay), worktree riêng theo ID task, mỗi agent chỉ làm sub-task có tiền tố repo của mình (`[BE]`/`[FE]`/`[MO]`/`[DB]`/`[QA]`), BE ghi Hợp đồng API vào task trước khi FE/MO nối API, merge từng repo vào `trungkien` của repo đó.
 - Lead giao task cho sub-agent bằng ID task (vd `RDR-07 [BE]`) kèm đường dẫn sandbox.
 
 ## 4. QUY CHUẨN TỐI ƯU CONTEXT & ĐỊNH VỊ 1-CHẠM (ZERO-EXPLORATION PROTOCOL)
@@ -248,7 +248,7 @@ flowchart TD
    - ❌ **Cấm Glassmorphism dày đặc:** Không lạm dụng `backdrop-blur-md` trên mọi thẻ card gây nặng GPU và suy giảm độ tương phản đọc chữ.
 
 2. **Tuân thủ Triệt để Bản sắc Studio "Warm Editorial & Tactile Paper":**
-   - Mọi giao diện web phải tuân thủ nghiêm ngặt `panelforge-fe/docs/DESIGN_RULES.md`:
+   - Mọi giao diện web phải tuân thủ nghiêm ngặt `panelforge-hub/docs/spec/DESIGN_RULES.md`:
      - Nền giấy manga ấm: `bg-[#FAF9F5]`, `stone-50`.
      - Thẻ trắng phẳng chuyên nghiệp: `bg-white`, viền mờ `border-stone-200/80`, bóng nhẹ thanh lịch `shadow-xs`.
      - Điểm nhấn thương hiệu: Mực Cam Studio (`#EA580C` / `#F97316`).

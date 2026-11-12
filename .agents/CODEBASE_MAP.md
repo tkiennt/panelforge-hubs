@@ -41,7 +41,7 @@
 1. **API Integration:** Mở `panelforge-fe/src/services/<domain>.service.ts` và `panelforge-fe/src/api/endpoints.ts`.
 2. **Views:** Mở theo vai trò tại `panelforge-fe/src/roles/<role>/views/<ViewName>.tsx` (ví dụ: `producer`, `writer`, `artist`, `letterer`, `editor`, `admin`, `reader`).
 3. **Stores & Hooks:** Mở `panelforge-fe/src/shared/stores/` hoặc `panelforge-fe/src/hooks/`.
-4. **UI Design & Tokens (Chống lệch giao diện):** Bắt buộc tuân thủ `panelforge-fe/docs/DESIGN_RULES.md` ("UI Constitution") và token tại `panelforge-fe/src/styles/tokens/studio-tokens.css`. Dùng nền giấy manga ấm (`bg-[#FAF9F5]`, `stone-50`), mặt thẻ trắng (`bg-white`), viền giấy (`border-stone-200/80`), mực cam studio (`#EA580C`/`#F97316`), cỡ chữ tối thiểu `text-xs` (12px).
+4. **UI Design & Tokens (Chống lệch giao diện):** Bắt buộc tuân thủ `panelforge-hub/docs/spec/DESIGN_RULES.md` ("UI Constitution") và token tại `panelforge-fe/src/styles/tokens/studio-tokens.css`. Dùng nền giấy manga ấm (`bg-[#FAF9F5]`, `stone-50`), mặt thẻ trắng (`bg-white`), viền giấy (`border-stone-200/80`), mực cam studio (`#EA580C`/`#F97316`), cỡ chữ tối thiểu `text-xs` (12px).
 5. **Đa ngôn ngữ (i18n Parity):** Mọi chuỗi hiển thị phải khai báo song ngữ đồng thời vào `panelforge-fe/src/locales/vi/*.json` và `panelforge-fe/src/locales/en/*.json`, kiểm tra qua `npm run i18n:check`.
 
 ### C. `mobile-expert`
