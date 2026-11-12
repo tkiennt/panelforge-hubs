@@ -162,31 +162,18 @@ async function fetchSingleRepoCommits(
   const commitsList: any[] = await res.json();
   if (!Array.isArray(commitsList)) return [];
 
-  const commitsWithFiles: CommitDiffItem[] = await Promise.all(
-    commitsList.map(async (c: any, index: number) => {
-      let files: CommitChangedFile[] = [];
-
-      // Chỉ fetch patch chi tiết cho top 5 commit để tránh cạn rate limit
-      if (index < 5) {
-        try {
-          files = await fetchCommitDetail(repoConfig.owner, repoConfig.repo, c.sha);
-        } catch {}
-      }
-
-      return {
-        fullHash: c.sha,
-        hash: c.sha.substring(0, 7),
-        author: c.commit?.author?.name || c.author?.login || 'Team Member',
-        date: c.commit?.author?.date || new Date().toISOString(),
-        message: c.commit?.message || '',
-        repoId: repoConfig.id,
-        repoName: repoConfig.name,
-        repoOwner: repoConfig.owner,
-        repoSlug: repoConfig.repo,
-        files,
-      };
-    })
-  );
+  const commitsWithFiles: CommitDiffItem[] = commitsList.map((c: any) => ({
+    fullHash: c.sha,
+    hash: c.sha.substring(0, 7),
+    author: c.commit?.author?.name || c.author?.login || 'Team Member',
+    date: c.commit?.author?.date || new Date().toISOString(),
+    message: c.commit?.message || '',
+    repoId: repoConfig.id,
+    repoName: repoConfig.name,
+    repoOwner: repoConfig.owner,
+    repoSlug: repoConfig.repo,
+    files: [],
+  }));
 
   try {
     sessionStorage.setItem(

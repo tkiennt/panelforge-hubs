@@ -1,15 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import type { CommitsDiffData, CommitDiffItem, CommitChangedFile, GitHubApiStatus } from '../types/hub';
+import type { CommitsDiffData, CommitDiffItem, GitHubApiStatus } from '../types/hub';
 import { formatRelativeDate } from '../services/dataService';
 import { MONITORED_REPOS, type RepoFilterId } from '../services/githubService';
-import { CommitDiffView } from './CommitDiffView';
 import {
   GitCommit,
   Calendar,
   User,
   Search,
-  ChevronRight,
-  ArrowLeft,
   Copy,
   Check,
   ExternalLink,
@@ -26,15 +23,12 @@ interface ChangelogTimelineProps {
 
 export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
   commitsData,
-  onOpenDocDiff,
   gitHubStatus,
   onRefreshLive,
   refreshing = false,
 }) => {
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedRepo, setSelectedRepo] = useState<RepoFilterId>('ALL');
-  const [selectedCommit, setSelectedCommit] = useState<CommitDiffItem | null>(null);
-  const [selectedFile, setSelectedFile] = useState<CommitChangedFile | null>(null);
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
   // Lọc commit theo repo và từ khóa
@@ -50,8 +44,7 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
         c.message.toLowerCase().includes(q) ||
         c.author.toLowerCase().includes(q) ||
         c.hash.toLowerCase().includes(q) ||
-        c.repoName?.toLowerCase().includes(q) ||
-        c.files.some((f) => f.path.toLowerCase().includes(q))
+        c.repoName?.toLowerCase().includes(q)
     );
   }, [commitsData.commits, selectedRepo, searchFilter]);
 
@@ -83,32 +76,6 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
     setCopiedHash(hash);
     setTimeout(() => setCopiedHash(null), 2000);
   };
-
-  // Nếu đang xem chi tiết diff của một file cụ thể
-  if (selectedCommit && selectedFile) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-hairline">
-          <button
-            onClick={() => {
-              setSelectedFile(null);
-            }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Quay lại danh sách thay đổi của commit {selectedCommit.hash}</span>
-          </button>
-          <div className="text-xs text-ink-muted font-mono">{selectedFile.path}</div>
-        </div>
-
-        <CommitDiffView
-          commit={selectedCommit}
-          file={selectedFile}
-          filePath={selectedFile.path}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -257,23 +224,15 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                             </span>
                             <span>•</span>
                             <span title={c.date}>{formatRelativeDate(c.date)}</span>
-                            {c.files.length > 0 && (
-                              <>
-                                <span>•</span>
-                                <span className="text-stone-400">
-                                  {c.files.length} file thay đổi
-                                </span>
-                              </>
-                            )}
                           </div>
                         </div>
 
-                        {/* Hash Badge, Copy & GitHub Link */}
+                        {/* Hash Badge, Copy & Direct GitHub Commit Link */}
                         <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             onClick={(e) => copyHash(c.hash, e)}
                             className="flex items-center gap-1 px-2 py-1 rounded bg-paper-subtle border border-hairline text-[11px] font-mono text-ink-muted hover:text-ink hover:bg-stone-100 transition-colors"
-                            title="Sao chép hash"
+                            title="Sao chép mã commit"
                           >
                             <GitCommit className="w-3 h-3 text-accent" />
                             <span>{c.hash}</span>
@@ -291,53 +250,12 @@ export const ChangelogTimeline: React.FC<ChangelogTimelineProps> = ({
                             }
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1 rounded bg-paper-subtle border border-hairline text-ink-muted hover:text-accent hover:bg-stone-100 transition-colors"
-                            title="Xem commit trên GitHub"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-hairline text-[11px] font-medium text-ink hover:text-accent hover:border-accent transition-colors"
+                            title="Mở commit này trên GitHub"
                           >
+                            <span>Xem commit</span>
                             <ExternalLink className="w-3 h-3" />
                           </a>
-                        </div>
-                      </div>
-
-                      {/* Files Modified in this Commit */}
-                      <div className="pt-2 border-t border-hairline">
-                        <div className="text-[11px] uppercase tracking-wider font-mono text-stone-400 mb-2">
-                          Các tài liệu bị ảnh hưởng:
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {c.files.map((file, fIdx) => {
-                            const statusColor =
-                              file.status === 'A'
-                                ? 'bg-diff-added text-diff-addedText border-diff-addedBorder'
-                                : file.status === 'D'
-                                ? 'bg-diff-removed text-diff-removedText border-diff-removedBorder'
-                                : 'bg-paper-subtle text-ink border-hairline';
-
-                            return (
-                              <button
-                                key={fIdx}
-                                onClick={() => {
-                                  if (onOpenDocDiff) {
-                                    onOpenDocDiff(file.path, c.hash);
-                                  } else {
-                                    setSelectedCommit(c);
-                                    setSelectedFile(file);
-                                  }
-                                }}
-                                className="group flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs text-left hover:border-accent transition-colors bg-white"
-                              >
-                                <span
-                                  className={`text-[10px] font-mono font-bold px-1 rounded border ${statusColor}`}
-                                >
-                                  {file.status}
-                                </span>
-                                <span className="font-mono text-[11px] text-stone-700 group-hover:text-accent truncate max-w-xs">
-                                  {file.path}
-                                </span>
-                                <ChevronRight className="w-3 h-3 text-stone-400 group-hover:text-accent group-hover:translate-x-0.5 transition-transform" />
-                              </button>
-                            );
-                          })}
                         </div>
                       </div>
                     </div>
