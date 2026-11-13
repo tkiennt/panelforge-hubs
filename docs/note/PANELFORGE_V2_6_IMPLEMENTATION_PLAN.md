@@ -240,8 +240,8 @@
 ### Đang chờ (rà soát 2026-11-13)
 
 23. ⏳ **Bible Gate khi kịch bản là chữ thuần (D11):** (A) Producer chọn tay mục Bible xuất hiện trong chương, Gate 1 kiểm `CanonLocked` · (B) tự dò tên mục Bible trong chữ, Producer xác nhận, rồi kiểm như A · (C) bỏ Bible Gate và sửa spec §1.1, Module 1, BR-21/30. Đề xuất **A** (ít code, giữ được Model Sheet cạnh khung vẽ) → BIB-09.
-24. ⏳ **Producer có được sửa kịch bản không?** Spec BR-07 / §5.1: chỉ đọc (403). Code BE/FE và ghi chú SCR-12 đang cho sửa. Đề xuất theo spec (Producer chỉ đọc, sửa qua Writer) → SCR-11.
-25. ⏳ **Giữ luồng Writer xin mở lại kịch bản (V2.5) không?** Spec V2.6 chỉ có Producer *Mở lại* kèm lý do. Đề xuất bỏ `request/approve/reject-script-reopen` và 4 cột `ScriptReopen*`, chỉ giữ thông báo Writer → Producer → SCR-09/SCR-10/SCR-23.
+24. ✅ **Producer chỉ đọc kịch bản** (user chốt 2026-11-13, theo spec BR-07 / §5.1): sửa nội dung kịch bản trả 403 với Producer; Producer góp ý, Bắt đầu sản xuất, Mở lại → SCR-11.
+25. ✅ **Bỏ luồng Writer xin mở lại kịch bản (V2.5)** (user chốt 2026-11-13): chỉ Producer *Mở lại* kèm lý do; gỡ `request/approve/reject-script-reopen`, `ScriptReopenStatus` và 4 cột `ScriptReopen*` → SCR-09, SCR-23.
 
 ### Đã chốt (2026-11-12)
 

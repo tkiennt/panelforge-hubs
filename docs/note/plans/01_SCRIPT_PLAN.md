@@ -182,6 +182,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 
 #### SCR-09 · `ScriptReopen` append-only — DB + BE · ❌ · cũ S2-02
 - [ ] Entity + bảng `script_reopens`. Không chuyển dữ liệu 4 cột `ScriptReopen*` (D6); xoá cột cũ ở SCR-23.
+- [ ] **Câu hỏi 25 đã chốt (2026-11-13): bỏ luồng Writer xin mở lại.** Chỉ Producer *Mở lại* kèm lý do (`Frozen → Draft`). Gỡ `RequestScriptReopen`/`ApproveScriptReopen`/`RejectScriptReopen` (domain, handler, 3 endpoint `request|approve|reject-script-reopen`, `chapter.service.ts` FE, enum `ScriptReopenStatus`); `script_reopens` chỉ ghi lịch sử các lần Producer mở lại (người, lúc, lý do, bản Frozen trước đó). Writer muốn sửa thì nhắn Producer ngoài hệ thống hoặc qua góp ý.
 
 #### SCR-10 · Commands vòng đời (`Features/Scripts/Commands/*`) — BE · ❌ · cũ S2-03
 - [ ] `SubmitScriptCommand` (chụp revision, thông báo Editor + Producer), `WithdrawScriptCommand`.
@@ -195,7 +196,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] Viết lại `ScriptLineRules.AuthorizeAsync` theo `ScriptStatus` + `Chapter.WriterUserId`.
 - [ ] Producer chỉ sửa khi chưa có Writer (BR-07/23); xác minh 403 khi Producer sửa thoại (plan tổng M1-04 🔍).
 - [ ] Test ma trận vai trò × trạng thái.
-- [ ] **(Rà soát 2026-11-13, xác nhận lệch BR-07)** BE `ScriptLineRules.AuthorizeAsync` ghi "Producer luôn được" → Producer sửa/xoá dòng kịch bản bất kỳ lúc nào; spec BR-07 và §5.1 yêu cầu Producer chỉ đọc (403). Chờ câu hỏi mở 24 ở plan tổng: theo spec thì chặn Producer, giữ Producer sửa thì sửa spec BR-07.
+- [ ] **(Rà soát 2026-11-13, xác nhận lệch BR-07)** BE `ScriptLineRules.AuthorizeAsync` ghi "Producer luôn được" → Producer sửa/xoá dòng kịch bản bất kỳ lúc nào; spec BR-07 và §5.1 yêu cầu Producer chỉ đọc (403). **Câu hỏi 24 đã chốt (2026-11-13): theo spec, Producer chỉ đọc** → mọi lệnh sửa/xoá/sắp xếp dòng, Page, Panel của kịch bản trả 403 với Producer; Producer vẫn được góp ý, Bắt đầu sản xuất, Mở lại. Bỏ dòng "Producer chỉ sửa khi chưa có Writer" ở trên và ghi chú "Producer sửa được" ở SCR-12 / comment `ScriptEditorView.tsx:272`.
 - [ ] [BE] Vai trò khác Writer/Producer đang đi qua `AiWorkflowFacts.EvaluateAssignmentAsync` (có việc là sửa được) → Artist/Letterer/Editor phải luôn 403 với lệnh sửa dòng kịch bản (spec §5.1: chỉ đọc / Editor chỉ góp ý).
 - [ ] [FE] `ScriptEditorView.tsx:274` `canEditScript = !effectiveRole || PRODUCER || WRITER`: khi chưa xác định được vai trò lại **mở quyền sửa** (fail-open) → đổi thành chỉ đúng vai trò được phép; đồng bộ với quyết định câu hỏi 24.
 
