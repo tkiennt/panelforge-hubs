@@ -25,6 +25,7 @@
 
 | Người | Repo | Việc | Spec (BR / Module / Q) | Nhánh | File chính | Bắt đầu |
 |---|---|---|---|---|---|---|
+| trungkien (AI agent) | BE + FE | Triển khai Phase B (SCR-04 ScriptLineKind, SCR-05 Scene mặc định, SCR-07 Panel.Direction) và Phase F/H kịch bản | Module 4, BR-11, D1-D10 | `trungkien` | BE `ScriptLine.cs`, `Panel.cs`, `Scene.cs`; FE `scriptFlowAdapter.ts`, `ScreenplayFlowEditor.tsx` | 2026-11-13 |
 | DontPassAway | BE + FE | Series Bible: refactor màn hình, quyền thẩm định theo §5.1 (Writer/Editor endorse, Producer khoá, Admin không khoá), khoá Canon cho Nhân vật/Bối cảnh/Đạo cụ | Module 1, §5.1, §5.2, BR-01, BR-15 | `feature/series-bible-spec-v26` | `src/shared/features/series-bible/*`, `roles/editor/views/BibleReviewView.tsx`; BE `BibleController.cs` | 2026-11-12 |
 
 ---
