@@ -207,6 +207,7 @@
 | 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | hub `b9e9163` | Phase H của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md): luật gõ, ô người nói, nhãn Trang/Panel, thanh loại dòng, Board view, lọc, thống kê mật độ, xuất kịch bản, ảnh tham chiếu Panel. Câu hỏi mở 19 |
 | 2026-11-13 | D7–D10 (SCR) | ✅ Chốt | — (chỉ tài liệu) | User chốt theo khuyến nghị; đóng câu hỏi mở 19. Phase H sẵn sàng (SCR-26+ vẫn cần SCR-04/07/19) |
 | 2026-11-13 | SCR-25 | ✅ Xong | FE `trungkien` | Luật gõ dạng hàm thuần (`flow/grammar/scriptGrammar.ts`) theo bảng H.1 + 19 unit test pass 100% |
+| 2026-11-13 | D11, SCR-25/26 (làm lại), SCR-27 ⛔ | ✅ | FE `trungkien` `30b975a` | Editor Writer xây lại theo luật đo trên WriterSolo; kịch bản chữ thuần, không liên kết Series Bible. Typecheck/i18n/eslint sạch; test viết, chưa chạy; chưa thử trong app. Câu hỏi 20 |
 
 ---
 
@@ -244,3 +245,5 @@ Các mục 11–17 đã ghi vào đặc tả (bảng "Nhật ký quyết định
 18. ✅ **Bỏ phiếu đăng ký V1.2 làm căn cứ phạm vi** (user chốt 2026-11-12): spec V2.6 là phạm vi chính thức, gồm cả xuất bản, độc giả trả phí, ấn bản ngôn ngữ. `PanelForge_Scope_V1.2.md` và `project-plan.md` đã chuyển vào `PanelForge_FA26SE251/docs/archive/`.
 
 19. ✅ **Trải nghiệm gõ kịch bản (D7–D10 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md) §3.5)** (user chốt 2026-11-13, theo khuyến nghị): hậu tố `(nghĩ)` ở ô người nói → Thought · bỏ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi trong editor (chỉ còn ở luồng dán/chuyển đổi) · cảnh báo (không chặn) khi > 7 panel/trang, > 3 bóng thoại/panel, > 25 chữ/bóng thoại, panel không có Action · kéo thả Page/Panel chỉ khi `Draft`/`ChangesRequested`/`Amending`, Panel đã có artwork thì hỏi xác nhận và gắn ⚑.
+
+20. ✅ **Editor kịch bản giống WriterSolo, không liên kết Series Bible** (D11 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md), user chốt 2026-11-13): luật gõ đo trực tiếp trên WriterSolo thay bảng H.1; kịch bản là chữ thuần (không `@mention`, không chọn người nói từ Bible); xây lại, không tương thích dữ liệu cũ. ⚠️ Đặc tả master Module 1 vẫn ghi `@Bible` trong ACTION_DIRECTION, stub `@Tên_Mới` và Bible Gate theo `@Tag` — cần sửa đặc tả hoặc chốt lại phần Bible Gate.
