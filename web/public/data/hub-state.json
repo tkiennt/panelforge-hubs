@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T09:34:46.317Z",
+  "lastSyncedAt": "2026-11-13T09:52:51.247Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,39 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-fc99a0e7d1417ba5a04dfc7d76684713039099ab",
+      "timestamp": "2026-11-13T16:52:48+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "fc99a0e7d1417ba5a04dfc7d76684713039099ab",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/fc99a0e7d1417ba5a04dfc7d76684713039099ab",
+      "message": "fix(writer): append colon on character autocomplete and enter",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-50fb4a0716f148115bb48cb4bab075d69e4e84f6",
+      "timestamp": "2026-11-13T16:47:14+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "50fb4a0716f148115bb48cb4bab075d69e4e84f6",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/50fb4a0716f148115bb48cb4bab075d69e4e84f6",
+      "message": "fix(script): return Kind and SpeakerLabel in SceneScriptLineSummaryDto",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-1ed7ff39fe7522537127a326fbb36e7ada9eeb5c",
+      "timestamp": "2026-11-13T16:46:59+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "1ed7ff39fe7522537127a326fbb36e7ada9eeb5c",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1ed7ff39fe7522537127a326fbb36e7ada9eeb5c",
+      "message": "fix(writer): preserve character when reconstructing script from server",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-42823b7c5784b52f2f2953a477efc7baaf0846cf",
       "timestamp": "2026-11-11T23:59:55+07:00",
@@ -2157,39 +2190,6 @@
       "commitHash": "cd4949ef43b3ef721ddb1026c7c7e1535975ff08",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cd4949ef43b3ef721ddb1026c7c7e1535975ff08",
       "message": "feat(writer): add change request panel for script rework loop",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-140a195662f3e9039408e717c0dac101fc5095f9",
-      "timestamp": "2026-11-11T17:49:50+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "140a195662f3e9039408e717c0dac101fc5095f9",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/140a195662f3e9039408e717c0dac101fc5095f9",
-      "message": "chore(writer): sync trungkien into script editor branch",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-11472acce2967499d92acedac41b3b422fcdbe26",
-      "timestamp": "2026-11-11T17:50:49+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "11472acce2967499d92acedac41b3b422fcdbe26",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/11472acce2967499d92acedac41b3b422fcdbe26",
-      "message": "refactor(writer): move chapter label formatter into writer utils",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b097da12a26c1eae8845e7b26b1fa3fab516d7b3",
-      "timestamp": "2026-11-11T17:50:51+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "b097da12a26c1eae8845e7b26b1fa3fab516d7b3",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b097da12a26c1eae8845e7b26b1fa3fab516d7b3",
-      "message": "feat(writer): merge change request panel for script rework loop",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
