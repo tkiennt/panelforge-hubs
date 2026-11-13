@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T06:04:35.019Z",
+  "lastSyncedAt": "2026-11-13T06:12:04.822Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,72 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-BE-2609b9d209aad7f3b874a695287999a2cc2520f6",
+      "timestamp": "2026-11-12T13:39:21+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "2609b9d209aad7f3b874a695287999a2cc2520f6",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2609b9d209aad7f3b874a695287999a2cc2520f6",
+      "message": "chore(config): ignore local worktrees and drop unused prisma schema",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-d6d27d22c8cd68a360e17b4589707c1df91a3821",
+      "timestamp": "2026-11-12T13:41:35+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "d6d27d22c8cd68a360e17b4589707c1df91a3821",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d6d27d22c8cd68a360e17b4589707c1df91a3821",
+      "message": "docs(notes): merge shared spec links and backend gitignore cleanup",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-cb93f3b7edc46eb40555c1db7106b9e4f22a3011",
+      "timestamp": "2026-11-13T13:11:55+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "cb93f3b7edc46eb40555c1db7106b9e4f22a3011",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cb93f3b7edc46eb40555c1db7106b9e4f22a3011",
+      "message": "feat(writer): set continuous long manuscript page as default format",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-c310e7c337cb4090a0cc53ce8b5e979740b8225e",
+      "timestamp": "2026-11-12T14:07:51+07:00",
+      "repo": "BE",
+      "author": "DontPassAway",
+      "commitHash": "c310e7c337cb4090a0cc53ce8b5e979740b8225e",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c310e7c337cb4090a0cc53ce8b5e979740b8225e",
+      "message": "fix(bible): writer and editor endorse per spec V2.6 §5.1",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-fb546ffe601b9c24cd069658524d345e8e205d83",
+      "timestamp": "2026-11-13T13:10:15+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "fb546ffe601b9c24cd069658524d345e8e205d83",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/fb546ffe601b9c24cd069658524d345e8e205d83",
+      "message": "feat(writer): drop unlisted-page warning after script save",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
+      "timestamp": "2026-11-13T13:10:12+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
+      "message": "feat(pages): script sync removes pages and panels it no longer lists",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-4323e689d222ccbdb70e8f2570463cc492828338",
       "timestamp": "2026-11-13T13:04:32+07:00",
@@ -2124,72 +2190,6 @@
       "commitHash": "fb2c3a7390e9c5a85b32b426285cc1b9ab08f6b5",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/fb2c3a7390e9c5a85b32b426285cc1b9ab08f6b5",
       "message": "docs(notes): merge archive of v1.2 scope and shared plan links",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "timestamp": "2026-11-12T13:39:18+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "message": "docs(notes): point backend docs to shared spec and team workboard",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "timestamp": "2026-11-12T13:39:19+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "message": "docs(script): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-2609b9d209aad7f3b874a695287999a2cc2520f6",
-      "timestamp": "2026-11-12T13:39:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "2609b9d209aad7f3b874a695287999a2cc2520f6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2609b9d209aad7f3b874a695287999a2cc2520f6",
-      "message": "chore(config): ignore local worktrees and drop unused prisma schema",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d6d27d22c8cd68a360e17b4589707c1df91a3821",
-      "timestamp": "2026-11-12T13:41:35+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d6d27d22c8cd68a360e17b4589707c1df91a3821",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d6d27d22c8cd68a360e17b4589707c1df91a3821",
-      "message": "docs(notes): merge shared spec links and backend gitignore cleanup",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-c310e7c337cb4090a0cc53ce8b5e979740b8225e",
-      "timestamp": "2026-11-12T14:07:51+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "c310e7c337cb4090a0cc53ce8b5e979740b8225e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c310e7c337cb4090a0cc53ce8b5e979740b8225e",
-      "message": "fix(bible): writer and editor endorse per spec V2.6 §5.1",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-be7b1db",
-      "timestamp": "2026-11-12T13:41:41+07:00",
-      "repo": "MOBILE",
-      "author": "trung kien",
-      "commitHash": "be7b1db",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/be7b1db",
-      "message": "docs(notes): merge shared spec and workboard links",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
