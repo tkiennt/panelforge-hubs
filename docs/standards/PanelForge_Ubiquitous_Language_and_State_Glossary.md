@@ -118,7 +118,7 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> Draft: Writer đặc tả nhân vật/bối cảnh
     Draft --> ConceptSubmitted: Artist tải Character Sheet (CAS SHA-256)
-    ConceptSubmitted --> WriterEndorsed: Writer/Editor xác nhận khớp cốt truyện (BR-25)
+    ConceptSubmitted --> WriterEndorsed: Editor xác nhận khớp cốt truyện, Writer chỉ góp ý (BR-25, Q17)
     ConceptSubmitted --> ReworkRequired: Writer/Editor yêu cầu sửa kèm lý do
     ReworkRequired --> ConceptSubmitted: Artist nộp bản vẽ mới
     WriterEndorsed --> CanonLocked: Producer chốt khóa canon (🔒 Bất biến)
@@ -130,7 +130,7 @@ stateDiagram-v2
 | `Draft` | Bản mô tả đặc tả văn bản của Writer (chờ Artist vẽ concept). | Writer |
 | `ConceptSubmitted` | Artist đã tải bản vẽ lên kho Asset CAS SHA-256. | Artist |
 | `ReworkRequired` | Bản vẽ bị trả về kèm yêu cầu chỉnh sửa. | Writer / Editor |
-| `WriterEndorsed` | Writer xác nhận bản vẽ đúng với tinh thần kịch bản (**Điều kiện cần để Lock**). | Writer |
+| `WriterEndorsed` | Editor xác nhận bản vẽ đúng với tinh thần kịch bản sau khi tham khảo góp ý của Writer (**Điều kiện cần để Lock**; giữ tên trạng thái cũ, Q17). | Editor |
 | `CanonLocked` | Producer khóa vĩnh viễn làm bản mẫu chính thức của Series. Không thể unlock; muốn sửa phải tạo revision mới qua `/supersede`. | Producer |
 
 ---

@@ -213,6 +213,7 @@
 | 2026-11-13 | Rà soát luồng Script → Bible → Production | Lập kế hoạch sửa | — (chỉ tài liệu) | Đối chiếu spec với code BE/FE; bảng §4.1. Thêm SCR-39, ASG-07, BIB-09, BIB-10; bổ sung SCR-01, SCR-03, SCR-11, ASG-01, REL-01, REL-02, REL-04. Câu hỏi mở 23–25 |
 | 2026-11-14 | Q16 (câu 23), câu 24, câu 25 | ✅ Chốt | hub (chỉ tài liệu) | Bible chốt theo chương (BR-35) → BIB-09, BIB-11..BIB-17, sửa đặc tả master; Producer chỉ đọc kịch bản → SCR-11; bỏ luồng Writer xin mở lại → SCR-09 |
 | 2026-11-14 | Q16 (chỉnh) | ✅ Chốt | hub (chỉ tài liệu) | Người nói tự khớp/tự tạo nháp + cờ Quần chúng; lời dẫn chỉ tham chiếu khi Writer bôi đen; bỏ quét chữ và nhóm phân loại tên mới → BIB-11..BIB-17 viết lại |
+| 2026-11-14 | Q17 | ✅ Chốt | hub (chỉ tài liệu) | Bôi đen tham chiếu chỉ Writer; duyệt thiết kế Bible: Writer góp ý, Editor chốt → BIB-10 (khôi phục, viết lại), BIB-13, BIB-16; sửa spec §5.1, máy 1, glossary, chuẩn đặt tên |
 
 ### 4.1. Rà soát luồng Script → Series Bible → Production (2026-11-13)
 
@@ -230,7 +231,7 @@
 | 8 | 🟠 | `ChapterStatus` còn `Locked`, chưa có `HandedOffAndPublished` | [REL-01](plans/06_RELEASE_PLAN.md) |
 | 9 | 🟡 | Hai cơ chế mở lại kịch bản song song (Unfreeze V2.6 và Xin/Duyệt/Từ chối V2.5) | câu hỏi 25 → SCR-09/SCR-10 |
 | 10 | 🟡 | Tài liệu/comment lệch D12 (`InReview` khoá sửa, còn `ChangesRequested`/`Amending`); hai hệ phiên bản `ContentRevision` / `ScriptVersion` | [SCR-39](plans/01_SCRIPT_PLAN.md) |
-| 11 | 🟡 | Quyền Endorse Bible lệch (L7: chỉ Editor; code: Writer + Editor); máy trạng thái Bible lệch spec; gate ép số chương decimal → int (tự hết khi gỡ era ở BIB-17) | [BIB-10, BIB-17](plans/02_BIBLE_PLAN.md) |
+| 11 | 🟡 | Quyền Endorse Bible lệch (đã chốt Q17: Writer góp ý, Editor chốt; code còn cho Writer endorse); máy trạng thái Bible lệch spec; gate ép số chương decimal → int (tự hết khi gỡ era ở BIB-17) | [BIB-10, BIB-17](plans/02_BIBLE_PLAN.md) |
 | 12 | 🟡 | `chapterScriptMachine.ts` code chết còn luật `canFreeze = isBibleGatePassed` | [SCR-03](plans/01_SCRIPT_PLAN.md) |
 
 **Thứ tự đề xuất:** ASG-07 + REL-02 + SCR-01 (BE, độc lập, không chờ quyết định) → REL-04, REL-01 (đã chốt từ 2026-11-12) → SCR-11 (câu 24 đã chốt) → chuỗi Bible Q16: BIB-09 → BIB-11 → BIB-12 → BIB-13 → BIB-14 → BIB-15 ∥ BIB-16 → BIB-17 → SCR-39, BIB-10, SCR-03.

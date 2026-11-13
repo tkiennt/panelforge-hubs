@@ -243,7 +243,7 @@ stateDiagram-v2
 - **States:**
   - `Draft`: Bản nháp đặc tả bằng lời của Writer.
   - `ConceptSubmitted`: Artist đã vẽ và nộp file thiết kế lên hệ thống lưu trữ CAS SHA-256.
-  - `WriterEndorsed`: Writer/Editor xác nhận thiết kế khớp hoàn toàn với kịch bản văn học (Điều kiện cần để Lock).
+  - `WriterEndorsed`: Editor xác nhận thiết kế khớp hoàn toàn với kịch bản văn học, Writer chỉ góp ý (Điều kiện cần để Lock; Q17).
   - `ReworkRequired`: Thiết kế chưa đạt, yêu cầu Artist chỉnh sửa.
   - `CanonLocked`: Producer chốt thành Canon chính thức của bộ truyện (Bất biến, không thể sửa trực tiếp).
 - **Events:**
