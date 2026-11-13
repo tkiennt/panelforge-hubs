@@ -81,9 +81,16 @@ flowchart TD
    - Ví dụ: `feat(script): add chapter bible gate validation logic`
 
 6. **Quy tắc Kiểm thử: CHỈ CHẠY TEST KHI USER YÊU CẦU (Explicit On-Demand Testing Only):**
-   - **TUYỆT ĐỐI CẤM tự ý chạy test** (`dotnet test`, `vitest run`, `npm test`, `flutter test`) sau mỗi prompt, sau mỗi bước code hay trước mỗi lần commit/push (do User commit & push code liên tục sau mỗi prompt).
+   - **TUYỆT ĐỐI CẤM tự ý chạy test** (`dotnet test`, `vitest run`, `npm test`, `flutter test`) sau mỗi prompt, sau mỗi bước code hay trước mỗi lần commit.
    - Việc tự ý chạy test sinh ra hàng nghìn dòng log, làm phình to ngữ cảnh và tiêu hao hàng chục nghìn token vô ích.
    - **CHỈ ĐƯỢC CHẠY TEST KHI NGƯỜI DÙNG YÊU CẦU TRỰC TIẾP** (Ví dụ bằng văn bản rõ ràng: *"chạy test"*, *"test cho tôi"*, *"kiểm thử tính năng này"*). Bình thường tuyệt đối không được tự ý gọi bất kỳ test runner nào.
+
+7. **Quy tắc Git Push: KHÔNG PUSH SAU MỖI LẦN LÀM (Push on Large Module Completion or User Demand Only):**
+   - ❌ **TUYỆT ĐỐI CẤM tự ý push sau mỗi lần làm, sau mỗi prompt hay mỗi sub-task nhỏ.**
+   - **CHỈ PUSH LÊN REMOTE GITHUB KHI:**
+     1. Đã hoàn thành trọn vẹn **1 module lớn** (sau khi đã gộp vào nhánh chính và xác nhận hoàn chỉnh).
+     2. **HOẶC khi Người dùng trực tiếp yêu cầu** (ví dụ: *"push code"*, *"push git"*, *"đẩy lên github"*).
+   - Trong quá trình phát triển thường ngày: Chỉ commit cục bộ (`git commit`) trong worktree sandbox hoặc gộp cục bộ vào nhánh `trungkien`/`main` để lưu vết, tuyệt đối không chạy `git push` lên remote origin.
 
 7. **Giao thức Bàn giao Hợp đồng (Handoff Artifacts Protocol):**
    - Khi `backend-expert` hoàn thành API/Feature: Cung cấp tóm tắt Endpoint, DTO Models (Request/Response) và ví dụ JSON để `frontend-expert` và `mobile-expert` triển khai ngay.
@@ -173,18 +180,22 @@ flowchart TD
      - ❌ `update frontend`
 
 3. **Quy tắc Kiểm tra Tiền Commit (Fast Syntax Check Only - KHÔNG TỰ CHẠY TEST):**
-   - **TUYỆT ĐỐI CẤM chạy test runner** (`dotnet test`, `vitest`, `flutter test`) khi commit/push sau mỗi prompt.
+   - **TUYỆT ĐỐI CẤM chạy test runner** (`dotnet test`, `vitest`, `flutter test`) khi commit sau mỗi prompt.
    - Nếu cần kiểm tra an toàn cú pháp trước khi commit, chỉ chạy biên dịch tĩnh nhanh:
      - Backend: `dotnet build <sandbox>/PanelForge_FA26SE251/PanelForge.slnx`
      - Frontend: `npm --prefix <sandbox>/panelforge-fe run typecheck`
      - Mobile: `flutter --prefix <sandbox>/panelforge-mobile analyze`
    - Chỉ chạy test khi Người dùng đưa ra chỉ thị rõ ràng.
 
-4. **BẮT BUỘC GỘP VÀO `trungkien` TRƯỚC KHI PUSH (Zero Remote Extra Branches Invariant):**
+4. **BẮT BUỘC GỘP VÀO `trungkien` TRƯỚC KHI PUSH & QUY TẮC PUSH THEO MODULE (Zero Remote Extra Branches & Batch Push Invariant):**
+   - ❌ **TUYỆT ĐỐI CẤM PUSH SAU MỖI LẦN LÀM:** Không tự ý chạy `git push` sau mỗi task nhỏ, sau mỗi lượt làm việc hay sau mỗi prompt. Mọi thay đổi bình thường chỉ dừng lại ở commit cục bộ và gộp cục bộ vào nhánh `trungkien`.
    - ❌ **TUYỆT ĐỐI CẤM PUSH NHÁNH PHỤ / FEATURE LÊN REMOTE GITHUB:** Không chạy `git push origin feature/...` lên remote repository nhằm tránh rác nhánh và làm phân mảnh lịch sử git trên GitHub.
-   - **Quy trình gộp và đẩy chuẩn (Chuẩn 4 bước):**
+   - 🚀 **ĐIỀU KIỆN ĐƯỢC PHÉP PUSH LÊN REMOTE:** Chỉ chạy `git push origin trungkien` khi:
+     1. **Đã hoàn thành trọn vẹn 1 module lớn** (toàn bộ các sub-task của module đã được kiểm tra, build xanh và gộp đầy đủ).
+     2. **HOẶC khi Người dùng trực tiếp yêu cầu** (ví dụ: *"push code"*, *"push lên github"*, *"đẩy lên remote"*).
+   - **Quy trình gộp và đẩy chuẩn (Chuẩn 5 bước):**
      1. **Commit trong Worktree:** Commit toàn bộ mã nguồn rõ ràng bên trong sandbox worktree.
-     2. **Kiểm tra & Gộp vào `trungkien`:**
+     2. **Kiểm tra & Gộp cục bộ vào `trungkien`:**
         - Quay về thư mục gốc của repository (`PanelForge_FA26SE251`, `panelforge-fe`, hoặc `panelforge-mobile`).
         - Chuyển sang nhánh `trungkien`: `git checkout trungkien`
         - Kéo code mới nhất từ remote: `git pull origin trungkien`
@@ -192,18 +203,20 @@ flowchart TD
           ```powershell
           git merge feature/<module>-<scope> -m "<type>(<scope>): <mo-ta-nghiep-vu-ro-rang>"
           ```
-     3. **Chạy kiểm thử nghiệm thu:** Xác nhận build và test thành công trên nhánh `trungkien`.
-     4. **Chỉ Push duy nhất nhánh `trungkien` lên remote GitHub:**
-        ```powershell
-        git push origin trungkien
-        ```
-     5. **Dọn dẹp Worktree cục bộ:** Thu hồi sandbox và xóa nhánh feature cục bộ đã gộp xong:
+     3. **Chạy kiểm thử nghiệm thu:** Xác nhận build và kiểm tra cú pháp thành công trên nhánh `trungkien`.
+     4. **Dọn dẹp Worktree cục bộ:** Thu hồi sandbox và xóa nhánh feature cục bộ đã gộp xong:
         ```powershell
         powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action remove -AgentRole <task-id>
         ```
-   - **Lệnh tự động 1-chạm (Khuyến nghị):** Có thể chạy action hoàn tất tự động:
+     5. **Đẩy lên Remote (CHỈ THỰC HIỆN KHI XONG MODULE LỚN HOẶC USER YÊU CẦU):**
+        - Nếu **chưa** xong module lớn và user **chưa** yêu cầu: Giữ nguyên ở nhánh `trungkien` cục bộ, **KHÔNG PUSH**.
+        - Nếu **đã hoàn thành 1 module lớn** hoặc **User yêu cầu**:
+          ```powershell
+          git push origin trungkien
+          ```
+   - **Lệnh tự động 1-chạm:** Có thể chạy action hoàn tất tự động (mặc định chỉ merge và dọn dẹp cục bộ; chỉ thêm `-Push` khi hoàn thành module lớn hoặc khi user yêu cầu):
      ```powershell
-     powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all|backend|frontend|mobile> -Message "<type>(<scope>): <mo-ta>"
+     powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all|backend|frontend|mobile> -Message "<type>(<scope>): <mo-ta>" [-Push]
      ```
 
 ---

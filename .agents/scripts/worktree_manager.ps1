@@ -33,7 +33,10 @@ param (
     [string]$Body,
 
     [Parameter(Mandatory = $false)]
-    [switch]$SkipTest
+    [switch]$SkipTest,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$Push
 )
 
 $ErrorActionPreference = "Stop"
@@ -490,22 +493,26 @@ function Finish-Worktree {
             Write-Error "Merge that bai do conflict tai $($t.Name)! Hay resolve conflict bang tay tren nhanh trungkien."
         }
 
-        # 4. Push only trungkien to remote
-        Write-Host "  Dang push duy nhat nhanh 'trungkien' len remote origin..." -ForegroundColor Yellow
-        git -C $t.Root push origin trungkien
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "  [OK] Push thanh cong len origin/trungkien!" -ForegroundColor Green
-            # Delete local feature branch
-            git -C $t.Root branch -d $featureBranch 2>$null
+        # 4. Push only trungkien to remote (Chi push khi hoan thanh module lon hoac co switch -Push)
+        if ($Push) {
+            Write-Host "  Dang push duy nhat nhanh 'trungkien' len remote origin..." -ForegroundColor Yellow
+            git -C $t.Root push origin trungkien
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  [OK] Push thanh cong len origin/trungkien!" -ForegroundColor Green
+            } else {
+                Write-Error "Push len origin/trungkien that bai!"
+            }
         } else {
-            Write-Error "Push len origin/trungkien that bai!"
+            Write-Host "  [INFO] Bo qua push remote theo quy tac (Chi push khi hoan thanh module lon hoac khi user yeu cau/them switch -Push)." -ForegroundColor Cyan
         }
+        # Delete local feature branch
+        git -C $t.Root branch -d $featureBranch 2>$null
     }
 
     # 5. Clean up sandbox worktree
     Write-Host "`n[*] Tien hanh thu hoi va don dep Sandbox Worktree..." -ForegroundColor Cyan
     Remove-AgentWorktree
-    Write-Host "[SUCCESS] Hoan tat quy trinh: Code da duoc merge vao trungkien, push remote thanh cong va thu hoi worktree sach se!" -ForegroundColor Green
+    Write-Host "[SUCCESS] Hoan tat quy trinh: Code da duoc merge vao trungkien cuc bo va thu hoi worktree sach se!" -ForegroundColor Green
 }
 
 Show-Header

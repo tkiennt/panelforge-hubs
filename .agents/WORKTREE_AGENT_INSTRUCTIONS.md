@@ -149,18 +149,23 @@ git -C "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\panelforge-fe" 
    git merge feature/[module]-[be|fe|mobile] -m "<type>(<scope>): <mo-ta-nghiep-vu-ro-rang>"
    ```
 
-### Bước 8: Kiểm thử Nghiệm thu & Chỉ Push duy nhất nhánh `trungkien`
+### Bước 8: Kiểm thử Nghiệm thu & Quy tắc Push (Batch Push / On-Demand Only)
 1. Chạy nghiệm thu nhanh trên nhánh `trungkien`:
    - Backend: `dotnet build PanelForge_FA26SE251/PanelForge.slnx`
    - Frontend: `cd panelforge-fe && npm run typecheck`
    - Mobile: `cd panelforge-mobile && flutter analyze`
-2. **CHỈ PUSH DUY NHẤT NHÁNH `trungkien` LÊN REMOTE GITHUB:**
-   ```powershell
-   git push origin trungkien
-   ```
+2. **QUY TẮC PUSH LÊN REMOTE GITHUB:**
+   - ❌ **TUYỆT ĐỐI KHÔNG PUSH SAU MỖI LẦN LÀM / MỖI PROMPT / MỖI TASK NHỎ.**
+   - **CHỈ PUSH DUY NHẤT NHÁNH `trungkien` LÊN REMOTE GITHUB KHI:**
+     1. Đã hoàn thành trọn vẹn **1 module lớn**.
+     2. **HOẶC khi Người dùng trực tiếp yêu cầu** (vd: *"push code"*, *"push lên github"*).
+   - Lệnh push (khi thỏa mãn 1 trong 2 điều kiện trên):
+     ```powershell
+     git push origin trungkien
+     ```
 
 ### Bước 9: Thu hồi Sandbox & Dọn dẹp Nhánh cục bộ (Cleanup Protocol)
-Sau khi nhánh `trungkien` đã được push lên GitHub, thu hồi worktree để giải phóng tài nguyên và xóa nhánh feature cục bộ đã gộp xong:
+Sau khi gộp code vào `trungkien` (dù chưa push lên GitHub ngay hay đã push), thu hồi worktree để giải phóng tài nguyên và xóa nhánh feature cục bộ đã gộp xong:
 ```powershell
 powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action remove -AgentRole <task-id>
 ```
@@ -176,7 +181,8 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 | **Cài đặt Git Hook Commit** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action setup-hooks` |
 | **Kiểm tra cú pháp commit** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action check-commit -Message "<type>(<scope>): <desc>"` |
 | **Commit chuẩn trong sandbox** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action commit -AgentRole <task-id> -Target <backend\|frontend\|mobile> -Message "<type>(<scope>): <desc>"` |
-| **Gộp trungkien, push & dọn dẹp (1-chạm)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile>` |
+| **Gộp trungkien & dọn dẹp (Cục bộ)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile>` |
+| **Gộp trungkien, push & dọn dẹp (Khi xong module/User bảo)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile> -Push` |
 | **Xóa & dọn dẹp worktree** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action remove -AgentRole <task-id>` |
 
 ---
@@ -197,7 +203,7 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 2. Tra cứu vị trí file cần sửa trong .agents/CODEBASE_MAP.md.
 3. Không chạy test sau mỗi prompt. Chỉ chạy fast pre-commit ngay trước khi commit.
 4. Commit rõ ràng theo chuẩn Conventional Commits: <type>(<scope>): <description> (cấm "fix bugs").
-5. KHÔNG push nhánh feature lên remote. Merge vào nhánh 'trungkien' tại repo gốc rồi chỉ push duy nhất 'trungkien'.
+5. Merge vào nhánh 'trungkien' tại repo gốc. KHÔNG push sau mỗi lần làm; chỉ push khi xong trọn vẹn module lớn hoặc khi User yêu cầu trực tiếp.
 ```
 
 ---
@@ -205,8 +211,9 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 ## 6. CÁC HÀNH VI BỊ CẤM (STRICTLY FORBIDDEN ACTIONS)
 
 1. ❌ **CẤM** sửa bất kỳ file nào trong thư mục gốc `D:\FPT-STUDY\10_FALL-2026\SEP490\Github\` khi đang code chức năng/sửa bug (phải luôn tạo worktree).
-2. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `trungkien` (hoặc `main` khi có yêu cầu).
-3. ❌ **CẤM** commit thông điệp mơ hồ, tối nghĩa như `fix bugs`, `update code`, `wip`, `temp`.
-4. ❌ **CẤM** chuyển sang nhánh `main` hoặc `trungkien` bên trong thư mục worktree sandbox của Agent.
+2. ❌ **CẤM** tự ý push code lên remote sau mỗi lần làm / mỗi prompt. Chỉ push khi hoàn thành 1 module lớn hoặc khi Người dùng yêu cầu.
+3. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `trungkien` (hoặc `main` khi có yêu cầu).
+4. ❌ **CẤM** commit thông điệp mơ hồ, tối nghĩa như `fix bugs`, `update code`, `wip`, `temp`.
+5. ❌ **CẤM** chuyển sang nhánh `main` hoặc `trungkien` bên trong thư mục worktree sandbox của Agent.
 5. ❌ **CẤM** tự ý chạy `dotnet test` hoặc `npm run test` sau mỗi prompt nhỏ lẻ.
 6. ❌ **CẤM** dùng `git push --force` hoặc sửa commit history đã đẩy lên remote.
