@@ -131,6 +131,19 @@ html {
   color: #1E293B;
 }
 
+/* Wide card, readable lines: prose text capped ~90ch; tables, code, diagrams use full width */
+.editorial-prose > p,
+.editorial-prose > ul,
+.editorial-prose > ol,
+.editorial-prose > blockquote {
+  max-width: 90ch;
+}
+
+.editorial-prose img {
+  max-width: 100%;
+  height: auto;
+}
+
 .editorial-prose a {
   color: #0284C7;
   text-decoration: underline;

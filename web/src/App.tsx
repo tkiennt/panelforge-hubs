@@ -631,7 +631,7 @@ export const App: React.FC = () => {
 
           {/* LEFT SIDEBAR (270px Fixed & Sticky) */}
           <aside
-            className={`fixed lg:sticky top-14 lg:top-[56px] lg:self-start shrink-0 z-30 h-[calc(100vh-56px)] w-[280px] lg:w-[270px] bg-[#F8FAFC] border-r border-[#E2E8F0] flex flex-col transition-transform duration-200 ${
+            className={`fixed lg:sticky top-14 lg:top-[56px] lg:self-start shrink-0 z-30 h-[calc(100vh-56px)] w-[280px] lg:w-[248px] bg-[#F8FAFC] border-r border-[#E2E8F0] flex flex-col transition-transform duration-200 ${
               mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             }`}
           >
@@ -824,9 +824,9 @@ export const App: React.FC = () => {
           </aside>
 
           {/* CENTER READING & DIFF CANVAS (Elevated Editorial Paper Sheet on Cool Slate Backdrop) */}
-          <main className="flex-1 min-w-0 bg-[#F1F5F9] px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
+          <main className="flex-1 min-w-0 bg-[#F1F5F9] px-[clamp(0.75rem,2.5vw,2.5rem)] py-6 sm:py-8">
             {currentDoc ? (
-              <article className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] px-6 sm:px-10 py-8 sm:py-10 max-w-[780px] mx-auto w-full space-y-6">
+              <article className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] px-[clamp(1rem,3vw,3rem)] py-8 sm:py-10 max-w-[1280px] mx-auto w-full min-w-0 space-y-6">
                 {/* Breadcrumb & Prominent Đọc | Diff Segmented Pill */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E2E8F0] text-xs">
                   {/* Interactive Breadcrumb */}
@@ -1008,7 +1008,7 @@ export const App: React.FC = () => {
           </main>
 
           {/* RIGHT INSPECTOR (240px Fixed & Sticky) */}
-          <aside className="hidden xl:block sticky top-[56px] self-start shrink-0 h-[calc(100vh-56px)] w-[240px] border-l border-[#E2E8F0] p-4 space-y-6 overflow-y-auto bg-[#F8FAFC] text-xs text-[#0F172A]">
+          <aside className="hidden xl:block sticky top-[56px] self-start shrink-0 h-[calc(100vh-56px)] w-[224px] border-l border-[#E2E8F0] p-4 space-y-6 overflow-y-auto bg-[#F8FAFC] text-xs text-[#0F172A]">
             {/* Table of Contents (TOC) with IntersectionObserver Active Highlight */}
             <div className="space-y-2">
               <div className="text-[10.5px] uppercase tracking-wider font-mono text-[#0284C7] font-semibold">
