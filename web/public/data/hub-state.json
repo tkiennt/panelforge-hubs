@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T09:57:10.035Z",
+  "lastSyncedAt": "2026-11-13T10:17:33.930Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
+      "timestamp": "2026-11-13T17:17:31+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
+      "message": "feat(review): modern script comment cards for editor and writer views",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
       "timestamp": "2026-11-13T16:57:06+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "cc1bee8e4f59cabc90ffa5696d1b224a76c277b3",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cc1bee8e4f59cabc90ffa5696d1b224a76c277b3",
       "message": "Merge branch 'feature/script-review-cr-fe' into feature/script-cr-writer-fe",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-f428dbe91b6972ce091626e8c916984abb481db2",
-      "timestamp": "2026-11-11T17:41:43+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "f428dbe91b6972ce091626e8c916984abb481db2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f428dbe91b6972ce091626e8c916984abb481db2",
-      "message": "feat(editor): merge script review line notes as change requests",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
