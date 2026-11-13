@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T04:16:02.230Z",
+  "lastSyncedAt": "2026-11-13T04:50:08.943Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-c41ee879317e4d8767034423a0956ed4b75ed6ae",
+      "timestamp": "2026-11-13T11:50:06+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "c41ee879317e4d8767034423a0956ed4b75ed6ae",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c41ee879317e4d8767034423a0956ed4b75ed6ae",
+      "message": "feat(writer): writesolo speaker slot and grammar flow",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-8bd3d540014883268824c2a567d151733869e11e",
       "timestamp": "2026-11-13T11:15:59+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "57aed3d",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/57aed3d",
       "message": "docs(notes): point backend docs to shared spec and team workboard",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-4b7d18e",
-      "timestamp": "2026-11-12T13:11:32+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "4b7d18e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/4b7d18e",
-      "message": "docs(notes): archive registration form v1.2 scope and project plan",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }

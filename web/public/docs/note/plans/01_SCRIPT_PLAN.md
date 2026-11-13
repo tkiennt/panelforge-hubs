@@ -292,8 +292,8 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - **Phụ thuộc:** SCR-25, SCR-19.
 
 #### SCR-27 · Ô người nói (speaker slot) cùng dòng thoại — FE · ✅
-- [x] [FE] Dòng Dialogue/Thought có ô người nói cùng dòng, gợi ý từ Bible; luân phiên người nói A→B→A (`getRecentSpeakers`).
-- [x] [FE] `(nghĩ)` / menu sắc thái đổi `kind` → `Thought` (D7).
+- [x] [FE] Dòng Dialogue/Thought có ô người nói cùng dòng, gợi ý từ Bible + Recent Speakers; luân phiên người nói A→B→A (`getRecentSpeakersFromDoc` bảo toàn `speakerCharacterId`).
+- [x] [FE] Hỗ trợ gõ trực tiếp tên nhân vật quần chúng và hậu tố `(nghĩ)` / `(thought)` đổi `kind` → `Thought` (D7). Phím tắt `Shift+Tab` từ thoại lùi về ô người nói, `Shift+Tab` từ ô người nói lùi về Action theo bảng H.1.
 - **Phụ thuộc:** SCR-26, SCR-04 (`SpeakerLabel`).
 
 #### SCR-28 · Tiêu đề Trang/Panel: nhãn tự sinh + mô tả riêng — FE · ❌
