@@ -113,6 +113,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 | D8 ✅ | Giữ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi `#`/`-` + Tab? | **Đã chốt 2026-11-13: bỏ** trong editor (thay bằng H.1 + phím tắt + menu `/`); cú pháp chữ chỉ còn ở luồng dán/chuyển đổi `AiScriptConvertModal` |
 | D9 ✅ | Ngưỡng cảnh báo mật độ | **Đã chốt 2026-11-13 (Warning, không chặn):** > 7 panel/trang · > 3 bóng thoại/panel · > 25 chữ/bóng thoại · panel không có Action |
 | D10 ✅ | Kéo thả sắp xếp Page/Panel trong Board view khi nào? | **Đã chốt 2026-11-13:** chỉ khi `Draft`/`ChangesRequested`/`Amending`; Panel đã có artwork thì hỏi xác nhận và gắn ⚑ như sửa muộn |
+| D12 ✅ | Luồng nộp kịch bản Writer → Editor → Start Production | **User chốt 2026-11-13:** `ScriptStatus` chỉ còn `Draft ↔ InReview → Frozen` (Producer `Unfreeze` có lý do: `Frozen → Draft`). Bỏ `ChangesRequested` và `Amending`. `InReview` khoá sửa; **chỉ Writer** được `Recall` về `Draft` — Editor/Producer không đẩy kịch bản về Draft. Editor **chỉ góp ý theo dòng**, không đổi trạng thái, **không bắt buộc** trước Gate 1. Producer bấm **Start Production** khi `InReview` → `Frozen` + `ChapterStatus PreProduction → InProduction` (`PreProduction` là mặc định khi tạo chương). Bỏ duyệt kịch bản qua Assignment, bỏ Bible Gate `@Tag` lúc freeze (D11), bỏ tự dựng trang lúc freeze, hash theo `Kind/Text/SpeakerLabel` + Trang/Panel. Writer nào trong studio cũng soạn/nộp được (chưa cần `WriterUserId`); giao trang (ASG-01) làm sau. Thay thế §3.1 và D3/D4 ở các điểm khác nhau |
 | D11 ✅ | Editor kịch bản theo bảng H.1 riêng hay bám WriterSolo? Có liên kết Series Bible trong kịch bản? | **User chốt 2026-11-13:** editor gõ **giống WriterSolo** (luật đo trực tiếp, thay bảng H.1), kịch bản là **chữ thuần, không liên kết Series Bible** (bỏ `@mention`, ô chọn người nói từ Bible, `speakerCharacterId` luôn null), xây lại không tương thích dữ liệu cũ. D7 giữ dưới dạng Parens `(nghĩ)`. ⚠️ Lệch đặc tả master Module 1 (`@Bible` trong ACTION_DIRECTION, stub `@Tên_Mới`, Bible Gate chỉ xét `@Tag`) — chưa sửa đặc tả |
 
 ---
@@ -163,7 +164,14 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 
 ### Phase C — Vòng đời kịch bản (V1, V2, V3, D1, D3, D4)
 
-#### SCR-08 · `ScriptStatus` + domain methods — BE · ❌ · cũ S2-01 · **làm cùng REL-01**
+> **D12 (2026-11-13) đã làm phần cốt lõi của Phase C** — BE `d136057`, `9059e5a`; FE `e98d8ad`:
+> `ScriptStatus` Draft ↔ InReview → Frozen, `ChapterStatus.PreProduction` mặc định, `submit-script` / `recall-script` (chỉ Writer),
+> `freeze-script` = Bắt đầu sản xuất (cần InReview, chương → InProduction), Unfreeze → Draft, khoá sửa khi InReview/Frozen,
+> bỏ Bible Gate `@Tag` + tự dựng trang lúc freeze, hash theo Trang/Panel/Kind/Text. Góp ý theo dòng: SCR-37.
+> Các mục bên dưới ghi theo thiết kế cũ; phần trái D12 (`ChangesRequested`, `Amending`, `RequestScriptChanges`) bỏ.
+> ⚠️ Chưa chạy lại test BE: 86 test cũ giả định chương mới là `InProduction` → SCR-38, phải xong trước khi push.
+
+#### SCR-08 · `ScriptStatus` + domain methods — BE · 🟡 (theo D12, thiếu `FrozenScriptRevisionId`, `WriterUserId`) · cũ S2-01 · **làm cùng REL-01**
 - [ ] Enum `ScriptStatus`: `Draft = 1, InReview = 2, ChangesRequested = 3, Frozen = 4, Amending = 5`.
 - [ ] `Chapter`: `ScriptStatus`, `ScriptSubmittedRevisionId?`, `FrozenScriptRevisionId?`, `WriterUserId?`; methods `SubmitScript`, `WithdrawScript`, `RequestScriptChanges`, `ApproveScript`, `ReopenScript`, `RefreezeScript` (sai trạng thái → `InvalidOperationException` → 409).
 - [ ] `IsScriptFrozen` thành thuộc tính tính toán; migration chỉ thêm cột mặc định `Draft` (D6: không map trạng thái dữ liệu cũ).
@@ -338,6 +346,15 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 #### SCR-35 · Ghi chú Writer không in — FE · ⏸️
 - [ ] [FE] Ghi chú bên lề theo dòng (không vào bản xuất, không vào Lettering), khác ChangeRequest. Hoãn tới khi SCR-25..32 xong; cân nhắc dùng chung comment của REV.
 
+#### SCR-37 · Góp ý theo dòng trên kịch bản (D12) — DB + BE + FE · ✅ (BE `9059e5a`, FE `e98d8ad`)
+- [x] [DB][BE] `ScriptComment` (bảng `script_comments`): Editor/Producer thêm, Writer hoặc người viết đánh dấu đã xử lý, mọi thành viên đọc; không đổi trạng thái kịch bản, không cần Assignment.
+- **Hợp đồng API:** `GET /api/chapters/{id}/script-comments` → `ScriptCommentDto[]` · `POST /api/chapters/{id}/script-comments` `{ sceneId?, scriptLineId?, quotedText?, body }` (Editor/Producer; 400 rỗng/quá 2000 ký tự, 403 vai trò khác) · `POST .../script-comments/{commentId}/resolve` (Writer hoặc tác giả; 403/404).
+- [x] [FE] `ScriptReviewView` viết lại theo trạng thái kịch bản + góp ý lưu ngay (bỏ duyệt/trả bài qua Assignment); `EditorDeskView` có mục "Kịch bản chờ duyệt"; `ScriptEditorView` hiện góp ý chưa xử lý cho Writer.
+
+#### SCR-38 · Cập nhật test BE theo `PreProduction` mặc định — BE · ❌ (bắt buộc trước khi push)
+- [ ] [BE] 86 test (ChapterPublishFlow, PreviewLink, LockBibleEntryRevision, ExportJob, AssignmentReminder, ChapterCommand, ChapterReadOnly, FrameTemplate, AI Review…) tạo chương mới rồi coi như `InProduction`. Thêm helper test đưa chương vào sản xuất đúng luồng (Writer gửi duyệt → Bắt đầu sản xuất, mở lại khi cần sửa kịch bản) và áp vào các chỗ tạo chương.
+- [ ] [BE] Chạy `ScriptLifecycleTests` mới (chưa chạy).
+
 #### SCR-36 · Dọn prototype `flow/writesolo/` — FE · ❌
 - [ ] [FE] `flow/writesolo/{ScriptEditorWorkspace.tsx, writeSoloExtensions.ts, SeriesBibleContextSidebar.tsx, sampleScript.ts, index.ts}` không được import ở đâu (grep 2026-11-13). Lấy ý tưởng còn dùng được cho SCR-26/29 rồi xoá cùng đợt SCR-03.
 
@@ -373,4 +390,5 @@ Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-2
 | 2026-11-12 | — | Chuyển sang bộ plan module | — | Đánh lại ID `S*` → `SCR-*` |
 | 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | — (tài liệu) | Phase H: trải nghiệm gõ Graphic Novel, đối chiếu walkthrough WriterSolo; chờ chốt D7–D10 |
 | 2026-11-13 | D7–D10 | ✅ Chốt | — (tài liệu) | Theo khuyến nghị: `(nghĩ)` → Thought · bỏ cú pháp gõ tắt trong editor · ngưỡng 7 panel/trang, 3 bóng/panel, 25 chữ/bóng (Warning) · kéo thả chỉ khi Draft/ChangesRequested/Amending. Phase H sẵn sàng |
+| 2026-11-13 | D12, SCR-08 (🟡), SCR-37 | ✅ | BE `d136057`, `9059e5a`; FE `e98d8ad` | Luồng Writer gửi duyệt → Editor góp ý → Producer bắt đầu sản xuất; build BE + FE thành công; test để bước push (SCR-38) |
 | 2026-11-13 | D11, SCR-25, SCR-26, SCR-27 | ✅ / ⛔ | FE `trungkien` `30b975a` | Xây lại editor Writer theo luật đo trên WriterSolo, kịch bản chữ thuần không liên kết Bible; SCR-27 huỷ. Typecheck, i18n, eslint sạch; test viết nhưng chưa chạy; chưa thử trong app. SCR-28 (nhãn Panel + Direction) và SCR-29 (thanh loại dòng) đã có phần lớn qua SCR-26 |
