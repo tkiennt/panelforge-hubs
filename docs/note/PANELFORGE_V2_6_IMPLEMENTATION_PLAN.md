@@ -214,6 +214,8 @@
 | 2026-11-14 | Q16 (câu 23), câu 24, câu 25 | ✅ Chốt | hub (chỉ tài liệu) | Bible chốt theo chương (BR-35) → BIB-09, BIB-11..BIB-17, sửa đặc tả master; Producer chỉ đọc kịch bản → SCR-11; bỏ luồng Writer xin mở lại → SCR-09 |
 | 2026-11-14 | Q16 (chỉnh) | ✅ Chốt | hub (chỉ tài liệu) | Người nói tự khớp/tự tạo nháp + cờ Quần chúng; lời dẫn chỉ tham chiếu khi Writer bôi đen; bỏ quét chữ và nhóm phân loại tên mới → BIB-11..BIB-17 viết lại |
 | 2026-11-14 | Q17 | ✅ Chốt | hub (chỉ tài liệu) | Bôi đen tham chiếu chỉ Writer; duyệt thiết kế Bible: Writer góp ý, Editor chốt → BIB-10 (khôi phục, viết lại), BIB-13, BIB-16; sửa spec §5.1, máy 1, glossary, chuẩn đặt tên |
+| 2026-11-14 | Q16 (gắn chương tự động) | ✅ Chốt | hub (chỉ tài liệu) | Gắn mục Bible vào chương và chọn bản tạo hình là tự động; Gate 1 chỉ kiểm `CanonLocked`; bỏ lệnh `SetCastRevision`. Đổi biến thể theo chương → câu hỏi mở 26 |
+| 2026-11-14 | Dọn tài liệu | ✅ | hub, BE, FE (chỉ tài liệu) | Xoá tài liệu lệch V2.6: hub `note/archive/*`, Cross Audit Report, FEATURE_AUDIT_DIFF, TEST_CASES_SERIES_BIBLE (era), LOCALIZATION_PIPELINE_PROPOSAL (thay bằng BR-34), image_storage_architecture + implementation-qa (trùng/cũ), sơ đồ `report4` (mô tả code cũ); BE `docs/{requirements,roles,domain,architecture,storage,archive,superpowers,diagrams}`, 2 file research thiết kế cũ, CORE_PRODUCTION_ARCHITECTURE; FE `docs/{CORE_PRODUCTION_ARCHITECTURE,DOCUMENTATION_PROCESS,archive,audit}`. Sửa glossary + chuẩn đặt tên trạng thái theo Q15–Q17, clean-architecture (Reader/Ví VNĐ, bỏ `Locked`, bỏ `HANDOFF.md`). Đồng bộ lại `web/public/docs` |
 
 ### 4.1. Rà soát luồng Script → Series Bible → Production (2026-11-13)
 
@@ -241,6 +243,8 @@
 ## 5. CÂU HỎI MỞ CẦN USER QUYẾT ĐỊNH
 
 ### Đang chờ (rà soát 2026-11-13)
+
+26. ⏳ **Đổi biến thể tạo hình theo chương?** Hiện hệ thống tự gắn bản đã dùng ở chương gần nhất trước đó (hoặc biến thể mặc định). Có cho Writer đổi sang biến thể khác cho một chương cụ thể (hồi tưởng, đổi trang phục) không, hay chỉ tự động? → BIB-13, BIB-16.
 
 23. ✅ **Series Bible chốt theo chương** (user chốt 2026-11-14, chỉnh lại cùng ngày; spec **Q16**, BR-35): **tên người nói** tự khớp tên/bí danh mục Bible, chưa có thì hệ thống **tự tạo bản nháp** nhân vật, Writer gắn cờ **Quần chúng** nếu không cần thiết kế; **lời dẫn/mô tả không tự khớp**, Writer **bôi đen** đoạn chữ để tham chiếu mục có sẵn hoặc tạo mục mới; mục mới chờ Writer viết định nghĩa rồi Artist vẽ. Luồng tạo Bible trước: ghi đúng tên ở ô người nói là tự tham chiếu. Bỏ mốc chương hiệu lực, dùng **biến thể tạo hình** (`variant_label`), gợi ý bản đã dùng ở chương gần nhất trước đó. `chapter_bible_bindings` khoá cùng kịch bản ở Gate 1 (bản gắn cho phép NULL trước Gate 1); Gate 1 chặn khi còn thực thể không Quần chúng chưa `CanonLocked`; đổi bản sau khi mở lại thì gắn ⚑; đưa vào Snapshot Gate 3 → [02_BIBLE_PLAN.md](plans/02_BIBLE_PLAN.md) BIB-09, BIB-11..BIB-17. Đã sửa đặc tả master (§1.1, §1.2, §2.1, Module 1 mục 2–4, BR-01/15/21/30/35, §5.1, §5.2 máy 1, §5.3), `CHAPTER_AND_SCRIPT_SPECIFICATION.md`, glossary.
 24. ✅ **Producer chỉ đọc kịch bản** (user chốt 2026-11-13, theo spec BR-07 / §5.1): sửa nội dung kịch bản trả 403 với Producer; Producer góp ý, Bắt đầu sản xuất, Mở lại → SCR-11.

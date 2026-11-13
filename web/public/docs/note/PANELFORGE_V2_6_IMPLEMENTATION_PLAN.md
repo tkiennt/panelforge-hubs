@@ -59,11 +59,11 @@
 | M1-03 | Thành viên Series | ✅ | `Features/SeriesMembers/*`, FE `roles/producer/views/ProjectMembersView.tsx` |
 | M1-04 | Writer độc quyền soạn kịch bản (BR-07/23) | ✅ 🔍 | `Features/ScriptLines/*` (Batch save, Restore revision), FE `roles/writer/views/ScriptEditorView.tsx`. Cần xác minh 403 khi Producer sửa thoại |
 | M1-05 | Nội dung Panel: ACTION_DIRECTION / DIALOGUE / THOUGHT / NARRATION / SFX | ✅ 🔍 | `ScriptLine` có `DialogueText`, `StageDirection`, `NarrationMode`, `SpeakerCharacterId` nullable (quần chúng) |
-| M1-06 | Gõ `@Tên` liên kết Bible, tự tạo `@Stub` | ✅ | `BibleEntry.CreateStub/IsStub/PromoteFromStub`, `LinkBibleEntriesCommand`, FE `@tiptap/extension-mention` |
+| M1-06 | ~~Gõ `@Tên` liên kết Bible, tự tạo `@Stub`~~ → người nói tự khớp/tự tạo nháp, lời dẫn bôi đen tham chiếu (Q16) | ❌ thay bằng BIB-09, BIB-11..BIB-16 | `BibleEntry.CreateStub/IsStub/PromoteFromStub`, `LinkBibleEntriesCommand`, FE `@tiptap/extension-mention` |
 | M1-07 | Bible 2 tầng `Draft → ConceptSubmitted → WriterEndorsed → CanonLocked` | ✅ | `BibleEntryRevision.SubmitConcept/Endorse/Lock/RequestRework`; enum `BibleRevisionStatus` (có thêm `ReworkRequired` thay cho "quay về Draft" — chấp nhận được) |
 | M1-08 | Cấm `/unlock`, chỉ `/supersede` (BR-01) | ✅ | Không có endpoint unlock trong `BibleController`; `MarkSuperseded`, `AddBibleEntryRevisionCommand` |
-| M1-09 | Era versioning `EffectiveRevisionAt(N)` (BR-15) | ✅ | `BibleEntry.EffectiveRevisionAt(int, canonOnly)`, `GetBibleEntriesAtChapterQuery` |
-| M1-10 | Gate 1 quét Bible: chỉ `@Tag` phải CanonLocked, miễn trừ quần chúng (BR-21/30) | ✅ 🔍 | `CheckChapterBibleGateQuery` được gọi trong `Chapters/Commands/FreezeScript/FreezeScriptCommands.cs:57-70` |
+| M1-09 | ~~Era versioning `EffectiveRevisionAt(N)`~~ → biến thể tạo hình + bản theo binding của chương (BR-15 mới, Q16) | ❌ thay bằng BIB-09, BIB-15, gỡ ở BIB-17 | `BibleEntry.EffectiveRevisionAt(int, canonOnly)`, `GetBibleEntriesAtChapterQuery` |
+| M1-10 | Gate 1 chốt Bible theo Danh sách thực thể chương (BR-21/30/35, Q16) | ❌ | Rà soát 2026-11-13: `CheckChapterBibleGateQuery` luôn qua và **không** được `FreezeChapterScriptCommand` gọi → BIB-14 |
 | M1-11 | **Gate 1 "1 nút": Approve Script & Start Production + xác nhận giao Page** | 🟡 | Freeze (`FreezeChapterScriptCommand`) và giao việc (`CreateAssignmentPlanCommand`, `CreateBulkAssignmentCommand`) là 2 thao tác rời; chương không chuyển `PreProduction → InProduction` |
 | M1-12 | Màn `ChapterReleaseModal.tsx` (Gate 1 / Gate 3 / Transfer / Revenue) | ❌ | Không tồn tại; chức năng rải ở `ProducerWorkspaceView`, `CreateAssignmentModal`, `PublishingView` |
 
@@ -210,10 +210,45 @@
 | 2026-11-13 | D11, SCR-25/26 (làm lại), SCR-27 ⛔ | ✅ | FE `trungkien` `30b975a` | Editor Writer xây lại theo luật đo trên WriterSolo; kịch bản chữ thuần, không liên kết Series Bible. Typecheck/i18n/eslint sạch; test viết, chưa chạy; chưa thử trong app. Câu hỏi 20 |
 | 2026-11-13 | D12, SCR-08 (🟡), SCR-37, SCR-38 (❌) | ✅ | BE `d136057`, `9059e5a`; FE `e98d8ad` | Luồng kịch bản: Writer gửi duyệt ↔ hủy gửi duyệt → Producer bắt đầu sản xuất; Editor góp ý theo dòng (không chặn, không đổi trạng thái); `ChapterStatus.PreProduction` mặc định. Build BE/FE thành công; 86 test BE cần cập nhật trước khi push (SCR-38). Câu hỏi 21 |
 | 2026-11-13 | SCR-12, SCR-15 (thay), SCR-21, SCR-37 | ✅ | BE `a3b9a29`, `5e55c97`; FE `eda8d4f` | Lưu = commit / Gửi duyệt = push (câu hỏi 22): drawer lịch sử (mã băm rút gọn, nhãn ĐÃ GỬI DUYỆT, so với bản đã gửi), Editor đọc bản đã gửi theo Trang → Panel → dòng + tab Thay đổi + cờ góp ý cũ; gỡ stage Script khỏi pipeline và luồng duyệt kịch bản qua Assignment. Build BE/FE, typecheck, i18n:check đạt; chưa chạy test, chưa thử trong app |
+| 2026-11-13 | Rà soát luồng Script → Bible → Production | Lập kế hoạch sửa | — (chỉ tài liệu) | Đối chiếu spec với code BE/FE; bảng §4.1. Thêm SCR-39, ASG-07, BIB-09, BIB-10; bổ sung SCR-01, SCR-03, SCR-11, ASG-01, REL-01, REL-02, REL-04. Câu hỏi mở 23–25 |
+| 2026-11-14 | Q16 (câu 23), câu 24, câu 25 | ✅ Chốt | hub (chỉ tài liệu) | Bible chốt theo chương (BR-35) → BIB-09, BIB-11..BIB-17, sửa đặc tả master; Producer chỉ đọc kịch bản → SCR-11; bỏ luồng Writer xin mở lại → SCR-09 |
+| 2026-11-14 | Q16 (chỉnh) | ✅ Chốt | hub (chỉ tài liệu) | Người nói tự khớp/tự tạo nháp + cờ Quần chúng; lời dẫn chỉ tham chiếu khi Writer bôi đen; bỏ quét chữ và nhóm phân loại tên mới → BIB-11..BIB-17 viết lại |
+| 2026-11-14 | Q17 | ✅ Chốt | hub (chỉ tài liệu) | Bôi đen tham chiếu chỉ Writer; duyệt thiết kế Bible: Writer góp ý, Editor chốt → BIB-10 (khôi phục, viết lại), BIB-13, BIB-16; sửa spec §5.1, máy 1, glossary, chuẩn đặt tên |
+| 2026-11-14 | Q16 (gắn chương tự động) | ✅ Chốt | hub (chỉ tài liệu) | Gắn mục Bible vào chương và chọn bản tạo hình là tự động; Gate 1 chỉ kiểm `CanonLocked`; bỏ lệnh `SetCastRevision`. Đổi biến thể theo chương → câu hỏi mở 26 |
+| 2026-11-14 | Dọn tài liệu | ✅ | hub, BE, FE (chỉ tài liệu) | Xoá tài liệu lệch V2.6: hub `note/archive/*`, Cross Audit Report, FEATURE_AUDIT_DIFF, TEST_CASES_SERIES_BIBLE (era), LOCALIZATION_PIPELINE_PROPOSAL (thay bằng BR-34), image_storage_architecture + implementation-qa (trùng/cũ), sơ đồ `report4` (mô tả code cũ); BE `docs/{requirements,roles,domain,architecture,storage,archive,superpowers,diagrams}`, 2 file research thiết kế cũ, CORE_PRODUCTION_ARCHITECTURE; FE `docs/{CORE_PRODUCTION_ARCHITECTURE,DOCUMENTATION_PROCESS,archive,audit}`. Sửa glossary + chuẩn đặt tên trạng thái theo Q15–Q17, clean-architecture (Reader/Ví VNĐ, bỏ `Locked`, bỏ `HANDOFF.md`). Đồng bộ lại `web/public/docs` |
+
+### 4.1. Rà soát luồng Script → Series Bible → Production (2026-11-13)
+
+Đọc code, chưa chạy test. Mỗi lỗi chỉ ghi ở **một** task module.
+
+| # | Mức | Lỗi (đã xác nhận trong code) | Task |
+|---|---|---|---|
+| 1 | 🔴 | Kịch bản không còn liên kết Bible (D11) → Bible Gate luôn qua, Gate 1 không kiểm `CanonLocked` (spec §1.1, BR-21) | [BIB-09, BIB-11..BIB-17](plans/02_BIBLE_PLAN.md) · Q16 |
+| 2 | 🔴 | Gate 3 không kiểm 100% trang `Approved`: chương 0 việc vẫn `ApproveChapter` được, Snapshot trang chưa vẽ | [REL-02](plans/06_RELEASE_PLAN.md) |
+| 3 | 🔴 | Giao việc / bắt đầu vẽ được khi chương còn `PreProduction` (bỏ qua Gate 1) | [ASG-07](plans/03_ASSIGNMENT_PLAN.md) |
+| 4 | 🔴 | Producer mở lại kịch bản rồi chốt lại không gắn ⚑ Panel (chỉ đường xin mở lại V2.5 có); dò bằng `UpdatedAt` bỏ sót dòng xoá/thêm | [SCR-01](plans/01_SCRIPT_PLAN.md) |
+| 5 | 🔴 | `SCRIPT_NOT_FROZEN` chỉ cảnh báo → duyệt chương khi kịch bản đang sửa | [REL-02](plans/06_RELEASE_PLAN.md) |
+| 6 | 🟠 | Producer sửa được kịch bản (BE "Producer luôn được"; FE `canEditScript` mở khi chưa rõ vai trò) — trái BR-07 | [SCR-11](plans/01_SCRIPT_PLAN.md) · câu hỏi 24 |
+| 7 | 🟠 | Publish chỉ cho Publisher, Reopen cho cả Publisher — trái quyết định 1/11 | [REL-04](plans/06_RELEASE_PLAN.md) |
+| 8 | 🟠 | `ChapterStatus` còn `Locked`, chưa có `HandedOffAndPublished` | [REL-01](plans/06_RELEASE_PLAN.md) |
+| 9 | 🟡 | Hai cơ chế mở lại kịch bản song song (Unfreeze V2.6 và Xin/Duyệt/Từ chối V2.5) | câu hỏi 25 → SCR-09/SCR-10 |
+| 10 | 🟡 | Tài liệu/comment lệch D12 (`InReview` khoá sửa, còn `ChangesRequested`/`Amending`); hai hệ phiên bản `ContentRevision` / `ScriptVersion` | [SCR-39](plans/01_SCRIPT_PLAN.md) |
+| 11 | 🟡 | Quyền Endorse Bible lệch (đã chốt Q17: Writer góp ý, Editor chốt; code còn cho Writer endorse); máy trạng thái Bible lệch spec; gate ép số chương decimal → int (tự hết khi gỡ era ở BIB-17) | [BIB-10, BIB-17](plans/02_BIBLE_PLAN.md) |
+| 12 | 🟡 | `chapterScriptMachine.ts` code chết còn luật `canFreeze = isBibleGatePassed` | [SCR-03](plans/01_SCRIPT_PLAN.md) |
+
+**Thứ tự đề xuất:** ASG-07 + REL-02 + SCR-01 (BE, độc lập, không chờ quyết định) → REL-04, REL-01 (đã chốt từ 2026-11-12) → SCR-11 (câu 24 đã chốt) → chuỗi Bible Q16: BIB-09 → BIB-11 → BIB-12 → BIB-13 → BIB-14 → BIB-15 ∥ BIB-16 → BIB-17 → SCR-39, BIB-10, SCR-03.
 
 ---
 
 ## 5. CÂU HỎI MỞ CẦN USER QUYẾT ĐỊNH
+
+### Đang chờ (rà soát 2026-11-13)
+
+26. ⏳ **Đổi biến thể tạo hình theo chương?** Hiện hệ thống tự gắn bản đã dùng ở chương gần nhất trước đó (hoặc biến thể mặc định). Có cho Writer đổi sang biến thể khác cho một chương cụ thể (hồi tưởng, đổi trang phục) không, hay chỉ tự động? → BIB-13, BIB-16.
+
+23. ✅ **Series Bible chốt theo chương** (user chốt 2026-11-14, chỉnh lại cùng ngày; spec **Q16**, BR-35): **tên người nói** tự khớp tên/bí danh mục Bible, chưa có thì hệ thống **tự tạo bản nháp** nhân vật, Writer gắn cờ **Quần chúng** nếu không cần thiết kế; **lời dẫn/mô tả không tự khớp**, Writer **bôi đen** đoạn chữ để tham chiếu mục có sẵn hoặc tạo mục mới; mục mới chờ Writer viết định nghĩa rồi Artist vẽ. Luồng tạo Bible trước: ghi đúng tên ở ô người nói là tự tham chiếu. Bỏ mốc chương hiệu lực, dùng **biến thể tạo hình** (`variant_label`), gợi ý bản đã dùng ở chương gần nhất trước đó. `chapter_bible_bindings` khoá cùng kịch bản ở Gate 1 (bản gắn cho phép NULL trước Gate 1); Gate 1 chặn khi còn thực thể không Quần chúng chưa `CanonLocked`; đổi bản sau khi mở lại thì gắn ⚑; đưa vào Snapshot Gate 3 → [02_BIBLE_PLAN.md](plans/02_BIBLE_PLAN.md) BIB-09, BIB-11..BIB-17. Đã sửa đặc tả master (§1.1, §1.2, §2.1, Module 1 mục 2–4, BR-01/15/21/30/35, §5.1, §5.2 máy 1, §5.3), `CHAPTER_AND_SCRIPT_SPECIFICATION.md`, glossary.
+24. ✅ **Producer chỉ đọc kịch bản** (user chốt 2026-11-13, theo spec BR-07 / §5.1): sửa nội dung kịch bản trả 403 với Producer; Producer góp ý, Bắt đầu sản xuất, Mở lại → SCR-11.
+25. ✅ **Bỏ luồng Writer xin mở lại kịch bản (V2.5)** (user chốt 2026-11-13): chỉ Producer *Mở lại* kèm lý do; gỡ `request/approve/reject-script-reopen`, `ScriptReopenStatus` và 4 cột `ScriptReopen*` → SCR-09, SCR-23.
 
 ### Đã chốt (2026-11-12)
 
@@ -248,7 +283,7 @@ Các mục 11–17 đã ghi vào đặc tả (bảng "Nhật ký quyết định
 
 19. ✅ **Trải nghiệm gõ kịch bản (D7–D10 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md) §3.5)** (user chốt 2026-11-13, theo khuyến nghị): hậu tố `(nghĩ)` ở ô người nói → Thought · bỏ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi trong editor (chỉ còn ở luồng dán/chuyển đổi) · cảnh báo (không chặn) khi > 7 panel/trang, > 3 bóng thoại/panel, > 25 chữ/bóng thoại, panel không có Action · kéo thả Page/Panel chỉ khi `Draft`/`ChangesRequested`/`Amending`, Panel đã có artwork thì hỏi xác nhận và gắn ⚑.
 
-20. ✅ **Editor kịch bản giống WriterSolo, không liên kết Series Bible** (D11 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md), user chốt 2026-11-13): luật gõ đo trực tiếp trên WriterSolo thay bảng H.1; kịch bản là chữ thuần (không `@mention`, không chọn người nói từ Bible); xây lại, không tương thích dữ liệu cũ. ⚠️ Đặc tả master Module 1 vẫn ghi `@Bible` trong ACTION_DIRECTION, stub `@Tên_Mới` và Bible Gate theo `@Tag` — cần sửa đặc tả hoặc chốt lại phần Bible Gate.
+20. ✅ **Editor kịch bản giống WriterSolo, không liên kết Series Bible** (D11 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md), user chốt 2026-11-13): luật gõ đo trực tiếp trên WriterSolo thay bảng H.1; kịch bản là chữ thuần (không `@mention`, không chọn người nói từ Bible); xây lại, không tương thích dữ liệu cũ. ✅ Phần Bible Gate đã chốt lại ở mục 23 (Q16) và đặc tả master đã sửa.
 
 21. ✅ **Luồng nộp kịch bản** (D12 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md), user chốt 2026-11-13): `Draft ↔ InReview → Frozen`; chỉ Writer gửi duyệt / hủy gửi duyệt; Editor chỉ góp ý theo dòng, không bắt buộc trước Gate 1; Producer bấm *Bắt đầu sản xuất* khi `InReview` (chương `PreProduction → InProduction`); bỏ `ChangesRequested` / `Amending` và duyệt kịch bản qua Assignment. ✅ Đã ghi vào đặc tả master (Q15, Module 1 mục 4, §5.2 máy 4 và máy 5 `ScriptStatus`).
 

@@ -15,8 +15,8 @@ Phân hệ **Chapter (Quản lý Chương)** và **Script (Biên kịch Kịch b
 2. **Script Flow Tinh Gọn (V2.6 Final):** Loại bỏ tầng `Scene` khỏi giao diện soạn thảo, tổ chức kịch bản trực tiếp theo 3 cấp tự nhiên bên dưới. **Quyết định D2 (chốt 2026-11-12):** mỗi Chương có một Scene mặc định ẩn do hệ thống tạo; `scene_id` giữ `NOT NULL` dưới DB (không đổi sang `nullable`) để giữ nguyên lịch sử revision và luồng AI theo Scene.
    - **Page (Trang truyện):** Sắp xếp theo thuật toán `LexoRank`.
    - **Panel (Khung tranh):** Tọa độ BoundingBox `{x, y, w, h}` chuẩn hóa (0..1 trên khung 1200×1800) và `panelIndex`.
-   - **Panel Contents (Nội dung bên trong Panel):** Danh sách có thứ tự gồm 4 thành phần: `ACTION_DIRECTION` (vẽ gì, bắt tag `@Bible`; nhân vật quần chúng tả trực tiếp, không cần Bible), `DIALOGUE/THOUGHT` (thoại/suy nghĩ kèm `speaker_character_id`), `NARRATION` (hộp dẫn chuyện), `SFX` (hiệu ứng âm thanh).
-3. **Cơ chế Tiền kỳ & Gate 1:** Writer gõ `@Tên_Mới` tự động tạo stub entity nháp trong Bible (không chặn mạch viết). Producer bấm 1 nút duy nhất **Approve Script & Start Production** tại Gate 1 để đóng băng kịch bản (`is_script_frozen = true`) và mở bảng Kanban.
+   - **Panel Contents (Nội dung bên trong Panel):** Danh sách có thứ tự gồm 4 thành phần: `ACTION_DIRECTION` (vẽ gì, chữ thuần; nhân vật quần chúng tả trực tiếp, không cần Bible), `DIALOGUE/THOUGHT` (thoại/suy nghĩ kèm tên người nói `speaker_label`), `NARRATION` (hộp dẫn chuyện), `SFX` (hiệu ứng âm thanh).
+3. **Cơ chế Tiền kỳ & Gate 1 (Q16, BR-35):** tên người nói tự khớp tên/bí danh mục Bible, chưa có thì hệ thống tự tạo mục nháp (Writer gắn cờ *Quần chúng* nếu không cần); nhân vật trong lời dẫn được Writer bôi đen để tham chiếu. Tất cả lập thành **Danh sách thực thể chương** (không chặn mạch viết). Producer bấm 1 nút duy nhất **Approve Script & Start Production** tại Gate 1: chặn nếu còn thực thể (không Quần chúng) chưa gắn bản `CanonLocked`; thành công thì đóng băng kịch bản (`is_script_frozen = true`), khoá `chapter_bible_bindings` và mở bảng Kanban.
 
 ```mermaid
 stateDiagram-v2
@@ -74,10 +74,14 @@ Chuẩn hóa 4 trạng thái cốt lõi: `PreProduction`, `InProduction`, `Chapt
 | `GET` | `/api/chapters/{id}` | Thành viên Workspace | Lấy thông tin chi tiết của 1 chương |
 | `PUT` | `/api/chapters/{id}` | **Producer** | Cập nhật tiêu đề, số chương, ngày phát hành mục tiêu |
 | `DELETE` | `/api/chapters/{id}` | **Producer** | Xóa chương (Yêu cầu xác nhận xóa) |
-| `GET` | `/api/scripts/{chapterId}` | Thành viên Workspace | Lấy nội dung kịch bản hiện tại (`Page -> Panel -> Content`) |
-| `POST` | `/api/scripts/{chapterId}` | **Writer** | Lưu bản thảo kịch bản (Draft Auto-save) |
-| `POST` | `/api/scripts/{chapterId}/freeze` | **Producer** | Đóng băng kịch bản tại Gate 1 (không qua Editor) |
-| `POST` | `/api/scripts/{chapterId}/unfreeze`| **Producer** | Mở khóa khẩn cấp kịch bản |
+| `GET` | `/api/chapters/{id}/script-versions` · `/working-copy` · `/{versionId}` | Thành viên Workspace | Danh sách phiên bản, bản đang sửa, một phiên bản (Q15) |
+| `POST` | `/api/chapters/{id}/script-versions` | **Writer** | Lưu = commit một `ScriptVersion` (trùng nội dung thì không tạo) |
+| `POST` | `/api/chapters/{id}/submit-script` · `/recall-script` | **Writer** | Gửi duyệt (`Draft/InReview → InReview`) · Hủy gửi (`InReview → Draft`) |
+| `GET` / `POST` | `/api/chapters/{id}/script-comments` | Thành viên / **Editor** | Góp ý theo dòng (không đổi trạng thái) |
+| `POST` | `/api/chapters/{id}/freeze-script` | **Producer** | Bắt đầu sản xuất (Gate 1): `InReview → Frozen`, chương `PreProduction → InProduction`; chặn nếu Bible chưa khoá Canon (BR-35) |
+| `POST` | `/api/chapters/{id}/unfreeze-script` | **Producer** | Mở lại kịch bản kèm lý do (`Frozen → Draft`) |
+
+> Endpoint `request/approve/reject-script-reopen` còn trong code sẽ bị gỡ (câu hỏi 25, SCR-09). Producer chỉ đọc nội dung kịch bản (BR-07).
 
 ---
 
@@ -125,7 +129,7 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
    - Thanh công cụ gắn bên phải màn hình cho phép chèn 1-chạm các khối chuẩn Manga:
      - `Trang (# Page)`: Ngắt trang mới.
      - `Khung (Panel)`: Thêm khung hình mới (kèm 1 Scene mặc định ẩn dưới DB theo D2).
-     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn & bắt tag `@Bible`.
+     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường; bôi đen để tham chiếu tới Series Bible).
      - `Lời thoại (Dialogue / Thought)`: Thoại/suy nghĩ kèm `speaker_character_id`.
      - `Dẫn chuyện (Narration)`: Hộp dẫn chuyện.
      - `Hiệu ứng (SFX)`: Âm thanh truyện tranh (`BÙM!`, `XẸT!`).

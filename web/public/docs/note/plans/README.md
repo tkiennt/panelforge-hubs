@@ -11,7 +11,7 @@
 | # | File | Prefix | Phạm vi | Spec | Tiến độ |
 |---|---|---|---|---|---|
 | 1 | [01_SCRIPT_PLAN.md](01_SCRIPT_PLAN.md) | `SCR` | Soạn kịch bản, vòng đời kịch bản, duyệt & khoá (phần kịch bản của Gate 1), mở lại/sửa muộn | Module 1, 4 · §1.2 | D1–D6 đã chốt; sẵn sàng làm từ Phase A |
-| 2 | [02_BIBLE_PLAN.md](02_BIBLE_PLAN.md) | `BIB` | Series Bible: vòng đời concept → duyệt → khoá Canon, giai đoạn (era), màn Bible | Module 1 · BR-01/15/21/30 | Backend xong; frontend chưa làm |
+| 2 | [02_BIBLE_PLAN.md](02_BIBLE_PLAN.md) | `BIB` | Series Bible: vòng đời concept → duyệt → khoá Canon, giai đoạn (era), màn Bible | Module 1 · BR-01/15/21/30/35 · Q16 | Vòng đời duyệt xong; Bible chốt theo chương (BIB-09, BIB-11..17) và frontend chưa làm |
 | 3 | [03_ASSIGNMENT_PLAN.md](03_ASSIGNMENT_PLAN.md) | `ASG` | Giao việc, pipeline, Kanban, giao Page tại Gate 1, Ink ∥ Lettering, chia/chuyển phạm vi | Phần II · BR-19/23/30 | Phần lớn chưa làm |
 | 4 | [04_ARTWORK_PLAN.md](04_ARTWORK_PLAN.md) | `ART` | Bàn vẽ Artist (Layout, Pencil, Ink), đặt chữ (Artist/Letterer), thứ tự đọc, upload artwork, ngôn ngữ bóng thoại | Module 2 · BR-04/05/20/27/31/34 | BR-31 xong (P0); còn nhiều hạng mục |
 | 5 | [05_REVIEW_PLAN.md](05_REVIEW_PLAN.md) | `REV` | Gate 2: duyệt trang, khoanh lỗi, cô lập Panel, ChangeRequest, so sánh phiên bản | Module 3 · BR-06/27 | Luật 4 mắt xong (P0); thiếu thuật toán giao thoa, định tuyến theo lớp |

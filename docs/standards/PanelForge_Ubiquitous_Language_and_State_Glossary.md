@@ -46,8 +46,11 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | **StudioWorkspace** | Toàn cục | Không gian làm việc khép kín của một Studio, độc lập về dữ liệu, thành viên và quota. |
 | **Series** | Workspace | Một bộ truyện tranh, có cấu trúc pipeline công đoạn, hướng đọc (RTL/LTR), Bible riêng. |
 | **SeriesBible** | Series | Hồ sơ kinh thánh bối cảnh của Series; lưu trữ thiết kế nhân vật, sự kiện, địa điểm, luật thế giới. |
-| **BibleEntryRevision** | SeriesBible | Phiên bản của một mục Bible; có chương bắt đầu hiệu lực và ảnh tham chiếu CAS SHA-256. |
-| **Chapter** | Series | Một chương truyện (gồm cờ `IsScriptFrozen`, `ChapterStatus` và tập hợp `Page`). |
+| **BibleEntry** | SeriesBible | Một nhân vật / địa điểm / đạo cụ (hoặc thuật ngữ, quy tắc, sự kiện); có `name`, `aliases`, cờ **Quần chúng** (`is_crowd`) và cờ nháp chờ định nghĩa (`IsStub`) (Q16). |
+| **BibleEntryRevision** | BibleEntry | Một bản tạo hình của mục, gắn **nhãn biến thể** (`variant_label`, ví dụ "Lúc nhỏ"), ảnh concept CAS SHA-256; không gắn số chương (Q16, BR-15). |
+| **Danh sách thực thể chương** (`chapter_bible_bindings`) | Chapter | Các mục Bible có trong kịch bản chương (người nói tự khớp/tự tạo, đoạn Writer bôi đen) và bản tạo hình chương dùng; khoá cùng kịch bản ở Gate 1 (BR-35). |
+| **Chapter** | Series | Một chương truyện (gồm `ChapterStatus`, `ScriptStatus`, các `ScriptVersion` và tập hợp `Page`). |
+| **ScriptVersion** | Chapter | Phiên bản kịch bản bất biến tạo mỗi lần Writer lưu (mã băm SHA-256); chương giữ con trỏ bản đã gửi duyệt (Q15). |
 | **ChapterEdition** | Chapter × Lang | Ấn bản theo từng ngôn ngữ (`original_language` / `release_languages`) với trạng thái xuất bản và giá VNĐ riêng (Q9, Q10). |
 | **Scene (Ẩn dưới DB)** | Chapter | Một Scene mặc định ẩn do hệ thống tạo cho mỗi Chapter (`scene_id` NOT NULL dưới DB theo D2); không hiển thị trên UI kịch bản và đã bỏ `ChapterScript` (D5). |
 | **PanelContent** | Panel | Đơn vị nội dung trong Panel (`ACTION_DIRECTION`, `DIALOGUE/THOUGHT`, `NARRATION`, `SFX`), chữ thuần; thoại ghi tên người nói `speaker_label`. Liên kết Bible: người nói tự khớp/tự tạo, lời dẫn do Writer bôi đen tham chiếu; gom ở Danh sách thực thể chương (Q16). |
@@ -91,47 +94,53 @@ stateDiagram-v2
 
 ---
 
-### 3.2. Script Lifecycle (Vòng đời Kịch bản trên Chapter)
-*Thực thể: Cờ `IsScriptFrozen` & `ScriptReopenStatus` trên `Chapter` — Quyết định: `Writer` & `Producer`*
+### 3.2. ScriptStatus (Vòng đời Kịch bản trên Chapter — Q15)
+*Thực thể: `Chapter.ScriptStatus` — Quyết định: `Writer` (gửi / hủy gửi), `Producer` (bắt đầu sản xuất / mở lại)*
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Open: Writer tạo chương & viết kịch bản
-    Open --> Frozen: Producer duyệt kịch bản & Freeze (Chặn sửa, mở khâu vẽ)
-    Frozen --> ReopenRequested: Writer xin mở lại kèm lý do
-    ReopenRequested --> Open: Producer phê duyệt mở lại
-    ReopenRequested --> Frozen: Producer từ chối mở lại
+    [*] --> Draft: Writer viết; mỗi lần Lưu tạo ScriptVersion (SHA-256)
+    Draft --> InReview: Writer Gửi duyệt (push bản mới nhất)
+    InReview --> InReview: Writer lưu tiếp / Gửi duyệt lại; Editor góp ý theo dòng
+    InReview --> Draft: Writer Hủy gửi duyệt
+    InReview --> Frozen: Producer Bắt đầu sản xuất (Gate 1; bản hiện tại = bản đã gửi; Bible đã khoá Canon)
+    Frozen --> Draft: Producer Mở lại kèm lý do (Audit Log)
 ```
 
-| Trạng thái kịch bản | Điều kiện dữ liệu | Ý nghĩa |
-|---|---|---|
-| `Open` (Drafting) | `IsScriptFrozen = false`, `ScriptReopenStatus = None / Approved` | Writer toàn quyền thêm/sửa/xóa kịch bản; khâu vẽ chưa mở. |
-| `Frozen` | `IsScriptFrozen = true`, `ScriptReopenStatus = None / Rejected` | Kịch bản chỉ đọc (Read-only); Producer mở khâu phân trang/vẽ. Sửa kịch bản trả về **HTTP 409**. |
-| `ReopenRequested` | `IsScriptFrozen = true`, `ScriptReopenStatus = Requested` | Writer gửi yêu cầu mở lại kèm lý do; kịch bản vẫn đang đóng băng chờ Producer duyệt. |
+| Trạng thái | Ý nghĩa |
+|---|---|
+| `Draft` | Writer viết và lưu tự do; chưa gửi Editor. |
+| `InReview` | Đã gửi; Editor đọc đúng bản đã gửi và góp ý theo dòng (không đổi trạng thái, không bắt buộc). Writer vẫn sửa, lưu và gửi lại. |
+| `Frozen` | Kịch bản chỉ đọc (sửa trả **409**), chương `InProduction`. Chỉ Producer mở lại; không có luồng Writer xin mở lại (đã bỏ `ScriptReopenStatus`, quyết định câu 25). |
+
+`IsScriptFrozen` là cột phụ bằng `ScriptStatus == Frozen`, giữ cho truy vấn cũ. Producer chỉ đọc nội dung kịch bản (BR-07).
 
 ---
 
 ### 3.3. BibleRevisionStatus (Vòng đời Series Bible 2 tầng)
-*Thực thể: `BibleEntryRevision` — Quyết định: `Artist`, `Writer/Editor`, `Producer`*
+*Thực thể: `BibleEntryRevision` — Quyết định: `Artist` (nộp), `Editor` (xác nhận / vẽ lại, Writer chỉ góp ý), `Producer` (khoá) — Q17*
 
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: Writer đặc tả nhân vật/bối cảnh
     Draft --> ConceptSubmitted: Artist tải Character Sheet (CAS SHA-256)
     ConceptSubmitted --> WriterEndorsed: Editor xác nhận khớp cốt truyện, Writer chỉ góp ý (BR-25, Q17)
-    ConceptSubmitted --> ReworkRequired: Writer/Editor yêu cầu sửa kèm lý do
+    ConceptSubmitted --> ReworkRequired: Editor yêu cầu vẽ lại kèm nhận xét
     ReworkRequired --> ConceptSubmitted: Artist nộp bản vẽ mới
     WriterEndorsed --> CanonLocked: Producer chốt khóa canon (🔒 Bất biến)
-    CanonLocked --> [*]
+    CanonLocked --> Superseded: /supersede cùng biến thể (chương đã chốt giữ bản cũ)
 ```
 
 | Tên trạng thái | Ý nghĩa chuẩn | Actor thực hiện |
 |---|---|---|
-| `Draft` | Bản mô tả đặc tả văn bản của Writer (chờ Artist vẽ concept). | Writer |
+| `Draft` | Bản mô tả của Writer (chờ Artist vẽ concept). Mục tự tạo từ người nói / bôi đen bắt đầu ở đây với cờ `IsStub` (chờ Writer viết định nghĩa, chưa vào hàng đợi Artist). | Writer / hệ thống |
 | `ConceptSubmitted` | Artist đã tải bản vẽ lên kho Asset CAS SHA-256. | Artist |
-| `ReworkRequired` | Bản vẽ bị trả về kèm yêu cầu chỉnh sửa. | Writer / Editor |
+| `ReworkRequired` | Bản vẽ bị trả về kèm nhận xét. Góp ý của Writer là sự kiện `Commented`, không đổi trạng thái. | Editor |
 | `WriterEndorsed` | Editor xác nhận bản vẽ đúng với tinh thần kịch bản sau khi tham khảo góp ý của Writer (**Điều kiện cần để Lock**; giữ tên trạng thái cũ, Q17). | Editor |
-| `CanonLocked` | Producer khóa vĩnh viễn làm bản mẫu chính thức của Series. Không thể unlock; muốn sửa phải tạo revision mới qua `/supersede`. | Producer |
+| `CanonLocked` | Producer khóa vĩnh viễn làm bản mẫu chính thức của Series. Không thể unlock; sửa thiết kế cùng biến thể qua `/supersede`, tạo hình khác thì thêm biến thể mới. | Producer |
+| `Superseded` | Bị bản mới cùng biến thể thay thế; không chọn được cho chương mới, chương đã chốt vẫn dùng (suy ra từ sự kiện, không phải giá trị enum). | Producer |
+
+Cờ **Quần chúng** (`is_crowd`) trên mục: không cần thiết kế, không vào hàng đợi Artist, không chặn Gate 1.
 
 ---
 
@@ -210,10 +219,10 @@ stateDiagram-v2
 | Mục so sánh | Trong Code hiện tại | Trong Commitment BM04 | Trong Report 3 (SRS) / Report 4 (SDD) | Điểm lệch & Nguy cơ | Giải pháp chuẩn hóa thống nhất |
 |---|---|---|---|---|---|
 | **1. Vòng đời Chapter** | `InProduction, Approved, Locked, Published` | `InProduction → Approved → Published` | Nhiều chỗ còn ghi `Locked` | Code và báo cáo còn tồn tại chữ `Locked` trong khi BM04 đã bỏ. | • Giữ BM04 theo chuẩn mới bỏ `Locked`.<br>• Cập nhật task **RF-16** xóa `Locked` khỏi code trước 20/11.<br>• Tìm và thay thế `Locked` $\rightarrow$ `Approved` trong SRS/SDD. |
-| **2. Kịch bản vs Chapter (WF-03)** | `Chapter.IsScriptFrozen` & `ScriptReopenStatus` | Ghi gộp: `Chapter: InProduction → Frozen → ReopenRequested...` | Một số sơ đồ vẽ lẫn vào Chapter | Nhầm lẫn thực thể cha (`Chapter`) với trạng thái kịch bản (`Script`) và tác vụ (`Assignment`). | • Sửa câu chữ trong BM04 mục 6.3:<br>`Script: Open → Frozen → ReopenRequested → Open;`<br>`Assignment: Approved → ReworkRequired → InProgress.` |
+| **2. Kịch bản vs Chapter** | `Chapter.ScriptStatus` (`Draft / InReview / Frozen`); code còn `ScriptReopenStatus` (sẽ gỡ, SCR-09) | Ghi gộp: `Chapter: InProduction → Frozen → ReopenRequested...` | Một số sơ đồ vẽ lẫn vào Chapter | Nhầm thực thể cha (`Chapter`) với trạng thái kịch bản và tác vụ (`Assignment`). | • Viết tách: `Script: Draft ↔ InReview → Frozen → Draft (Producer mở lại)`; `Chapter: PreProduction → InProduction → ChapterApproved`; `Assignment: Approved → ReworkRequired → InProgress`. |
 | **3. Trạng thái duyệt việc** | `AssignmentStatus.UnderReview` | `Assignment: ... → Reviewing → ...` | SDD §4 ghi `UnderReview`, BM04 ghi `Reviewing` | Lệch danh từ giữa code (`UnderReview`) và BM04 (`Reviewing`). | • Chấp nhận `UnderReview` là mã nội bộ (Code enum), `Reviewing` là nhãn hiển thị nghiệp vụ (Display Label). Bổ sung chú thích này vào SDD. |
 | **4. Cờ hủy Assignment** | Chưa có enum `Cancelled` | BM04 ghi có `Cancelled` | State machine §6.4 có vẽ `Cancelled` | Code chưa định nghĩa giá trị enum `Cancelled = 8`. | • Nằm trong task **RF-17** (hạn 20/11) do Tâm phụ trách. Thêm `Cancelled = 8` vào `AssignmentStatus.cs`. |
-| **5. Tài khoản Reader** | `Catalog API` public không cần auth; Mobile có `ReaderAccount` | Ghi: `Publisher and Reader have accounts (BR-07, BR-24)` | SRS phân định Web Reader và Mobile Reader | Dễ bị hiểu lầm là độc giả Web cũng bắt buộc phải đăng ký tài khoản mới được đọc truyện. | • Làm rõ trong SRS và BM04: *"Reader reads public catalog on Web; Mobile reader registers ReaderAccount for library and bookmark features."* |
+| **5. Tài khoản Reader** | `Catalog API` public; Reader là `User` có Ví VNĐ và quyền đọc theo ấn bản | Ghi: `Publisher and Reader have accounts (BR-07, BR-24)` | SRS phân định Web Reader và Mobile Reader | Dễ hiểu lầm phải đăng ký mới đọc được ấn bản Free. | • Theo BR-33: ấn bản Free đọc không cần mở khoá; ấn bản Trả phí cần tài khoản + Ví VNĐ để mở khoá đúng ấn bản ngôn ngữ đó. |
 
 ---
 

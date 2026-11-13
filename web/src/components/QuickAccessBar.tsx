@@ -24,10 +24,10 @@ export const QUICK_PINNED_DOCS = [
     highlight: true,
   },
   {
-    title: 'Feature Audit Diff',
-    slug: 'tracking/FEATURE_AUDIT_DIFF',
+    title: 'Implementation Plan',
+    slug: 'note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN',
     icon: Search,
-    badge: 'Audit',
+    badge: 'Plan',
   },
   {
     title: 'Audit Logs',
@@ -48,10 +48,10 @@ export const QUICK_PINNED_DOCS = [
     badge: 'Backend',
   },
   {
-    title: 'Core Production Arch',
-    slug: 'spec/CORE_PRODUCTION_ARCHITECTURE',
+    title: 'Chapter & Script Spec',
+    slug: 'spec/CHAPTER_AND_SCRIPT_SPECIFICATION',
     icon: Layers,
-    badge: 'Arch',
+    badge: 'Spec',
   },
   {
     title: 'Structure Guide',

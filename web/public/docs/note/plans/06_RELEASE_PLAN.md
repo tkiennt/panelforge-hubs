@@ -30,12 +30,17 @@
 - [ ] Migration: `UPDATE chapters SET status = 2 WHERE status = 3`; chương chưa freeze → `PreProduction`.
 - [ ] Domain `Chapter`: `StartProduction()`, `MarkHandedOffAndPublished()`; `Reopen()` chỉ `ChapterApproved → InProduction` kèm lý do.
 - [ ] Rà mọi điều kiện `Status == InProduction` (~24 file).
+- [ ] (Rà soát 2026-11-13) `PreProduction` đã có (D12); enum vẫn còn `Approved = 2, Locked = 3, Published = 4` → còn việc gộp `Locked`, thêm `HandedOffAndPublished`.
 - [ ] FE/Mobile: type enum, badge, i18n.
 - **DoD:** `PreProduction → InProduction → ChapterApproved → HandedOffAndPublished` chạy end-to-end; Reopen có audit.
 
 #### REL-02 · Gate 3 hoàn chỉnh — BE · 🟡 · phần còn lại P0-02
 - [ ] Sau [ASG-01](03_ASSIGNMENT_PLAN.md): `PAGES_WITHOUT_WORK` chuyển từ cảnh báo thành **chặn**; cập nhật test `LockGate_PageWithoutProductionWork_IsWarningOnly`.
 - [ ] Item gate trả kèm danh sách `PageId/PageNumber` vướng (thêm trường tuỳ chọn, không phá DTO).
+- [ ] **(Rà soát 2026-11-13, xác nhận lỗi)** `ChapterLockGate` không kiểm "100% Trang `Approved`" (BR-12): chỉ đếm `ASSIGNMENTS_NOT_APPROVED`. Chương **không có việc nào** → 0 việc chưa duyệt, `PAGES_WITHOUT_WORK` chỉ cảnh báo → `ApproveChapter` thành công và tạo Snapshot từ trang chưa vẽ. Không chờ ASG-01: chặn ngay khi chương không có việc Artist/Letterer nào; sau ASG-01 chặn theo từng trang.
+- [ ] Tính điều kiện theo trang: mọi Page phải có lượt duyệt Gate 2 `Approved` (StageProgress/Assignment Review của trang), không suy ra từ tổng số việc.
+- [ ] `SCRIPT_NOT_FROZEN` (`ChapterLockGate.cs:59`) chuyển từ cảnh báo thành **chặn**: hiện Producer mở lại kịch bản rồi vẫn duyệt chương được trong lúc Writer đang sửa → tranh lệch kịch bản.
+- [ ] Test: chương 0 việc → 409; kịch bản đang `Draft` sau Unfreeze → 409.
 
 #### REL-03 · `ChapterReleaseModal.tsx` — FE · ❌ · cũ M1-12
 - [ ] Khung modal Producer một chỗ với các tab: Gate 1 (ASG-01), Chuyển phạm vi, Gate 3 (danh sách item lock gate + nút Approve), Bàn giao (REL-05), Phát hành (nút Publish + **cấu hình giá do Publisher đặt, chỉ đọc** — [RDR-07](07_READER_PLAN.md)).
@@ -43,7 +48,8 @@
 - [ ] Bước "Editor xác nhận biên tập" trước cổng phát hành của Producer (checklist BR-28) — việc còn lại của `editor-review-screens.md`; chốt có cần trạng thái riêng hay chỉ là item trong lock gate.
 
 #### REL-04 · Publisher Portal: chỉ đọc nội dung + một tài khoản Publisher duy nhất — BE + FE · 🟡 · cũ P4-03
-- [ ] `POST /api/chapters/{id}/publish` và `/reopen` chỉ cho Producer (hiện Publish chỉ cho Publisher, Reopen cho Producer + Publisher — `ChaptersController.cs:360,371`); cập nhật test `ChapterPublishFlowTests`.
+- [ ] `POST /api/chapters/{id}/publish` và `/reopen` chỉ cho Producer (hiện Publish chỉ cho Publisher, Reopen cho Producer + Publisher — `ChaptersController.cs:445,456`, xác nhận lại 2026-11-13); cập nhật test `ChapterPublishFlowTests`.
+- [ ] Đồng bộ comment và thông báo: `Chapter.Publish` ghi "Publisher duyệt xuất bản"; `ApproveChapterCommand` gửi Publisher thông báo "Có chương chờ duyệt xuất bản" → đổi thành thông báo bàn giao (Publisher không duyệt), Producer là người phát hành.
 - [ ] Rà `PublisherController` + `Features/Publisher/*`: giữ query đọc, bỏ/chặn command duyệt/từ chối/lên lịch.
 - [ ] **Một Publisher duy nhất (Q12):** giữ `SystemRole.Publisher` thấy mọi Series (đúng spec, không cần liên kết Series ↔ Publisher). Chặn tạo/gán tài khoản Publisher thứ hai: `AssignUserRoleCommand`, `CreateUserByAdminCommand`, `UpdateUserByAdminCommand` trả 409 khi đã có một Publisher đang hoạt động; seed đúng một Publisher; test.
 - [ ] FE `roles/publisher/*`: ẩn nút hành động sản xuất; thêm mục "Quy định thương mại" (RDR-07); RBAC matrix, i18n, docs.

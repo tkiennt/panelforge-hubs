@@ -3,7 +3,6 @@
 > **Spec:** Module 1 mục 2–4 (Danh sách thực thể chương, Bible 2 tầng, biến thể tạo hình, chốt Bible ở Gate 1), §5.2 máy trạng thái 1, BR-01 (không unlock, supersede theo biến thể), BR-15 (bản theo binding của chương), BR-21/30, **BR-35** (Danh sách & Bản đồ thực thể chương). Quyết định **Q16** (2026-11-14) thay `@Tag` và mốc chương hiệu lực.
 > **Thay cho:** `note/SERIES_BIBLE_REDESIGN_PLAN.md`; `archive/implement-plan/completed/SERIES_BIBLE_REWORK_AND_ERA_VERSIONING_PLAN.md` (đã xong).
 > **Repo:** `PanelForge_FA26SE251` (logic đã xong), `panelforge-fe` (chính).
-> **Test case tham khảo:** [`note/TEST_CASES_SERIES_BIBLE.md`](../TEST_CASES_SERIES_BIBLE.md).
 
 ---
 
@@ -146,18 +145,18 @@ series-bible/
 - [ ] [BE] Dọn rác: mục `IsStub` do hệ thống tạo, không còn chương nào gắn và chưa có sự kiện duyệt → xoá khi lưu (Writer gõ sai tên người nói rồi sửa không để lại mục thừa).
 - [ ] [BE] Tham chiếu bôi đen khi chữ của dòng đổi: tìm lại `surface_text` trong chữ mới (gần vị trí cũ nhất); không còn → gỡ tham chiếu và trả cảnh báo trong kết quả lưu để FE báo Writer.
 - [ ] [BE] Tham chiếu bôi đen đưa vào nội dung băm của `ScriptVersion` (bôi/gỡ tham chiếu = có thay đổi; Gửi duyệt lại / Bắt đầu sản xuất kiểm đúng bản).
-- [ ] [BE] `GET /api/chapters/{id}/cast`: mỗi thực thể kèm nguồn (Người nói/Bôi đen), trạng thái Bible (chờ định nghĩa / chờ Artist / chờ duyệt / `CanonLocked`), `isCrowd`, `boundRevision`, **gợi ý mặc định** (bản đã gắn ở chương gần nhất trước chương này theo `ChapterNumber` có thực thể đó; chưa có thì bản `CanonLocked` mới nhất của biến thể mặc định), các biến thể `CanonLocked` chọn được, danh sách dòng/Panel nhắc tới; và `gate { canStart, blockers[] }`.
+- [ ] [BE] `GET /api/chapters/{id}/cast`: mỗi thực thể kèm nguồn (Người nói/Bôi đen), trạng thái Bible (chờ định nghĩa / chờ Artist / chờ duyệt / `CanonLocked`), `isCrowd`, `boundRevision`, bản tạo hình **tự gắn** (bản đã dùng ở chương gần nhất trước chương này theo `ChapterNumber` có thực thể đó; chưa có thì bản `CanonLocked` mới nhất của biến thể mặc định), danh sách dòng/Panel nhắc tới; và `gate { canStart, blockers[] }`.
 - [ ] Test: khớp bí danh, `Minh (nghĩ)`, tên có dấu viết hoa khác nhau, tự tạo một lần cho nhiều dòng cùng tên, dọn mục thừa, tham chiếu bôi đen bị mất khi sửa chữ.
 
 #### BIB-13 · Lệnh chỉnh Danh sách thực thể chương — BE · ❌ · Q16
-- [ ] [BE] Quyền (Q17): lệnh bôi đen (`AddHighlightReference`, `CreateEntryFromHighlight`, `RemoveHighlightReference`) **chỉ Writer** — Producer 403 (BR-07); `SetCrowd`, `SetCastRevision` cho Writer và Producer; vai trò khác 403. Kịch bản `Frozen` → 409.
-- [ ] Lệnh: `AddHighlightReference(lineId, start, length, entryId)` (mục Nhân vật/Địa điểm/Đạo cụ cùng Series), `CreateEntryFromHighlight(lineId, start, length, name, category)` (tạo mục `Draft` + tham chiếu), `RemoveHighlightReference`, `SetCrowd(entryId, bool)`, `SetCastRevision(entryId, revisionId)` (chỉ bản `CanonLocked`, chưa `Superseded`, đúng mục).
-- [ ] Khi mục trong chương có bản `CanonLocked` → tự điền `bound_revision_id` theo gợi ý mặc định, người dùng đổi được.
+- [ ] [BE] Quyền (Q17): lệnh bôi đen (`AddHighlightReference`, `CreateEntryFromHighlight`, `RemoveHighlightReference`) **chỉ Writer** — Producer 403 (BR-07); `SetCrowd` cho Writer và Producer; vai trò khác 403. Kịch bản `Frozen` → 409.
+- [ ] Lệnh: `AddHighlightReference(lineId, start, length, entryId)` (mục Nhân vật/Địa điểm/Đạo cụ cùng Series), `CreateEntryFromHighlight(lineId, start, length, name, category)` (tạo mục `Draft` + tham chiếu), `RemoveHighlightReference`, `SetCrowd(entryId, bool)`. Không có lệnh gắn tay hay chọn bản: gắn mục vào chương và chọn bản là tự động (Q16).
+- [ ] Khi Producer khoá Canon một mục → tự điền `bound_revision_id` cho mọi chương chưa `Frozen` đang có mục đó (theo quy tắc tự gắn). Đổi biến thể theo chương: chờ câu hỏi mở 26 ở plan tổng.
 - [ ] Hàng đợi thiết kế Bible (`GetBibleDesignQueueQuery`): chỉ hiện mục đã có định nghĩa (không còn `IsStub`), không `is_crowd`; kèm các chương đang chờ mục đó để Artist ưu tiên.
 - [ ] Test mỗi lệnh: thành công, 403, 409 (Frozen, bản chưa khoá, sai Series).
 
 #### BIB-14 · Chốt Bible tại Gate 1 — BE · ❌ · Q16 · thay `CheckChapterBibleGateQuery`
-- [ ] [BE] `ChapterCastGate.EvaluateAsync` (một nguồn luật cho `GET /cast` và Gate 1): chặn khi còn mục trong bản đồ chương, không `is_crowd`, mà `bound_revision_id` NULL hoặc bản không `CanonLocked` (gồm mục nháp tự tạo chưa định nghĩa). Tính lại bản đồ từ kịch bản ngay lúc chốt (không tin dữ liệu cũ).
+- [ ] [BE] `ChapterCastGate.EvaluateAsync` (một nguồn luật cho `GET /cast` và Gate 1): **chỉ kiểm khoá Canon** — chặn khi còn mục trong bản đồ chương, không `is_crowd`, mà chưa có bản `CanonLocked` (gồm mục nháp tự tạo chưa định nghĩa). Tính lại bản đồ từ kịch bản ngay lúc chốt (không tin dữ liệu cũ).
 - [ ] [BE] `FreezeChapterScriptCommand` gọi gate trước khi `StartProduction`; vi phạm → 409 kèm danh sách (tên, lý do: chờ định nghĩa / chờ Artist / chờ duyệt / chờ khoá).
 - [ ] [BE] Chốt lại sau khi Producer mở lại: binding đổi `bound_revision_id` (hoặc thêm/bớt thực thể) → gắn ⚑ các Panel có dòng nhắc tới thực thể đó, dùng chung cơ chế với [SCR-01](01_SCRIPT_PLAN.md).
 - [ ] [BE] `ChapterSnapshotBuilder` (Gate 3) ghi bản đồ thực thể vào manifest (mục, bản, mã băm Model Sheet).
@@ -166,13 +165,13 @@ series-bible/
 
 #### BIB-15 · Bàn vẽ, AI và kiểm tra nhất quán đọc theo binding — BE · ❌ · Q16
 - [ ] [BE] `GetPanelBible`: lấy từ `chapter_bible_bindings` của chương, lọc theo thực thể có dòng nhắc tới trong Panel đó (người nói hoặc bôi đen), trả Model Sheet của `bound_revision_id`; mục Quần chúng không hiện.
-- [ ] [BE] `ConsistencyChecker`, context AI (`AiWorkflowFacts`, Writer/Artist Agent), `GetBibleEntriesAtChapterQuery`: thay `EffectiveRevisionAt(N)` bằng binding của chương; chương chưa qua Gate 1 dùng gợi ý mặc định.
+- [ ] [BE] `ConsistencyChecker`, context AI (`AiWorkflowFacts`, Writer/Artist Agent), `GetBibleEntriesAtChapterQuery`: thay `EffectiveRevisionAt(N)` bằng binding của chương; chương chưa qua Gate 1 dùng bản tự gắn hiện tại.
 - [ ] Test: chương 5 giữ bản cũ sau khi chương 6 supersede.
 
 #### BIB-16 · Giao diện Danh sách thực thể chương & bôi đen — FE · ❌ · Q16
 - [ ] [FE] Editor kịch bản (chỉ hiện với Writer, Q17): bôi đen chữ trong mô tả/lời dẫn/SFX → menu nổi "Tham chiếu Series Bible" (ô tìm theo tên/bí danh) + "Tạo bản nháp" khi chưa có trong Bible (tên điền sẵn từ đoạn bôi, chọn loại, **một bước, không bắt nhập mô tả**; thông tin thêm sau qua nút "Viết định nghĩa", Artist vẽ sau). Đoạn đã tham chiếu gạch chân, hover hiện tên mục, có nút gỡ. Lưu tham chiếu qua adapter (`scriptFlowAdapter`) dưới dạng mark → `{start, length, entryId}`.
 - [ ] [FE] Ô người nói: gợi ý tên/bí danh Bible khi gõ (không bắt buộc chọn); tên mới hiện chip "Sẽ tạo bản nháp".
-- [ ] [FE] Ngăn phải `ScriptEditorView`: danh sách thực thể (nguồn, trạng thái Bible, chọn biến thể, nút **Quần chúng**, nút "Viết định nghĩa" mở form mục với mục còn nháp); bấm thực thể → nhảy tới dòng/Panel. Báo khi lưu làm mất tham chiếu bôi đen.
+- [ ] [FE] Ngăn phải `ScriptEditorView`: danh sách thực thể (nguồn, trạng thái Bible, bản tạo hình đang gắn — chỉ đọc, nút **Quần chúng**, nút "Viết định nghĩa" mở form mục với mục còn nháp); bấm thực thể → nhảy tới dòng/Panel. Báo khi lưu làm mất tham chiếu bôi đen.
 - [ ] [FE] Nút Bắt đầu sản xuất (và tab Gate 1 của [ASG-01](03_ASSIGNMENT_PLAN.md)) hiện danh sách vướng từ `gate.blockers`, khoá nút khi `canStart = false`.
 - [ ] [FE] Form mục Bible: ô bí danh (chip), nhãn biến thể thay cho "chương bắt đầu/kết thúc", cờ Quần chúng; hàng đợi thiết kế hiện "Chương đang chờ".
 - [ ] [FE] Bỏ UI era (chương hiệu lực), `@mention`. i18n vi/en; test.
@@ -180,7 +179,7 @@ series-bible/
 #### BIB-17 · Gỡ cơ chế cũ — BE + FE + DB · ❌ · Q16 · sau BIB-14/15/16
 - [ ] [BE] Gỡ `ScriptLine.SpeakerCharacterId` + `ValidateSpeakerAsync`, `LinkBibleEntriesCommand` cũ (thay bằng lệnh BIB-13), `EffectiveRevisionAt`, `DeleteBibleEntryEraCommand` + endpoint `eras`, cột `EffectiveFrom/ToChapterNumber` (migration có `Down`). **Giữ** `script_line_bible_links` (mở rộng ở BIB-11) và `CreateStub/IsStub/PromoteFromStub` (dùng cho mục tự tạo).
 - [ ] [FE] Gỡ `@tiptap/extension-mention` và code gọi các endpoint trên.
-- [ ] Cập nhật `TEST_CASES_SERIES_BIBLE.md` theo Q16 (bỏ ca era; thêm ca người nói tự khớp/tự tạo, bôi đen, Quần chúng, Gate 1).
+- [ ] [QA] Viết bộ test case Series Bible mới theo Q16/Q17 (file cũ dựa trên era đã xoá 2026-11-14): người nói tự khớp/tự tạo, bôi đen, Quần chúng, Writer góp ý / Editor chốt, Gate 1.
 - [ ] Mục "ép `ChapterNumber` decimal về int" ở rà soát 2026-11-13 tự hết khi gỡ `EffectiveRevisionAt`.
 
 #### BIB-10 · Duyệt thiết kế: Writer góp ý, Editor chốt (Q17) — DB + BE + FE · ❌

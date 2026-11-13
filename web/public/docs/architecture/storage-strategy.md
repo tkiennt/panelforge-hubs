@@ -1,7 +1,7 @@
 # Chiến lược lưu trữ của PanelForge: ảnh, cốt truyện, canvas, luồng và theo từng role
 
 > **Cập nhật:** 04/10/2026
-> **Nguồn:** code backend đã đọc (Domain, Infrastructure, Application), `requirements.md`, `storage-architecture.md`, `role-flow-examples.md`, cộng với research ngoài (nguồn ở cuối).
+> **Nguồn:** code backend đã đọc (Domain, Infrastructure, Application), Master Spec V2.6, `storage-architecture.md`, cộng với research ngoài (nguồn ở cuối).
 > **Phân biệt:** mục 1 là **hiện trạng đọc được từ code**; các mục còn lại là **đề xuất thiết kế**. Mình chưa chạy thử bất kỳ thành phần lưu trữ nào.
 
 ---

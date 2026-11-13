@@ -125,7 +125,7 @@ PanelForge_FA26SE251/
 │   │   │   ├── Review/             🆕 Comment/Annotation, ChangeRequest, ConsistencyFinding
 │   │   │   ├── Provenance/         🆕 VersionEvent / ProvenanceEvent
 │   │   │   ├── Publishing/         ✅ ExternalPreviewLink · 🆕 ExportJob, ReaderFeedback
-│   │   │   ├── Reader/             🆕 ReaderAccount, ReaderSubscription              ← Mobile
+│   │   │   ├── Monetization/       🆕 Wallet, EditionEntitlement (VNĐ, BR-33)           ← Web + Mobile
 │   │   │   └── Notifications/      🆕 Notification
 │   │   ├── Enums/                  ✅ ChapterStatus, WorkspaceRole, SystemRole, BibleEntryCategory, …
 │   │   ├── Events/                 ✅ PageCreatedEvent, ElementAddedEvent, … (event của Page aggregate)
@@ -143,7 +143,7 @@ PanelForge_FA26SE251/
 │   │   │   │   ├── Storage/        🆕 IAssetStorage (upload, signed URL)
 │   │   │   │   ├── Ai/             🆕 IAiScriptBreakdownClient, IAiConsistencyClient
 │   │   │   │   ├── Notifications/  🆕 IPushNotificationSender (Mobile), INotificationPublisher
-│   │   │   │   └── Payments/       🆕 IPaymentGateway (Reader subscription – extended scope)
+│   │   │   │   └── Payments/       🆕 IPaymentGateway (nạp Ví VNĐ, BR-33)
 │   │   │   ├── Models/             ✅ PagedResult · 🔁 Result (đang ở Common/)
 │   │   │   ├── Behaviors/          🆕 ValidationBehavior, LoggingBehavior (MediatR pipeline)
 │   │   │   └── Utilities/          🔁 CsvWriter (đang ở Common/)
@@ -201,11 +201,11 @@ PanelForge_FA26SE251/
 ### 5.1 Domain – "Quy tắc nghiệp vụ không đổi dù đổi DB hay framework"
 
 **Được đặt:**
-- Entity/Aggregate có **hành vi**: `chapter.Approve(...)`, `chapter.Lock()`, `page.AddElement(...)`, `bibleEntry.AddRevision(...)`.
+- Entity/Aggregate có **hành vi**: `chapter.Approve(...)`, `chapter.StartProduction(...)`, `page.AddElement(...)`, `bibleEntry.AddRevision(...)`.
 - Invariant của Business Rule, ví dụ:
-  - BR-03 (phiếu V1.2): cây vật lý Series → Chapter → Page → Panel → Element song song với Scene → ScriptLine; Panel thuộc một Page, tối đa một Scene và tham chiếu ScriptLine. Code hiện còn `Page.SceneId` và cần đổi (xem `HANDOFF.md`).
+  - D2 (Master Spec §1.2): cây Series → Chapter → Page → Panel → Content; mỗi Chương có một Scene mặc định ẩn, `scene_id` giữ NOT NULL.
   - BR-05: mỗi ScriptLine gắn tối đa một text Element.
-  - BR-06, BR-12: không sửa khi Chapter đang `Locked`.
+  - BR-12: không sửa nội dung khi Chapter đang `ChapterApproved` / `Published` (phải Reopen kèm lý do).
 - Enum, Domain Event, Value Object, DomainException.
 
 **Quy ước:**
@@ -279,7 +279,7 @@ PanelForge_FA26SE251/
 **Cách nhận biết nhanh:**
 - Service mang **tên một thực thể** (`SeriesService`, `ChapterService`, `StudioService`) → **sai**, chuyển sang Handler.
 - Service mang **tên một năng lực** (`PasswordHasher`, `EmailSender`, `WorkspaceAuthorization`) → thường đúng.
-- Quy tắc trạng thái của một Entity (ví dụ Chapter chỉ Publish được khi đang Locked) → **đặt trong method của Domain**, không đặt trong service.
+- Quy tắc trạng thái của một Entity (ví dụ Chapter chỉ Publish được khi đang ChapterApproved) → **đặt trong method của Domain**, không đặt trong service.
 
 ---
 
@@ -310,7 +310,7 @@ PanelForge_FA26SE251/
 **Quy ước đặt tên Action:**
 - **Bám theo route và nghiệp vụ đã có.** Ví dụ: dùng `AddMember`, không dùng `InviteMember`, vì API hiện tại thêm thành viên trực tiếp chứ không có luồng mời. Dùng `Workspaces`, không dùng `Studios`, vì route là `/api/workspaces`.
 - Dữ liệu có phiên bản dùng `Add<X>Revision`, không dùng `Update<X>`.
-- Các trạng thái của Chapter: `ApproveChapter`, `LockChapter`, `ReopenChapter`, `PublishChapter`.
+- Các trạng thái của Chapter: `StartProduction` (Gate 1), `ApproveChapter` (Gate 3), `ReopenChapter`, `PublishEdition`.
 
 ---
 
@@ -343,18 +343,18 @@ Khi bắt đầu cần loại thứ hai (CF2 Notification, CF5 Publish), tách r
 
 ## 9. Mở rộng cho Mobile (Reader app)
 
-### 9.1 Phạm vi nghiệp vụ (theo BR-24, US-30, E-36, CF5 bước 10–12)
+### 9.1 Phạm vi nghiệp vụ (Master Spec Module 5, BR-32/33/34)
 
 Reader trên Mobile có thể:
-- **Đăng ký và đăng nhập** bằng `ReaderAccount`. Đây là tài khoản **tách biệt** với `User` của Studio.
-- **Duyệt catalog công khai** các Series đã Published. API `GET /api/catalog/...` ✅ đã có. *(Tính năng thêm ngoài phạm vi đăng ký V1.2: phiếu ghi xuất bản làm ngoài hệ thống và không có Public Reader; nhóm quyết định giữ phần này, không thuộc nghiệm thu.)*
-- **Đăng ký theo dõi (subscribe)** một Series. Nếu Series yêu cầu trả phí thì cần subscription còn hiệu lực (phần mở rộng).
-- **Đọc** các Chapter `Published`, theo `ReadingDirection` của Series.
-- **Gửi feedback** ở cấp chapter. Feedback này đi vào luồng triage giống PreviewLink (CF5 bước 6).
+- **Đăng ký và đăng nhập** bằng tài khoản `User` (vai trò Reader, không thuộc Workspace nào).
+- **Duyệt catalog** các ấn bản ngôn ngữ (`ChapterEdition`) đã `Published`. API `GET /api/catalog/...` ✅ đã có.
+- **Chọn ngôn ngữ đọc** trong các ấn bản đã phát hành; đọc theo `ReadingDirection` của Series.
+- **Nạp tiền vào Ví VNĐ** và **mở khoá từng ấn bản trả phí**; ấn bản chưa mở khoá chỉ đọc được `free_preview_pages` trang đầu. Không có gói VIP / thuê bao (BR-33).
+- **Gửi đánh giá / phản hồi** cấp chương.
 
 Reader **không bao giờ** được truy cập:
 - nội dung trong Workspace,
-- Chapter đang `Locked` hoặc `InProduction` (BR-07, NFR-06).
+- ấn bản chưa `Published` hoặc chương chưa qua Gate 3 (BR-07).
 
 ### 9.2 Nguyên tắc thiết kế
 
@@ -365,29 +365,28 @@ Reader **không bao giờ** được truy cập:
 | **Tách danh tính Reader** | JWT của Reader có claim `actor_type=reader` (hoặc audience riêng). Controller Mobile dùng `[Authorize(Policy = "Reader")]`. Controller Studio dùng policy `StudioUser`. **Token Reader bị từ chối ở mọi API Studio.** |
 | **DTO gọn cho mobile** | Tạo `Reader*Dto` riêng: ít field, có sẵn URL ảnh, **phân trang bắt buộc** (`PagedResult`). Không trả Entity hay DTO nội bộ của Studio. |
 | **Ảnh qua signed URL** | Ảnh trang lấy qua `IAssetStorage.GetSignedUrl(...)`, URL có thời hạn ngắn (BR-04, BR-13). Không trả đường dẫn file cố định. |
-| **Kiểm tra quyền đọc ở Application** | Handler đọc chapter kiểm tra: Chapter `Published`, cộng thêm subscription nếu Series yêu cầu. Viết thành method Domain, ví dụ `series.CanBeReadBy(subscription)`, để Web và Mobile dùng chung. |
+| **Kiểm tra quyền đọc ở Application** | Handler đọc ấn bản kiểm tra: ấn bản `Published`, Free hoặc đã có `EditionEntitlement` của Reader, ngoài ra chỉ trả N trang xem trước (BR-33). Dùng chung một method cho Web và Mobile. |
 | **Tích hợp ngoài qua interface** | Push dùng `IPushNotificationSender` (FCM). Thanh toán dùng `IPaymentGateway`. Class hiện thực đặt ở `Infrastructure/ExternalServices/…`. |
 
 ### 9.3 Cấu trúc thư mục cho Mobile
 
 ```text
-Domain/Entities/Reader/
-├── ReaderAccount.cs
-└── ReaderSubscription.cs
+Domain/Entities/Monetization/
+├── Wallet.cs                 (Ví VNĐ, giao dịch append-only)
+└── EditionEntitlement.cs     (quyền đọc một ấn bản đã mở khoá)
 
 Application/Features/Reader/
-├── Auth/        Commands/{RegisterReader, LoginReader, RefreshReaderToken} · Models/
-├── Library/     Queries/{GetMySubscriptions, GetReadingProgress} · Commands/{SubscribeSeries, UnsubscribeSeries}
-├── Reading/     Queries/{GetPublishedChapter, GetChapterPages}          (dùng chung quy tắc Published)
-├── Feedback/    Commands/{SubmitReaderFeedback}
-└── Common/      ReaderAccessPolicy (static helper, nếu cần)
+├── Library/     Queries/{GetReadingProgress, GetUnlockedEditions}
+├── Reading/     Queries/{GetPublishedEdition, GetEditionPages}   (dùng chung quy tắc Published + xem trước)
+├── Wallet/      Commands/{TopUpWallet, UnlockEdition}
+└── Feedback/    Commands/{SubmitReaderFeedback}
 
 Application/Features/Catalog/   ✅ dùng chung cho Web (user chưa có Workspace) và Mobile
 
 API/Controllers/Mobile/
-├── ReaderAuthController.cs      [Route("api/mobile/v1/auth")]
 ├── ReaderCatalogController.cs   [Route("api/mobile/v1/catalog")]  → gửi query của Features/Catalog
 ├── ReaderLibraryController.cs   [Route("api/mobile/v1/library")]
+├── ReaderWalletController.cs    [Route("api/mobile/v1/wallet")]
 └── ReaderReadingController.cs   [Route("api/mobile/v1/series/{seriesId}/chapters")]
 ```
 
@@ -402,7 +401,7 @@ Nếu sau này cần deploy hoặc scale Mobile độc lập, tạo project `src
 **Bước 0: Xác định vị trí**
 - Tính năng thuộc CF nào, feature nào (xem mục 3)?
 - Client nào gọi: Studio, Admin, Public hay Mobile?
-- Đọc `HANDOFF.md` ở thư mục gốc để xem Frontend có yêu cầu nào đang `WAITING_BE`.
+- Đọc task tương ứng trong `docs/note/plans/` và `docs/tracking/TEAM_WORKBOARD.md` (ai đang làm, hợp đồng API đã ghi).
 
 **Bước 1: Domain**
 1. Tạo hoặc bổ sung Entity trong `Entities/<Nhóm>/`, kèm factory `Create(...)` và method nghiệp vụ.
@@ -428,7 +427,7 @@ Nếu sau này cần deploy hoặc scale Mobile độc lập, tạo project `src
 
 **Bước 5: Test và bàn giao**
 1. Viết test cho Handler trong `test/.../Application/<Feature>/`, rồi chạy `dotnet test`.
-2. Cập nhật `HANDOFF.md`: ghi method, route, Request/Response DTO (tên field, kiểu, nullable) và yêu cầu auth. Nếu đổi contract của một API đã `DONE`, ghi vào mục "Nhật ký thay đổi breaking".
+2. Ghi khối **Hợp đồng API** vào task trong `docs/note/plans/` (method, route, Request/Response DTO, mã lỗi, auth) theo `plans/README.md` §2.2; đổi hợp đồng đã dùng thì đánh `[ ]` lại sub-task FE/MO bị ảnh hưởng.
 
 ---
 
@@ -468,4 +467,4 @@ Danh sách từ đợt rà soát ngày 2026-09-28. **Code mới không được 
 | 2.0 | 2026-09-28 | Thêm ánh xạ CF1–CF5 → code; cây thư mục mục tiêu có trạng thái ✅/🔁/🆕; quy tắc khi nào tạo Interface/Service (4 nhóm); quy tắc ghi dữ liệu Marten + EF và append-only; mục mở rộng cho Mobile Reader (route `/api/mobile/v1`, policy Reader, DTO riêng, signed URL); danh sách điểm lệch chuẩn và lộ trình refactor. Bỏ `AuthService`/`WorkspaceService` khỏi danh sách "đặt đúng chỗ". |
 
 ---
-*Tài liệu này được đối chiếu với mã nguồn thực tế và với `docs/requirements/PanelForge_Capstone_Content.md`. Khi cấu trúc code thay đổi, cập nhật mục 4 và mục 11 trước tiên.*
+*Tài liệu này được đối chiếu với mã nguồn thực tế và với Master Spec V2.6 (`docs/V2.6/`). Khi cấu trúc code thay đổi, cập nhật mục 4 và mục 11 trước tiên.*

@@ -16,7 +16,7 @@ Rules:
 - No hardcoded UI text: add keys to both `src/locales/vi/<ns>.json` and `src/locales/en/<ns>.json`.
 - When building or refactoring UI, load the `antislop`, `antislop-ui` and `antislop-copywriting` skills.
 - Handle 401/403/409 explicitly; on 409 reload/merge, never blindly resend. Hidden UI is UX only; the backend enforces permissions.
-- Sync docs per `docs/DOCUMENTATION_PROCESS.md` when tokens, flows, role workspaces or shared components change.
+- When tokens, flows, role workspaces or shared components change, update `src/roles/*/README.md`, `src/shared/README.md` and `panelforge-hub/docs/spec/DESIGN_RULES.md` in the same change.
 - Never run `vitest`/`npm test` unless the lead says the user explicitly asked. Checks: `npm --prefix <sandbox>/panelforge-fe run typecheck` and `run i18n:check`.
 - Commit in the sandbox with Conventional Commits (frontend scopes: ui, letterer, writer, artist, editor, publisher, producer, reader, bible, service). Never push.
 

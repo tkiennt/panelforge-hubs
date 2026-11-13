@@ -61,6 +61,8 @@ function runGit(cwd, args) {
 function syncDocsToPublic() {
   const docsDir = path.join(HUB_ROOT, 'docs');
   if (!fs.existsSync(docsDir)) return;
+  // Xoá bản sao cũ trước khi chép để tài liệu đã xoá ở docs/ không còn sót trong web
+  fs.rmSync(PUBLIC_DOCS_PATH, { recursive: true, force: true });
   fs.cpSync(docsDir, PUBLIC_DOCS_PATH, { recursive: true, force: true });
 }
 

@@ -129,7 +129,7 @@ git branch --show-current
   ```
 
 ### Bước 6: Commit rõ ràng bên trong Sandbox Worktree
-Tuân thủ nghiêm ngặt [Conventional Commits v1.0.0](../note/GIT_COMMIT_CONVENTION.md):
+Tuân thủ nghiêm ngặt [Conventional Commits v1.0.0](../docs/note/GIT_COMMIT_CONVENTION.md):
 - Cấu trúc: `<type>(<scope>): <description>` (Tối đa 72 ký tự, không dấu chấm cuối, động từ mệnh lệnh thì hiện tại).
 - Mô tả phải rõ ràng, chỉ rõ thực thể và hành vi logic được thay đổi.
 - **CẤM** commit mơ hồ như: `fix bugs`, `update code`, `wip`.

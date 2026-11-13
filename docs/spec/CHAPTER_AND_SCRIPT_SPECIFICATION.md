@@ -74,10 +74,14 @@ Chuẩn hóa 4 trạng thái cốt lõi: `PreProduction`, `InProduction`, `Chapt
 | `GET` | `/api/chapters/{id}` | Thành viên Workspace | Lấy thông tin chi tiết của 1 chương |
 | `PUT` | `/api/chapters/{id}` | **Producer** | Cập nhật tiêu đề, số chương, ngày phát hành mục tiêu |
 | `DELETE` | `/api/chapters/{id}` | **Producer** | Xóa chương (Yêu cầu xác nhận xóa) |
-| `GET` | `/api/scripts/{chapterId}` | Thành viên Workspace | Lấy nội dung kịch bản hiện tại (`Page -> Panel -> Content`) |
-| `POST` | `/api/scripts/{chapterId}` | **Writer** | Lưu bản thảo kịch bản (Draft Auto-save) |
-| `POST` | `/api/scripts/{chapterId}/freeze` | **Producer** | Đóng băng kịch bản tại Gate 1 (không qua Editor) |
-| `POST` | `/api/scripts/{chapterId}/unfreeze`| **Producer** | Mở khóa khẩn cấp kịch bản |
+| `GET` | `/api/chapters/{id}/script-versions` · `/working-copy` · `/{versionId}` | Thành viên Workspace | Danh sách phiên bản, bản đang sửa, một phiên bản (Q15) |
+| `POST` | `/api/chapters/{id}/script-versions` | **Writer** | Lưu = commit một `ScriptVersion` (trùng nội dung thì không tạo) |
+| `POST` | `/api/chapters/{id}/submit-script` · `/recall-script` | **Writer** | Gửi duyệt (`Draft/InReview → InReview`) · Hủy gửi (`InReview → Draft`) |
+| `GET` / `POST` | `/api/chapters/{id}/script-comments` | Thành viên / **Editor** | Góp ý theo dòng (không đổi trạng thái) |
+| `POST` | `/api/chapters/{id}/freeze-script` | **Producer** | Bắt đầu sản xuất (Gate 1): `InReview → Frozen`, chương `PreProduction → InProduction`; chặn nếu Bible chưa khoá Canon (BR-35) |
+| `POST` | `/api/chapters/{id}/unfreeze-script` | **Producer** | Mở lại kịch bản kèm lý do (`Frozen → Draft`) |
+
+> Endpoint `request/approve/reject-script-reopen` còn trong code sẽ bị gỡ (câu hỏi 25, SCR-09). Producer chỉ đọc nội dung kịch bản (BR-07).
 
 ---
 

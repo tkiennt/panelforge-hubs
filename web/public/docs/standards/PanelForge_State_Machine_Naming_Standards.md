@@ -166,7 +166,7 @@ Dưới đây là kết quả refactor chuẩn hóa toàn bộ các State Machin
 ```mermaid
 stateDiagram-v2
     [*] --> PreProduction: chapter.create
-    PreProduction --> InProduction: chapter.start_production [isProducer] / freezeScript()
+    PreProduction --> InProduction: chapter.start_production [isProducer && isScriptInReview && isLiveEqualSubmitted && isCastCanonLocked] / freezeScript()
     InProduction --> ChapterApproved: chapter.approve [isAllPagesApproved && isProducer] / recordApproval()
     ChapterApproved --> InProduction: chapter.reopen [hasValidReason && isProducer] / notifyTeam()
     ChapterApproved --> HandedOffAndPublished: chapter.publish [isReleaseDateReached && isProducer] / makePublic()
@@ -186,6 +186,8 @@ stateDiagram-v2
   - `chapter.reopen`: Producer mở lại chương để sửa đổi bổ sung.
   - `chapter.publish`: Producer phát hành chương (các ấn bản `ChapterEdition` mở bán theo giá Publisher đặt).
 - **Guards (camelCase, boolean predicate):**
+  - `isScriptInReview`, `isLiveEqualSubmitted`: kịch bản đang `InReview` và bản hiện tại trùng bản đã gửi (Q15).
+  - `isCastCanonLocked`: mọi mục Bible trong kịch bản chương (trừ Quần chúng) đã `CanonLocked` (BR-35).
   - `isAllPagesApproved`: Tất cả các trang trong chương đã đạt stage cuối cùng.
   - `isReleaseDateReached`: Thời gian hiện tại đã vượt qua `releaseDate`.
   - `isProducer`: Người gọi lệnh có quyền Producer trên Workspace.
@@ -195,61 +197,60 @@ stateDiagram-v2
 
 ---
 
-### 5.2. Script Lifecycle (`ScriptLifecycle`)
-- **Thực thể sở hữu:** Cờ `IsScriptFrozen` và enum `ScriptReopenStatus` trên `Chapter`
-- **Người quyết định:** `Writer` & `Producer`
-- **Nguyên tắc refactor:** Tách bạch hoàn toàn khỏi `ChapterStatus`. Kịch bản quản lý việc soạn thảo theo `Page -> Panel -> Content` (ẩn `Scene` khỏi UI theo D2, bỏ `ChapterScript` theo D5) và đóng băng tại Gate 1.
+### 5.2. Script Lifecycle (`ScriptStatus`, Q15)
+- **Thực thể sở hữu:** `Chapter.ScriptStatus` (+ `ScriptVersion` bất biến cho mỗi lần lưu)
+- **Người quyết định:** `Writer` (gửi / hủy gửi), `Producer` (bắt đầu sản xuất / mở lại)
+- **Nguyên tắc refactor:** Tách bạch khỏi `ChapterStatus` và khỏi Assignment. Không có luồng Writer xin mở lại (bỏ `ScriptReopenStatus`).
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Open: script.initialize
-    Open --> Frozen: script.freeze [isProducer] / lockScriptEditor()
-    Frozen --> ReopenRequested: script.request_reopen [isWriter] / submitReopenReason()
-    ReopenRequested --> Open: script.approve_reopen [isProducer] / unlockScriptEditor()
-    ReopenRequested --> Frozen: script.reject_reopen [isProducer] / notifyWriter()
+    [*] --> Draft: script.initialize
+    Draft --> InReview: script.submit [isWriter] / pushSubmittedVersion()
+    InReview --> InReview: script.resubmit [isWriter] / pushSubmittedVersion()
+    InReview --> Draft: script.recall [isWriter]
+    InReview --> Frozen: chapter.start_production [isProducer && isLiveEqualSubmitted && isCastCanonLocked] / lockScriptAndBindings()
+    Frozen --> Draft: script.reopen [isProducer && hasValidReason] / unlockScriptEditor()
 ```
 
 #### Bảng chi tiết phần tử:
 - **States:**
-  - `Open`: Kịch bản đang mở, Writer độc quyền thêm/sửa/xóa nội dung trong `Page -> Panel -> Content`.
-  - `Frozen`: Kịch bản đã đóng băng (Read-only), ngăn chặn sửa đổi để các Artist tiến hành phân trang và vẽ.
-  - `ReopenRequested`: Kịch bản đang bị khóa nhưng Writer đã gửi đơn xin mở lại kèm lý do.
-- **Events:**
-  - `script.freeze`: Đóng băng kịch bản tại Gate 1.
-  - `script.request_reopen`: Gửi yêu cầu mở lại kịch bản.
-  - `script.approve_reopen`: Producer chấp thuận mở lại.
-  - `script.reject_reopen`: Producer bác bỏ yêu cầu mở lại.
-- **Guards:** `isWriter`, `isProducer`.
-- **Actions:** `lockScriptEditor`, `unlockScriptEditor`, `submitReopenReason`.
+  - `Draft`: Writer viết; mỗi lần lưu tạo `ScriptVersion` (băm SHA-256).
+  - `InReview`: Đã gửi; Editor đọc bản đã gửi và góp ý theo dòng; Writer vẫn sửa và gửi lại.
+  - `Frozen`: Chỉ đọc; Bản đồ thực thể chương khoá cùng lúc (BR-35).
+- **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`, `script.reopen`.
+- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastCanonLocked`, `hasValidReason`.
+- **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`, `unlockScriptEditor`.
 
 ---
 
 ### 5.3. Series Bible Revision (`BibleRevisionStatus`)
 - **Thực thể sở hữu:** `BibleEntryRevision` (Vòng đời thiết kế nhân vật, bối cảnh)
-- **Người quyết định:** `Artist`, `Writer/Editor`, `Producer`
+- **Người quyết định:** `Artist` (nộp), `Editor` (xác nhận / vẽ lại; Writer chỉ góp ý), `Producer` (khoá) — Q17
 
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: bible.draft_spec
     Draft --> ConceptSubmitted: bible.upload_concept [hasCasAsset] / calculateSha256()
-    ConceptSubmitted --> WriterEndorsed: bible.endorse [isWriterOrEditor] / recordEndorsement()
-    ConceptSubmitted --> ReworkRequired: bible.request_rework [isWriterOrEditor] / attachReviewNotes()
+    ConceptSubmitted --> ConceptSubmitted: bible.comment [isWriterOrEditor] / recordComment()
+    ConceptSubmitted --> WriterEndorsed: bible.endorse [isEditor && isNotSubmitter] / recordEndorsement()
+    ConceptSubmitted --> ReworkRequired: bible.request_rework [isEditor && hasNote] / attachReviewNotes()
     ReworkRequired --> ConceptSubmitted: bible.reupload_concept [hasCasAsset]
-    WriterEndorsed --> CanonLocked: bible.lock_canon [isProducer] / freezeAsCanon()
-    CanonLocked --> [*]
+    WriterEndorsed --> CanonLocked: bible.lock_canon [isProducer && isNotEndorser] / freezeAsCanon()
+    CanonLocked --> Superseded: bible.supersede [isProducer] / createSameVariantRevision()
 ```
 
 #### Bảng chi tiết phần tử:
 - **States:**
-  - `Draft`: Bản nháp đặc tả bằng lời của Writer.
+  - `Draft`: Bản nháp đặc tả bằng lời của Writer; mục tự tạo từ người nói / bôi đen mang cờ `IsStub` cho tới khi Writer viết định nghĩa (Q16).
   - `ConceptSubmitted`: Artist đã vẽ và nộp file thiết kế lên hệ thống lưu trữ CAS SHA-256.
-  - `WriterEndorsed`: Writer/Editor xác nhận thiết kế khớp hoàn toàn với kịch bản văn học (Điều kiện cần để Lock).
+  - `WriterEndorsed`: Editor xác nhận thiết kế khớp hoàn toàn với kịch bản văn học, Writer chỉ góp ý (Điều kiện cần để Lock; Q17).
   - `ReworkRequired`: Thiết kế chưa đạt, yêu cầu Artist chỉnh sửa.
   - `CanonLocked`: Producer chốt thành Canon chính thức của bộ truyện (Bất biến, không thể sửa trực tiếp).
+  - `Superseded`: Bị bản mới cùng biến thể thay thế; chương đã chốt vẫn dùng bản này.
 - **Events:**
-  - `bible.upload_concept`, `bible.endorse`, `bible.request_rework`, `bible.lock_canon`.
-- **Guards:** `hasCasAsset`, `isWriterOrEditor`, `isProducer`.
-- **Actions:** `calculateSha256`, `recordEndorsement`, `freezeAsCanon`.
+  - `bible.upload_concept`, `bible.comment`, `bible.endorse`, `bible.request_rework`, `bible.lock_canon`, `bible.supersede`.
+- **Guards:** `hasCasAsset`, `isWriterOrEditor`, `isEditor`, `isNotSubmitter`, `isNotEndorser`, `hasNote`, `isProducer`.
+- **Actions:** `calculateSha256`, `recordComment`, `recordEndorsement`, `freezeAsCanon`, `createSameVariantRevision`.
 
 ---
 
@@ -331,7 +332,7 @@ Trong quá trình bảo vệ đồ án tốt nghiệp, giảng viên thẩm đ�
 - *Nguyên nhân:* `Frozen` là của Kịch bản (`Script`), `ReworkRequired` là của Công việc (`Assignment`), không phải của Chương (`Chapter`).
 - *Cách khắc phục:* Chia thành các máy trạng thái độc lập:
   - `ChapterStatus`: `PreProduction` $\rightarrow$ `InProduction` $\rightarrow$ `ChapterApproved` $\rightarrow$ `HandedOffAndPublished`.
-  - `ScriptLifecycle`: `Open` $\rightarrow$ `Frozen` $\rightarrow$ `ReopenRequested`.
+  - `ScriptStatus`: `Draft` $\rightarrow$ `InReview` $\rightarrow$ `Frozen` (Producer mở lại → `Draft`).
   - `Page/Panel Stage`: `PencilInProgress` $\rightarrow$ `InkAndLetterTrack` $\rightarrow$ `CompositeUnderReview` $\rightarrow$ `PanelReworkRequired` $\rightarrow$ `Approved`.
 
 ### ❌ Anti-pattern 3: Đồng nhất casing một màu (Lack of Contrast)
