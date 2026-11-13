@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T07:28:29.553Z",
+  "lastSyncedAt": "2026-11-13T07:29:05.258Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,94 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-3204cb716a5886e48c94c89393b59a60398efad6",
+      "timestamp": "2026-11-12T12:40:52+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "3204cb716a5886e48c94c89393b59a60398efad6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3204cb716a5886e48c94c89393b59a60398efad6",
+      "message": "docs(convention): merge workspace module plan process",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-e090d7717d0857e703fc3b4dee0ccafb9424a86d",
+      "timestamp": "2026-11-12T13:10:42+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "e090d7717d0857e703fc3b4dee0ccafb9424a86d",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e090d7717d0857e703fc3b4dee0ccafb9424a86d",
+      "message": "docs(notes): align role readmes with spec v2.6 and shared plan",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2206ab90a9917476783e9b8a3592a1fdd1cbf767",
+      "timestamp": "2026-11-12T13:12:33+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "2206ab90a9917476783e9b8a3592a1fdd1cbf767",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2206ab90a9917476783e9b8a3592a1fdd1cbf767",
+      "message": "docs(notes): merge role readme alignment with spec v2.6",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-5d052bf7eaa3fff0d01600326299ee5daaa4d096",
+      "timestamp": "2026-11-12T13:39:17+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "5d052bf7eaa3fff0d01600326299ee5daaa4d096",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5d052bf7eaa3fff0d01600326299ee5daaa4d096",
+      "message": "docs(notes): add spec v2.6 and team workboard for all three repos",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-83fa8e6c40330dd6b3a59b075db344a7977ea1be",
+      "timestamp": "2026-11-12T13:39:17+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "83fa8e6c40330dd6b3a59b075db344a7977ea1be",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/83fa8e6c40330dd6b3a59b075db344a7977ea1be",
+      "message": "docs(writer): align chapter script spec with hidden default scene",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-a78d79d70597dd9110cc91f640780da363474150",
+      "timestamp": "2026-11-12T13:39:17+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "a78d79d70597dd9110cc91f640780da363474150",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a78d79d70597dd9110cc91f640780da363474150",
+      "message": "chore(config): normalize gitignore and drop unused prisma and metadata",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
+      "timestamp": "2026-11-12T13:41:38+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
+      "message": "docs(notes): merge spec v2.6, team workboard and gitignore cleanup",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-9d28f7279a5a657a0abfa327bf64c02cb1059906",
+      "timestamp": "2026-11-12T14:08:04+07:00",
+      "repo": "FE",
+      "author": "DontPassAway",
+      "commitHash": "9d28f7279a5a657a0abfa327bf64c02cb1059906",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9d28f7279a5a657a0abfa327bf64c02cb1059906",
+      "message": "refactor(bible): split series bible screen and align roles with spec V2.6",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-dc178f213290bc726719bc6949743e956e7a73b3",
       "timestamp": "2026-11-13T14:13:09+07:00",
@@ -2102,94 +2190,6 @@
       "commitHash": "00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
       "message": "feat(writer): merge comic full script layout for the writer desk",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-50fcd8ac162f25412c267b018a206dd163b63c97",
-      "timestamp": "2026-11-12T07:47:58+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "50fcd8ac162f25412c267b018a206dd163b63c97",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/50fcd8ac162f25412c267b018a206dd163b63c97",
-      "message": "fix(editor): merge bible review image and history fixes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b892f5f75c58f047ad1d3240c272c4240ec89c80",
-      "timestamp": "2026-11-12T07:49:01+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "b892f5f75c58f047ad1d3240c272c4240ec89c80",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b892f5f75c58f047ad1d3240c272c4240ec89c80",
-      "message": "Merge branch 'trungkien' of https://github.com/tkiennt/panelforge-fe into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-35264e63233df884fcc15f00f43d825b2a85d1c8",
-      "timestamp": "2026-11-12T11:29:57+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "35264e63233df884fcc15f00f43d825b2a85d1c8",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/35264e63233df884fcc15f00f43d825b2a85d1c8",
-      "message": "fix(writer): require reason before producer unfreezes script",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d5521da59665d82278d467622f47fb7b5933965f",
-      "timestamp": "2026-11-12T11:29:57+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "d5521da59665d82278d467622f47fb7b5933965f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d5521da59665d82278d467622f47fb7b5933965f",
-      "message": "fix(artist): grant letter:write permission to artist role",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4cc89c7fe1e73637ec02e4fa4da55fa89727f1c2",
-      "timestamp": "2026-11-12T11:35:28+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "4cc89c7fe1e73637ec02e4fa4da55fa89727f1c2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4cc89c7fe1e73637ec02e4fa4da55fa89727f1c2",
-      "message": "fix(writer): merge spec v2.6 p0 unfreeze reason and artist lettering",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-727ce363ada4d6a6b9e9fa72cc93eed893aeb912",
-      "timestamp": "2026-11-12T11:39:36+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "727ce363ada4d6a6b9e9fa72cc93eed893aeb912",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/727ce363ada4d6a6b9e9fa72cc93eed893aeb912",
-      "message": "refactor(config): merge .agent skills into .agents folder",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-f12297242d41c711a9b68670b79af2b3fb2f9323",
-      "timestamp": "2026-11-12T12:07:09+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "f12297242d41c711a9b68670b79af2b3fb2f9323",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f12297242d41c711a9b68670b79af2b3fb2f9323",
-      "message": "feat(preview): add review handoff modal and update preview links flow",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9b4577b9d92998112d4f639819a2ca34264b861e",
-      "timestamp": "2026-11-12T12:39:31+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "9b4577b9d92998112d4f639819a2ca34264b861e",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9b4577b9d92998112d4f639819a2ca34264b861e",
-      "message": "docs(convention): track implement plans in workspace module plans",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
