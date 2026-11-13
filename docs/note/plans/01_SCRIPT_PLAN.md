@@ -109,10 +109,10 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 | D4 ✅ | Writer sửa khi `InReview`? | **Không** (phải Withdraw về Draft) |
 | D5 ✅ | Giữ `ChapterScript` (RawText)? | **Bỏ** entity và bảng (backend chỉ ghi `RawText` trong `BatchSaveScriptLinesCommand`, không chỗ nào đọc) |
 | D6 ✅ | Dữ liệu cũ (tiêu đề Trang/Panel dạng chữ, speaker nhúng trong thoại) | **Không chuyển đổi.** Bám luồng mới; dữ liệu demo/seed định dạng mới nạp sau. Không giữ code đọc định dạng cũ; migration chỉ cần đúng schema |
-| D7 ⏳ | Suy nghĩ (Thought) chọn thế nào khi gõ? | **Khuyến nghị:** hậu tố `(nghĩ)` ở ô người nói đổi `kind` → `Thought`; thêm `Ctrl+3`. Không tạo ô nhập riêng |
-| D8 ⏳ | Giữ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi `#`/`-` + Tab? | **Khuyến nghị: bỏ** trong editor (thay bằng H.1 + phím tắt + menu `/`); cú pháp chữ chỉ còn ở luồng dán/chuyển đổi `AiScriptConvertModal` |
-| D9 ⏳ | Ngưỡng cảnh báo mật độ | **Khuyến nghị (Warning, không chặn):** > 7 panel/trang · > 3 bóng thoại/panel · > 25 chữ/bóng thoại · panel không có Action |
-| D10 ⏳ | Kéo thả sắp xếp Page/Panel trong Board view khi nào? | **Khuyến nghị:** chỉ khi `Draft`/`ChangesRequested`/`Amending`; Panel đã có artwork thì hỏi xác nhận và gắn ⚑ như sửa muộn |
+| D7 ✅ | Suy nghĩ (Thought) chọn thế nào khi gõ? | **Đã chốt 2026-11-13:** hậu tố `(nghĩ)` ở ô người nói đổi `kind` → `Thought`; thêm `Ctrl+3`. Không tạo ô nhập riêng |
+| D8 ✅ | Giữ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi `#`/`-` + Tab? | **Đã chốt 2026-11-13: bỏ** trong editor (thay bằng H.1 + phím tắt + menu `/`); cú pháp chữ chỉ còn ở luồng dán/chuyển đổi `AiScriptConvertModal` |
+| D9 ✅ | Ngưỡng cảnh báo mật độ | **Đã chốt 2026-11-13 (Warning, không chặn):** > 7 panel/trang · > 3 bóng thoại/panel · > 25 chữ/bóng thoại · panel không có Action |
+| D10 ✅ | Kéo thả sắp xếp Page/Panel trong Board view khi nào? | **Đã chốt 2026-11-13:** chỉ khi `Draft`/`ChangesRequested`/`Amending`; Panel đã có artwork thì hỏi xác nhận và gắn ⚑ như sửa muộn |
 
 ---
 
@@ -353,7 +353,7 @@ Phase A (độc lập) ─► B ─► C ─► D ─► E ─► F ─► G   (
 ```
 C và D song song được sau B nếu không cùng sửa `ScriptLineRules.cs` (SCR-11 làm trước). FE (F) bắt đầu sau E; SCR-18/19 có thể làm trên mock DTO.
 
-Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-27`, `SCR-28`, `SCR-29`, `SCR-31` ─► `SCR-30`, `SCR-32`, `SCR-34`; `SCR-33` sau SCR-13/17; `SCR-36` cùng đợt SCR-03. Cần chốt D7–D10 trước SCR-26.
+Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-27`, `SCR-28`, `SCR-29`, `SCR-31` ─► `SCR-30`, `SCR-32`, `SCR-34`; `SCR-33` sau SCR-13/17; `SCR-36` cùng đợt SCR-03. D7–D10 đã chốt (2026-11-13).
 
 | Rủi ro | Giảm thiểu |
 |---|---|
@@ -373,3 +373,4 @@ Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-2
 | 2026-11-12 | D1, D3–D6 | ✅ Chốt | — (tài liệu) | Bỏ stage Script · Gate 1 không bắt buộc qua duyệt · không sửa khi InReview · bỏ `ChapterScript` · không chuyển dữ liệu cũ → huỷ SCR-06 |
 | 2026-11-12 | — | Chuyển sang bộ plan module | — | Đánh lại ID `S*` → `SCR-*` |
 | 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | — (tài liệu) | Phase H: trải nghiệm gõ Graphic Novel, đối chiếu walkthrough WriterSolo; chờ chốt D7–D10 |
+| 2026-11-13 | D7–D10 | ✅ Chốt | — (tài liệu) | Theo khuyến nghị: `(nghĩ)` → Thought · bỏ cú pháp gõ tắt trong editor · ngưỡng 7 panel/trang, 3 bóng/panel, 25 chữ/bóng (Warning) · kéo thả chỉ khi Draft/ChangesRequested/Amending. Phase H sẵn sàng |

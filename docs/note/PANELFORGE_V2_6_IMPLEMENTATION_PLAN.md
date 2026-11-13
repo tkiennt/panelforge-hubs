@@ -203,8 +203,9 @@
 | 2026-11-12 | Q12–Q14 | Đối chiếu spec | — (chỉ tài liệu) | Một Publisher duy nhất; tiền nạp về tài khoản nền tảng (Admin duyệt); ấn bản dịch Editor duyệt, Producer cho phép phát hành. Plan: REL-04, REL-09, RDR-07, RDR-10 sửa; RDR-12 thêm. Đóng câu hỏi mở 15–17 |
 | 2026-11-12 | — | Rà tài liệu repo & phối hợp | `feature/repo-docs-sync-*` (BE, FE, MO) | Archive CF1/CF4/CF5 (BE `docs/archive/implementation/`), sửa README Publisher/Producer (FE), trỏ `CLAUDE.md` 3 repo về `note/plans/`; thêm quy tắc phối hợp `note/plans/README.md` §2 + bảng "Đang làm" §5; thêm REL-05 (gắn Snapshot vào ExportJob), REL-10 (kiểm thử trình duyệt); câu hỏi mở 18 (phạm vi phiếu V1.2) |
 | 2026-11-12 | — | Bỏ phiếu V1.2 | BE `feature/repo-docs-sync-be` | Archive `PanelForge_Scope_V1.2.md`, `project-plan.md`; đóng câu hỏi 18 |
-| 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | — (chỉ tài liệu) | Phase H của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md): luật gõ, ô người nói, nhãn Trang/Panel, thanh loại dòng, Board view, lọc, thống kê mật độ, xuất kịch bản, ảnh tham chiếu Panel. Câu hỏi mở 19 |
 | 2026-11-12 | — | Hub là SSOT tài liệu | hub `main`; BE, FE, MO `trungkien` | Spec ở `docs/V2.6/`; gộp bảng "Đang làm" về `TEAM_WORKBOARD.md`; bỏ bản sao spec/workboard/DESIGN_RULES/đặc tả Chương khỏi repo code; quy tắc mọi lần sửa `docs/` phải commit + push hub ngay (plans/README §2.5) |
+| 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | hub `b9e9163` | Phase H của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md): luật gõ, ô người nói, nhãn Trang/Panel, thanh loại dòng, Board view, lọc, thống kê mật độ, xuất kịch bản, ảnh tham chiếu Panel. Câu hỏi mở 19 |
+| 2026-11-13 | D7–D10 (SCR) | ✅ Chốt | — (chỉ tài liệu) | User chốt theo khuyến nghị; đóng câu hỏi mở 19. Phase H sẵn sàng (SCR-26+ vẫn cần SCR-04/07/19) |
 
 ---
 
@@ -241,6 +242,4 @@ Các mục 11–17 đã ghi vào đặc tả (bảng "Nhật ký quyết định
 
 18. ✅ **Bỏ phiếu đăng ký V1.2 làm căn cứ phạm vi** (user chốt 2026-11-12): spec V2.6 là phạm vi chính thức, gồm cả xuất bản, độc giả trả phí, ấn bản ngôn ngữ. `PanelForge_Scope_V1.2.md` và `project-plan.md` đã chuyển vào `PanelForge_FA26SE251/docs/archive/`.
 
-### Còn mở
-
-19. ⏳ **Trải nghiệm gõ kịch bản (D7–D10 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md) §3.5):** cách chọn Thought · bỏ cú pháp gõ tắt `@Tên: "..."` trong editor · ngưỡng cảnh báo mật độ · khi nào cho kéo thả sắp xếp Page/Panel. Chặn SCR-26 trở đi.
+19. ✅ **Trải nghiệm gõ kịch bản (D7–D10 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md) §3.5)** (user chốt 2026-11-13, theo khuyến nghị): hậu tố `(nghĩ)` ở ô người nói → Thought · bỏ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi trong editor (chỉ còn ở luồng dán/chuyển đổi) · cảnh báo (không chặn) khi > 7 panel/trang, > 3 bóng thoại/panel, > 25 chữ/bóng thoại, panel không có Action · kéo thả Page/Panel chỉ khi `Draft`/`ChangesRequested`/`Amending`, Panel đã có artwork thì hỏi xác nhận và gắn ⚑.
