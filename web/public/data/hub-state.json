@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T07:19:41.468Z",
+  "lastSyncedAt": "2026-11-13T07:28:29.553Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,116 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-dc178f213290bc726719bc6949743e956e7a73b3",
+      "timestamp": "2026-11-13T14:13:09+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "dc178f213290bc726719bc6949743e956e7a73b3",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/dc178f213290bc726719bc6949743e956e7a73b3",
+      "message": "feat(publisher): revenue, series dashboard and chapter preview page grid",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0ca3e5aab2048f86bbb8dac60792391d43942153",
+      "timestamp": "2026-11-13T14:24:08+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "0ca3e5aab2048f86bbb8dac60792391d43942153",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0ca3e5aab2048f86bbb8dac60792391d43942153",
+      "message": "chore(merge): sync trungkien into feature/publisher-monetization",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-b91206b0df998a1942c703f965195ce8b1d255fc",
+      "timestamp": "2026-11-13T14:24:19+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "b91206b0df998a1942c703f965195ce8b1d255fc",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b91206b0df998a1942c703f965195ce8b1d255fc",
+      "message": "docs(agents): add git workflow rules for AI agents",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-d78f1a39c2be098d9c4122b9a2ed2d297cfa9062",
+      "timestamp": "2026-11-13T14:28:06+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "d78f1a39c2be098d9c4122b9a2ed2d297cfa9062",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d78f1a39c2be098d9c4122b9a2ed2d297cfa9062",
+      "message": "docs(agents): require hub tracker update after code changes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-d7621396a888abf66a04636be50c994da5200143",
+      "timestamp": "2026-11-13T14:13:01+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "d7621396a888abf66a04636be50c994da5200143",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d7621396a888abf66a04636be50c994da5200143",
+      "message": "feat(auth): add check-email endpoint for email-first mobile login",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-ddfd406ab5fb9c8685c874e5b293504914797fa9",
+      "timestamp": "2026-11-13T14:13:02+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "ddfd406ab5fb9c8685c874e5b293504914797fa9",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ddfd406ab5fb9c8685c874e5b293504914797fa9",
+      "message": "feat(monetization): publisher dashboard, language editions and preview pages",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-aadec737896ff998db5fd23b72b1906ee78b66f5",
+      "timestamp": "2026-11-13T14:19:29+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "aadec737896ff998db5fd23b72b1906ee78b66f5",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/aadec737896ff998db5fd23b72b1906ee78b66f5",
+      "message": "Merge remote-tracking branch 'origin/trungkien' into feature/publisher-monetization",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
+      "timestamp": "2026-11-13T14:24:11+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
+      "message": "chore(merge): sync trungkien into feature/publisher-monetization",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-5495ec2f192a06da1520801d7148167dc1cc8508",
+      "timestamp": "2026-11-13T14:24:25+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "5495ec2f192a06da1520801d7148167dc1cc8508",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5495ec2f192a06da1520801d7148167dc1cc8508",
+      "message": "docs(agents): add git workflow rules for AI agents",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-7dcd991d71bfe97610a977d323122db1bb08f6cc",
+      "timestamp": "2026-11-13T14:28:11+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "7dcd991d71bfe97610a977d323122db1bb08f6cc",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7dcd991d71bfe97610a977d323122db1bb08f6cc",
+      "message": "docs(agents): require hub tracker update after code changes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-aeebf6596aa2aa605461416226f07202fa17252c",
       "timestamp": "2026-11-13T14:19:39+07:00",
@@ -2080,116 +2190,6 @@
       "commitHash": "9b4577b9d92998112d4f639819a2ca34264b861e",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9b4577b9d92998112d4f639819a2ca34264b861e",
       "message": "docs(convention): track implement plans in workspace module plans",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-3204cb716a5886e48c94c89393b59a60398efad6",
-      "timestamp": "2026-11-12T12:40:52+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "3204cb716a5886e48c94c89393b59a60398efad6",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3204cb716a5886e48c94c89393b59a60398efad6",
-      "message": "docs(convention): merge workspace module plan process",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-e090d7717d0857e703fc3b4dee0ccafb9424a86d",
-      "timestamp": "2026-11-12T13:10:42+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "e090d7717d0857e703fc3b4dee0ccafb9424a86d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e090d7717d0857e703fc3b4dee0ccafb9424a86d",
-      "message": "docs(notes): align role readmes with spec v2.6 and shared plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-2206ab90a9917476783e9b8a3592a1fdd1cbf767",
-      "timestamp": "2026-11-12T13:12:33+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "2206ab90a9917476783e9b8a3592a1fdd1cbf767",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2206ab90a9917476783e9b8a3592a1fdd1cbf767",
-      "message": "docs(notes): merge role readme alignment with spec v2.6",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-5d052bf7eaa3fff0d01600326299ee5daaa4d096",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "5d052bf7eaa3fff0d01600326299ee5daaa4d096",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5d052bf7eaa3fff0d01600326299ee5daaa4d096",
-      "message": "docs(notes): add spec v2.6 and team workboard for all three repos",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "message": "docs(writer): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-a78d79d70597dd9110cc91f640780da363474150",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "a78d79d70597dd9110cc91f640780da363474150",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a78d79d70597dd9110cc91f640780da363474150",
-      "message": "chore(config): normalize gitignore and drop unused prisma and metadata",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
-      "timestamp": "2026-11-12T13:41:38+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
-      "message": "docs(notes): merge spec v2.6, team workboard and gitignore cleanup",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9d28f7279a5a657a0abfa327bf64c02cb1059906",
-      "timestamp": "2026-11-12T14:08:04+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "9d28f7279a5a657a0abfa327bf64c02cb1059906",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9d28f7279a5a657a0abfa327bf64c02cb1059906",
-      "message": "refactor(bible): split series bible screen and align roles with spec V2.6",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-efb83452f5e753d3a316d41d03a50926802cfbfd",
-      "timestamp": "2026-11-04T13:23:18+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "efb83452f5e753d3a316d41d03a50926802cfbfd",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/efb83452f5e753d3a316d41d03a50926802cfbfd",
-      "message": "feat(ai): integrate token streaming client and bible context caching",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-e3b79c24193bf2009e3a0c178dcf3180ae248c88",
-      "timestamp": "2026-11-04T23:17:22+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "e3b79c24193bf2009e3a0c178dcf3180ae248c88",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e3b79c24193bf2009e3a0c178dcf3180ae248c88",
-      "message": "feat(script): update chapter versioning rules and review rework gates",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
