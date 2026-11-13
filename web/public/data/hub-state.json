@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T04:50:08.943Z",
+  "lastSyncedAt": "2026-11-13T05:46:00.976Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,50 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
+      "timestamp": "2026-11-13T12:45:57+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
+      "message": "feat(writer): quick chapter switching side tab",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0f6ea085eefc7cca832ee077817d48fbafc1ad53",
+      "timestamp": "2026-11-13T12:38:08+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "0f6ea085eefc7cca832ee077817d48fbafc1ad53",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0f6ea085eefc7cca832ee077817d48fbafc1ad53",
+      "message": "feat(writer): colon after character name jumps to dialogue",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
+      "timestamp": "2026-11-13T12:33:25+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
+      "message": "fix(writer): translate script labels and restore page/panel lines",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-30b975a488828e582cf9e777d4ef1272f3bc17db",
+      "timestamp": "2026-11-13T12:15:44+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "30b975a488828e582cf9e777d4ef1272f3bc17db",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/30b975a488828e582cf9e777d4ef1272f3bc17db",
+      "message": "feat(writer): rebuild graphic novel script editor on writersolo rules",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-c41ee879317e4d8767034423a0956ed4b75ed6ae",
       "timestamp": "2026-11-13T11:50:06+07:00",
@@ -2146,50 +2190,6 @@
       "commitHash": "c310e7c",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c310e7c",
       "message": "fix(bible): writer and editor endorse per spec V2.6 §5.1",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-c648cf2",
-      "timestamp": "2026-11-12T13:39:22+07:00",
-      "repo": "MOBILE",
-      "author": "trung kien",
-      "commitHash": "c648cf2",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/c648cf2",
-      "message": "docs(notes): point mobile docs to shared spec and team workboard",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-2609b9d",
-      "timestamp": "2026-11-12T13:39:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "2609b9d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2609b9d",
-      "message": "chore(config): ignore local worktrees and drop unused prisma schema",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1c5cb89",
-      "timestamp": "2026-11-12T13:39:19+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1c5cb89",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1c5cb89",
-      "message": "docs(script): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-57aed3d",
-      "timestamp": "2026-11-12T13:39:18+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "57aed3d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/57aed3d",
-      "message": "docs(notes): point backend docs to shared spec and team workboard",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }

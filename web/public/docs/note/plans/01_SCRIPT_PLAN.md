@@ -113,6 +113,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 | D8 ✅ | Giữ cú pháp gõ tắt `@Tên: "..."`, `SFX:`, `Caption:`, ký tự mồi `#`/`-` + Tab? | **Đã chốt 2026-11-13: bỏ** trong editor (thay bằng H.1 + phím tắt + menu `/`); cú pháp chữ chỉ còn ở luồng dán/chuyển đổi `AiScriptConvertModal` |
 | D9 ✅ | Ngưỡng cảnh báo mật độ | **Đã chốt 2026-11-13 (Warning, không chặn):** > 7 panel/trang · > 3 bóng thoại/panel · > 25 chữ/bóng thoại · panel không có Action |
 | D10 ✅ | Kéo thả sắp xếp Page/Panel trong Board view khi nào? | **Đã chốt 2026-11-13:** chỉ khi `Draft`/`ChangesRequested`/`Amending`; Panel đã có artwork thì hỏi xác nhận và gắn ⚑ như sửa muộn |
+| D11 ✅ | Editor kịch bản theo bảng H.1 riêng hay bám WriterSolo? Có liên kết Series Bible trong kịch bản? | **User chốt 2026-11-13:** editor gõ **giống WriterSolo** (luật đo trực tiếp, thay bảng H.1), kịch bản là **chữ thuần, không liên kết Series Bible** (bỏ `@mention`, ô chọn người nói từ Bible, `speakerCharacterId` luôn null), xây lại không tương thích dữ liệu cũ. D7 giữ dưới dạng Parens `(nghĩ)`. ⚠️ Lệch đặc tả master Module 1 (`@Bible` trong ACTION_DIRECTION, stub `@Tên_Mới`, Bible Gate chỉ xét `@Tag`) — chưa sửa đặc tả |
 
 ---
 
@@ -281,20 +282,19 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 
 Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl+1..5` Action/Dialogue/Thought/Narration/SFX · `/` mở menu loại dòng ở đầu dòng trống · `Alt+↑/↓` di chuyển dòng/panel · `@` gợi ý Bible (giữ hiện có). Dán văn bản tự do vẫn đi qua `AiScriptConvertModal`.
 
-#### SCR-25 · Luật gõ dạng hàm thuần (`scriptGrammar.ts`) — FE · ✅
-- [x] [FE] `flow/grammar/scriptGrammar.ts`: `nextKindOnEnter(kind, isEmpty)`, `nextKindOnTab(kind, dir)`, `slotOf(kind)`; bảng H.1 là dữ liệu, không rải `if` trong keymap.
-- [x] [FE] Test bảng chuyển (viết, chạy khi user yêu cầu).
-- **Phụ thuộc:** không (dùng `ScriptLineKind` tạm ở FE, khớp lại sau SCR-18).
+#### SCR-25 · Luật gõ dạng hàm thuần (`scriptGrammar.ts`) — FE · ✅ (làm lại theo D11)
+- [x] [FE] `flow/grammar/scriptGrammar.ts`: `onEnter`, `onTab`, `onShiftTab`, `completeCharacterName`, `isThoughtParens` — luật đo trên WriterSolo 2026-11-13 (Enter: Page→Panel→Action→Action, Character/Parens→Dialogue, Dialogue/Caption/SFX→Action; Tab dòng trống đổi loại, dòng có chữ chèn Character/Parens bên dưới). Bỏ Transition/Scene heading khỏi vòng Tab.
+- [x] [FE] Test luật (`scriptGrammar.test.ts`, viết, chưa chạy).
 
-#### SCR-26 · Viết lại keymap theo `scriptGrammar` — FE · ✅
-- [x] [FE] `ScriptLineBlockNode.addKeyboardShortcuts` chỉ còn gọi `scriptGrammar` + lệnh chèn; xoá nhánh regex `@Tên: "..."`, `SFX:`/`*…*`, `Caption:` và ký tự mồi `#`/`!`/`-`/`"` — D8.
-- [x] [FE] Thêm phím tắt H.1: `Ctrl+Enter` (Panel mới), `Ctrl+Shift+Enter` (Trang mới), `Ctrl+1..5` (đổi loại dòng); `Backspace` ở đầu dòng rỗng lùi một bậc theo bảng.
-- **Phụ thuộc:** SCR-25, SCR-19.
+#### SCR-26 · Editor gõ kiểu WriterSolo — FE · ✅ (làm lại theo D11, FE `30b975a`)
+- [x] [FE] `nodes/ScriptLineBlockNode.ts`: một node `scriptLine` với `el` ∈ page · panel · action · character · parens · dialogue · caption · sfx; nhãn `TRANG n - PANEL: k`, `PANEL n`, `DẪN TRUYỆN:`, `SFX:` là decoration (chữ lưu luôn sạch); Ctrl+1..8 đổi loại dòng; gợi ý tên nhân vật dạng chữ mờ `(Enter)` lấy từ tên đã dùng.
+- [x] [FE] `ScreenplayFlowEditor.tsx` viết lại: thanh loại dòng giữ focus + tooltip phím tắt, Ctrl+S lưu, cảnh báo rời trang khi chưa lưu. Gỡ `@mention`, `SpeakerPickerPopover`, AI convert, regex đoán loại dòng.
+- [x] [FE] `scriptFlowAdapter.ts` viết lại: `scriptToDoc` / `docToScript`. Character + Parens + Dialogue → một dòng `Dialogue` (`SpeakerLabel` = `TÊN` hoặc `TÊN (PARENS)`), Parens `nghĩ` → `Thought`; chữ dòng Panel → `Panel.Direction`.
+- [x] [FE] `ScriptEditorView.handleSaveScript`: một batch vào Scene mặc định → `syncScriptStructure` → `updatePanelDirection`.
+- [x] [FE] Test keymap + adapter (viết, chưa chạy). Chưa thử trong app.
 
-#### SCR-27 · Ô người nói (speaker slot) cùng dòng thoại — FE · ✅
-- [x] [FE] Dòng Dialogue/Thought có ô người nói cùng dòng, gợi ý từ Bible + Recent Speakers; luân phiên người nói A→B→A (`getRecentSpeakersFromDoc` bảo toàn `speakerCharacterId`).
-- [x] [FE] Hỗ trợ gõ trực tiếp tên nhân vật quần chúng và hậu tố `(nghĩ)` / `(thought)` đổi `kind` → `Thought` (D7). Phím tắt `Shift+Tab` từ thoại lùi về ô người nói, `Shift+Tab` từ ô người nói lùi về Action theo bảng H.1.
-- **Phụ thuộc:** SCR-26, SCR-04 (`SpeakerLabel`).
+#### SCR-27 · Ô người nói — FE · ⛔ Huỷ theo D11
+- Thay bằng dòng Character gõ tay + gợi ý tên kiểu WriterSolo (SCR-26). Code ô chọn người nói từ Bible đã gỡ.
 
 #### SCR-28 · Tiêu đề Trang/Panel: nhãn tự sinh + mô tả riêng — FE · ❌
 - [ ] [FE] `PanelHeading` hiển thị nhãn `PANEL 2.3` không sửa được + vùng nhập `Panel.Direction` (góc máy/khung hình, placeholder "Toàn cảnh, góc thấp…"). Không còn text `" Panel 1.2: [Toàn cảnh]`.
@@ -373,3 +373,4 @@ Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-2
 | 2026-11-12 | — | Chuyển sang bộ plan module | — | Đánh lại ID `S*` → `SCR-*` |
 | 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | — (tài liệu) | Phase H: trải nghiệm gõ Graphic Novel, đối chiếu walkthrough WriterSolo; chờ chốt D7–D10 |
 | 2026-11-13 | D7–D10 | ✅ Chốt | — (tài liệu) | Theo khuyến nghị: `(nghĩ)` → Thought · bỏ cú pháp gõ tắt trong editor · ngưỡng 7 panel/trang, 3 bóng/panel, 25 chữ/bóng (Warning) · kéo thả chỉ khi Draft/ChangesRequested/Amending. Phase H sẵn sàng |
+| 2026-11-13 | D11, SCR-25, SCR-26, SCR-27 | ✅ / ⛔ | FE `trungkien` `30b975a` | Xây lại editor Writer theo luật đo trên WriterSolo, kịch bản chữ thuần không liên kết Bible; SCR-27 huỷ. Typecheck, i18n, eslint sạch; test viết nhưng chưa chạy; chưa thử trong app. SCR-28 (nhãn Panel + Direction) và SCR-29 (thanh loại dòng) đã có phần lớn qua SCR-26 |
