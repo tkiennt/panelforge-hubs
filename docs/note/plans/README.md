@@ -54,8 +54,10 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 1. **Trước khi code**, thêm một dòng vào §2 "Đang làm" của [`TEAM_WORKBOARD.md`](../../tracking/TEAM_WORKBOARD.md) (người/phiên, repo, ID task, nhánh, file chính dự kiến), đổi trạng thái task sang 🔄, rồi commit cục bộ `docs(tracker): start …`. Workboard là bảng nhận task duy nhất (§5 dưới đây chỉ trỏ về đó). Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
 2. **Không nhận** task mà cột "File chính" đụng file đang có ở §2 workboard của task khác; chờ hoặc phối hợp với người đang giữ.
-3. **Worktree theo task:** `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường, vd asg-03> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`), tránh dùng lại worktree cũ. Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
-4. **Xong sub-task:** merge cục bộ vào `trungkien`, dọn worktree, đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …`. **KHÔNG push sau mỗi lần làm; chỉ push remote khi hoàn thành trọn vẹn 1 module lớn hoặc khi user yêu cầu.**
+3. **Worktree / Sandbox theo số lượng Agent:**
+   - **Khi 1 Agent làm việc đơn lẻ:** **KHÔNG tạo sandbox**, làm việc và commit trực tiếp trong repository chính ở nhánh `trungkien`.
+   - **Khi có từ 2 Agent trở lên chạy song song:** Tạo sandbox riêng cho từng agent qua lệnh: `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`). Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
+4. **Xong sub-task:** Nếu làm trên sandbox worktree thì merge cục bộ vào `trungkien` và dọn worktree; nếu làm trực tiếp 1 agent thì commit rõ ràng vào `trungkien`. Đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …`. **KHÔNG push sau mỗi lần làm; chỉ push remote khi hoàn thành trọn vẹn 1 module lớn hoặc khi user yêu cầu.**
 
 ### 2.5. Sửa file plan an toàn (`docs/` của `panelforge-hub`, chia sẻ qua GitHub)
 

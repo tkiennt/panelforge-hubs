@@ -3,7 +3,10 @@
 
 > **Dự án:** PanelForge Manga Production Platform (`SEP490_FA26SE251`)  
 > **Áp dụng cho:** Tất cả các AI Agent (Lead Orchestrator, Sub-agents, Cursor, Claude Code, Antigravity) & Developers.  
-> **Mục tiêu sống còn:** Cô lập 100% môi trường làm việc khi phát triển song song nhiều module, loại bỏ xung đột mã nguồn (file collision), quản lý tự động vòng đời Worktree ➔ Commit ➔ Push ➔ Pull Request ➔ Cleanup.
+> 
+> 🚨 **ĐIỀU KIỆN KÍCH HOẠT SANDBOX WORKTREE (QUAN TRỌNG):**  
+> - **Khi chỉ có 1 Agent làm việc (Single-Agent Mode - Mặc định):** **KHÔNG TẠO SANDBOX WORKTREE.** Agent làm việc, đọc, sửa code và commit trực tiếp trên thư mục repo gốc ở nhánh `trungkien`.  
+> - **Khi có từ 2 Agent trở lên cùng làm việc song song (Multi-Agent Swarm):** **BẮT BUỘC TẠO SANDBOX WORKTREE** để cô lập 100% môi trường, loại bỏ xung đột mã nguồn (file collision), lock DLL và quản lý tự động vòng đời Worktree ➔ Commit ➔ Push ➔ Cleanup.
 
 ---
 
@@ -210,10 +213,11 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 
 ## 6. CÁC HÀNH VI BỊ CẤM (STRICTLY FORBIDDEN ACTIONS)
 
-1. ❌ **CẤM** sửa bất kỳ file nào trong thư mục gốc `D:\FPT-STUDY\10_FALL-2026\SEP490\Github\` khi đang code chức năng/sửa bug (phải luôn tạo worktree).
-2. ❌ **CẤM** tự ý push code lên remote sau mỗi lần làm / mỗi prompt. Chỉ push khi hoàn thành 1 module lớn hoặc khi Người dùng yêu cầu.
-3. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `trungkien` (hoặc `main` khi có yêu cầu).
-4. ❌ **CẤM** commit thông điệp mơ hồ, tối nghĩa như `fix bugs`, `update code`, `wip`, `temp`.
-5. ❌ **CẤM** chuyển sang nhánh `main` hoặc `trungkien` bên trong thư mục worktree sandbox của Agent.
-5. ❌ **CẤM** tự ý chạy `dotnet test` hoặc `npm run test` sau mỗi prompt nhỏ lẻ.
-6. ❌ **CẤM** dùng `git push --force` hoặc sửa commit history đã đẩy lên remote.
+1. ❌ **CẤM** tạo sandbox worktree khi chỉ có 1 Agent làm việc đơn lẻ (phải làm việc trực tiếp tại repo để tiết kiệm tài nguyên và đơn giản hoá luồng).
+2. ❌ **CẤM** sửa trực tiếp vào thư mục gốc khi có từ 2 Agent trở lên chạy song song (khi đó bắt buộc phải tạo worktree sandbox).
+3. ❌ **CẤM** tự ý push code lên remote sau mỗi lần làm / mỗi prompt. Chỉ push khi hoàn thành 1 module lớn hoặc khi Người dùng yêu cầu.
+4. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `trungkien` (hoặc `main` khi có yêu cầu).
+5. ❌ **CẤM** commit thông điệp mơ hồ, tối nghĩa như `fix bugs`, `update code`, `wip`, `temp`.
+6. ❌ **CẤM** chuyển sang nhánh `main` hoặc `trungkien` bên trong thư mục worktree sandbox của Agent khi đang chạy Multi-Agent.
+7. ❌ **CẤM** tự ý chạy `dotnet test` hoặc `npm run test` sau mỗi prompt nhỏ lẻ.
+8. ❌ **CẤM** dùng `git push --force` hoặc sửa commit history đã đẩy lên remote.

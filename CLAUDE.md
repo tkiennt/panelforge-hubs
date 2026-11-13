@@ -24,6 +24,7 @@ Repo `panelforge-hub/` là Git Repo quản lý tài liệu trung tâm (SSOT Docs
 - **Kiến trúc & Sơ đồ:** `docs/architecture/`.
 - **Theo dõi tiến độ nhóm (Team Workboard):** `docs/tracking/TEAM_WORKBOARD.md`.
 - **Coordination rules:** `docs/note/plans/README.md` §2. Plans trong `docs/note/` dùng để điều phối tác vụ giữa các repo.
+- **Quy tắc Sandbox / Worktree:** 1 Agent làm việc: KHÔNG tạo sandbox, làm trực tiếp tại repo. Chỉ khi có từ 2 Agent trở lên chạy song song mới tạo sandbox worktree.
 - **Quy tắc Git Push:** Tuyệt đối **KHÔNG push sau mỗi lần làm/mỗi prompt**. Chỉ push lên remote GitHub khi **hoàn thành 1 module lớn** hoặc khi **User yêu cầu trực tiếp**. Bình thường chỉ commit cục bộ.
 
 ## Tooling & Cổng thông tin trực quan

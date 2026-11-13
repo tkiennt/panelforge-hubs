@@ -132,19 +132,22 @@ flowchart TD
 
 ---
 
-## 5. QUY CHUẨN TỰ ĐỘNG CHIA WORKTREE (AUTOMATIC WORKTREE PARTITIONING PROTOCOL)
+## 5. QUY CHUẨN ĐIỀU PHỐI SANDBOX & WORKTREE THEO SỐ LƯỢNG AGENT
 
-Để đảm bảo an toàn tuyệt đối khi nhiều AI Agent hoặc lập trình viên phát triển song song:
-1. **Bất biến cách ly thư mục gốc (Root Workspace Isolation Invariant):**
-   - Khi nhận bất kỳ tác vụ lập trình nào (thêm tính năng, sửa bug, refactor), AI Agent **TUYỆT ĐỐI KHÔNG CHỈNH SỬA TRỰC TIẾP** source code trong thư mục gốc `Github/PanelForge_FA26SE251`, `Github/panelforge-fe`, hoặc `Github/panelforge-mobile`.
-2. **Bước 0 Tự Động – Khởi tạo Sandbox Worktree:**
-   - Trước khi sửa bất kỳ tệp nào, AI Agent **TỰ ĐỘNG** thực thi lệnh điều phối:
+Nhằm tối ưu hóa tài nguyên máy và tốc độ xử lý mà vẫn đảm bảo tính an toàn:
+
+1. **Khi làm việc với 1 Agent duy nhất (Single-Agent Mode - Mặc định):**
+   - ❌ **TUYỆT ĐỐI KHÔNG TẠO SANDBOX / WORKTREE.**
+   - Agent đọc, sửa mã nguồn, build và commit trực tiếp trên thư mục làm việc của repository (`PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`, `panelforge-hub`) trên nhánh `trungkien` (hoặc nhánh task được user chỉ định).
+   - Không sinh thêm thư mục sandbox ngoài `panelforge-agent-*`, tiết kiệm tài nguyên I/O và đơn giản hoá luồng làm việc.
+
+2. **Khi có từ 2 Agent trở lên cùng làm việc song song (Multi-Agent Swarm / Concurrent Mode):**
+   - ✅ **BẮT BUỘC TẠO SANDBOX WORKTREE RIÊNG CHO MỖI AGENT** để tránh xung đột file, tranh chấp file lock DLL/build và tranh chấp git head:
      ```powershell
      powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action create -AgentRole <task-id> -Module "<task-id>" -Target <all|backend|frontend|mobile>
      ```
-   - `<task-id>` là ID task trong `note/plans/` viết thường (vd `rdr-07`), xem `note/plans/README.md` §2.4. Sandbox độc lập tại `D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-<task-id>\` với các nhánh `feature/<task-id>-be`, `-fe`, `-mobile`. Sau khi tạo, kiểm tra `git branch --show-current` (script dùng lại worktree nếu trùng tên).
-3. **Quy tắc Dịch chuyển Đường dẫn (Path Translation Rule):**
-   - Mọi thao tác đọc/sửa file và lệnh chạy **BẮT BUỘC** trỏ vào đường dẫn Sandbox tương ứng:
+   - `<task-id>` là ID task trong `note/plans/` viết thường (vd `rdr-07`). Sandbox độc lập tại `D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-<task-id>\`.
+   - **Quy tắc Dịch chuyển Đường dẫn khi chạy Multi-Agent:**
      - Backend: `D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-agent-<task-id>/PanelForge_FA26SE251/`
      - Frontend: `D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-agent-<task-id>/panelforge-fe/`
      - Mobile: `D:/FPT-STUDY/10_FALL-2026/SEP490/panelforge-agent-<task-id>/panelforge-mobile/`
@@ -153,10 +156,9 @@ flowchart TD
 
 ## 6. QUY CHUẨN COMMIT RÕ RÀNG & GỘP TRUNGKIEN TRƯỚC KHI PUSH (ZERO REMOTE EXTRA BRANCHES)
 
-1. **Bắt buộc tạo Worktree khi code chức năng (Feature Isolation Invariant):**
-   - Khi phát triển bất kỳ tính năng, module, hoặc sửa bug nào, AI Agent / Developer **BẮT BUỘC TẠO WORKTREE RIÊNG** để code.
-   - **TUYỆT ĐỐI KHÔNG CODE TRỰC TIẾP TRÊN THƯ MỤC GỐC `Github/`** nhằm tránh trùng lặp code, tranh chấp file lock DLL và xung đột tệp tin (file collisions) khi phát triển song song.
-   - Lệnh khởi tạo worktree:
+1. **Quy tắc Phân định Môi trường Code (Single-Agent vs Multi-Agent):**
+   - **1 Agent:** Code trực tiếp tại repo chính trên nhánh `trungkien`, không tạo worktree sandbox.
+   - **Từ 2 Agent trở lên:** Bắt buộc tạo worktree sandbox riêng cho từng agent theo lệnh:
      ```powershell
      powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action create -AgentRole <task-id> -Module "<task-id>" -Target <all|backend|frontend|mobile>
      ```
