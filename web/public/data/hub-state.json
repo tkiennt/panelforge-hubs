@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T09:52:51.247Z",
+  "lastSyncedAt": "2026-11-13T09:57:10.035Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
+      "timestamp": "2026-11-13T16:57:06+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
+      "message": "style(writer): emphasize page and panel headers with bold styling",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-fc99a0e7d1417ba5a04dfc7d76684713039099ab",
       "timestamp": "2026-11-13T16:52:48+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "f428dbe91b6972ce091626e8c916984abb481db2",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f428dbe91b6972ce091626e8c916984abb481db2",
       "message": "feat(editor): merge script review line notes as change requests",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-cd4949ef43b3ef721ddb1026c7c7e1535975ff08",
-      "timestamp": "2026-11-11T17:45:43+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "cd4949ef43b3ef721ddb1026c7c7e1535975ff08",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cd4949ef43b3ef721ddb1026c7c7e1535975ff08",
-      "message": "feat(writer): add change request panel for script rework loop",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
