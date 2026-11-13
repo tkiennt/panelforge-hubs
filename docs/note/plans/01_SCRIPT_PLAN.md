@@ -169,7 +169,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 > `freeze-script` = Bắt đầu sản xuất (cần InReview, chương → InProduction), Unfreeze → Draft, khoá sửa khi InReview/Frozen,
 > bỏ Bible Gate `@Tag` + tự dựng trang lúc freeze, hash theo Trang/Panel/Kind/Text. Góp ý theo dòng: SCR-37.
 > Các mục bên dưới ghi theo thiết kế cũ; phần trái D12 (`ChangesRequested`, `Amending`, `RequestScriptChanges`) bỏ.
-> ⚠️ Chưa chạy lại test BE: 86 test cũ giả định chương mới là `InProduction` → SCR-38, phải xong trước khi push.
+> ✅ Test BE đã cập nhật (SCR-38, `aeebf65`): 1206/1206 pass.
 
 #### SCR-08 · `ScriptStatus` + domain methods — BE · 🟡 (theo D12, thiếu `FrozenScriptRevisionId`, `WriterUserId`) · cũ S2-01 · **làm cùng REL-01**
 - [ ] Enum `ScriptStatus`: `Draft = 1, InReview = 2, ChangesRequested = 3, Frozen = 4, Amending = 5`.
@@ -352,9 +352,10 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - **Hợp đồng API:** `GET /api/chapters/{id}/script-comments` → `ScriptCommentDto[]` · `POST /api/chapters/{id}/script-comments` `{ sceneId?, scriptLineId?, quotedText?, body }` (Editor/Producer; 400 rỗng/quá 2000 ký tự, 403 vai trò khác) · `POST .../script-comments/{commentId}/resolve` (Writer hoặc tác giả; 403/404).
 - [x] [FE] `ScriptReviewView` viết lại theo trạng thái kịch bản + góp ý lưu ngay (bỏ duyệt/trả bài qua Assignment); `EditorDeskView` có mục "Kịch bản chờ duyệt"; `ScriptEditorView` hiện góp ý chưa xử lý cho Writer.
 
-#### SCR-38 · Cập nhật test BE theo `PreProduction` mặc định — BE · ❌ (bắt buộc trước khi push)
-- [ ] [BE] 86 test (ChapterPublishFlow, PreviewLink, LockBibleEntryRevision, ExportJob, AssignmentReminder, ChapterCommand, ChapterReadOnly, FrameTemplate, AI Review…) tạo chương mới rồi coi như `InProduction`. Thêm helper test đưa chương vào sản xuất đúng luồng (Writer gửi duyệt → Bắt đầu sản xuất, mở lại khi cần sửa kịch bản) và áp vào các chỗ tạo chương.
-- [ ] [BE] Chạy `ScriptLifecycleTests` mới (chưa chạy).
+#### SCR-38 · Cập nhật test BE theo `PreProduction` mặc định — BE · ✅ (BE `aeebf65`)
+- [x] [BE] Helper `ChapterTestState.InProduction()` đặt chương đã qua Gate 1 (giữ kịch bản Draft) cho test về sản xuất / duyệt / phát hành; test Gate 1 dùng luồng thật Gửi duyệt → Bắt đầu sản xuất.
+- [x] [BE] `ScriptLifecycleTests` theo Lưu = commit / Gửi duyệt = push: sửa khi InReview, gửi lại giữ bản trước để so sánh, Bắt đầu sản xuất bị từ chối khi bản live khác bản đã gửi, Frozen khoá sửa.
+- [x] [BE] Kèm sửa test lệch do thay đổi khác: pipeline dự phòng 6 stage (SCR-12), Scene mặc định khi tạo chương (SCR-05), Concept trước khi xác nhận nhân vật Bible. **1206/1206 test pass.**
 
 #### SCR-36 · Dọn prototype `flow/writesolo/` — FE · ❌
 - [ ] [FE] `flow/writesolo/{ScriptEditorWorkspace.tsx, writeSoloExtensions.ts, SeriesBibleContextSidebar.tsx, sampleScript.ts, index.ts}` không được import ở đâu (grep 2026-11-13). Lấy ý tưởng còn dùng được cho SCR-26/29 rồi xoá cùng đợt SCR-03.
