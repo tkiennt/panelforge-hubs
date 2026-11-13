@@ -126,7 +126,9 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] `Chapter.UnfreezeScript(userId, reason)`: đặt `ScriptReopenStatus = Approved`, `ScriptReopenRequestedAt = now`, `ScriptReopenReason = reason`.
 - [ ] `UnfreezeChapterScriptCommandHandler` truyền lý do vào domain (lý do đã bắt buộc từ P0-03).
 - [ ] Test: Unfreeze → sửa dòng đã neo Panel có Assignment Approved → Freeze → `HasScriptImpact = true`.
-- **DoD:** cả hai đường mở lại đều gắn ⚑ khi đóng băng lại.
+- [ ] **(Rà soát 2026-11-13, xác nhận lỗi)** `FreezeChapterScriptCommandHandler` chỉ gọi `FlagImpactedWorkAsync` khi `ScriptReopenStatus == Approved` (`FreezeScriptCommands.cs:69`), mà `UnfreezeScript` (đường chính V2.6) không đặt cờ này → sửa kịch bản sau khi Producer mở lại rồi chốt lại **không gắn ⚑ Panel nào**, `IMPACT_FLAGS` ở Gate 3 luôn 0.
+- [ ] Dò ảnh hưởng bằng diff theo `ScriptLineId` giữa `ScriptVersion` của lần chốt trước (`ScriptContentHash` / bản Frozen) và bản chốt lại, thay cho lọc `ScriptLine.UpdatedAt >= since` hiện tại (bỏ sót dòng bị xoá và dòng thêm mới vào Panel đã vẽ). Cần lưu id phiên bản đã chốt (`FrozenScriptRevisionId`, SCR-08).
+- **DoD:** cả hai đường mở lại đều gắn ⚑ khi đóng băng lại, kể cả khi dòng bị xoá/thêm.
 
 #### SCR-02 · Freeze chặn khi còn ChangeRequest kịch bản mở (V3) — BE · ❌ · cũ S0-02
 - [ ] Đếm `ChangeRequests` của chương có `ScriptLineId != null` và `Status ∈ {Open, Resolved}` → 409 kèm số lượng.
@@ -135,6 +137,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 #### SCR-03 · Xoá code FE chết (V11) — FE · ❌ · cũ S0-03
 - [ ] Grep xác nhận không còn import rồi xoá: `roles/writer/components/script/flow/comic-editor/{ComicScriptEditor.tsx, sampleScript.ts, versioning/, nodes/, extensions/, index.ts}` (**giữ** `comicCounting.ts`), `roles/writer/components/script/storyboard/`, `roles/writer/machines/chapterScriptMachine.ts` + file `.test.*` tương ứng.
 - [ ] `thumbnail-studio/` chỉ giữ phần `ScriptEditorView` dùng.
+- [ ] (Rà soát 2026-11-13) `chapterScriptMachine.ts` xác nhận không còn import ở đâu, vẫn giữ luật cũ `canFreeze = isBibleGatePassed` → xoá để không ai dựa vào.
 - [ ] `typecheck`, `i18n:check` (gỡ key không còn dùng).
 
 ### Phase B — Mô hình dữ liệu (V6, V7, D2, D6)
@@ -192,6 +195,9 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] Viết lại `ScriptLineRules.AuthorizeAsync` theo `ScriptStatus` + `Chapter.WriterUserId`.
 - [ ] Producer chỉ sửa khi chưa có Writer (BR-07/23); xác minh 403 khi Producer sửa thoại (plan tổng M1-04 🔍).
 - [ ] Test ma trận vai trò × trạng thái.
+- [ ] **(Rà soát 2026-11-13, xác nhận lệch BR-07)** BE `ScriptLineRules.AuthorizeAsync` ghi "Producer luôn được" → Producer sửa/xoá dòng kịch bản bất kỳ lúc nào; spec BR-07 và §5.1 yêu cầu Producer chỉ đọc (403). Chờ câu hỏi mở 24 ở plan tổng: theo spec thì chặn Producer, giữ Producer sửa thì sửa spec BR-07.
+- [ ] [BE] Vai trò khác Writer/Producer đang đi qua `AiWorkflowFacts.EvaluateAssignmentAsync` (có việc là sửa được) → Artist/Letterer/Editor phải luôn 403 với lệnh sửa dòng kịch bản (spec §5.1: chỉ đọc / Editor chỉ góp ý).
+- [ ] [FE] `ScriptEditorView.tsx:274` `canEditScript = !effectiveRole || PRODUCER || WRITER`: khi chưa xác định được vai trò lại **mở quyền sửa** (fail-open) → đổi thành chỉ đúng vai trò được phép; đồng bộ với quyết định câu hỏi 24.
 
 #### SCR-12 · Gỡ stage Script khỏi pipeline (D1) — BE + DB · 🟡 · cũ S2-05
 - [x] `CreateSeriesCommand` / `MasterDataSeeder`: bỏ stage `script` cho Series mới (BE `5e55c97`). Template đã seed trong DB cũ giữ nguyên (D6).
@@ -359,6 +365,13 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 
 #### SCR-36 · Dọn prototype `flow/writesolo/` — FE · ❌
 - [ ] [FE] `flow/writesolo/{ScriptEditorWorkspace.tsx, writeSoloExtensions.ts, SeriesBibleContextSidebar.tsx, sampleScript.ts, index.ts}` không được import ở đâu (grep 2026-11-13). Lấy ý tưởng còn dùng được cho SCR-26/29 rồi xoá cùng đợt SCR-03.
+
+#### SCR-39 · Đồng bộ tài liệu & comment theo D12 (InReview vẫn sửa) — Docs + BE · ❌ · rà soát 2026-11-13
+- [ ] [Docs] Hàng D12 ở §3.5 bảng quyết định và mục 21 plan tổng ghi "`InReview` khoá sửa", trái với Q15 / mục 22 và code (`Chapter.ScriptLockReason` chỉ khoá `Frozen`) → sửa thành "InReview: Writer vẫn sửa và lưu, Editor đọc bản đã gửi".
+- [ ] [Docs] D10, SCR-30 và mục 19 plan tổng còn nhắc `ChangesRequested` / `Amending` (đã bỏ theo D12) → đổi điều kiện kéo thả thành "khi `Draft` hoặc `InReview`".
+- [ ] [Docs] SCR-08 và SCR-10 còn checklist theo thiết kế cũ (`ChangesRequested`, `Amending`, `ApproveScriptCommand` có Bible Gate) → viết lại phần chưa làm theo D12 và kết quả câu hỏi mở 23.
+- [ ] [BE] Comment sai: `ScriptStatus.cs` ("Writer nộp… kịch bản khoá sửa"), summary `SubmitScriptCommand` ("kịch bản khoá sửa"); comment lỗi mã hoá trong `ScriptLineRules.RecordRevisionAsync` ("Quy chu?n…").
+- [ ] [BE] Ghi rõ vai trò của hai hệ phiên bản đang chạy song song: `ContentRevision` (theo Scene, dùng cho AI/khôi phục) và `ScriptVersion` (theo chương, dùng cho gửi duyệt/chốt). Chốt hệ nào là nguồn cho phân tích ảnh hưởng (SCR-01) và lịch sử (SCR-15); hệ còn lại gỡ ở SCR-23.
 
 ---
 

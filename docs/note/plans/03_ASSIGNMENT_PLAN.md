@@ -25,6 +25,7 @@
 - [ ] FE tab "Gate 1" trong `ChapterReleaseModal` (REL-03 tạo khung): kết quả Bible gate, chọn Artist theo dải trang, Letterer tuỳ chọn, một nút.
 - [ ] i18n vi/en; test.
 - **DoD:** Producer bấm 1 nút → kịch bản Frozen + Kanban có thẻ Page cho từng Artist. Sau đó làm REL-02 (chặn trang chưa giao ở Gate 3).
+- **Rà soát 2026-11-13:** Gate 1 hiện là `FreezeChapterScriptCommand` (D12), **không giao Page** và **không kiểm Bible Gate** (D11). Bước "kết quả Bible gate" ở FE phụ thuộc câu hỏi mở 23 (plan tổng); `ApproveScriptCommand` của SCR-10 đã được thay bằng `FreezeChapterScriptCommand`.
 
 #### ASG-02 · Ink ∥ Lettering song song sau Pencil (BR-19) — BE + FE · 🟡 · cũ P1-03
 - [ ] Đọc `SubmitAssignmentCommand.cs` (~200–320) và `StageProgressRules.cs`: hiện chạy tuần tự Ink → Letter → Review.
@@ -48,6 +49,14 @@
 #### ASG-06 · Kanban trung thực & tải công việc — FE · ❌ · từ UIQ GĐ5, Lucian #181
 - [ ] `WorkflowBoardView.tsx`: gỡ số viết cứng ("99.4% AI Continuity", "3.2 hrs / page", "1.4 hrs avg") và Sparkles không phải AI (phần chung ở UIQ-01).
 - [ ] (Tuỳ chọn) Thanh tải công việc Artist trong `CreateAssignmentModal` dùng số việc mở thật từ API.
+
+#### ASG-07 · Chặn việc sản xuất trước Gate 1 — BE + FE · ❌ · rà soát 2026-11-13
+- **Lỗi:** `Chapter.IsContentEditable` gồm cả `PreProduction`; `CreateAssignment`, `CreateAssignmentPlan`, `CreateBulkAssignment`, `StartAssignment` chỉ kiểm `AssignmentRules.ChapterNotEditableReason` (`AssignmentRules.cs:14`) → Producer giao được việc Artist/Letterer/Editor và Artist bắt đầu vẽ khi kịch bản còn `Draft`, bỏ qua Gate 1.
+- [ ] [BE] Thêm `AssignmentRules.ProductionNotStartedReason(chapter)`: việc vai Artist / Letterer / Editor (stage Layout, Pencil, Ink, Lettering, Review) chỉ tạo và bắt đầu được khi `Status == InProduction` → 409 "Chương chưa qua Gate 1 (Bắt đầu sản xuất)". Áp vào 4 handler trên và `SubmitChapterManuscriptCommand`.
+- [ ] [BE] Quyết định khi kịch bản bị mở lại (`InProduction` + `ScriptStatus.Draft`): việc đang làm vẫn tiếp tục (không chặn), chỉ cảnh báo; ghi rõ trong comment.
+- [ ] [BE] Test: chương `PreProduction` → tạo việc Artist 409; sau Bắt đầu sản xuất → 201.
+- [ ] [FE] `CreateAssignmentModal` / Kanban: chương `PreProduction` ẩn nút giao việc sản xuất, hiện gợi ý "Chờ Producer bắt đầu sản xuất".
+- **DoD:** không thể có việc sản xuất nào trên chương chưa qua Gate 1. Khi ASG-01 xong, việc Page được tạo ngay trong Gate 1.
 
 ## 3. Changelog
 

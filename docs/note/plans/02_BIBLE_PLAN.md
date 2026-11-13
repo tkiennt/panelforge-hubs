@@ -117,6 +117,22 @@ series-bible/
 - [ ] Cập nhật `SeriesBibleView.test.tsx`, `BibleEntityDetailModal.test.tsx`, `AddEntityModal.test.tsx` (chạy khi user yêu cầu).
 - [ ] `architect-reviewer` rà diff trước khi merge `trungkien`.
 
+### Nối Bible với luồng sản xuất (rà soát 2026-11-13)
+
+#### BIB-09 · Bible Gate sau D11 (kịch bản chữ thuần) — BE + FE · ⏳ chờ câu hỏi mở 23
+- **Hiện trạng:** D11 bỏ `@mention` và người nói từ Bible (`SpeakerCharacterId` luôn null, không còn `ScriptLineBibleLinks` mới) → `CheckChapterBibleGateQuery` luôn trả `IsPassed = true`; `FreezeChapterScriptCommand` cũng không gọi gate. Spec §1.1 (Gate 1 khoá Character Sheet `CanonLocked`) và BR-21 không còn được thực thi ở đâu; Bible thành kho độc lập, không chặn sản xuất. `GetPanelBible` (Artist xem Model Sheet cạnh khung vẽ) cũng không còn dữ liệu liên kết để hiển thị.
+- [ ] Sau khi user chốt câu hỏi 23, làm một trong ba hướng:
+  - **A.** Producer chọn tay danh sách nhân vật/bối cảnh xuất hiện trong chương (`ChapterBibleEntry`) → Gate 1 kiểm các mục đó có bản `CanonLocked` hiệu lực tại chương; Artist desk hiển thị theo danh sách này.
+  - **B.** Tự dò tên/bí danh mục Bible trong chữ kịch bản (không cần `@`) → gợi ý, Producer xác nhận → kiểm như A.
+  - **C.** Bỏ Bible Gate: sửa spec §1.1, Module 1 mục 2–3, BR-21/30, §5.2 máy 1; xoá `CheckChapterBibleGateQuery`, `ScriptLineBibleLinks`, `LinkBibleEntriesCommand`, `ValidateSpeakerAsync`.
+- [ ] Nếu giữ gate (A/B): gắn vào `FreezeChapterScriptCommand` (409 kèm danh sách mục chưa khoá) và hiển thị trên nút Bắt đầu sản xuất / tab Gate 1 (ASG-01).
+- [ ] `CheckChapterBibleGateQuery` ép `ChapterNumber` (decimal) về `int` → chương 10.5 tra như chương 10; đổi `EffectiveRevisionAt` nhận số chương decimal hoặc làm tròn có chủ đích.
+
+#### BIB-10 · Đồng bộ máy trạng thái & quyền duyệt với spec — Docs + BE · ❌
+- [ ] Quyền xác nhận thiết kế: quyết định L7 (§5 mục 3, changelog `79b5077`) ghi **chỉ Editor**; `BibleController.cs:235` lại cho `Writer, Editor` (comment trích spec §5.1). Chốt một phía, sửa code hoặc ghi chú này.
+- [ ] Spec §5.2 máy 1 có `ConceptSubmitted → Draft` và trạng thái `Superseded`; code dùng `ReworkRequired` và đánh dấu supersede bằng event (`MarkSuperseded`), không có giá trị enum `Superseded` → cập nhật spec theo code (hoặc ngược lại).
+- [ ] `AddBibleEntryRevision` cho cả Producer tạo revision chữ; spec chỉ ghi Writer tạo đặc tả → xác nhận có giữ.
+
 ## 5. Quyết định
 
 | # | Câu hỏi | Trạng thái |
@@ -126,6 +142,7 @@ series-bible/
 | 3 | Producer tự Endorse + Lock | ✅ Không: Editor duyệt, Producer khoá, không tự khoá bản mình duyệt |
 | 4 | Detail modal: sheet hay full-screen | ⏳ Đề xuất sheet bên phải (BIB-06) |
 | 5 | Thông tin hiện hành khi có bản nháp trên giai đoạn đã khoá | ⏳ Đề xuất lấy bản Canon (BIB-01) |
+| 6 | Bible Gate khi kịch bản không còn `@Tag` (D11) | ⏳ Câu hỏi mở 23 ở plan tổng (BIB-09) |
 
 ## 6. Changelog
 

@@ -210,10 +210,38 @@
 | 2026-11-13 | D11, SCR-25/26 (làm lại), SCR-27 ⛔ | ✅ | FE `trungkien` `30b975a` | Editor Writer xây lại theo luật đo trên WriterSolo; kịch bản chữ thuần, không liên kết Series Bible. Typecheck/i18n/eslint sạch; test viết, chưa chạy; chưa thử trong app. Câu hỏi 20 |
 | 2026-11-13 | D12, SCR-08 (🟡), SCR-37, SCR-38 (❌) | ✅ | BE `d136057`, `9059e5a`; FE `e98d8ad` | Luồng kịch bản: Writer gửi duyệt ↔ hủy gửi duyệt → Producer bắt đầu sản xuất; Editor góp ý theo dòng (không chặn, không đổi trạng thái); `ChapterStatus.PreProduction` mặc định. Build BE/FE thành công; 86 test BE cần cập nhật trước khi push (SCR-38). Câu hỏi 21 |
 | 2026-11-13 | SCR-12, SCR-15 (thay), SCR-21, SCR-37 | ✅ | BE `a3b9a29`, `5e55c97`; FE `eda8d4f` | Lưu = commit / Gửi duyệt = push (câu hỏi 22): drawer lịch sử (mã băm rút gọn, nhãn ĐÃ GỬI DUYỆT, so với bản đã gửi), Editor đọc bản đã gửi theo Trang → Panel → dòng + tab Thay đổi + cờ góp ý cũ; gỡ stage Script khỏi pipeline và luồng duyệt kịch bản qua Assignment. Build BE/FE, typecheck, i18n:check đạt; chưa chạy test, chưa thử trong app |
+| 2026-11-13 | Rà soát luồng Script → Bible → Production | Lập kế hoạch sửa | — (chỉ tài liệu) | Đối chiếu spec với code BE/FE; bảng §4.1. Thêm SCR-39, ASG-07, BIB-09, BIB-10; bổ sung SCR-01, SCR-03, SCR-11, ASG-01, REL-01, REL-02, REL-04. Câu hỏi mở 23–25 |
+
+### 4.1. Rà soát luồng Script → Series Bible → Production (2026-11-13)
+
+Đọc code, chưa chạy test. Mỗi lỗi chỉ ghi ở **một** task module.
+
+| # | Mức | Lỗi (đã xác nhận trong code) | Task |
+|---|---|---|---|
+| 1 | 🔴 | Kịch bản không còn liên kết Bible (D11) → Bible Gate luôn qua, Gate 1 không kiểm `CanonLocked` (spec §1.1, BR-21) | [BIB-09](plans/02_BIBLE_PLAN.md) · câu hỏi 23 |
+| 2 | 🔴 | Gate 3 không kiểm 100% trang `Approved`: chương 0 việc vẫn `ApproveChapter` được, Snapshot trang chưa vẽ | [REL-02](plans/06_RELEASE_PLAN.md) |
+| 3 | 🔴 | Giao việc / bắt đầu vẽ được khi chương còn `PreProduction` (bỏ qua Gate 1) | [ASG-07](plans/03_ASSIGNMENT_PLAN.md) |
+| 4 | 🔴 | Producer mở lại kịch bản rồi chốt lại không gắn ⚑ Panel (chỉ đường xin mở lại V2.5 có); dò bằng `UpdatedAt` bỏ sót dòng xoá/thêm | [SCR-01](plans/01_SCRIPT_PLAN.md) |
+| 5 | 🔴 | `SCRIPT_NOT_FROZEN` chỉ cảnh báo → duyệt chương khi kịch bản đang sửa | [REL-02](plans/06_RELEASE_PLAN.md) |
+| 6 | 🟠 | Producer sửa được kịch bản (BE "Producer luôn được"; FE `canEditScript` mở khi chưa rõ vai trò) — trái BR-07 | [SCR-11](plans/01_SCRIPT_PLAN.md) · câu hỏi 24 |
+| 7 | 🟠 | Publish chỉ cho Publisher, Reopen cho cả Publisher — trái quyết định 1/11 | [REL-04](plans/06_RELEASE_PLAN.md) |
+| 8 | 🟠 | `ChapterStatus` còn `Locked`, chưa có `HandedOffAndPublished` | [REL-01](plans/06_RELEASE_PLAN.md) |
+| 9 | 🟡 | Hai cơ chế mở lại kịch bản song song (Unfreeze V2.6 và Xin/Duyệt/Từ chối V2.5) | câu hỏi 25 → SCR-09/SCR-10 |
+| 10 | 🟡 | Tài liệu/comment lệch D12 (`InReview` khoá sửa, còn `ChangesRequested`/`Amending`); hai hệ phiên bản `ContentRevision` / `ScriptVersion` | [SCR-39](plans/01_SCRIPT_PLAN.md) |
+| 11 | 🟡 | Quyền Endorse Bible lệch (L7: chỉ Editor; code: Writer + Editor); máy trạng thái Bible lệch spec; gate ép số chương decimal → int | [BIB-09, BIB-10](plans/02_BIBLE_PLAN.md) |
+| 12 | 🟡 | `chapterScriptMachine.ts` code chết còn luật `canFreeze = isBibleGatePassed` | [SCR-03](plans/01_SCRIPT_PLAN.md) |
+
+**Thứ tự đề xuất:** ASG-07 + REL-02 + SCR-01 (BE, độc lập, không chờ quyết định) → REL-04, REL-01 (đã chốt từ 2026-11-12) → SCR-11 sau câu hỏi 24 → BIB-09 sau câu hỏi 23 → SCR-39, BIB-10, SCR-03.
 
 ---
 
 ## 5. CÂU HỎI MỞ CẦN USER QUYẾT ĐỊNH
+
+### Đang chờ (rà soát 2026-11-13)
+
+23. ⏳ **Bible Gate khi kịch bản là chữ thuần (D11):** (A) Producer chọn tay mục Bible xuất hiện trong chương, Gate 1 kiểm `CanonLocked` · (B) tự dò tên mục Bible trong chữ, Producer xác nhận, rồi kiểm như A · (C) bỏ Bible Gate và sửa spec §1.1, Module 1, BR-21/30. Đề xuất **A** (ít code, giữ được Model Sheet cạnh khung vẽ) → BIB-09.
+24. ⏳ **Producer có được sửa kịch bản không?** Spec BR-07 / §5.1: chỉ đọc (403). Code BE/FE và ghi chú SCR-12 đang cho sửa. Đề xuất theo spec (Producer chỉ đọc, sửa qua Writer) → SCR-11.
+25. ⏳ **Giữ luồng Writer xin mở lại kịch bản (V2.5) không?** Spec V2.6 chỉ có Producer *Mở lại* kèm lý do. Đề xuất bỏ `request/approve/reject-script-reopen` và 4 cột `ScriptReopen*`, chỉ giữ thông báo Writer → Producer → SCR-09/SCR-10/SCR-23.
 
 ### Đã chốt (2026-11-12)
 
