@@ -45,21 +45,23 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 ### 2.3. Thứ tự làm và merge
 
-1. **[DB] → [BE]:** migration + domain + handler + endpoint + test, build xanh, merge & push `trungkien` của BE, ghi Hợp đồng API vào task.
+1. **[DB] → [BE]:** migration + domain + handler + endpoint + test, build xanh, merge cục bộ vào `trungkien` của BE, ghi Hợp đồng API vào task. (Chỉ push lên remote khi hoàn thành module lớn hoặc khi user yêu cầu).
 2. **[FE] và [MO] song song** sau khi BE đã có trên `trungkien` (hoặc làm phần UI không gọi API trước, nối API sau).
 3. Mỗi repo merge vào `trungkien` **của chính repo đó**; không đẩy nhánh feature lên remote (`.agents/AGENTS.md` §6).
 4. Đổi hợp đồng API sau khi FE/MO đã dùng: BE ghi rõ thay đổi vào task, đánh `[ ]` lại các sub-task FE/MO bị ảnh hưởng.
 
 ### 2.4. Nhận task để không đụng nhau
 
-1. **Trước khi code**, thêm một dòng vào §2 "Đang làm" của [`TEAM_WORKBOARD.md`](../../tracking/TEAM_WORKBOARD.md) (người/phiên, repo, ID task, nhánh, file chính dự kiến), đổi trạng thái task sang 🔄, rồi commit `docs(tracker): start …` lên `main` của `panelforge-hub` và push ngay để cả nhóm thấy. Workboard là bảng nhận task duy nhất (§5 dưới đây chỉ trỏ về đó). Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
+1. **Trước khi code**, thêm một dòng vào §2 "Đang làm" của [`TEAM_WORKBOARD.md`](../../tracking/TEAM_WORKBOARD.md) (người/phiên, repo, ID task, nhánh, file chính dự kiến), đổi trạng thái task sang 🔄, rồi commit cục bộ `docs(tracker): start …`. Workboard là bảng nhận task duy nhất (§5 dưới đây chỉ trỏ về đó). Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
 2. **Không nhận** task mà cột "File chính" đụng file đang có ở §2 workboard của task khác; chờ hoặc phối hợp với người đang giữ.
-3. **Worktree theo task:** `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường, vd asg-03> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`), tránh dùng lại worktree cũ. Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
-4. **Xong:** merge + push repo code, dọn worktree, đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …` và push hub. Đầu mỗi phiên, `git pull` hub và đọc `TEAM_WORKBOARD.md` để biết người khác đang làm gì.
+3. **Worktree / Sandbox theo số lượng Agent:**
+   - **Khi 1 Agent làm việc đơn lẻ:** **KHÔNG tạo sandbox**, làm việc và commit trực tiếp trong repository chính ở nhánh `trungkien`.
+   - **Khi có từ 2 Agent trở lên chạy song song:** Tạo sandbox riêng cho từng agent qua lệnh: `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`). Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
+4. **Xong sub-task:** Nếu làm trên sandbox worktree thì merge cục bộ vào `trungkien` và dọn worktree; nếu làm trực tiếp 1 agent thì commit rõ ràng vào `trungkien`. Đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …`. **KHÔNG push sau mỗi lần làm; chỉ push remote khi hoàn thành trọn vẹn 1 module lớn hoặc khi user yêu cầu.**
 
 ### 2.5. Sửa file plan an toàn (`docs/` của `panelforge-hub`, chia sẻ qua GitHub)
 
-0. `git -C panelforge-hub pull` trước khi sửa; sửa xong commit `docs(<scope>): …` và `git push origin main` **ngay trong cùng lượt làm việc**. Không để thay đổi tài liệu nằm chưa commit trên máy.
+0. `git -C panelforge-hub pull` trước khi sửa; sửa xong commit cục bộ `docs(<scope>): …`. Không push sau mỗi lần sửa nhỏ; chỉ push khi hoàn thành module lớn hoặc khi user yêu cầu.
 1. Đọc lại file ngay trước khi sửa; chỉ sửa **khối task của mình** và **thêm dòng** vào Changelog/bảng §5. Không viết lại cả file, không sắp xếp lại task của người khác.
 2. Task đã xong không xoá, không di chuyển; giữ làm lịch sử.
 3. Việc mới phát sinh: thêm task mới (ID tiếp theo) vào plan module đúng mảng, kèm tiền tố repo; quyết định cần user chốt thì ghi vào mục "Còn mở" của plan tổng, không tự quyết.

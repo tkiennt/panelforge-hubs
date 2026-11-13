@@ -206,6 +206,7 @@
 | 2026-11-12 | — | Hub là SSOT tài liệu | hub `main`; BE, FE, MO `trungkien` | Spec ở `docs/V2.6/`; gộp bảng "Đang làm" về `TEAM_WORKBOARD.md`; bỏ bản sao spec/workboard/DESIGN_RULES/đặc tả Chương khỏi repo code; quy tắc mọi lần sửa `docs/` phải commit + push hub ngay (plans/README §2.5) |
 | 2026-11-13 | SCR-25..SCR-36 | Lập kế hoạch | hub `b9e9163` | Phase H của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md): luật gõ, ô người nói, nhãn Trang/Panel, thanh loại dòng, Board view, lọc, thống kê mật độ, xuất kịch bản, ảnh tham chiếu Panel. Câu hỏi mở 19 |
 | 2026-11-13 | D7–D10 (SCR) | ✅ Chốt | — (chỉ tài liệu) | User chốt theo khuyến nghị; đóng câu hỏi mở 19. Phase H sẵn sàng (SCR-26+ vẫn cần SCR-04/07/19) |
+| 2026-11-13 | SCR-25 | ✅ Xong | FE `trungkien` | Luật gõ dạng hàm thuần (`flow/grammar/scriptGrammar.ts`) theo bảng H.1 + 19 unit test pass 100% |
 
 ---
 

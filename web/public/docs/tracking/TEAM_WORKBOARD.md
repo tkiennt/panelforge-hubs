@@ -7,7 +7,7 @@
 
 ## 1. Cách cập nhật (bắt buộc với mọi thành viên và AI agent)
 
-1. **Trước khi code:** `git pull` nhánh `main` của `panelforge-hub`, thêm **một dòng** vào bảng §2 "Đang làm". Commit riêng và push ngay để người khác thấy:
+1. **Trước khi code:** `git pull` nhánh `main` của `panelforge-hub`, thêm **một dòng** vào bảng §2 "Đang làm". Commit riêng:
    `docs(tracker): start <việc ngắn gọn>`
 2. **Không nhận việc** đụng vào file đang có trong cột "File chính" của người khác ở §2. Hỏi người đó trước.
 3. **Khi xong (đã merge vào nhánh chính của repo mình làm):** xoá dòng của mình ở §2, thêm **một dòng** lên đầu bảng §3 "Đã xong". Commit riêng vào `panelforge-hub`:
@@ -15,7 +15,7 @@
 4. **Đổi API, DTO, DB hoặc enum** mà repo khác dùng: ghi rõ ở cột "Ảnh hưởng người khác" (endpoint, trường, migration). Không ghi được thì việc chưa xong.
 5. Chỉ **thêm hoặc xoá dòng của chính mình**; không sửa dòng của người khác, không sắp xếp lại bảng. Gặp conflict khi pull thì giữ cả hai dòng.
 6. Làm ở repo nào (BE, FE, MO) cũng cập nhật file này trong `panelforge-hub`, vì đây là nơi duy nhất cả nhóm cùng đọc. Repo code không giữ bản sao workboard.
-7. **AI Agent:** mỗi lần sửa bất kỳ file nào trong `panelforge-hub/docs/` (workboard, plan, spec) thì commit theo `docs(<scope>): …` và `git push origin main` ngay trong cùng lượt làm việc, để cả nhóm thấy thay đổi khi pull.
+7. **Quy tắc Push (AI Agent & Developer):** Tuyệt đối **KHÔNG push sau mỗi lần làm/mỗi prompt**. Mỗi lần sửa file trong `panelforge-hub/docs/` (workboard, plan, spec) hay code repo, chỉ commit cục bộ (`git commit`). **Chỉ push lên remote khi hoàn thành trọn vẹn 1 module lớn hoặc khi người dùng yêu cầu trực tiếp.**
 
 **Cột "Repo":** `BE` = `PanelForge_FA26SE251` · `FE` = `panelforge-fe` · `MO` = `panelforge-mobile`.
 
@@ -33,4 +33,6 @@
 
 | Ngày | Người | Repo | Việc | Commit merge | Ảnh hưởng người khác (API / DB / enum) |
 |---|---|---|---|---|---|
+| 2026-11-13 | trungkien (AI agent) | FE | SCR-25: Luật gõ dạng hàm thuần (scriptGrammar.ts) cho kịch bản Graphic Novel (H.1) + 19 unit test pass 100% | FE (trungkien) | Không đổi API/DB. Thêm `flow/grammar/scriptGrammar.ts` |
+| 2026-11-12 | trungkien (AI agent) | FE | Sửa CI Frontend bị đỏ ở bước lint: format Prettier toàn bộ, sửa lỗi ESLint, chuyển module dùng chung sang `shared/` | FE `b252442` (trungkien) | Không đổi API/DB. FE đổi đường dẫn import: `ReasonForm` → `shared/components/`, `reviewModel` + `scriptReviewModel` → `shared/features/script-review/`, `AutoAssignScriptLinesModal` → `shared/modals/`, `DependencyGraphModal` → `shared/features/pipeline-board/`, `tempBibleCodes` → `shared/utils/`. Nhánh đang mở cần rebase/merge lại vì 172 file đổi định dạng |
 | 2026-11-12 | trungkien | FE | Đưa đặc tả V2.6 vào `docs/` và tạo bảng theo dõi này | — | Không |

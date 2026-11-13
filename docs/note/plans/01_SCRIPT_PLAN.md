@@ -280,9 +280,9 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 
 Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl+1..5` Action/Dialogue/Thought/Narration/SFX · `/` mở menu loại dòng ở đầu dòng trống · `Alt+↑/↓` di chuyển dòng/panel · `@` gợi ý Bible (giữ hiện có). Dán văn bản tự do vẫn đi qua `AiScriptConvertModal`.
 
-#### SCR-25 · Luật gõ dạng hàm thuần (`scriptGrammar.ts`) — FE · ❌
-- [ ] [FE] `flow/grammar/scriptGrammar.ts`: `nextKindOnEnter(kind, isEmpty)`, `nextKindOnTab(kind, dir)`, `slotOf(kind)`; bảng H.1 là dữ liệu, không rải `if` trong keymap.
-- [ ] [FE] Test bảng chuyển (viết, chạy khi user yêu cầu).
+#### SCR-25 · Luật gõ dạng hàm thuần (`scriptGrammar.ts`) — FE · ✅
+- [x] [FE] `flow/grammar/scriptGrammar.ts`: `nextKindOnEnter(kind, isEmpty)`, `nextKindOnTab(kind, dir)`, `slotOf(kind)`; bảng H.1 là dữ liệu, không rải `if` trong keymap.
+- [x] [FE] Test bảng chuyển (viết, chạy khi user yêu cầu).
 - **Phụ thuộc:** không (dùng `ScriptLineKind` tạm ở FE, khớp lại sau SCR-18).
 
 #### SCR-26 · Viết lại keymap theo `scriptGrammar` — FE · ❌
