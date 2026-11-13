@@ -25,7 +25,7 @@
 - [ ] FE tab "Gate 1" trong `ChapterReleaseModal` (REL-03 tạo khung): kết quả Bible gate, chọn Artist theo dải trang, Letterer tuỳ chọn, một nút.
 - [ ] i18n vi/en; test.
 - **DoD:** Producer bấm 1 nút → kịch bản Frozen + Kanban có thẻ Page cho từng Artist. Sau đó làm REL-02 (chặn trang chưa giao ở Gate 3).
-- **Rà soát 2026-11-13:** Gate 1 hiện là `FreezeChapterScriptCommand` (D12), **không giao Page** và **không kiểm Bible Gate** (D11). Bước "kết quả Bible gate" ở FE phụ thuộc câu hỏi mở 23 (plan tổng); `ApproveScriptCommand` của SCR-10 đã được thay bằng `FreezeChapterScriptCommand`.
+- **Rà soát 2026-11-13:** Gate 1 hiện là `FreezeChapterScriptCommand` (D12), **không giao Page** và **không kiểm Bible Gate** (D11). Bước "kết quả Bible gate" ở FE lấy từ `GET /api/chapters/{id}/cast` (`gate.blockers`, [BIB-14](02_BIBLE_PLAN.md)/[BIB-16](02_BIBLE_PLAN.md), Q16); `ApproveScriptCommand` của SCR-10 đã được thay bằng `FreezeChapterScriptCommand`.
 
 #### ASG-02 · Ink ∥ Lettering song song sau Pencil (BR-19) — BE + FE · 🟡 · cũ P1-03
 - [ ] Đọc `SubmitAssignmentCommand.cs` (~200–320) và `StageProgressRules.cs`: hiện chạy tuần tự Ink → Letter → Review.

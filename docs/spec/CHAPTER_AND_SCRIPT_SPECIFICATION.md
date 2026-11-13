@@ -15,8 +15,8 @@ Phân hệ **Chapter (Quản lý Chương)** và **Script (Biên kịch Kịch b
 2. **Script Flow Tinh Gọn (V2.6 Final):** Loại bỏ tầng `Scene` khỏi giao diện soạn thảo, tổ chức kịch bản trực tiếp theo 3 cấp tự nhiên bên dưới. **Quyết định D2 (chốt 2026-11-12):** mỗi Chương có một Scene mặc định ẩn do hệ thống tạo; `scene_id` giữ `NOT NULL` dưới DB (không đổi sang `nullable`) để giữ nguyên lịch sử revision và luồng AI theo Scene.
    - **Page (Trang truyện):** Sắp xếp theo thuật toán `LexoRank`.
    - **Panel (Khung tranh):** Tọa độ BoundingBox `{x, y, w, h}` chuẩn hóa (0..1 trên khung 1200×1800) và `panelIndex`.
-   - **Panel Contents (Nội dung bên trong Panel):** Danh sách có thứ tự gồm 4 thành phần: `ACTION_DIRECTION` (vẽ gì, bắt tag `@Bible`; nhân vật quần chúng tả trực tiếp, không cần Bible), `DIALOGUE/THOUGHT` (thoại/suy nghĩ kèm `speaker_character_id`), `NARRATION` (hộp dẫn chuyện), `SFX` (hiệu ứng âm thanh).
-3. **Cơ chế Tiền kỳ & Gate 1:** Writer gõ `@Tên_Mới` tự động tạo stub entity nháp trong Bible (không chặn mạch viết). Producer bấm 1 nút duy nhất **Approve Script & Start Production** tại Gate 1 để đóng băng kịch bản (`is_script_frozen = true`) và mở bảng Kanban.
+   - **Panel Contents (Nội dung bên trong Panel):** Danh sách có thứ tự gồm 4 thành phần: `ACTION_DIRECTION` (vẽ gì, chữ thuần; nhân vật quần chúng tả trực tiếp, không cần Bible), `DIALOGUE/THOUGHT` (thoại/suy nghĩ kèm tên người nói `speaker_label`), `NARRATION` (hộp dẫn chuyện), `SFX` (hiệu ứng âm thanh).
+3. **Cơ chế Tiền kỳ & Gate 1 (Q16, BR-35):** hệ thống quét tên/bí danh mục Bible trong kịch bản chương thành **Danh sách thực thể chương**; tên người nói mới được phân loại *Tạo Series Bible* hoặc *Quần chúng* (không chặn mạch viết). Producer bấm 1 nút duy nhất **Approve Script & Start Production** tại Gate 1: chặn nếu còn thực thể chưa gắn bản `CanonLocked` hoặc tên chưa phân loại; thành công thì đóng băng kịch bản (`is_script_frozen = true`), khoá `chapter_bible_bindings` và mở bảng Kanban.
 
 ```mermaid
 stateDiagram-v2
@@ -125,7 +125,7 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
    - Thanh công cụ gắn bên phải màn hình cho phép chèn 1-chạm các khối chuẩn Manga:
      - `Trang (# Page)`: Ngắt trang mới.
      - `Khung (Panel)`: Thêm khung hình mới (kèm 1 Scene mặc định ẩn dưới DB theo D2).
-     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn & bắt tag `@Bible`.
+     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường, hệ thống tự nhận diện theo Bible).
      - `Lời thoại (Dialogue / Thought)`: Thoại/suy nghĩ kèm `speaker_character_id`.
      - `Dẫn chuyện (Narration)`: Hộp dẫn chuyện.
      - `Hiệu ứng (SFX)`: Âm thanh truyện tranh (`BÙM!`, `XẸT!`).
