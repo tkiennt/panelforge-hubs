@@ -287,13 +287,13 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - **Phụ thuộc:** không (dùng `ScriptLineKind` tạm ở FE, khớp lại sau SCR-18).
 
 #### SCR-26 · Viết lại keymap theo `scriptGrammar` — FE · ✅
-- [x] [FE] `writeSoloExtensions.ts` + `scriptGrammar.ts`: Keyboard state machine (`Tab`, `Shift+Tab`, `Enter`, `Backspace`), loại bỏ hoàn toàn cú pháp mồi `#`, `!`, `-`, `"`.
-- [x] [FE] Hỗ trợ luân chuyển block context-aware (`Action` → `Dialogue` → `Caption` → `SFX` → `Panel` → `Page`).
+- [x] [FE] `ScriptLineBlockNode.addKeyboardShortcuts` chỉ còn gọi `scriptGrammar` + lệnh chèn; xoá nhánh regex `@Tên: "..."`, `SFX:`/`*…*`, `Caption:` và ký tự mồi `#`/`!`/`-`/`"` — D8.
+- [x] [FE] Thêm phím tắt H.1: `Ctrl+Enter` (Panel mới), `Ctrl+Shift+Enter` (Trang mới), `Ctrl+1..5` (đổi loại dòng); `Backspace` ở đầu dòng rỗng lùi một bậc theo bảng.
 - **Phụ thuộc:** SCR-25, SCR-19.
 
-#### SCR-27 · Ô người nói & Menu phần tử WriteSolo — FE · ✅
-- [x] [FE] Menu phần tử `WriteSoloElementMenu.tsx`: popover danh sách phần tử (`[ ] Blank`, `[ ] Page`, `[ ] Panel`, `[A] Action`, `[C] Character`, `[P] Parens`, `[D] Dialogue`, `[T] Text`, `[!] Note`, `[CC] Caption`, `[O] Outline`, `[S] SFX`) với phím tắt nhanh và phím điều hướng mũi tên.
-- [x] [FE] Luân phiên người nói tự động (ping-pong A → B → A) trong `writeSoloExtensions.ts` qua `getRecentSpeakers()`.
+#### SCR-27 · Ô người nói (speaker slot) cùng dòng thoại — FE · ✅
+- [x] [FE] Dòng Dialogue/Thought có ô người nói cùng dòng, gợi ý từ Bible; luân phiên người nói A→B→A (`getRecentSpeakers`).
+- [x] [FE] `(nghĩ)` / menu sắc thái đổi `kind` → `Thought` (D7).
 - **Phụ thuộc:** SCR-26, SCR-04 (`SpeakerLabel`).
 
 #### SCR-28 · Tiêu đề Trang/Panel: nhãn tự sinh + mô tả riêng — FE · ❌

@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T03:41:03.579Z",
+  "lastSyncedAt": "2026-11-13T04:16:02.230Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-8bd3d540014883268824c2a567d151733869e11e",
+      "timestamp": "2026-11-13T11:15:59+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "8bd3d540014883268824c2a567d151733869e11e",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8bd3d540014883268824c2a567d151733869e11e",
+      "message": "feat(writer): pure WriteSolo keyboard flow (SCR-26, SCR-27)",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-6f4a129f26adf34218d3b2629ef783fee3aaf036",
       "timestamp": "2026-11-13T10:41:01+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "4b7d18e",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/4b7d18e",
       "message": "docs(notes): archive registration form v1.2 scope and project plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-051182e",
-      "timestamp": "2026-11-12T13:10:41+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "051182e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/051182e",
-      "message": "docs(notes): archive merged cf change logs and link shared plan",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
