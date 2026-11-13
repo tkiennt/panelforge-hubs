@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T10:17:33.930Z",
+  "lastSyncedAt": "2026-11-13T10:20:26.063Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-c66386aa23efd13f994d5524eda85d412660888d",
+      "timestamp": "2026-11-13T17:20:24+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "c66386aa23efd13f994d5524eda85d412660888d",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c66386aa23efd13f994d5524eda85d412660888d",
+      "message": "refactor(writer): remove top comments details panel in favor of sidebar",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
       "timestamp": "2026-11-13T17:17:31+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "998ebb931cf0025da36f0665dafa703bd0acc250",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/998ebb931cf0025da36f0665dafa703bd0acc250",
       "message": "feat(writer): redesign script editor as a writing desk like artist desk",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-cc1bee8e4f59cabc90ffa5696d1b224a76c277b3",
-      "timestamp": "2026-11-11T17:41:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "cc1bee8e4f59cabc90ffa5696d1b224a76c277b3",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cc1bee8e4f59cabc90ffa5696d1b224a76c277b3",
-      "message": "Merge branch 'feature/script-review-cr-fe' into feature/script-cr-writer-fe",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
