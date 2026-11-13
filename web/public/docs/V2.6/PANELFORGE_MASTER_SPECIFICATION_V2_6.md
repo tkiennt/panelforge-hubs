@@ -29,6 +29,7 @@
 > | Q12 | **Toàn hệ thống chỉ có một tài khoản Publisher**, phát hành cho mọi Workspace và Series | Module 5 mục 2 & 4, BR-33, §5.1 |
 > | Q13 | Tiền nạp Ví chuyển vào **tài khoản ngân hàng của nền tảng**; doanh thu Workspace tính từ giao dịch mở khóa | Module 5 mục 4, BR-33, §6.1.5 |
 > | Q14 | Ấn bản ngôn ngữ dịch: **Editor duyệt**, **Producer cho phép phát hành** | Module 5 mục 1, BR-12/34, §5.1, §5.2 |
+> | Q15 | **Vòng đời kịch bản riêng `ScriptStatus` (`Draft ↔ InReview → Frozen`)**, không còn là stage pipeline / Assignment. Lưu = commit (phiên bản bất biến, băm SHA-256), Gửi duyệt = push (con trỏ bản đã gửi). Editor đọc bản đã gửi và chỉ góp ý theo dòng; Writer vẫn sửa, lưu và gửi lại khi `InReview`; Producer bấm *Bắt đầu sản xuất* (chương `PreProduction → InProduction`). Chốt 2026-11-13 | Module 1 mục 4, §5.2 |
 
 ---
 
@@ -172,9 +173,14 @@ Hệ thống giải quyết bài toán từ 1 đến $N$ họa sĩ thông qua c�
      - **Bước 1:** Artist tải lên bản vẽ thiết kế nhân vật chính (Model Sheet) $\rightarrow$ Trạng thái chuyển từ `Draft` sang `ConceptSubmitted` (file ảnh được băm SHA-256 lưu vào Cloudflare R2).
      - **Bước 2 (Thẩm định nguyên tác):** Writer kiểm tra thiết kế đúng với mô tả cốt truyện $\rightarrow$ Bấm xác nhận chuyển sang `WriterEndorsed`.
      - **Bước 3 (Khóa chuẩn Canon):** Producer bấm khóa chuẩn $\rightarrow$ Chuyển sang `CanonLocked` 🔒. Cấm hoàn toàn việc sửa đè hay mở khóa (`/unlock` bị loại bỏ).
-  4. **Cổng Chốt Tiền Kỳ 1 Chạm (Gate 1 — Pre-Production Gate):**
-     - Khi kịch bản hoàn tất, hệ thống quét kiểm tra nhất quán: đảm bảo các nhân vật được gắn thẻ `@Tag` trong chương đã được khóa `CanonLocked` (BR-21 & BR-30). Các thực thể quần chúng không bị kiểm tra.
-     - Producer bấm 1 nút duy nhất: **Approve Script & Start Production** (kèm xác nhận phân công Page cho Artist) $\rightarrow$ Kịch bản chuyển sang trạng thái đóng băng chỉ đọc (`is_script_frozen = true`) và mở khóa bảng Kanban sản xuất hình ảnh.
+  4. **Vòng đời kịch bản & Cổng Chốt Tiền Kỳ (Gate 1 — Pre-Production Gate) — Q15:**
+     - Chương mới ở trạng thái `PreProduction`; kịch bản chương có vòng đời riêng `ScriptStatus` (§5.2 máy 5), không phải một stage của pipeline và không đi qua Assignment.
+     - **Lưu = commit:** mỗi lần Writer lưu, hệ thống chụp toàn bộ cây `Trang → Panel → dòng` thành một phiên bản bất biến `ScriptVersion` (số tăng dần, mã băm SHA-256 nội dung; nội dung trùng bản gần nhất thì không tạo bản mới).
+     - **Gửi duyệt = push:** Writer bấm *Gửi duyệt* → `Draft → InReview`; chương ghi con trỏ bản đã gửi (`last_submitted_version_id`) và bản gửi trước đó (`previous_submitted_version_id`). Editor và Producer nhận thông báo.
+     - Editor đọc **đúng bản đã gửi**, góp ý theo dòng (không đổi trạng thái, không bắt buộc trước Gate 1) và xem tab *Thay đổi* (diff từng dòng giữa hai lần gửi). Writer nhận thông báo khi có góp ý.
+     - Trong lúc `InReview` Writer vẫn sửa và lưu (commit) tiếp; Editor chỉ thấy bản mới khi Writer bấm *Gửi duyệt lại*. Writer có thể *Hủy gửi duyệt* (`InReview → Draft`).
+     - Producer bấm **Bắt đầu sản xuất** khi `InReview` → kịch bản `Frozen` (chỉ đọc, `is_script_frozen = true`, lưu `script_content_hash`), chương `PreProduction → InProduction`, Writer nhận thông báo. Hệ thống từ chối nếu Writer đã lưu thay đổi sau lần gửi mà chưa gửi lại (bản chốt sản xuất phải trùng bản Editor đã đọc).
+     - Mở lại kịch bản đã chốt: Producer *Mở lại* kèm lý do (Audit Log) → `Frozen → Draft`; Panel có dòng bị sửa được gắn cờ ảnh hưởng khi chốt lại.
 
 ### MODULE 2: Bàn Vẽ Dựng Khung, Đi Nét & Đặt Chữ Linh Hoạt (CF2)
 * **Actor:** Artist (Chủ đạo — có quyền vẽ và thêm chữ), Letterer (Phụ việc tùy chọn — chỉ có quyền thêm chữ), Producer.
@@ -338,7 +344,7 @@ Hệ thống giải quyết bài toán từ 1 đến $N$ họa sĩ thông qua c�
 | Nạp tiền vào Ví & Mở khóa ấn bản trả phí (VNĐ) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (Reader) |
 | Chọn ngôn ngữ đọc | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (Publisher & Reader) |
 
-### 5.2. Chuẩn Hóa 5 Máy Trạng Thái Cốt Lõi (Unified State Machines)
+### 5.2. Chuẩn Hóa 6 Máy Trạng Thái Cốt Lõi (Unified State Machines)
 
 ```mermaid
 stateDiagram-v2
@@ -371,14 +377,23 @@ stateDiagram-v2
     }
 
     state "4. Chapter Lifecycle & Publisher Handoff (Gate 3)" as S_CHAP {
-        [*] --> PreProduction: Đang viết Script & thiết kế Bible chính
-        PreProduction --> InProduction: Gate 1 (Approve Script & Assign Pages)
+        [*] --> PreProduction: Chương mới (mặc định) — đang viết Script & thiết kế Bible chính
+        PreProduction --> InProduction: Gate 1 — Producer bấm Bắt đầu sản xuất (ScriptStatus InReview → Frozen)
         InProduction --> ChapterApproved: Gate 3 (100% Trang Approved ➔ Tạo Snapshot bất biến, khóa chương)
         ChapterApproved --> InProduction: Producer Reopen kèm lý do Audit
         ChapterApproved --> HandedOffAndPublished: Producer chuyển giao gói cho Publisher & Phát hành ấn bản gốc
     }
 
-    state "5. Ấn bản Ngôn ngữ ChapterEdition (chapter, lang)" as S_EDITION {
+    state "5. Kịch bản chương ScriptStatus (Q15: Lưu = commit, Gửi duyệt = push)" as S_SCRIPT {
+        [*] --> ScriptDraft: Writer viết; mỗi lần Lưu tạo ScriptVersion (SHA-256)
+        ScriptDraft --> ScriptInReview: Writer Gửi duyệt (push bản mới nhất)
+        ScriptInReview --> ScriptInReview: Writer Lưu tiếp / Gửi duyệt lại; Editor góp ý theo dòng
+        ScriptInReview --> ScriptDraft: Writer Hủy gửi duyệt
+        ScriptInReview --> ScriptFrozen: Producer Bắt đầu sản xuất (bản live = bản đã gửi)
+        ScriptFrozen --> ScriptDraft: Producer Mở lại kèm lý do (Audit Log)
+    }
+
+    state "6. Ấn bản Ngôn ngữ ChapterEdition (chapter, lang)" as S_EDITION {
         [*] --> Draft: Ngôn ngữ có trong release_languages
         Draft --> InReview: Artist/Letterer nộp bản dịch (chương đã ChapterApproved, đủ bản dịch)
         InReview --> Draft: Editor khoanh lỗi bản dịch (ChangeRequest lớp Lettering)
@@ -391,6 +406,8 @@ stateDiagram-v2
     }
 ```
 
+> **Ghi chú máy trạng thái Kịch bản (Q15):** tên trong code là `ScriptStatus.Draft / InReview / Frozen` (tiền tố `Script` trong sơ đồ chỉ để không trùng tên với máy 6). Chỉ `Frozen` khoá sửa kịch bản; chương `Approved`/`Published` cũng khoá nội dung. Không còn `ChangesRequested` / `Amending` và không duyệt kịch bản qua Assignment hay stage Script của pipeline.
+>
 > **Ghi chú máy trạng thái Chương:** `ChapterApproved` là trạng thái khóa chương; không tồn tại trạng thái `Locked` riêng (đã gộp, quyết định 2026-11-12). Cấu hình Free/Trả phí và giá VNĐ (BR-33, do Publisher đặt) là thuộc tính của **ấn bản**, không phải trạng thái, nên đổi được ở mọi trạng thái mà không cần Reopen. Bản dịch bóng thoại (BR-34) thuộc nội dung của ấn bản: sửa bản dịch của ấn bản đã `Approved` chỉ cần `Reopen Edition` ngôn ngữ đó, không mở lại chương.
 
 ### 5.3. Luồng Điều Hướng Màn Hình Thống Nhất (Unified Screen Navigation)
