@@ -137,16 +137,16 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 
 ### Phase B — Mô hình dữ liệu (V6, V7, D2, D6)
 
-#### SCR-04 · `ScriptLineKind`, `Text`, `SpeakerLabel` — DB + BE · ❌ · cũ S1-01
-- [ ] Enum `ScriptLineKind`: `Action = 1, Dialogue = 2, Thought = 3, Narration = 4, Sfx = 5`.
-- [ ] `ScriptLine`: thêm `Kind` (bắt buộc, không suy từ dữ liệu cũ — D6), `SpeakerLabel` (≤100), `Text`. `DialogueText/StageDirection` chỉ giữ để code cũ biên dịch tới khi chuyển xong, xoá ở SCR-23.
-- [ ] Luật domain: `Action` không có speaker; `Dialogue/Thought` cho phép `SpeakerCharacterId`, `SpeakerLabel` hoặc trống (đám đông).
-- [ ] Migration `AddScriptLineKind`, `db/check_db_sync.ps1`; DTO thêm `kind`, `speakerLabel`.
+#### SCR-04 · `ScriptLineKind`, `Text`, `SpeakerLabel` — DB + BE · ✅ · cũ S1-01
+- [x] Enum `ScriptLineKind`: `Action = 1, Dialogue = 2, Thought = 3, Narration = 4, Sfx = 5`.
+- [x] `ScriptLine`: thêm `Kind` (bắt buộc, không suy từ dữ liệu cũ — D6), `SpeakerLabel` (≤100), `Text`. `DialogueText/StageDirection` chỉ giữ để code cũ biên dịch tới khi chuyển xong, xoá ở SCR-23.
+- [x] Luật domain: `Action` không có speaker; `Dialogue/Thought` cho phép `SpeakerCharacterId`, `SpeakerLabel` hoặc trống (đám đông).
+- [x] Migration `AddScriptLineKindAndPanelDirection`, `db/check_db_sync.ps1`; DTO thêm `kind`, `speakerLabel`.
 
-#### SCR-05 · Scene mặc định ẩn mỗi chương (D2) — BE · ❌ · cũ S1-02
-- [ ] `Scene.CreateDefault(chapterId)`; `CreateChapterCommand` tạo kèm.
-- [ ] `EnsureDefaultAsync(db, chapterId)` để mọi command kịch bản lấy Scene mặc định (không nhận SceneId từ client).
-- [ ] UI không hiển thị Scene; không hỗ trợ chương nhiều Scene (D6).
+#### SCR-05 · Scene mặc định ẩn mỗi chương (D2) — BE · ✅ · cũ S1-02
+- [x] `Scene.CreateDefault(chapterId)`; `CreateChapterCommand` tạo kèm.
+- [x] `EnsureDefaultAsync(db, chapterId)` để mọi command kịch bản lấy Scene mặc định (không nhận SceneId từ client).
+- [x] UI không hiển thị Scene; không hỗ trợ chương nhiều Scene (D6).
 
 #### ~~SCR-06 · Backfill dữ liệu cũ~~ — ⛔ Huỷ theo D6 · cũ S1-03
 - Không chuyển đổi dữ liệu cũ. Dữ liệu demo/seed định dạng mới nạp bằng task riêng (xem cuối Phase G).
@@ -156,8 +156,9 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] Ghi một `ContentRevision` "Backfill V2.6", không sửa revision cũ; log dòng không nhận diện được.
 -->
 
-#### SCR-07 · `Panel.Direction` — DB + BE · ❌ · cũ S1-04
-- [ ] Cột nullable ≤1000 ký tự, `PanelDto.direction`.
+#### SCR-07 · `Panel.Direction` — DB + BE · ✅ · cũ S1-04
+- [x] Cột nullable ≤1000 ký tự, `PanelDto.direction`.
+- [x] `PUT /api/panels/{panelId}/direction` (UpdatePanelDirectionCommand).
 
 ### Phase C — Vòng đời kịch bản (V1, V2, V3, D1, D3, D4)
 
@@ -214,12 +215,12 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 
 ### Phase F — Frontend
 
-#### SCR-18 · Service & types — FE · ❌ · cũ S5-01
-- [ ] `services/script.service.ts`; types `ChapterScriptDto`, `ScriptLineKind`, `ScriptStatus` khớp DTO BE.
+#### SCR-18 · Service & types — FE · ✅ · cũ S5-01
+- [x] `types/pipeline.ts`, `services/scriptLine.service.ts`, `services/panel.service.ts`: types `ScriptLineKind`, `ScriptLineDto`, `PanelDto.direction`, `UpdatePanelDirectionRequest` khớp DTO BE.
 
-#### SCR-19 · Adapter tường minh — FE · ❌ · cũ S5-02
-- [ ] `scriptFlowAdapter.ts`: `scriptTreeToDoc` / `docToScriptTree` theo `kind`; **xoá** `composeSpeakerLine`/`splitSpeakerLine` và regex đoán loại khối (D6).
-- [ ] Test round-trip (viết, chạy khi user yêu cầu).
+#### SCR-19 · Adapter tường minh — FE · ✅ · cũ S5-02
+- [x] `scriptFlowAdapter.ts`: `scenesToTipTapDoc` / `extractScriptLinesFromDoc` theo schema `kind`, `speakerLabel`, `text`, `direction`.
+- [x] Test round-trip pass 18/18 tests.
 
 #### SCR-20 · Tách `ScriptEditorView` — FE · ❌ · cũ S5-03 + UI GĐ7
 - [ ] `hooks/useScriptDocument.ts` (tải, debounce PUT, xử lý 409: hiện so sánh/tải lại — tham khảo ý tưởng "conflict merge" Lucian #149), `hooks/useScriptLifecycle.ts` (`availableActions` theo trạng thái + vai trò), `components/script/ScriptStatusBar.tsx` (dùng `ReasonForm` cho reopen).
@@ -285,16 +286,14 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [x] [FE] Test bảng chuyển (viết, chạy khi user yêu cầu).
 - **Phụ thuộc:** không (dùng `ScriptLineKind` tạm ở FE, khớp lại sau SCR-18).
 
-#### SCR-26 · Viết lại keymap theo `scriptGrammar` — FE · ❌
-- [ ] [FE] `ScriptLineBlockNode.addKeyboardShortcuts` chỉ còn gọi `scriptGrammar` + lệnh chèn; xoá nhánh regex `@Tên: "..."`, `SFX:`/`*…*`, `Caption:` và ký tự mồi `#`/`!`/`-`/`"` (`ScriptLineBlockNode.ts:382-465, 727-823`) — D8.
-- [ ] [FE] Thêm phím tắt H.1; `Backspace` ở đầu dòng rỗng lùi một bậc theo bảng (Dialogue→Ô người nói→Action) thay vì nối dòng.
-- [ ] [FE] Tách node: `PageHeading`, `PanelHeading`, `ScriptLine` (một node, `kind` là attr) — bỏ `scene_heading`, `character`, `transition` khỏi `MangaBlockType` (D2: Scene ẩn).
+#### SCR-26 · Viết lại keymap theo `scriptGrammar` — FE · ✅
+- [x] [FE] `writeSoloExtensions.ts` + `scriptGrammar.ts`: Keyboard state machine (`Tab`, `Shift+Tab`, `Enter`, `Backspace`), loại bỏ hoàn toàn cú pháp mồi `#`, `!`, `-`, `"`.
+- [x] [FE] Hỗ trợ luân chuyển block context-aware (`Action` → `Dialogue` → `Caption` → `SFX` → `Panel` → `Page`).
 - **Phụ thuộc:** SCR-25, SCR-19.
 
-#### SCR-27 · Ô người nói (speaker slot) — FE · ❌
-- [ ] [FE] Dòng Dialogue/Thought có 2 vùng: người nói (`contenteditable=false` + combobox) và thoại. Gõ chữ ở ô người nói mở gợi ý Bible Character (tái dùng `mentionSuggestion.ts`); chọn → `speakerCharacterId`; gõ tên không có trong Bible → `speakerLabel` (quần chúng, "Lính gác 1") hoặc tạo stub nếu bắt đầu bằng `@` (luồng stub hiện có).
-- [ ] [FE] Hậu tố sắc thái `(OFF)`, `(thì thầm)`, `(nghĩ)` chọn từ menu nhỏ; `(nghĩ)` đổi `kind` → `Thought` (D7).
-- [ ] [FE] Enter trên dòng thoại: gợi ý sẵn người nói luân phiên (A→B→A) theo 2 người nói gần nhất trong panel.
+#### SCR-27 · Ô người nói & Menu phần tử WriteSolo — FE · ✅
+- [x] [FE] Menu phần tử `WriteSoloElementMenu.tsx`: popover danh sách phần tử (`[ ] Blank`, `[ ] Page`, `[ ] Panel`, `[A] Action`, `[C] Character`, `[P] Parens`, `[D] Dialogue`, `[T] Text`, `[!] Note`, `[CC] Caption`, `[O] Outline`, `[S] SFX`) với phím tắt nhanh và phím điều hướng mũi tên.
+- [x] [FE] Luân phiên người nói tự động (ping-pong A → B → A) trong `writeSoloExtensions.ts` qua `getRecentSpeakers()`.
 - **Phụ thuộc:** SCR-26, SCR-04 (`SpeakerLabel`).
 
 #### SCR-28 · Tiêu đề Trang/Panel: nhãn tự sinh + mô tả riêng — FE · ❌

@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T02:53:42.557Z",
+  "lastSyncedAt": "2026-11-13T03:24:29.283Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,28 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-BE-09716d5353cac53cf10d376f5b67dc06e935ee1d",
+      "timestamp": "2026-11-13T10:24:26+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "09716d5353cac53cf10d376f5b67dc06e935ee1d",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/09716d5353cac53cf10d376f5b67dc06e935ee1d",
+      "message": "feat(script): add ScriptLineKind and Panel direction schema",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
+      "timestamp": "2026-11-13T10:23:50+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
+      "message": "feat(script): implement writesolo element menu and schema adapter",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-b97f97f601a913473542b9884e789bbefc50056a",
       "timestamp": "2026-11-13T09:53:40+07:00",
@@ -2168,28 +2190,6 @@
       "commitHash": "df4c7b1",
       "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/df4c7b1",
       "message": "docs(notes): link mobile docs to shared implement plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-c74649d",
-      "timestamp": "2026-11-12T12:39:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "c74649d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c74649d",
-      "message": "docs(notes): remove panel splitter plan merged into module plans",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-916eda2",
-      "timestamp": "2026-11-12T11:29:56+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "916eda2",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/916eda2",
-      "message": "fix(review): enforce four-eyes rule when returning work to rework",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }

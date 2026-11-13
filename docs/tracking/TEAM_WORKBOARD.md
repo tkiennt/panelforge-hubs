@@ -25,7 +25,6 @@
 
 | Người | Repo | Việc | Spec (BR / Module / Q) | Nhánh | File chính | Bắt đầu |
 |---|---|---|---|---|---|---|
-| trungkien (AI agent) | BE + FE | Triển khai Phase B (SCR-04 ScriptLineKind, SCR-05 Scene mặc định, SCR-07 Panel.Direction) và Phase F/H kịch bản | Module 4, BR-11, D1-D10 | `trungkien` | BE `ScriptLine.cs`, `Panel.cs`, `Scene.cs`; FE `scriptFlowAdapter.ts`, `ScreenplayFlowEditor.tsx` | 2026-11-13 |
 | DontPassAway | BE + FE | Series Bible: refactor màn hình, quyền thẩm định theo §5.1 (Writer/Editor endorse, Producer khoá, Admin không khoá), khoá Canon cho Nhân vật/Bối cảnh/Đạo cụ | Module 1, §5.1, §5.2, BR-01, BR-15 | `feature/series-bible-spec-v26` | `src/shared/features/series-bible/*`, `roles/editor/views/BibleReviewView.tsx`; BE `BibleController.cs` | 2026-11-12 |
 
 ---
@@ -34,6 +33,7 @@
 
 | Ngày | Người | Repo | Việc | Commit merge | Ảnh hưởng người khác (API / DB / enum) |
 |---|---|---|---|---|---|
+| 2026-11-13 | trungkien (AI agent) | BE + FE | Hoàn thành Phase B (SCR-04, SCR-05, SCR-07) & Phase F/H (SCR-18, SCR-19, SCR-25, SCR-26, SCR-27): ScriptLineKind, Panel.Direction, WriteSolo flow & Element Menu | BE `09716d5`, FE `970c052` | DB migration `AddScriptLineKindAndPanelDirection`; BE thêm `ScriptLineKind`, `text`, `speaker_label` vào `script_lines`, `direction` vào `panels`, `PUT /api/panels/{id}/direction`; FE types, adapter, WriteSolo workspace & element menu |
 | 2026-11-13 | trungkien (AI agent) | FE | SCR-25: Luật gõ dạng hàm thuần (scriptGrammar.ts) cho kịch bản Graphic Novel (H.1) + 19 unit test pass 100% | FE (trungkien) | Không đổi API/DB. Thêm `flow/grammar/scriptGrammar.ts` |
 | 2026-11-12 | trungkien (AI agent) | FE | Sửa CI Frontend bị đỏ ở bước lint: format Prettier toàn bộ, sửa lỗi ESLint, chuyển module dùng chung sang `shared/` | FE `b252442` (trungkien) | Không đổi API/DB. FE đổi đường dẫn import: `ReasonForm` → `shared/components/`, `reviewModel` + `scriptReviewModel` → `shared/features/script-review/`, `AutoAssignScriptLinesModal` → `shared/modals/`, `DependencyGraphModal` → `shared/features/pipeline-board/`, `tempBibleCodes` → `shared/utils/`. Nhánh đang mở cần rebase/merge lại vì 172 file đổi định dạng |
 | 2026-11-12 | trungkien | FE | Đưa đặc tả V2.6 vào `docs/` và tạo bảng theo dõi này | — | Không |
