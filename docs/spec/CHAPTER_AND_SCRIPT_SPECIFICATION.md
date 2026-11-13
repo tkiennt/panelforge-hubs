@@ -16,7 +16,7 @@ Phân hệ **Chapter (Quản lý Chương)** và **Script (Biên kịch Kịch b
    - **Page (Trang truyện):** Sắp xếp theo thuật toán `LexoRank`.
    - **Panel (Khung tranh):** Tọa độ BoundingBox `{x, y, w, h}` chuẩn hóa (0..1 trên khung 1200×1800) và `panelIndex`.
    - **Panel Contents (Nội dung bên trong Panel):** Danh sách có thứ tự gồm 4 thành phần: `ACTION_DIRECTION` (vẽ gì, chữ thuần; nhân vật quần chúng tả trực tiếp, không cần Bible), `DIALOGUE/THOUGHT` (thoại/suy nghĩ kèm tên người nói `speaker_label`), `NARRATION` (hộp dẫn chuyện), `SFX` (hiệu ứng âm thanh).
-3. **Cơ chế Tiền kỳ & Gate 1 (Q16, BR-35):** hệ thống quét tên/bí danh mục Bible trong kịch bản chương thành **Danh sách thực thể chương**; tên người nói mới được phân loại *Tạo Series Bible* hoặc *Quần chúng* (không chặn mạch viết). Producer bấm 1 nút duy nhất **Approve Script & Start Production** tại Gate 1: chặn nếu còn thực thể chưa gắn bản `CanonLocked` hoặc tên chưa phân loại; thành công thì đóng băng kịch bản (`is_script_frozen = true`), khoá `chapter_bible_bindings` và mở bảng Kanban.
+3. **Cơ chế Tiền kỳ & Gate 1 (Q16, BR-35):** tên người nói tự khớp tên/bí danh mục Bible, chưa có thì hệ thống tự tạo mục nháp (Writer gắn cờ *Quần chúng* nếu không cần); nhân vật trong lời dẫn được Writer bôi đen để tham chiếu. Tất cả lập thành **Danh sách thực thể chương** (không chặn mạch viết). Producer bấm 1 nút duy nhất **Approve Script & Start Production** tại Gate 1: chặn nếu còn thực thể (không Quần chúng) chưa gắn bản `CanonLocked`; thành công thì đóng băng kịch bản (`is_script_frozen = true`), khoá `chapter_bible_bindings` và mở bảng Kanban.
 
 ```mermaid
 stateDiagram-v2
@@ -125,7 +125,7 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
    - Thanh công cụ gắn bên phải màn hình cho phép chèn 1-chạm các khối chuẩn Manga:
      - `Trang (# Page)`: Ngắt trang mới.
      - `Khung (Panel)`: Thêm khung hình mới (kèm 1 Scene mặc định ẩn dưới DB theo D2).
-     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường, hệ thống tự nhận diện theo Bible).
+     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường; bôi đen để tham chiếu tới Series Bible).
      - `Lời thoại (Dialogue / Thought)`: Thoại/suy nghĩ kèm `speaker_character_id`.
      - `Dẫn chuyện (Narration)`: Hộp dẫn chuyện.
      - `Hiệu ứng (SFX)`: Âm thanh truyện tranh (`BÙM!`, `XẸT!`).

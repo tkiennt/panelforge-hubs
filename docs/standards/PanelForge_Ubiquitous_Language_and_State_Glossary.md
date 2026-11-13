@@ -50,7 +50,7 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | **Chapter** | Series | Một chương truyện (gồm cờ `IsScriptFrozen`, `ChapterStatus` và tập hợp `Page`). |
 | **ChapterEdition** | Chapter × Lang | Ấn bản theo từng ngôn ngữ (`original_language` / `release_languages`) với trạng thái xuất bản và giá VNĐ riêng (Q9, Q10). |
 | **Scene (Ẩn dưới DB)** | Chapter | Một Scene mặc định ẩn do hệ thống tạo cho mỗi Chapter (`scene_id` NOT NULL dưới DB theo D2); không hiển thị trên UI kịch bản và đã bỏ `ChapterScript` (D5). |
-| **PanelContent** | Panel | Đơn vị nội dung trong Panel (`ACTION_DIRECTION`, `DIALOGUE/THOUGHT`, `NARRATION`, `SFX`), chữ thuần; thoại ghi tên người nói `speaker_label`. Liên kết Bible ở cấp chương qua Danh sách thực thể chương (Q16). |
+| **PanelContent** | Panel | Đơn vị nội dung trong Panel (`ACTION_DIRECTION`, `DIALOGUE/THOUGHT`, `NARRATION`, `SFX`), chữ thuần; thoại ghi tên người nói `speaker_label`. Liên kết Bible: người nói tự khớp/tự tạo, lời dẫn do Writer bôi đen tham chiếu; gom ở Danh sách thực thể chương (Q16). |
 | **Page** | Chapter | Một trang truyện vật lý trong chương; chứa một hoặc nhiều khung tranh (Panel). |
 | **Panel** | Page | Một khung tranh; đơn vị cơ sở để giao việc, kiểm tra chất lượng và cô lập sửa chữa. |
 | **Assignment** | Chapter / Panel | Thẻ phân công công việc cụ thể cho một thành viên ở một công đoạn (PipelineStage). |
