@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T07:29:05.258Z",
+  "lastSyncedAt": "2026-11-13T09:34:46.317Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,204 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-42823b7c5784b52f2f2953a477efc7baaf0846cf",
+      "timestamp": "2026-11-11T23:59:55+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "42823b7c5784b52f2f2953a477efc7baaf0846cf",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/42823b7c5784b52f2f2953a477efc7baaf0846cf",
+      "message": "fix(editor): merge editor screen polish and consistency check changes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-dd6d409f3769067ec1785d95ba61ec42be0569fe",
+      "timestamp": "2026-11-12T00:10:27+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "dd6d409f3769067ec1785d95ba61ec42be0569fe",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/dd6d409f3769067ec1785d95ba61ec42be0569fe",
+      "message": "feat(editor): add bible design review screen for editors",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2e5d61b6de9323371ba48098a44433cac8968e9f",
+      "timestamp": "2026-11-12T00:11:31+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "2e5d61b6de9323371ba48098a44433cac8968e9f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2e5d61b6de9323371ba48098a44433cac8968e9f",
+      "message": "feat(writer): simplify script typing and align writer desk with system",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-da4bd820563f7608934893fe798744372aa8a5ea",
+      "timestamp": "2026-11-12T00:11:40+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "da4bd820563f7608934893fe798744372aa8a5ea",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/da4bd820563f7608934893fe798744372aa8a5ea",
+      "message": "feat(writer): merge simpler script typing and system-aligned writer desk",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-a5bb5d41e6c83de77458e7a139a7235b4a2962be",
+      "timestamp": "2026-11-12T02:17:48+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "a5bb5d41e6c83de77458e7a139a7235b4a2962be",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a5bb5d41e6c83de77458e7a139a7235b4a2962be",
+      "message": "feat(editor): merge bible design review screen",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-7068dc0b8438a784557853171106b3b22868b373",
+      "timestamp": "2026-11-12T07:39:18+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "7068dc0b8438a784557853171106b3b22868b373",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7068dc0b8438a784557853171106b3b22868b373",
+      "message": "feat(payments): add producer payments view and publisher series catalog",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2e96424e008011cacb7be46163a5628999971962",
+      "timestamp": "2026-11-12T07:46:56+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "2e96424e008011cacb7be46163a5628999971962",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2e96424e008011cacb7be46163a5628999971962",
+      "message": "fix(editor): show bible concept image and past redraw requests",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-da2bde8dd23d91766fe141aab055df4e60512b5d",
+      "timestamp": "2026-11-12T07:47:34+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "da2bde8dd23d91766fe141aab055df4e60512b5d",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/da2bde8dd23d91766fe141aab055df4e60512b5d",
+      "message": "feat(writer): lay out the script editor as a comic full script",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
+      "timestamp": "2026-11-12T07:47:42+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
+      "message": "feat(writer): merge comic full script layout for the writer desk",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-50fcd8ac162f25412c267b018a206dd163b63c97",
+      "timestamp": "2026-11-12T07:47:58+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "50fcd8ac162f25412c267b018a206dd163b63c97",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/50fcd8ac162f25412c267b018a206dd163b63c97",
+      "message": "fix(editor): merge bible review image and history fixes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-b892f5f75c58f047ad1d3240c272c4240ec89c80",
+      "timestamp": "2026-11-12T07:49:01+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "b892f5f75c58f047ad1d3240c272c4240ec89c80",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b892f5f75c58f047ad1d3240c272c4240ec89c80",
+      "message": "Merge branch 'trungkien' of https://github.com/tkiennt/panelforge-fe into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-35264e63233df884fcc15f00f43d825b2a85d1c8",
+      "timestamp": "2026-11-12T11:29:57+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "35264e63233df884fcc15f00f43d825b2a85d1c8",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/35264e63233df884fcc15f00f43d825b2a85d1c8",
+      "message": "fix(writer): require reason before producer unfreezes script",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-d5521da59665d82278d467622f47fb7b5933965f",
+      "timestamp": "2026-11-12T11:29:57+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "d5521da59665d82278d467622f47fb7b5933965f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d5521da59665d82278d467622f47fb7b5933965f",
+      "message": "fix(artist): grant letter:write permission to artist role",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-4cc89c7fe1e73637ec02e4fa4da55fa89727f1c2",
+      "timestamp": "2026-11-12T11:35:28+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "4cc89c7fe1e73637ec02e4fa4da55fa89727f1c2",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4cc89c7fe1e73637ec02e4fa4da55fa89727f1c2",
+      "message": "fix(writer): merge spec v2.6 p0 unfreeze reason and artist lettering",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-727ce363ada4d6a6b9e9fa72cc93eed893aeb912",
+      "timestamp": "2026-11-12T11:39:36+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "727ce363ada4d6a6b9e9fa72cc93eed893aeb912",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/727ce363ada4d6a6b9e9fa72cc93eed893aeb912",
+      "message": "refactor(config): merge .agent skills into .agents folder",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-f12297242d41c711a9b68670b79af2b3fb2f9323",
+      "timestamp": "2026-11-12T12:07:09+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "f12297242d41c711a9b68670b79af2b3fb2f9323",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f12297242d41c711a9b68670b79af2b3fb2f9323",
+      "message": "feat(preview): add review handoff modal and update preview links flow",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-9b4577b9d92998112d4f639819a2ca34264b861e",
+      "timestamp": "2026-11-12T12:39:31+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "9b4577b9d92998112d4f639819a2ca34264b861e",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9b4577b9d92998112d4f639819a2ca34264b861e",
+      "message": "docs(convention): track implement plans in workspace module plans",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-726fd812936d0caedb46629165d6a0523a592204",
+      "timestamp": "2026-11-13T16:34:36+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "726fd812936d0caedb46629165d6a0523a592204",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/726fd812936d0caedb46629165d6a0523a592204",
+      "message": "fix(writer): require manual colon to finish character and open dialogue",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-3204cb716a5886e48c94c89393b59a60398efad6",
       "timestamp": "2026-11-12T12:40:52+07:00",
@@ -1992,204 +2190,6 @@
       "commitHash": "b097da12a26c1eae8845e7b26b1fa3fab516d7b3",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b097da12a26c1eae8845e7b26b1fa3fab516d7b3",
       "message": "feat(writer): merge change request panel for script rework loop",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-e09447dce389bc15e23fdee4a10e2e6d89889f3c",
-      "timestamp": "2026-11-11T18:11:53+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "e09447dce389bc15e23fdee4a10e2e6d89889f3c",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e09447dce389bc15e23fdee4a10e2e6d89889f3c",
-      "message": "feat(writer): merge script editor redesign and structure fixes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-6580b3b35d004387f55c4efe6f7e115518a55132",
-      "timestamp": "2026-11-11T18:31:34+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "6580b3b35d004387f55c4efe6f7e115518a55132",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6580b3b35d004387f55c4efe6f7e115518a55132",
-      "message": "refactor(editor): rebuild artwork review on shared review layout",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-e37fd0f6c545c23caec42f779aca9839c73976e3",
-      "timestamp": "2026-11-11T18:32:13+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "e37fd0f6c545c23caec42f779aca9839c73976e3",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e37fd0f6c545c23caec42f779aca9839c73976e3",
-      "message": "feat(writer): save script structure in one request and link speakers",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-281a534ee42496fe9555e4325ad9b35d3e829b75",
-      "timestamp": "2026-11-11T18:32:47+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "281a534ee42496fe9555e4325ad9b35d3e829b75",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/281a534ee42496fe9555e4325ad9b35d3e829b75",
-      "message": "refactor(editor): merge artwork review on shared review layout",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-72742be556de377ef18f784e9d79b3f55db8f417",
-      "timestamp": "2026-11-11T18:33:28+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "72742be556de377ef18f784e9d79b3f55db8f417",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/72742be556de377ef18f784e9d79b3f55db8f417",
-      "message": "feat(writer): merge batch structure save and speaker linking",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-cf7af36da0b3cc2b4254cc13b5d3720dd4bff32c",
-      "timestamp": "2026-11-11T18:33:50+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "cf7af36da0b3cc2b4254cc13b5d3720dd4bff32c",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cf7af36da0b3cc2b4254cc13b5d3720dd4bff32c",
-      "message": "chore(writer): sync trungkien before pushing script structure work",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-a9a745d23d9cfdf725ca9b43dd225c6480c1331a",
-      "timestamp": "2026-11-11T18:54:45+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "a9a745d23d9cfdf725ca9b43dd225c6480c1331a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a9a745d23d9cfdf725ca9b43dd225c6480c1331a",
-      "message": "fix(editor): polish entry flow, desk and review screens",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-e14e1f9f4c6890bee777349994b3fa53c77b7bc7",
-      "timestamp": "2026-11-11T23:00:01+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "e14e1f9f4c6890bee777349994b3fa53c77b7bc7",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e14e1f9f4c6890bee777349994b3fa53c77b7bc7",
-      "message": "style(ui): raise app shell badge and profile text to 12px minimum",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-38e97d4eb138addf36068c40d018cde340712191",
-      "timestamp": "2026-11-11T23:59:26+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "38e97d4eb138addf36068c40d018cde340712191",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/38e97d4eb138addf36068c40d018cde340712191",
-      "message": "feat(editor): auto-run script consistency check on open review",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-42823b7c5784b52f2f2953a477efc7baaf0846cf",
-      "timestamp": "2026-11-11T23:59:55+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "42823b7c5784b52f2f2953a477efc7baaf0846cf",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/42823b7c5784b52f2f2953a477efc7baaf0846cf",
-      "message": "fix(editor): merge editor screen polish and consistency check changes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-dd6d409f3769067ec1785d95ba61ec42be0569fe",
-      "timestamp": "2026-11-12T00:10:27+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "dd6d409f3769067ec1785d95ba61ec42be0569fe",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/dd6d409f3769067ec1785d95ba61ec42be0569fe",
-      "message": "feat(editor): add bible design review screen for editors",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-2e5d61b6de9323371ba48098a44433cac8968e9f",
-      "timestamp": "2026-11-12T00:11:31+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "2e5d61b6de9323371ba48098a44433cac8968e9f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2e5d61b6de9323371ba48098a44433cac8968e9f",
-      "message": "feat(writer): simplify script typing and align writer desk with system",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-da4bd820563f7608934893fe798744372aa8a5ea",
-      "timestamp": "2026-11-12T00:11:40+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "da4bd820563f7608934893fe798744372aa8a5ea",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/da4bd820563f7608934893fe798744372aa8a5ea",
-      "message": "feat(writer): merge simpler script typing and system-aligned writer desk",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-a5bb5d41e6c83de77458e7a139a7235b4a2962be",
-      "timestamp": "2026-11-12T02:17:48+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "a5bb5d41e6c83de77458e7a139a7235b4a2962be",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a5bb5d41e6c83de77458e7a139a7235b4a2962be",
-      "message": "feat(editor): merge bible design review screen",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7068dc0b8438a784557853171106b3b22868b373",
-      "timestamp": "2026-11-12T07:39:18+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "7068dc0b8438a784557853171106b3b22868b373",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7068dc0b8438a784557853171106b3b22868b373",
-      "message": "feat(payments): add producer payments view and publisher series catalog",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-2e96424e008011cacb7be46163a5628999971962",
-      "timestamp": "2026-11-12T07:46:56+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "2e96424e008011cacb7be46163a5628999971962",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2e96424e008011cacb7be46163a5628999971962",
-      "message": "fix(editor): show bible concept image and past redraw requests",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-da2bde8dd23d91766fe141aab055df4e60512b5d",
-      "timestamp": "2026-11-12T07:47:34+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "da2bde8dd23d91766fe141aab055df4e60512b5d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/da2bde8dd23d91766fe141aab055df4e60512b5d",
-      "message": "feat(writer): lay out the script editor as a comic full script",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
-      "timestamp": "2026-11-12T07:47:42+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/00a7406fd7d0d8aa85fddd3f25b0832df1ffdb08",
-      "message": "feat(writer): merge comic full script layout for the writer desk",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
