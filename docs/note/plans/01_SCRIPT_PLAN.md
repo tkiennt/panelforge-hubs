@@ -193,10 +193,11 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] Producer chỉ sửa khi chưa có Writer (BR-07/23); xác minh 403 khi Producer sửa thoại (plan tổng M1-04 🔍).
 - [ ] Test ma trận vai trò × trạng thái.
 
-#### SCR-12 · Gỡ stage Script khỏi pipeline (D1) — BE + DB · ❌ · cũ S2-05
-- [ ] `CreateSeriesCommand` / `MasterDataSeeder` / `PipelineTemplate`: bỏ stage `script` cho Series mới.
-- [ ] Không migrate Assignment stage Script cũ (D6). Code không còn tạo/đọc Assignment Script; Producer chỉ định Writer qua `Chapter.WriterUserId` (thêm vào form tạo/sửa chương).
-- [ ] Rà `SubmitAssignmentCommand`, `GetEditorReviewQueueQuery:217`, `StageProgressRules` bỏ nhánh script; query mới `GetScriptReviewQueueQuery`.
+#### SCR-12 · Gỡ stage Script khỏi pipeline (D1) — BE + DB · 🟡 · cũ S2-05
+- [x] `CreateSeriesCommand` / `MasterDataSeeder`: bỏ stage `script` cho Series mới (BE `5e55c97`). Template đã seed trong DB cũ giữ nguyên (D6).
+- [x] `GetEditorReviewQueueQuery` bỏ Assignment stage `script` và slug `script` khỏi Gate 1. FE gỡ ngăn yêu cầu sửa theo Assignment và chặn "Writer được giao" ở `ScriptEditorView` (FE `eda8d4f`).
+- [ ] ~~`Chapter.WriterUserId`~~ — không cần: studio chỉ có một Writer (user chốt khi bỏ mục 4).
+- [ ] Rà `SubmitAssignmentCommand`, `StageProgressRules` bỏ nhánh script; `PipelineDefinition.CreateDefaultMangaPipeline` (đã `[Obsolete]`) còn stage Script.
 
 ### Phase D — Lưu cả tài liệu & lịch sử cấp chương (V9, V10)
 
