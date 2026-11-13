@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T10:20:26.063Z",
+  "lastSyncedAt": "2026-11-13T10:30:04.291Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-ea5670d16b81f480ad5df754684e5b2808ee846a",
+      "timestamp": "2026-11-13T17:30:02+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "ea5670d16b81f480ad5df754684e5b2808ee846a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ea5670d16b81f480ad5df754684e5b2808ee846a",
+      "message": "feat(writer): add right-side review panel matching editor view",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-c66386aa23efd13f994d5524eda85d412660888d",
       "timestamp": "2026-11-13T17:20:24+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "5bbe27d7f17ea89083df5831592692815ed6725f",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5bbe27d7f17ea89083df5831592692815ed6725f",
       "message": "feat(editor): rebuild script review with line notes as change requests",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-998ebb931cf0025da36f0665dafa703bd0acc250",
-      "timestamp": "2026-11-11T13:06:21+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "998ebb931cf0025da36f0665dafa703bd0acc250",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/998ebb931cf0025da36f0665dafa703bd0acc250",
-      "message": "feat(writer): redesign script editor as a writing desk like artist desk",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
