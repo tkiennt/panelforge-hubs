@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-13T03:24:29.283Z",
+  "lastSyncedAt": "2026-11-13T03:41:03.579Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-6f4a129f26adf34218d3b2629ef783fee3aaf036",
+      "timestamp": "2026-11-13T10:41:01+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "6f4a129f26adf34218d3b2629ef783fee3aaf036",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6f4a129f26adf34218d3b2629ef783fee3aaf036",
+      "message": "fix(test): mock getChangeRequests in ScriptEditorView tests",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-09716d5353cac53cf10d376f5b67dc06e935ee1d",
       "timestamp": "2026-11-13T10:24:26+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "051182e",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/051182e",
       "message": "docs(notes): archive merged cf change logs and link shared plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-df4c7b1",
-      "timestamp": "2026-11-12T13:10:39+07:00",
-      "repo": "MOBILE",
-      "author": "trung kien",
-      "commitHash": "df4c7b1",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/df4c7b1",
-      "message": "docs(notes): link mobile docs to shared implement plan",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
