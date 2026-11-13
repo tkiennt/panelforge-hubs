@@ -129,7 +129,7 @@ series-bible/
 - [ ] Test: trùng bí danh 409, supersede giữ biến thể, nhiều biến thể cùng `CanonLocked`.
 
 #### BIB-11 · Bản đồ thực thể chương, tham chiếu bôi đen & cờ Quần chúng — DB + BE · ❌ · Q16
-- [ ] [DB] `chapter_bible_bindings(chapter_id FK chapters ON DELETE CASCADE, bible_entry_id FK bible_entries ON DELETE RESTRICT, bound_revision_id FK bible_entry_revisions NULL, source, bound_by, bound_at, PK(chapter_id, bible_entry_id))`.
+- [ ] [DB] `chapter_bible_bindings(chapter_id FK chapters ON DELETE CASCADE, bible_entry_id FK bible_entries ON DELETE RESTRICT, bound_revision_id FK bible_entry_revisions NULL, source, variant_chosen_by_writer BOOLEAN, bound_by, bound_at, PK(chapter_id, bible_entry_id))`.
   - `source`: `Speaker` (người nói tự khớp hoặc tự tạo) | `Highlight` (Writer bôi đen). Một mục có cả hai nguồn thì giữ `Speaker`.
   - **Khác bản DDL gốc:** `bound_revision_id` **cho phép NULL** trước Gate 1, vì mục tự tạo/bôi đen còn `Draft`, chưa có bản `CanonLocked` để gắn. Gate 1 bắt buộc NOT NULL và `CanonLocked` cho mọi mục không Quần chúng.
   - Binding được **tính lại từ kịch bản** mỗi lần lưu (người nói + tham chiếu bôi đen): thêm dòng cho mục mới xuất hiện, xoá dòng cho mục không còn được nhắc; giữ `bound_revision_id` đã chọn của dòng còn lại.
@@ -149,9 +149,9 @@ series-bible/
 - [ ] Test: khớp bí danh, `Minh (nghĩ)`, tên có dấu viết hoa khác nhau, tự tạo một lần cho nhiều dòng cùng tên, dọn mục thừa, tham chiếu bôi đen bị mất khi sửa chữ.
 
 #### BIB-13 · Lệnh chỉnh Danh sách thực thể chương — BE · ❌ · Q16
-- [ ] [BE] Quyền (Q17): lệnh bôi đen (`AddHighlightReference`, `CreateEntryFromHighlight`, `RemoveHighlightReference`) **chỉ Writer** — Producer 403 (BR-07); `SetCrowd` cho Writer và Producer; vai trò khác 403. Kịch bản `Frozen` → 409.
-- [ ] Lệnh: `AddHighlightReference(lineId, start, length, entryId)` (mục Nhân vật/Địa điểm/Đạo cụ cùng Series), `CreateEntryFromHighlight(lineId, start, length, name, category)` (tạo mục `Draft` + tham chiếu), `RemoveHighlightReference`, `SetCrowd(entryId, bool)`. Không có lệnh gắn tay hay chọn bản: gắn mục vào chương và chọn bản là tự động (Q16).
-- [ ] Khi Producer khoá Canon một mục → tự điền `bound_revision_id` cho mọi chương chưa `Frozen` đang có mục đó (theo quy tắc tự gắn). Đổi biến thể theo chương: chờ câu hỏi mở 26 ở plan tổng.
+- [ ] [BE] Quyền (Q17): lệnh bôi đen (`AddHighlightReference`, `CreateEntryFromHighlight`, `RemoveHighlightReference`) **chỉ Writer** — Producer 403 (BR-07); `SetCrowd` cho Writer và Producer; `SetCastVariant` **chỉ Writer** (Producer 403, Q18); vai trò khác 403. Kịch bản `Frozen` → 409.
+- [ ] Lệnh: `AddHighlightReference(lineId, start, length, entryId)` (mục Nhân vật/Địa điểm/Đạo cụ cùng Series), `CreateEntryFromHighlight(lineId, start, length, name, category)` (tạo mục `Draft` + tham chiếu), `RemoveHighlightReference`, `SetCrowd(entryId, bool)`, `SetCastVariant(chapterId, entryId, revisionId)` (Q18: chỉ bản `CanonLocked`, chưa `Superseded`, đúng mục; chỉ khi kịch bản chưa `Frozen`; ghi Audit). Không có lệnh gắn tay: gắn mục vào chương là tự động (Q16).
+- [ ] Khi Producer khoá Canon một mục → tự điền `bound_revision_id` cho mọi chương chưa `Frozen` đang có mục đó (theo quy tắc tự gắn). Bản do Writer chọn (`variant_chosen_by_writer = true`) không bị ghi đè khi tự gắn lại; chương sau lấy theo bản này.
 - [ ] Hàng đợi thiết kế Bible (`GetBibleDesignQueueQuery`): chỉ hiện mục đã có định nghĩa (không còn `IsStub`), không `is_crowd`; kèm các chương đang chờ mục đó để Artist ưu tiên.
 - [ ] Test mỗi lệnh: thành công, 403, 409 (Frozen, bản chưa khoá, sai Series).
 
@@ -171,7 +171,7 @@ series-bible/
 #### BIB-16 · Giao diện Danh sách thực thể chương & bôi đen — FE · ❌ · Q16
 - [ ] [FE] Editor kịch bản (chỉ hiện với Writer, Q17): bôi đen chữ trong mô tả/lời dẫn/SFX → menu nổi "Tham chiếu Series Bible" (ô tìm theo tên/bí danh) + "Tạo bản nháp" khi chưa có trong Bible (tên điền sẵn từ đoạn bôi, chọn loại, **một bước, không bắt nhập mô tả**; thông tin thêm sau qua nút "Viết định nghĩa", Artist vẽ sau). Đoạn đã tham chiếu gạch chân, hover hiện tên mục, có nút gỡ. Lưu tham chiếu qua adapter (`scriptFlowAdapter`) dưới dạng mark → `{start, length, entryId}`.
 - [ ] [FE] Ô người nói: gợi ý tên/bí danh Bible khi gõ (không bắt buộc chọn); tên mới hiện chip "Sẽ tạo bản nháp".
-- [ ] [FE] Ngăn phải `ScriptEditorView`: danh sách thực thể (nguồn, trạng thái Bible, bản tạo hình đang gắn — chỉ đọc, nút **Quần chúng**, nút "Viết định nghĩa" mở form mục với mục còn nháp); bấm thực thể → nhảy tới dòng/Panel. Báo khi lưu làm mất tham chiếu bôi đen.
+- [ ] [FE] Ngăn phải `ScriptEditorView`: danh sách thực thể (nguồn, trạng thái Bible, bản tạo hình đang gắn (ô chọn biến thể chỉ hiện với Writer khi mục có ≥ 2 biến thể `CanonLocked`; vai trò khác chỉ xem), nút **Quần chúng**, nút "Viết định nghĩa" mở form mục với mục còn nháp); bấm thực thể → nhảy tới dòng/Panel. Báo khi lưu làm mất tham chiếu bôi đen.
 - [ ] [FE] Nút Bắt đầu sản xuất (và tab Gate 1 của [ASG-01](03_ASSIGNMENT_PLAN.md)) hiện danh sách vướng từ `gate.blockers`, khoá nút khi `canStart = false`.
 - [ ] [FE] Form mục Bible: ô bí danh (chip), nhãn biến thể thay cho "chương bắt đầu/kết thúc", cờ Quần chúng; hàng đợi thiết kế hiện "Chương đang chờ".
 - [ ] [FE] Bỏ UI era (chương hiệu lực), `@mention`. i18n vi/en; test.
@@ -199,6 +199,7 @@ series-bible/
 | 2 | Xoá revision | ✅ Chỉ xoá Draft chưa có event ngoài `Created` |
 | 3 | Producer tự Endorse + Lock | ✅ Không: Editor duyệt, Producer khoá, không tự khoá bản mình duyệt |
 | 7 | Ai xác nhận thiết kế, ai bôi đen tham chiếu | ✅ Q17 (2026-11-14): Writer góp ý, Editor chốt (BIB-10); bôi đen chỉ Writer (BIB-13) |
+| 8 | Đổi biến thể tạo hình theo chương | ✅ Q18 (2026-11-14): tự động mặc định, chỉ Writer đổi khi cần (BIB-13, BIB-16) |
 | 4 | Detail modal: sheet hay full-screen | ⏳ Đề xuất sheet bên phải (BIB-06) |
 | 5 | Thông tin hiện hành khi có bản nháp trên giai đoạn đã khoá | ⏳ Đề xuất lấy bản Canon (BIB-01) |
 | 6 | Bible Gate khi kịch bản không còn `@Tag` (D11) | ✅ Q16 (2026-11-14, chỉnh cùng ngày): người nói tự khớp Bible, chưa có thì tự tạo bản nháp (Writer gắn cờ Quần chúng); lời dẫn không tự khớp, Writer bôi đen để tham chiếu; biến thể tạo hình thay mốc chương; `chapter_bible_bindings` khoá ở Gate 1 → BIB-09, BIB-11..BIB-17 |
