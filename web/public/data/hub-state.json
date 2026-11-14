@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-14T05:50:01.260Z",
+  "lastSyncedAt": "2026-11-14T05:51:27.947Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-BE-316cdaf939dea9d984ddacb645bcd007f82cf5d9",
+      "timestamp": "2026-11-14T12:51:26+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "316cdaf939dea9d984ddacb645bcd007f82cf5d9",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/316cdaf939dea9d984ddacb645bcd007f82cf5d9",
+      "message": "feat(bible): add chapter cast inheritance resolver contract",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-67d25654fcb817bd15a8b7e3a2e1754b124a7f1f",
       "timestamp": "2026-11-13T13:41:03+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "472b36ef0d73ea7cd997a2a21a8a58c1dc29f1b7",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/472b36ef0d73ea7cd997a2a21a8a58c1dc29f1b7",
       "message": "feat(canvas): fix panel template reading order and diagonal borders",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f0b2e1ec70a6c30b205484ba96d3d461d0fd89ef",
-      "timestamp": "2026-11-11T08:57:24+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f0b2e1ec70a6c30b205484ba96d3d461d0fd89ef",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f0b2e1ec70a6c30b205484ba96d3d461d0fd89ef",
-      "message": "feat(assignment): add pending editor reviews count to workspace dto",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
