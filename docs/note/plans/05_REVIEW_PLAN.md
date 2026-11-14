@@ -64,9 +64,16 @@
 #### REV-08 · (Tuỳ chọn) PostgreSQL `box` + GiST — DB · ❌ · cũ P6-01
 - [ ] Chỉ làm nếu REV-01 có vấn đề hiệu năng: cột `bounding_box box` song song JSON, index GiST, `&&`.
 
+#### REV-09 · Mở lại trang đã duyệt trước Gate 3 (Q27) — BE + FE · ❌ · mới
+- [ ] [BE] Lệnh khoanh lỗi trên trang `Approved` (dùng lại luồng tạo `ChangeRequest` của Gate 2 + REV-01): Editor, Producer dự phòng; chương `InProduction` (chưa `ChapterApproved`) → Panel giao thoa chuyển `Approved → PanelReworkRequired`, trang rời trạng thái duyệt; bắt buộc nhận xét; Audit Log; thông báo Artist/Letterer theo lớp lỗi (REV-02).
+- [ ] [BE] Sau Gate 3 → 409 ("Producer mở lại chương").
+- [ ] [FE] `ReviewView`: trang đã duyệt có nút "Mở lại để sửa" → vào chế độ khoanh lỗi.
+- [ ] Test: Panel lỗi về rework, Panel khác giữ `Approved`; Gate 3 bị chặn tới khi duyệt lại; sau `ChapterApproved` → 409.
+
 ## 3. Changelog
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | REV-09 | Thêm | — (chỉ tài liệu) | Q27: Editor mở lại trang đã duyệt trước Gate 3 |
 | 2026-11-12 | Luật 4 mắt | ✅ | BE `916eda2` (merge `f0ebc7c`) | P0-04 |
 | 2026-11-12 | — | Lập kế hoạch | — | Gom từ plan tổng P2 + anti-slop GĐ8 |

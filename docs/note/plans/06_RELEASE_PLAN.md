@@ -40,7 +40,9 @@
 - [ ] **(Rà soát 2026-11-13, xác nhận lỗi)** `ChapterLockGate` không kiểm "100% Trang `Approved`" (BR-12): chỉ đếm `ASSIGNMENTS_NOT_APPROVED`. Chương **không có việc nào** → 0 việc chưa duyệt, `PAGES_WITHOUT_WORK` chỉ cảnh báo → `ApproveChapter` thành công và tạo Snapshot từ trang chưa vẽ. Không chờ ASG-01: chặn ngay khi chương không có việc Artist/Letterer nào; sau ASG-01 chặn theo từng trang.
 - [ ] Tính điều kiện theo trang: mọi Page phải có lượt duyệt Gate 2 `Approved` (StageProgress/Assignment Review của trang), không suy ra từ tổng số việc.
 - [ ] `SCRIPT_NOT_FROZEN` (`ChapterLockGate.cs:59`) chuyển từ cảnh báo thành **chặn**: hiện Producer mở lại kịch bản rồi vẫn duyệt chương được trong lúc Writer đang sửa → tranh lệch kịch bản.
-- [ ] Test: chương 0 việc → 409; kịch bản đang `Draft` sau Unfreeze → 409.
+- [ ] **Ảnh cuối = bản đã duyệt (Q27):** `FinalArtwork.cs` (khoảng dòng 43–55) đang lấy `AssetReference` mới nhất theo `StageOrder`/`VersionNumber`, kể cả bản upload chưa duyệt. Đổi thành bản ảnh của **lần duyệt Gate 2 gần nhất** của từng trang; chương cũ chưa có lần duyệt nào giữ cách cũ làm dự phòng để Preview không trống.
+- [ ] Snapshot ghi `frozen_script_version_id` (Q26, [SCR-41](01_SCRIPT_PLAN.md), [BIB-14](02_BIBLE_PLAN.md)).
+- [ ] Test: chương 0 việc → 409; kịch bản đang `Draft` sau Unfreeze → 409; ảnh upload sau khi trang được duyệt không vào Snapshot.
 
 #### REL-03 · `ChapterReleaseModal.tsx` — FE · ❌ · cũ M1-12
 - [ ] Khung modal Producer một chỗ với các tab: Gate 1 (ASG-01), Chuyển phạm vi, Gate 3 (danh sách item lock gate + nút Approve), Bàn giao (REL-05), Phát hành (nút Publish + **cấu hình giá do Publisher đặt, chỉ đọc** — [RDR-07](07_READER_PLAN.md)).
@@ -70,6 +72,7 @@
 - [ ] `PublicPreviewView`: watermark chéo không che điều hướng RTL/LTR/Vertical và ngăn feedback.
 
 #### REL-09 · Ấn bản ngôn ngữ `ChapterEdition`: nghiệm thu, phát hành, mở lại theo ngôn ngữ — DB + BE + FE + MO · ❌ · mới (Q10)
+- ⏳ **Cần chốt (VERSION_REVIEW mục 6):** code có `PageTranslation` — Publisher tải **ảnh trang đã dịch** theo ngôn ngữ, ghi đè (`Replace`) / xoá cứng (`ChapterManage.cs:291`), không qua `Asset`/quota. Spec BR-34 (Q9/Q10/Q14) thì bản dịch là **chữ theo bóng thoại** do Artist/Letterer nhập, Editor duyệt, Producer cho phép phát hành, Publisher chỉ đặt giá. Chốt giữ `PageTranslation` (và lưu theo `Asset` + version) hay gỡ để theo REL-09.
 - **Phụ thuộc:** [ART-14](04_ARTWORK_PLAN.md) (ngôn ngữ Series), REL-01 (máy trạng thái chương). Là nền cho REL-08, [RDR-07](07_READER_PLAN.md), [RDR-10](07_READER_PLAN.md), [RDR-11](07_READER_PLAN.md).
 - [ ] Entity + bảng `chapter_editions` theo spec §6.1.5 (`Draft → Approved → Published`, unique `(chapter_id, language_code)`, `version` cho BR-11); tự tạo/huỷ ấn bản `Draft` khi Producer đổi `release_languages` (không xoá ấn bản đã phát hành).
 - [ ] `Approve Chapter` (đã có) đồng thời chuyển ấn bản gốc `Approved`.
@@ -103,6 +106,7 @@
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | REL-02, REL-09 | Bổ sung | — (chỉ tài liệu) | Q26/Q27: ảnh cuối = bản đã duyệt, snapshot ghi bản kịch bản đã chốt; câu hỏi `PageTranslation` |
 | 2026-11-12 | Gate 3 (`IMPACT_FLAGS`, `PAGES_WITHOUT_WORK`) | ✅ một phần | BE `01f5f9f` (merge `f0ebc7c`) | P0-02 |
 | 2026-11-12 | — | Lập kế hoạch | — | Gom từ plan tổng P1-01, P4-03, P4-04 |
 | 2026-11-12 | REL-03, REL-04, REL-05 sửa; REL-08 thêm | Đối chiếu spec Q7, Q9, Q10 | — (chỉ tài liệu) | Publisher đặt giá; ấn bản ngôn ngữ (REL-09) nghiệm thu/phát hành riêng; Snapshot theo ấn bản |

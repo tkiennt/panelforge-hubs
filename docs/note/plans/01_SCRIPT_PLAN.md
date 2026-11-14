@@ -218,7 +218,8 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] Test: lưu 2 lần cùng nội dung → 1 revision; xung đột → 409; Amending sửa dòng có bóng → Lettering Approved → ReworkRequired.
 
 #### SCR-15 · Lịch sử & so sánh — BE · ❌ · cũ S3-03
-- [ ] `GetScriptRevisionsQuery`, `GetScriptRevisionQuery`, `DiffScriptRevisionsQuery` (added/changed/removed theo `ScriptLineId`), `RestoreScriptRevisionCommand` cấp chương → n+1 (BR-08).
+- [ ] **Nguồn duy nhất là `ScriptVersion` (Q25)** — đã có `GetScriptVersions/GetScriptVersion/GetScriptWorkingCopy`; thêm `DiffScriptVersionsQuery` (theo khoá dòng, kèm thay đổi tham chiếu và bản Bible của Q24).
+- [ ] `RestoreScriptVersionCommand(chapterId, versionId)` — chỉ Writer, kịch bản chưa `Frozen`: dựng lại dòng, Trang/Panel, tham chiếu bôi đen, lựa chọn bản Bible từ snapshot của bản cũ rồi **commit bản mới n+1** (BR-08, không sửa bản cũ), chạy `ChapterCastService.RecomputeAsync`. Không khôi phục từ bản loại `AiProposal`.
 
 #### SCR-16 · Bỏ `ChapterScript` (D5) — BE + DB · ❌ · cũ S3-04
 - [ ] Xác minh chỉ `BatchSaveScriptLinesCommand:172` còn ghi; bỏ ghi, xoá entity + migration.
@@ -256,7 +257,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 ### Phase G — Gỡ phần cũ & tài liệu
 
 #### SCR-23 · Gỡ endpoint/cột cũ — BE + FE + DB · ❌ · cũ S6-01
-- [ ] Khi FE không còn gọi: xoá endpoint/command cũ (`FreezeChapterScriptCommand`, `UnfreezeChapterScriptCommand`, `*ScriptReopenCommand`, `BatchSaveScriptLinesCommand`, `SyncScriptStructureCommand`), cột `ScriptReopen*`, `DialogueText/StageDirection`.
+- [ ] Khi FE không còn gọi: xoá endpoint/command cũ (`FreezeChapterScriptCommand`, `UnfreezeChapterScriptCommand`, `*ScriptReopenCommand`, `BatchSaveScriptLinesCommand`, `SyncScriptStructureCommand`), cột `ScriptReopen*`, `DialogueText/StageDirection`; `ContentRevision` loại `Script` và `ScriptLineRules.RecordRevisionAsync` (Q25 — giữ bảng cho Layout/ImagePrompt); `Submission.ScriptRevisionIds` giữ cột để đọc dữ liệu cũ, không ghi mới.
 
 #### SCR-24 · Tài liệu — Docs · ❌ · cũ S6-02
 - [ ] Viết lại `PanelForge_FA26SE251/docs/domain/CHAPTER_AND_SCRIPT_SPECIFICATION.md` §2.1–2.3; cập nhật `.agents/CODEBASE_MAP.md` dòng "Script & Lời thoại".
@@ -373,7 +374,22 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [ ] [Docs] SCR-08 và SCR-10 còn checklist theo thiết kế cũ (`ChangesRequested`, `Amending`, `ApproveScriptCommand` có Bible Gate) → viết lại phần chưa làm theo D12 và kết quả câu hỏi mở 23.
 - [ ] [BE] Comment sai: `ScriptStatus.cs` ("Writer nộp… kịch bản khoá sửa"), summary `SubmitScriptCommand` ("kịch bản khoá sửa"); comment lỗi mã hoá trong `ScriptLineRules.RecordRevisionAsync` ("Quy chu?n…").
 - [ ] [BE] Ghi rõ vai trò của hai hệ phiên bản đang chạy song song: `ContentRevision` (theo Scene, dùng cho AI/khôi phục) và `ScriptVersion` (theo chương, dùng cho gửi duyệt/chốt). Chốt hệ nào là nguồn cho phân tích ảnh hưởng (SCR-01) và lịch sử (SCR-15); hệ còn lại gỡ ở SCR-23.
+  - ✅ **Đã chốt Q25 (2026-11-14):** `ScriptVersion` là nguồn duy nhất (lịch sử, gửi duyệt, Gate 1, snapshot, lần nộp, phân tích ảnh hưởng SCR-01); `ContentRevision` loại Script gỡ ở SCR-23. Xem SCR-40, SCR-41.
 
+
+#### SCR-40 · Đề xuất AI thành phiên bản `AiProposal` (Q25) — DB + BE + FE · ❌
+- [ ] [DB] `script_versions` thêm `kind` (`Commit` | `AiProposal`, mặc định `Commit`), `source_suggestion_id UUID NULL`, `from_proposal_version_id UUID NULL`. Bản `AiProposal` không tính vào chuỗi gửi duyệt, diff giữa hai lần gửi, chống trùng mã băm.
+- [ ] [BE] Luồng AI kịch bản (`ReviewSuggestionCommand` và các lệnh AI Writer) **không ghi thẳng `ScriptLine`/`ContentRevision`** nữa: tạo `ScriptVersion` `AiProposal` (snapshot hàng như bản thường) và trả Id.
+- [ ] [BE] `GET .../script-versions/{id}/compare-working-copy` (hoặc dùng diff có sẵn) để FE so đề xuất với bản hiện tại.
+- [ ] [FE] Màn đề xuất AI: xem bản đề xuất cạnh bản hiện tại, chấp nhận toàn bộ / từng dòng / bỏ; dòng chấp nhận được áp vào tài liệu editor (đánh dấu thay đổi chưa lưu); bấm **Lưu** → commit kèm `fromProposalVersionId`.
+- [ ] Test: đề xuất AI không đổi kịch bản chính, không gửi duyệt được, không tạo mục Bible; chấp nhận rồi Lưu → commit có `from_proposal_version_id`.
+
+#### SCR-41 · Báo phiên bản mới khi Bắt đầu sản xuất & lưu bản chốt (Q26) — BE + FE · ❌
+- [ ] [BE] `FreezeChapterScriptCommand` nhận `expectedSubmittedVersionId`; con trỏ `last_submitted_version_id` khác → `409 SCRIPT_VERSION_OUTDATED` kèm `{ latestVersion, previousVersion }` để FE hiện thay đổi. Giữ luật cũ: bản hiện tại ≠ bản đã gửi → 409.
+- [ ] [DB + BE] `chapters.frozen_script_version_id UUID NULL` ghi khi chốt; mở lại không xoá (lịch sử), chốt lại ghi bản mới. `ChapterSnapshotBuilder` và lần nộp của Artist ghi bản này thay `ContentRevision` (xem [BIB-14](02_BIBLE_PLAN.md), [REL-02](06_RELEASE_PLAN.md)).
+- [ ] [BE] Thông báo Producer khi Writer gửi duyệt / gửi lại (đã có) kèm số phiên bản.
+- [ ] [FE] Màn Gate 1 / `ScriptReviewView`: gửi `expectedSubmittedVersionId`; nhận 409 → hộp "Có phiên bản mới vX" + diff + nút "Chốt vX"; khi đang mở màn mà có lần gửi mới (thông báo hoặc nạp lại định kỳ) thì hiện dải cảnh báo.
+- [ ] Test: Producer xem v1, Writer gửi v2 → chốt v1 bị 409 kèm v2; chốt v2 thành công, `frozen_script_version_id = v2`.
 ---
 
 ## 5. Thứ tự, rủi ro, BR
@@ -400,6 +416,7 @@ Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-2
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | SCR-15, SCR-23, SCR-39, SCR-40, SCR-41 | Lập kế hoạch | — (chỉ tài liệu) | Q25/Q26 từ VERSION_REVIEW: `ScriptVersion` nguồn duy nhất, đề xuất AI là `AiProposal`, khôi phục = commit mới, báo phiên bản mới khi chốt, `frozen_script_version_id` |
 | 2026-11-12 | — | Lập kế hoạch | — | Từ `SCRIPT_FLOW_REFACTOR_PLAN.md` |
 | 2026-11-12 | D2 | ✅ Chốt | — (tài liệu) | Scene mặc định ẩn; thay P4-01 của plan tổng |
 | 2026-11-12 | D1, D3–D6 | ✅ Chốt | — (tài liệu) | Bỏ stage Script · Gate 1 không bắt buộc qua duyệt · không sửa khi InReview · bỏ `ChapterScript` · không chuyển dữ liệu cũ → huỷ SCR-06 |

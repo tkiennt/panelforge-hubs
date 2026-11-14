@@ -219,6 +219,7 @@
 | 2026-11-14 | Q16 (gắn chương tự động) | ✅ Chốt | hub (chỉ tài liệu) | Gắn mục Bible vào chương và chọn bản tạo hình là tự động; Gate 1 chỉ kiểm `CanonLocked`; bỏ lệnh `SetCastRevision`. Đổi biến thể theo chương → câu hỏi mở 26 |
 | 2026-11-14 | Dọn tài liệu | ✅ | hub, BE, FE (chỉ tài liệu) | Xoá tài liệu lệch V2.6: hub `note/archive/*`, Cross Audit Report, FEATURE_AUDIT_DIFF, TEST_CASES_SERIES_BIBLE (era), LOCALIZATION_PIPELINE_PROPOSAL (thay bằng BR-34), image_storage_architecture + implementation-qa (trùng/cũ), sơ đồ `report4` (mô tả code cũ); BE `docs/{requirements,roles,domain,architecture,storage,archive,superpowers,diagrams}`, 2 file research thiết kế cũ, CORE_PRODUCTION_ARCHITECTURE; FE `docs/{CORE_PRODUCTION_ARCHITECTURE,DOCUMENTATION_PROCESS,archive,audit}`. Sửa glossary + chuẩn đặt tên trạng thái theo Q15–Q17, clean-architecture (Reader/Ví VNĐ, bỏ `Locked`, bỏ `HANDOFF.md`). Đồng bộ lại `web/public/docs` |
 | 2026-11-14 | Q18 (câu 26) | ✅ Chốt | hub (chỉ tài liệu) | Đổi biến thể theo chương: tự động mặc định, chỉ Writer đổi → spec Module 1 mục 3, BR-15/35, §5.1; BIB-13 thêm `SetCastVariant`, BIB-16 thêm ô chọn |
+| 2026-11-14 | Q25–Q27 (câu 33–35), VERSION_REVIEW | ✅ Chốt | hub (chỉ tài liệu) | Đề xuất AI là `ScriptVersion` loại `AiProposal`, `ScriptVersion` nguồn duy nhất; báo phiên bản mới khi Bắt đầu sản xuất, lưu `frozen_script_version_id`; Editor mở lại trang đã duyệt trước Gate 3, khôi phục ảnh, ảnh cuối = bản đã duyệt → SCR-15/23/40/41, BIB-14, REV-09, ART-16/17, REL-02; câu hỏi `PageTranslation` ở REL-09 |
 | 2026-11-14 | Q24 (câu 32) | ✅ Chốt | hub (chỉ tài liệu) | Rà soát trước implement: kế thừa theo chuỗi thay thế, giai đoạn theo Panel trong payload lưu, lựa chọn của Writer vào mã băm; 02_BIBLE_PLAN thêm Luồng triển khai BE → FE (pha 0–6) |
 | 2026-11-14 | Q23 (câu 31) | ✅ Chốt | hub (chỉ tài liệu) | Chương gắn bản cụ thể, kế thừa về phía sau (Ch1 giữ v1, Ch2 chờ v2, Ch3 kế thừa v2); bản theo Panel cho hồi tưởng; Gate 1 kiểm mọi bản chương dùng; cảnh báo lệch bản; huỷ bản thay thế → BIB-09, BIB-11, BIB-13..BIB-16 |
 | 2026-11-14 | Q22 (câu 30) | ✅ Chốt | hub (chỉ tài liệu) | Producer được yêu cầu vẽ lại concept Bible; giai đoạn chương là mặc định tự đề xuất, Writer chỉ đổi khi cần, Gửi duyệt không đòi xác nhận → BIB-10, BIB-11, BIB-13, BIB-14, BIB-16 |
@@ -253,6 +254,14 @@
 ### Đang chờ (rà soát 2026-11-13)
 
 29. ✅ **Chốt Bible hai mốc theo chương** (user chốt 2026-11-14, spec **Q21**): Writer *Gửi duyệt* chỉ được khi mọi mục nháp đã định nghĩa hoặc gắn Quần chúng (giai đoạn dùng mặc định, Writer đổi khi cần — Q22); biến thể chọn theo nhãn, kể cả biến thể chưa khoá; Producer *Bắt đầu sản xuất* chỉ được khi ảnh của đúng biến thể có trong kịch bản đã `CanonLocked` → [BIB-14](plans/02_BIBLE_PLAN.md).
+
+35. ✅ **Mở lại trang đã duyệt trước Gate 3** (Q27): Editor (Producer dự phòng) khoanh lỗi trên trang `Approved` → Panel lỗi về `PanelReworkRequired`; Artist khôi phục ảnh cũ được; ảnh cuối = bản của lần duyệt Gate 2 gần nhất → REV-09, ART-16, REL-02.
+
+34. ✅ **Báo phiên bản mới khi chốt** (Q26): bản gửi là bản lưu mới nhất; Producer chốt trên bản cũ trong khi Writer đã gửi bản mới → 409 + thông báo + thay đổi; lưu `frozen_script_version_id` → SCR-41.
+
+33. ✅ **Đề xuất AI là phiên bản kịch bản** (Q25): AI tạo `ScriptVersion` loại `AiProposal`; Writer chấp nhận toàn bộ/từng dòng rồi Lưu = commit; `ScriptVersion` là nguồn duy nhất, `ContentRevision` loại Script gỡ → SCR-15, SCR-23, SCR-40.
+
+36. ⏳ **`PageTranslation`** (VERSION_REVIEW mục 6): giữ ảnh trang dịch do Publisher tải lên hay gỡ để theo bản dịch chữ của REL-09 (BR-34)? → [REL-09](plans/06_RELEASE_PLAN.md).
 
 32. ✅ **Chi tiết Q23** (user chốt 2026-11-14, spec **Q24**): chương kế thừa đi theo chuỗi thay thế tới bản đã khoá mới nhất; giai đoạn theo Panel lưu cùng kịch bản (payload `syncScriptStructure`); lựa chọn bản của Writer thuộc phiên bản kịch bản và mã băm → [02_BIBLE_PLAN.md](plans/02_BIBLE_PLAN.md) (Luồng triển khai BE → FE).
 

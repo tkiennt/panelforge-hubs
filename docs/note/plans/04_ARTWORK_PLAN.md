@@ -61,6 +61,17 @@
 - [ ] Đọc `IPageLetteringCompositor` + implementation; chuyển sang `Channel<T>` + `BackgroundService`, kích hoạt khi cả Ink & Lettering submitted (ASG-02).
 - [ ] Lưu composite qua CAS, gắn với Submission để Editor xem.
 
+#### ART-16 · Khôi phục bản ảnh cũ (Q27) — BE + FE · ❌ · mới
+- [ ] [BE] `RestoreArtworkVersionCommand(assetReferenceId)`: tạo `AssetReference` mới `VersionNumber = max + 1` trỏ lại `AssetId` của bản cũ (0 byte R2, append-only). Quyền giống upload: người được giao Page/Panel, đúng công đoạn, chương chưa khoá. Panel/Trang đang `Approved` → 409 (Editor phải mở lại trang — [REV-09](05_REVIEW_PLAN.md)).
+- [ ] [FE] Dải phiên bản ảnh trên bàn vẽ: xem bản cũ, "Dùng lại bản này".
+- [ ] Test: khôi phục tạo bản n+1 cùng `AssetId`; Panel `Approved` → 409; người không được giao → 403.
+
+#### ART-17 · Upload song song: 409 thay vì 500 & helper trùng khoá — BE · ❌ · VERSION_REVIEW mục 4
+- [ ] [BE] Helper dùng chung `DbErrors.IsUniqueViolation(ex, indexName?)` kiểm `PostgresException.SqlState == "23505"` (thay cách so chuỗi tên index ở `AddBibleEntryRevisionCommand.IsVersionUniqueViolation`).
+- [ ] [BE] `UploadArtworkCommand`: `Asset` trùng (workspace, sha256) → đọc lại bản có sẵn; `AssetReference` trùng version → 409 để FE gửi lại. Không retry trong cùng request (transaction Postgres đã huỷ).
+- [ ] [BE] Áp cùng helper cho các chỗ tính `max + 1`: `ScriptVersion`, `ChapterSnapshot`, `concept_version_number` ([BIB-10](02_BIBLE_PLAN.md)), `bible_entry_names` ([BIB-09](02_BIBLE_PLAN.md)).
+- [ ] Test: hai upload cùng hash song song → không 500; bấm đúp → một thành công, một 409.
+
 ### Trải nghiệm bàn vẽ
 
 #### ART-09 · Ghost Pencil Overlay — FE · ❌ · cũ P5-02
@@ -118,6 +129,7 @@
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | ART-16, ART-17 | Thêm | — (chỉ tài liệu) | Q27 khôi phục ảnh; VERSION_REVIEW mục 4 (409 thay 500) |
 | 2026-11-12 | BR-31 | ✅ | BE `7dc2c4f`, FE `d5521da` (merge `f0ebc7c` / `4cc89c7`) | P0-01 |
 | 2026-11-12 | — | Lập kế hoạch | — | Gom từ plan tổng + anti-slop GĐ6/GĐ9 |
 | 2026-11-12 | ART-14, ART-15 | Thêm | — (chỉ tài liệu) | Ngôn ngữ bóng thoại theo spec BR-34 / Q9 |
