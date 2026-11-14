@@ -166,7 +166,7 @@
 | P1 | P1-05 | Self-Rollback | ART-02 | ❌ |
 | P1 | P1-06 | Coverage Counter bàn vẽ | ART-03 | 🟡 🔍 |
 | P1 | P1-07 | Letterer bị khoá Layout | ART-04 | 🟡 🔍 |
-| P1 | P1-08 | Series Bible chốt theo chương: tên bất biến và unique, không bí danh; tham chiếu bôi đen, Danh sách & Bản đồ thực thể chương, Gửi duyệt chốt Danh sách thực thể, Gate 1 kiểm Canon đúng biến thể (Q16, Q19, Q21, 1A–9A) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → SCR-11 → BIB-09 + BIB-11 → BIB-12 + BIB-13 → BIB-14 → BIB-15 → FE (BIB-03, BIB-16, BIB-15 FE) → BIB-17 | 🟡 cập nhật theo quyết định 2026-11-14 |
+| P1 | P1-08 | Series Bible chốt theo chương: tên bất biến và unique, không bí danh; tham chiếu bôi đen, Danh sách & Bản đồ thực thể chương, Gửi duyệt chốt Danh sách thực thể, Gate 1 kiểm Canon đúng biến thể (Q16, Q19, Q21, 1A–9A) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → SCR-11 → BIB-09 + BIB-11 → BIB-12 + BIB-13 → BIB-14 → BIB-15 → FE (BIB-03, BIB-16, BIB-15 FE) → BIB-17 | ✅ hoàn thành (BE `4e8fd57`, `66b80be`, `b90bde5`; FE `8c43b10`, `3a76596`); BIB-04..08 (tái cấu trúc màn Series Bible) vẫn mở, theo dõi riêng |
 | P1 | P1-09 | Duyệt concept: Editor xác nhận = khoá Canon, phiên bản concept, góp ý có trả lời (Q20) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → BIB-10 (song song sau BIB-09) | ✅ |
 | P2 | P2-01 | Giao thoa 15% | REV-01 | ❌ |
 | P2 | P2-02 | Lớp lỗi Artwork/Lettering | REV-02 | ❌ |
@@ -186,16 +186,19 @@
 | P5 | P5-03 | Magnetic Snapping | ART-10 | ❌ |
 | P5 | P5-04 | Web Worker hash + Presigned PUT | ART-07 | ❌ |
 | P6 | P6-01 | PostgreSQL `box` + GiST | REV-08 | ❌ tuỳ chọn |
-| — | — | Series Bible frontend | [02_BIBLE](plans/02_BIBLE_PLAN.md) → BIB-01..08 | 🟡 |
+| — | — | Series Bible frontend | [02_BIBLE](plans/02_BIBLE_PLAN.md) → BIB-04..08 | ❌ BIB-04..08 còn mở |
 | — | — | Chống AI-slop, i18n, mobile | [08_UI_QUALITY](plans/08_UI_QUALITY_PLAN.md) → UIQ-01..08 | 🟡 |
 
 **Làm ngay, độc lập:** SCR-01..03 (sửa lỗi + dọn code chết), BIB-03 (FE theo kịp backend Bible), UIQ-01 (gỡ số liệu giả).
+
+**UI-2 (2026-11-15):** nền UI dùng chung tại `src/shared/ui/` đã merge `f4d7773`. Hai batch migration shared và producer đã merge `77f6bd2`, `552a35b`; writer, artist, các vai trò còn lại, Series Bible và sidebars vẫn đang chờ.
 
 ---
 ## 4. CHANGELOG TIẾN ĐỘ (AGENT CẬP NHẬT)
 
 | Ngày | Task ID | Trạng thái mới | Repo / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-15 | Shared UI foundation, UI-2 | 🟡 Đang migration | FE `f4d7773`, `77f6bd2`, `552a35b` | Đã có `src/shared/ui/`; batch shared + producer đã merge. Writer, artist, các vai trò khác, Series Bible và sidebars còn chờ |
 | 2026-11-12 | — | Khởi tạo | — | Đối chiếu lần đầu với spec V2.6 |
 | 2026-11-12 | P0-01..P0-05 | ✅ (P0-02 một phần) | BE `feature/p0-spec-v26-fixes-be`: 7dc2c4f, 01f5f9f, c8dc9c2, 916eda2 · FE `feature/p0-spec-v26-fixes-fe`: 35264e6, d5521da | Build BE + typecheck/i18n FE đạt; chưa chạy unit test. Đã merge & push `trungkien`: BE f0ebc7c, FE 4cc89c7 |
 | 2026-11-12 | P1-01, P1-02, P4-01 | Lập kế hoạch con | — | Chi tiết ở [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md); chờ chốt D1, D3–D6 |
@@ -212,7 +215,7 @@
 | 2026-11-13 | D11, SCR-25/26 (làm lại), SCR-27 ⛔ | ✅ | FE `trungkien` `30b975a` | Editor Writer xây lại theo luật đo trên WriterSolo; kịch bản chữ thuần, không liên kết Series Bible. Typecheck/i18n/eslint sạch; test viết, chưa chạy; chưa thử trong app. Câu hỏi 20 |
 | 2026-11-13 | D12, SCR-08 (🟡), SCR-37, SCR-38 (❌) | ✅ | BE `d136057`, `9059e5a`; FE `e98d8ad` | Luồng kịch bản: Writer gửi duyệt ↔ hủy gửi duyệt → Producer bắt đầu sản xuất; Editor góp ý theo dòng (không chặn, không đổi trạng thái); `ChapterStatus.PreProduction` mặc định. Build BE/FE thành công; 86 test BE cần cập nhật trước khi push (SCR-38). Câu hỏi 21 |
 | 2026-11-13 | SCR-12, SCR-15 (thay), SCR-21, SCR-37 | ✅ | BE `a3b9a29`, `5e55c97`; FE `eda8d4f` | Lưu = commit / Gửi duyệt = push (câu hỏi 22): drawer lịch sử (mã băm rút gọn, nhãn ĐÃ GỬI DUYỆT, so với bản đã gửi), Editor đọc bản đã gửi theo Trang → Panel → dòng + tab Thay đổi + cờ góp ý cũ; gỡ stage Script khỏi pipeline và luồng duyệt kịch bản qua Assignment. Build BE/FE, typecheck, i18n:check đạt; chưa chạy test, chưa thử trong app |
-| 2026-11-14 | P1-08, P1-09, SCR-11, SCR-14 | ✅ Hoàn thành | BE `fa90712`, `ed02171`, `e78858b`, `37abe0f`, `f979fa9`, `9c24b93`, `a5a6d55`, `0571fa7`, `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `2b335f7`, `016b307`, `a6cb774` | Đã hoàn thành và gộp toàn bộ luồng Script + Series Bible vào `trungkien`: Producer chỉ đọc kịch bản, Save & Submit kịch bản nguyên cây 1 transaction, tự động tạo/khớp Bible, duyệt concept theo phiên bản, Cast Gate hai mốc Submit và Gate 1, Model Sheet theo Panel, gỡ bỏ toàn bộ cơ chế cũ không tương thích ngược |
+| 2026-11-14 | P1-08, P1-09, SCR-11, SCR-14 | ✅ Hoàn thành | BE `fa90712`, `ed02171`, `e78858b`, `37abe0f`, `f979fa9`, `9c24b93`, `a5a6d55`, `0571fa7`, `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`, `4e8fd57`, `66b80be`, `b90bde5`; FE `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `2b335f7`, `016b307`, `a6cb774`, `8c43b10`, `3a76596` | Đã hoàn thành và gộp toàn bộ luồng Script + Series Bible vào `trungkien`: Producer chỉ đọc kịch bản, Save & Submit kịch bản nguyên cây 1 transaction, tự động tạo/khớp Bible, duyệt concept theo phiên bản, Canon display không bị draft ghi đè, tên bất biến và không bí danh, Cast Gate hai mốc Submit và Gate 1, Model Sheet theo Panel, gỡ bỏ toàn bộ cơ chế cũ không tương thích ngược. BIB-04..08 vẫn mở riêng |
 | 2026-11-13 | Rà soát luồng Script → Bible → Production | Lập kế hoạch sửa | — (chỉ tài liệu) | Đối chiếu spec với code BE/FE; bảng §4.1. Thêm SCR-39, ASG-07, BIB-09, BIB-10; bổ sung SCR-01, SCR-03, SCR-11, ASG-01, REL-01, REL-02, REL-04. Câu hỏi mở 23–25 |
 | 2026-11-14 | Q16 (câu 23), câu 24, câu 25 | ✅ Chốt | hub (chỉ tài liệu) | Bible chốt theo chương (BR-35) → BIB-09, BIB-11..BIB-17, sửa đặc tả master; Producer chỉ đọc kịch bản → SCR-11; bỏ luồng Writer xin mở lại → SCR-09 |
 | 2026-11-14 | Q16 (chỉnh) | ✅ Chốt | hub (chỉ tài liệu) | Người nói tự khớp/tự tạo nháp + cờ Quần chúng; lời dẫn chỉ tham chiếu khi Writer bôi đen; bỏ quét chữ và nhóm phân loại tên mới → BIB-11..BIB-17 viết lại |

@@ -169,6 +169,8 @@ Applies to `ScriptEditorView`, `ArtistDeskView`, `LetteringWorkspace`, and `Revi
 
 All shared primitives below live in `src/shared/ui/`, consume only the token contract in section 1.7, accept a `className` escape hatch for layout only, and forward native HTML attributes and refs where applicable.
 
+> **Implementation status (2026-11-15):** the shared UI foundation merged in FE `f4d7773`. UI-2 shared and producer migration batches merged in `77f6bd2` and `552a35b`; writer, artist, remaining roles, Series Bible, and sidebars are pending.
+
 ### 4.1. Modal (Centered Dialog)
 
 | Contract | Required behavior |

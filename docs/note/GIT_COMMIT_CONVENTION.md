@@ -1,7 +1,7 @@
 # QUY CHUẨN COMMIT MESSAGE DỰ ÁN PANELFORGE (GIT COMMIT CONVENTION)
 
-> **Dự án tốt nghiệp:** PanelForge – Nền tảng đồng sáng tác và quản lý sản xuất truyện tranh Manga hỗ trợ bởi AI Agent  
-> **Mã nhóm:** FA26SE251 · **Học kỳ:** Fall 2026 – Spring 2027  
+> **Dự án tốt nghiệp:** PanelForge – Nền tảng đồng sáng tác và quản lý sản xuất truyện tranh Manga hỗ trợ bởi AI Agent
+> **Mã nhóm:** FA26SE251 · **Học kỳ:** Fall 2026 – Spring 2027
 > **Tiêu chuẩn áp dụng:** [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ---
@@ -17,6 +17,7 @@
 ```
 
 ### Quy tắc định dạng cơ bản:
+
 - Dòng tiêu đề (`header`) không vượt quá **72 ký tự**.
 - Dùng động từ mệnh lệnh thì hiện tại ở `<description>`: `add`, `fix`, `update`, `refactor`, `remove`, `enforce` (không dùng `added`, `fixes`, `updating`).
 - Viết thường toàn bộ chữ cái đầu của `<description>`, **không kết thúc bằng dấu chấm (`.`)**.
@@ -27,16 +28,16 @@
 
 ## 2. Bảng phân loại `<type>` (Bắt buộc)
 
-| Type | Mục đích | Khi nào sử dụng trong PanelForge |
-|---|---|---|
-| `feat` | Thêm tính năng mới (Feature) | Thêm endpoint mới, màn hình mới, tích hợp AI Agent mới, component UI mới. |
-| `fix` | Sửa lỗi (Bug fix) | Sửa lỗi logic, sửa crash, sửa lỗi 409 Conflict, sửa lỗi sai toạ độ canvas. |
-| `docs` | Tài liệu (Documentation) | Cập nhật `PANELFORGE_MASTER_TRACKER.md`, Note, tài liệu kiến trúc, README. |
-| `style` | Định dạng code | Format khoảng trắng, dấu chấm phẩy, ESLint/Prettier không đổi logic chạy. |
-| `refactor` | Tái cấu trúc mã nguồn | Tách component, chuẩn hoá Clean Architecture, đổi tên biến/hàm cho rõ nghĩa. |
-| `perf` | Cải thiện hiệu năng | Tối ưu truy vấn EF Core, giảm thời gian bundle Vite, tối ưu render canvas. |
-| `test` | Kiểm thử tự động | Thêm/sửa Unit Test (xUnit, Vitest), mock data, snapshot testing. |
-| `chore` | Việc vặt & cấu hình | Nâng cấp package npm/nuget, cấu hình Vite/Docker/CI-CD, dọn file tạm. |
+| Type         | Mục đích                      | Khi nào sử dụng trong PanelForge                                                    |
+| ------------ | -------------------------------- | -------------------------------------------------------------------------------------- |
+| `feat`     | Thêm tính năng mới (Feature) | Thêm endpoint mới, màn hình mới, tích hợp AI Agent mới, component UI mới.     |
+| `fix`      | Sửa lỗi (Bug fix)              | Sửa lỗi logic, sửa crash, sửa lỗi 409 Conflict, sửa lỗi sai toạ độ canvas.   |
+| `docs`     | Tài liệu (Documentation)       | Cập nhật `PANELFORGE_MASTER_TRACKER.md`, Note, tài liệu kiến trúc, README.     |
+| `style`    | Định dạng code                | Format khoảng trắng, dấu chấm phẩy, ESLint/Prettier không đổi logic chạy.     |
+| `refactor` | Tái cấu trúc mã nguồn       | Tách component, chuẩn hoá Clean Architecture, đổi tên biến/hàm cho rõ nghĩa. |
+| `perf`     | Cải thiện hiệu năng          | Tối ưu truy vấn EF Core, giảm thời gian bundle Vite, tối ưu render canvas.      |
+| `test`     | Kiểm thử tự động            | Thêm/sửa Unit Test (xUnit, Vitest), mock data, snapshot testing.                     |
+| `chore`    | Việc vặt & cấu hình          | Nâng cấp package npm/nuget, cấu hình Vite/Docker/CI-CD, dọn file tạm.            |
 
 ---
 
@@ -45,6 +46,7 @@
 Scope chỉ rõ module hoặc luồng nghiệp vụ bị tác động (viết thường, viết gọn):
 
 ### Backend (`PanelForge_FA26SE251`)
+
 - `api`: Controllers, định tuyến HTTP, middleware, lọc quyền.
 - `auth`: Đăng nhập, cookie session, phân quyền vai trò Studio.
 - `assignment`: Giao việc, DAG dependency, nhắc hạn, tiến độ StageProgress.
@@ -58,6 +60,7 @@ Scope chỉ rõ module hoặc luồng nghiệp vụ bị tác động (viết th
 - `export`: Xuất bản CBZ (kèm `ComicInfo.xml` RTL), PDF, JSON mở.
 
 ### Frontend (`panelforge-fe`)
+
 - `ui`: Component dùng chung (`Button`, `Modal`, `Drawer`, `Toast`, `Layout`).
 - `letterer`: Bàn làm việc chèn chữ (`LetteringWorkspace`, balloon, toolbar).
 - `writer`: Soạn thảo kịch bản (`ScriptEditorView`), liên kết nhân vật.
@@ -70,6 +73,7 @@ Scope chỉ rõ module hoặc luồng nghiệp vụ bị tác động (viết th
 - `service`: Tầng gọi API qua axios client, offline sync queue.
 
 ### Tài liệu & Ghi chú chung (`Note/`)
+
 - `tracker`: Cập nhật tiến độ tổng thể trong `PANELFORGE_MASTER_TRACKER.md`.
 - `notes`: Cập nhật biên bản họp, phân tích yêu cầu, kế hoạch hành động.
 - `convention`: Cập nhật quy chuẩn Git commit, coding style.
@@ -79,6 +83,7 @@ Scope chỉ rõ module hoặc luồng nghiệp vụ bị tác động (viết th
 ## 4. Các ví dụ chuẩn mẫu theo từng Flow (CF1 – CF5)
 
 ### CF2 – Chapter Production (Kiên)
+
 ```text
 feat(letterer): integrate LettererAgent for dialogue shortening
 
@@ -101,6 +106,7 @@ Refs: #WP2-CF2-Task2.7
 ```
 
 ### CF3 – Quality Control (Minh)
+
 ```text
 feat(consistency): add visual similarity check against locked character sheet
 
@@ -112,6 +118,7 @@ Refs: #WP3-CF3-Task3.1
 ```
 
 ### CF4 – Version Control & Provenance (Hoà)
+
 ```text
 feat(chapter): introduce ChapterSnapshot manifest on producer approval
 
@@ -123,6 +130,7 @@ Refs: #WP4-CF4-Task4.1
 ```
 
 ### CF5 – Approval, Release & Export (Danh)
+
 ```text
 feat(export): generate CBZ archive with ComicInfo XML for RTL reading
 
@@ -134,6 +142,7 @@ Refs: #WP5-CF5-Task5.2
 ```
 
 ### CF1 – Studio & Series Setup (Tâm)
+
 ```text
 fix(auth): enforce session idle timeout check on token refresh
 

@@ -79,6 +79,25 @@ All statuses for `AssignmentStatus`, `StageProgress`, `ChapterStatus`, `ChangeRe
 
 The admin area uses its own `--color-admin-*` tokens so production-role screens are unaffected: page `admin-bg` #F3F0E9, cards `admin-card` #FCFBF8, fields/modals `admin-field` #FFFFFF, border `admin-line` #D8D2C5, accent `admin-accent` #F97316 / hover #EA580C, text `admin-ink` #44403C, headings and text on orange `admin-ink-strong` #292524, secondary text `admin-muted` #716B65 (#78716C is only 4.2:1 on the page background). No black surfaces or buttons. Primitives live in `src/roles/admin/views/components/AdminUi.tsx`.
 
+### 1.7. Token Layers
+
+`--studio-*` is the single source of truth for shared UI. Tailwind `@theme` entries and Lucian `--ux-*` tokens may only alias a `--studio-*` token; they must not introduce independent colors, radii, shadows, stacking values, or durations. Role-scoped tokens such as `--color-admin-*` remain limited to their documented role boundary.
+
+| Category | Shared component tokens |
+| :--- | :--- |
+| Surfaces | `--studio-surface-0: var(--studio-paper)`, `--studio-surface-1: var(--studio-paper-card)`, `--studio-surface-2: var(--studio-paper-pure)`, `--studio-surface-3: var(--studio-paper-pure)` |
+| Ink | `--studio-ink`, `--studio-ink-muted`, `--studio-ink-subtle`, `--studio-ink-faint` |
+| Structure | `--studio-line`, `--studio-line-soft`, `--studio-line-strong` |
+| Accent | `--studio-accent`, `--studio-accent-hover`, `--studio-accent-soft`, `--studio-accent-border`, `--studio-accent-ink: #fff` |
+| Status | `--studio-status-success`, `--studio-status-success-soft`, `--studio-status-success-line`; the same three-part set for `warning`, `danger`, and `info`; neutral uses the surface, ink, and line tokens above |
+| Focus | `--studio-focus-ring`, with a `2px` outline and `2px` offset |
+| Radius | `--studio-radius-sm` (`6px`), `--studio-radius-md` (`12px`), `--studio-radius-lg` (`16px`) |
+| Shadow | `--studio-shadow-1: 0 4px 20px -2px rgb(28 27 27 / 4%)`, `--studio-shadow-2: 0 12px 32px -4px rgb(28 27 27 / 6%)`, `--studio-shadow-3: 0 24px 54px -12px rgb(28 27 27 / 8%)` |
+| Stack | `--studio-z-sticky: 30`, `--studio-z-dropdown: 40`, `--studio-z-drawer: 50`, `--studio-z-modal: 60`, `--studio-z-toast: 70`, `--studio-z-tooltip: 80` |
+| Motion | `--studio-motion-fast: 100ms`, `--studio-motion-base: 150ms`, `--studio-motion-overlay: 200ms`, `--studio-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1)` |
+
+Lucian ports map by meaning: `--ux-page` to `--studio-surface-0`; `--ux-surface`, `--ux-surface-2`, and `--ux-surface-3` to the matching studio surface; `--ux-ink`, `--ux-ink-2`, and `--ux-ink-3` to ink, muted, and subtle; `--ux-line` and `--ux-line-2` to line and line-strong; each `--ux-accent*` to its matching studio accent; `--ux-mint`, `--ux-warn`, `--ux-danger`, and `--ux-info` to success, warning, danger, and info; `--ux-shadow` and `--ux-shadow-strong` to shadow 1 and 3; and `--ux-ease` and `--ux-spring` to the standard ease. Legacy `--ux-glass`, `--ux-glass-line`, and `--ux-grad` alias surface 2, line, and accent respectively until Lucian consumers stop using them. Lucian tokens do not own a separate `prefers-color-scheme` branch; they inherit the active studio theme. Alias declarations belong in the token layer only.
+
 ## 2. TYPOGRAPHY & ICONOGRAPHY HIERARCHY
 
 **⛔ STRICT PROHIBITION:** Never use micro font sizes such as `text-[9px]`, `text-[10px]`, or `text-[11px]` for readable UI text. The minimum allowed font size across the entire application is `text-xs` (`12px`).
@@ -146,9 +165,95 @@ Applies to `ScriptEditorView`, `ArtistDeskView`, `LetteringWorkspace`, and `Revi
 - **Standard Card:** Header with title and badge, body section, footer with action buttons.
 - **Empty States:** Border dashed `border-2 border-dashed border-stone-300 rounded-xl p-8 flex flex-col items-center justify-center text-center`, warm orange icon container (`bg-orange-50 text-orange-600 p-3 rounded-xl`), `font-serif` title, and clear action CTA.
 - **Loading States:** Skeleton pulse with `bg-stone-200/70 rounded-md animate-pulse`, matching the target surface geometry. Avoid full-screen blocking spinners except for page transitions.
-- **Drawers / Modals:** Level 3 surface with backdrop blur, fixed right slide-in (e.g., `w-[420px]`), close button in top right, keyboard `Esc` listener.
-- **Toasts / Notifications:** Bottom right position, border-l-4 matching semantic status (orange, green, amber, red, purple).
 - **Tooltips:** `bg-stone-900 text-white text-xs rounded-md px-2 py-1 shadow-md`.
+
+All shared primitives below live in `src/shared/ui/`, consume only the token contract in section 1.7, accept a `className` escape hatch for layout only, and forward native HTML attributes and refs where applicable.
+
+### 4.1. Modal (Centered Dialog)
+
+| Contract | Required behavior |
+| :--- | :--- |
+| Sizes | `sm: 400px`, `md: 560px` (default), `lg: 720px`, `xl: 960px`, `full: calc(100vw - 32px)`; every size is capped at `calc(100vw - 32px)` and the dialog at `calc(100dvh - 32px)` |
+| Slots | `title`, optional `description`, scrollable `body`, `footer`; footer actions align right and the primary action is last in DOM and visual order |
+| Chrome | Level 3 surface; close button in the top-right with an accessible label |
+| Dismissal | `Escape` and backdrop click close by default; neither closes when `dismissible={false}`; closing must be idempotent |
+| Focus | Trap focus while open, focus the first meaningful control (or dialog container), and restore focus to the opener on close |
+| Semantics | `role="dialog"`, `aria-modal="true"`, `aria-labelledby` for title, and `aria-describedby` only when description exists |
+| Page state | Lock body scroll while open without shifting page width; portal to the shared overlay root |
+| Motion | Backdrop fade plus dialog fade/scale in and out in `200ms`; `prefers-reduced-motion: reduce` renders the final state without transform or delayed dismissal |
+
+- Only one standard modal may be open. A `ConfirmDialog` may appear above it at `calc(var(--studio-z-modal) + 1)`; no third overlay may stack.
+- The modal surface uses `--studio-z-modal`; dropdowns or tooltips inside it remain within the modal stacking context.
+
+### 4.2. Drawer (Side Panel)
+
+| Contract | Required behavior |
+| :--- | :--- |
+| Placement | `right` by default or `left` |
+| Width | `sm: 360px`, `md: 420px` (default), `lg: 560px`; cap at `100vw` |
+| Slots | `header` (title and close control), scrollable `body`, optional `footer` |
+| Behavior | Uses the modal focus trap, focus restoration, body scroll lock, `Escape`, `dismissible`, ARIA, backdrop, portal, and reduced-motion rules |
+| Motion | Backdrop fade and horizontal panel slide in/out in `200ms` |
+
+- Use `--studio-z-drawer`. A drawer does not open on top of a modal.
+- On mobile, navigation uses this primitive with `placement="left"`; it must not maintain a separate overlay implementation.
+
+### 4.3. ConfirmDialog
+
+| Variant | Contract |
+| :--- | :--- |
+| `default` | Neutral confirmation; cancel receives initial focus |
+| `danger` | Destructive confirmation with danger icon/text treatment; cancel receives initial focus |
+| `type-to-confirm` | Requires exact, case-sensitive equality with the supplied `confirmationText`; submit stays disabled until matched and the required text remains visible beside the field |
+
+- `ConfirmContext` exposes `confirm(options): Promise<boolean>` through `useConfirm()`. It resolves `true` once on confirm and `false` once on cancel, `Escape`, or permitted backdrop dismissal.
+- Options include `variant`, `title`, `description`, `confirmLabel`, `cancelLabel`, `confirmationText`, and `dismissible`. All visible labels and accessible names come from i18n keys or explicit caller-provided localized strings; primitives contain no production-language defaults.
+- Confirm uses the Modal contract and is the only overlay allowed above an existing modal.
+
+### 4.4. Alert (Inline)
+
+| Contract | Required behavior |
+| :--- | :--- |
+| Tones | `info`, `success`, `warning`, `danger`, `neutral` |
+| Slots | Required icon and body; optional `title`, action, and dismiss control |
+| Semantics | Danger/warning use `role="alert"`; other tones use `role="status"` only for content announced after page load, otherwise no live role |
+
+- Every tone combines icon, text, and semantic color; color is never the sole signal.
+- The optional action is a real button or link with a specific label. Dismiss has an accessible localized label and does not remove externally controlled alerts without calling `onDismiss`.
+
+### 4.5. Toast
+
+| Contract | Required behavior |
+| :--- | :--- |
+| Placement | Bottom-right stack, maximum three visible, newest on top |
+| Tones | Same five tones as Alert; each uses an icon, text, and semantic `border-left: 4px` |
+| Lifetime | `5000ms` by default; pause on pointer hover and keyboard focus; danger is sticky until explicitly closed |
+| Action | Optional real button; close control is always available |
+| Announcement | `aria-live="polite"` for neutral/info/success/warning and `aria-live="assertive"` for danger; each toast is atomic |
+
+- `ToastContext` exposes `toast.success(...)`, `toast.warning(...)`, `toast.danger(...)`, `toast.info(...)`, and `toast.neutral(...)`; generic `toast(...)` requires an explicit tone. Do not infer tone from message text.
+- Adding a fourth toast removes the oldest visible toast. Reduced motion removes stack transforms and exit delays, not the timeout itself.
+
+### 4.6. Sidebar
+
+| Primitive | Contract |
+| :--- | :--- |
+| `SidebarSection` | Optional localized section label plus a list of items; the label is visually hidden in collapsed mode |
+| `SidebarItem` | Icon, localized label, optional badge, and `default`, `hover`, `active`, `disabled`, and visible `focus` states; renders a link for navigation and a button only for actions |
+| Dimensions | Expanded width `248px`; collapsed rail width `64px` |
+
+- `AppShellSidebar` and the collapsible rail compose these primitives rather than maintaining separate item behavior.
+- Active state is derived from the current route and exposed with `aria-current="page"`; callers do not maintain a competing visual-only active flag.
+- Collapsed items expose their label in a keyboard- and pointer-triggered tooltip. Badges retain an accessible name when their visual label is hidden.
+- Navigation is reachable in DOM order with `Tab`. Within a composite menu, `ArrowUp`/`ArrowDown`, `Home`, and `End` move focus; `Enter`/`Space` activates buttons and `Enter` activates links. Disabled items are not actionable.
+- Below the desktop breakpoint, render the same sections/items inside the shared left Drawer; do not render a second navigation model.
+
+### 4.7. Migration Rules
+
+- Do not add ad-hoc `fixed inset-0` overlays. New dialogs, confirmations, and side panels use the shared primitives in `src/shared/ui/`.
+- All new dialogs use `Modal`, `Drawer`, or `ConfirmDialog`; feature code owns content, not focus, scroll-lock, portal, or dismissal mechanics.
+- Preserve every existing `data-testid` exactly during migration. Shared primitives accept test IDs needed by current tests.
+- Migrate one product area at a time in later tasks. This contract does not authorize a broad component rewrite.
 
 ---
 
