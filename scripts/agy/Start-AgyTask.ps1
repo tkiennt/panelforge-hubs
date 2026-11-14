@@ -20,7 +20,8 @@ param(
     [string]$Task,
     [string]$TaskFile,
     [string]$Model = 'gemini-3.8-flash-medium',
-    [string]$FallbackModel = 'claude-sonnet-5-5-medium',
+    # 'auto' = first Claude Sonnet (else any Claude) listed by `agy models` for the signed-in account; '' = no fallback.
+    [string]$FallbackModel = 'auto',
     [string]$Base = 'trungkien',
     [string[]]$Deny = @(),
     [string[]]$AddDir = @('D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-hub'),
@@ -103,6 +104,10 @@ function Invoke-AgyRun([string[]]$RunArgs) {
 
 Invoke-AgyRun $agyArgs
 $usedModel = $Model
+if ($FallbackModel -eq 'auto') {
+    $available = @(& $agy models 2>$null | ForEach-Object { ("$_" -split "`t")[0].Trim() } | Where-Object { $_ -like 'claude-*' })
+    $FallbackModel = @($available | Where-Object { $_ -like '*sonnet*' }) + $available | Select-Object -First 1
+}
 # Fallback: quota exhausted / error / no result -> resume the same conversation with a Claude model.
 if ((-not $script:final -or $script:final.status -ne 'SUCCESS') -and $FallbackModel -and $FallbackModel -ne $Model) {
     $why = if ($script:final) { $script:final.status } else { 'NO_RESULT' }
