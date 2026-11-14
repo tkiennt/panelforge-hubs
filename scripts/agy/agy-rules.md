@@ -2,6 +2,11 @@
 
 Work only inside the current worktree, on its current branch. Never push. Never merge.
 
+## No backward compatibility (project rule)
+- Build to the current spec only. Data will be seeded later, so do NOT preserve old data or old contracts.
+- No data-migration/backfill SQL, no `[Obsolete]` shims, no keeping old endpoints/fields "for the FE": delete them and update callers/tests.
+- No hash/format compatibility with old versions. Migrations only describe the new schema (still generated with `dotnet ef migrations add`).
+
 ## Git and line endings
 - Never override git config: no `-c core.autocrlf=...`, no `GIT_CONFIG_GLOBAL`, no `git config` writes.
   If git cannot read the global config, still use plain `git add` / `git commit`; the repo `.gitattributes` normalizes line endings.
