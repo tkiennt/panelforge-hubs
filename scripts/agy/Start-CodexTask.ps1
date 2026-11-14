@@ -40,7 +40,16 @@ $body = if ($TaskFile) { [IO.File]::ReadAllText((Resolve-Path $TaskFile).Path, $
 $rules = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'agy-rules.md'), $utf8)
 $scope = "Worktree: $Worktree (branch: $((git -C $Worktree branch --show-current)))`nBase branch: $Base`n"
 if ($Deny.Count) { $scope += "Do NOT edit these paths (owned by others): $($Deny -join ', ')`n" }
-$prompt = "# Task $Id`n`n$scope`n$body`n`n$rules"
+$commitMsgPath = Join-Path $runDir 'commit-msg.txt'
+if (Test-Path $commitMsgPath) { Remove-Item $commitMsgPath -Force }
+$gitNote = @"
+## Git (Codex only - overrides the git/commit lines below)
+The .git folder is read-only in your sandbox. Do NOT run git commands that write (add, commit, merge, checkout, stash, fetch).
+Read-only git (status, diff, log, show) is fine. If a merge is in progress, resolve the conflict markers in the files only.
+When done, write ONE conventional commit message line to: $commitMsgPath
+The runner stages and commits your changes after you finish.
+"@
+$prompt = "# Task $Id`n`n$scope`n$body`n`n$gitNote`n`n$rules"
 [IO.File]::WriteAllText((Join-Path $runDir 'task.md'), $prompt, $utf8)
 
 $lastPath = Join-Path $runDir 'last.md'
@@ -77,6 +86,27 @@ try {
 
 $elapsed = [int]((Get-Date) - $started).TotalMinutes
 $status = if ($codexExit -eq 0 -and (Test-Path $lastPath)) { 'SUCCESS' } else { "ERROR($codexExit)" }
+
+# Commit on Codex's behalf (its sandbox cannot write .git). Skip when conflict markers remain.
+$dirty = @(git -C $Worktree status --porcelain 2>$null)
+$merging = (git -C $Worktree rev-parse -q --verify MERGE_HEAD 2>$null)
+if ($status -eq 'SUCCESS' -and ($dirty.Count -gt 0 -or $merging)) {
+    $markers = @(git -C $Worktree diff --name-only --diff-filter=U 2>$null) +
+        @(git -C $Worktree grep -l -E '^(<<<<<<<|>>>>>>>) ' 2>$null) | Sort-Object -Unique
+    if ($markers.Count -gt 0) {
+        $status = 'CONFLICTS_LEFT'
+        Write-Host "[codex $Id] not committing: unresolved conflicts in $($markers -join ', ')" -ForegroundColor Yellow
+    } else {
+        $msg = if (Test-Path $commitMsgPath) { ([IO.File]::ReadAllText($commitMsgPath, $utf8) -split "`n")[0].Trim() } else { '' }
+        git -C $Worktree add -A | Out-Null
+        if ($merging -and -not $msg) { git -C $Worktree commit --no-edit -q }
+        else {
+            if (-not $msg) { $msg = "chore(config): apply codex task $Id" }
+            git -C $Worktree commit -q -m $msg -m 'Co-Authored-By: Codex <noreply@openai.com>'
+        }
+        Write-Host "[codex $Id] committed: $(git -C $Worktree log --oneline -1)" -ForegroundColor Cyan
+    }
+}
 Write-Host "[codex $Id] finished: $status after $elapsed min" -ForegroundColor Cyan
 
 $verifyText = ''
