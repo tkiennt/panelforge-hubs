@@ -104,12 +104,17 @@ function Invoke-AgyRun([string[]]$RunArgs) {
 
 Invoke-AgyRun $agyArgs
 $usedModel = $Model
-if ($FallbackModel -eq 'auto') {
-    $available = @(& $agy models 2>$null | ForEach-Object { ("$_" -split "`t")[0].Trim() } | Where-Object { $_ -like 'claude-*' })
+$needFallback = (-not $script:final -or $script:final.status -ne 'SUCCESS')
+if ($needFallback -and $FallbackModel -eq 'auto') {
+    # agy prints "Fetching available models..." on stderr; under EAP=Stop in PS 5.1 that would abort the script.
+    $prevEap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $available = @(& $agy models 2>&1 | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] } |
+        ForEach-Object { ("$_" -split "`t")[0].Trim() } | Where-Object { $_ -like 'claude-*' })
+    $ErrorActionPreference = $prevEap
     $FallbackModel = @($available | Where-Object { $_ -like '*sonnet*' }) + $available | Select-Object -First 1
 }
 # Fallback: quota exhausted / error / no result -> resume the same conversation with a Claude model.
-if ((-not $script:final -or $script:final.status -ne 'SUCCESS') -and $FallbackModel -and $FallbackModel -ne $Model) {
+if ($needFallback -and $FallbackModel -and $FallbackModel -ne $Model) {
     $why = if ($script:final) { $script:final.status } else { 'NO_RESULT' }
     Write-Host "[agy $Id] $Model stopped ($why) - continuing with $FallbackModel" -ForegroundColor Yellow
     $resume = "The previous model stopped before finishing. Check git status and git log, then finish the task in $taskPath following its rules."
