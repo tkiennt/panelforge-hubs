@@ -166,7 +166,7 @@
 | P1 | P1-05 | Self-Rollback | ART-02 | ❌ |
 | P1 | P1-06 | Coverage Counter bàn vẽ | ART-03 | 🟡 🔍 |
 | P1 | P1-07 | Letterer bị khoá Layout | ART-04 | 🟡 🔍 |
-| P1 | P1-08 | Series Bible chốt theo chương: bí danh, bảng tên, tham chiếu bôi đen, Danh sách & Bản đồ thực thể chương, Gửi duyệt chốt Danh sách thực thể, Gate 1 kiểm Canon đúng biến thể (Q16, Q19, Q21, 1A–9A) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → BIB-09 → BIB-11 → BIB-12 → BIB-13 → BIB-14 → (BIB-15 ∥ BIB-16) → BIB-17 | ❌ |
+| P1 | P1-08 | Series Bible chốt theo chương: bí danh, bảng tên, tham chiếu bôi đen, Danh sách & Bản đồ thực thể chương, Gửi duyệt chốt Danh sách thực thể, Gate 1 kiểm Canon đúng biến thể (Q16, Q19, Q21, 1A–9A) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → SCR-11 → BIB-09 + BIB-11 → BIB-12 + BIB-13 → BIB-14 → BIB-15 → FE (BIB-03, BIB-16, BIB-15 FE) → BIB-17 (xem "Luồng triển khai BE → FE") | ❌ |
 | P1 | P1-09 | Duyệt concept: Editor xác nhận = khoá Canon, phiên bản concept, góp ý có trả lời (Q20) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → BIB-10 (song song sau BIB-09) | ❌ |
 | P2 | P2-01 | Giao thoa 15% | REV-01 | ❌ |
 | P2 | P2-02 | Lớp lỗi Artwork/Lettering | REV-02 | ❌ |
@@ -219,6 +219,7 @@
 | 2026-11-14 | Q16 (gắn chương tự động) | ✅ Chốt | hub (chỉ tài liệu) | Gắn mục Bible vào chương và chọn bản tạo hình là tự động; Gate 1 chỉ kiểm `CanonLocked`; bỏ lệnh `SetCastRevision`. Đổi biến thể theo chương → câu hỏi mở 26 |
 | 2026-11-14 | Dọn tài liệu | ✅ | hub, BE, FE (chỉ tài liệu) | Xoá tài liệu lệch V2.6: hub `note/archive/*`, Cross Audit Report, FEATURE_AUDIT_DIFF, TEST_CASES_SERIES_BIBLE (era), LOCALIZATION_PIPELINE_PROPOSAL (thay bằng BR-34), image_storage_architecture + implementation-qa (trùng/cũ), sơ đồ `report4` (mô tả code cũ); BE `docs/{requirements,roles,domain,architecture,storage,archive,superpowers,diagrams}`, 2 file research thiết kế cũ, CORE_PRODUCTION_ARCHITECTURE; FE `docs/{CORE_PRODUCTION_ARCHITECTURE,DOCUMENTATION_PROCESS,archive,audit}`. Sửa glossary + chuẩn đặt tên trạng thái theo Q15–Q17, clean-architecture (Reader/Ví VNĐ, bỏ `Locked`, bỏ `HANDOFF.md`). Đồng bộ lại `web/public/docs` |
 | 2026-11-14 | Q18 (câu 26) | ✅ Chốt | hub (chỉ tài liệu) | Đổi biến thể theo chương: tự động mặc định, chỉ Writer đổi → spec Module 1 mục 3, BR-15/35, §5.1; BIB-13 thêm `SetCastVariant`, BIB-16 thêm ô chọn |
+| 2026-11-14 | Q24 (câu 32) | ✅ Chốt | hub (chỉ tài liệu) | Rà soát trước implement: kế thừa theo chuỗi thay thế, giai đoạn theo Panel trong payload lưu, lựa chọn của Writer vào mã băm; 02_BIBLE_PLAN thêm Luồng triển khai BE → FE (pha 0–6) |
 | 2026-11-14 | Q23 (câu 31) | ✅ Chốt | hub (chỉ tài liệu) | Chương gắn bản cụ thể, kế thừa về phía sau (Ch1 giữ v1, Ch2 chờ v2, Ch3 kế thừa v2); bản theo Panel cho hồi tưởng; Gate 1 kiểm mọi bản chương dùng; cảnh báo lệch bản; huỷ bản thay thế → BIB-09, BIB-11, BIB-13..BIB-16 |
 | 2026-11-14 | Q22 (câu 30) | ✅ Chốt | hub (chỉ tài liệu) | Producer được yêu cầu vẽ lại concept Bible; giai đoạn chương là mặc định tự đề xuất, Writer chỉ đổi khi cần, Gửi duyệt không đòi xác nhận → BIB-10, BIB-11, BIB-13, BIB-14, BIB-16 |
 | 2026-11-14 | Q21 (câu 29) | ✅ Chốt | hub (chỉ tài liệu) | Chốt Bible hai mốc: Gửi duyệt cần định nghĩa mục nháp / Quần chúng; Gate 1 cần ảnh `CanonLocked` của đúng biến thể (kể cả giai đoạn mới) → BIB-11, BIB-13, BIB-14, BIB-16; spec Module 1 mục 3–4, BR-15/35, §5.2 máy 5 |
@@ -252,6 +253,8 @@
 ### Đang chờ (rà soát 2026-11-13)
 
 29. ✅ **Chốt Bible hai mốc theo chương** (user chốt 2026-11-14, spec **Q21**): Writer *Gửi duyệt* chỉ được khi mọi mục nháp đã định nghĩa hoặc gắn Quần chúng (giai đoạn dùng mặc định, Writer đổi khi cần — Q22); biến thể chọn theo nhãn, kể cả biến thể chưa khoá; Producer *Bắt đầu sản xuất* chỉ được khi ảnh của đúng biến thể có trong kịch bản đã `CanonLocked` → [BIB-14](plans/02_BIBLE_PLAN.md).
+
+32. ✅ **Chi tiết Q23** (user chốt 2026-11-14, spec **Q24**): chương kế thừa đi theo chuỗi thay thế tới bản đã khoá mới nhất; giai đoạn theo Panel lưu cùng kịch bản (payload `syncScriptStructure`); lựa chọn bản của Writer thuộc phiên bản kịch bản và mã băm → [02_BIBLE_PLAN.md](plans/02_BIBLE_PLAN.md) (Luồng triển khai BE → FE).
 
 31. ✅ **Bản Bible theo chương & theo Panel** (user chốt 2026-11-14, spec **Q23**): chương gắn bản cụ thể (có thể chưa khoá), chương sau kế thừa bản của chương gần nhất phía trước cho tới khi chốt; chương đã chốt không đổi; Writer đặt bản riêng cho Panel khi một chương có nhiều giai đoạn; Gate 1 chặn khi bất kỳ bản nào chương dùng chưa khoá; cảnh báo chương sau đã chốt lệch bản; Writer huỷ được bản thay thế chưa duyệt → [02_BIBLE_PLAN.md](plans/02_BIBLE_PLAN.md).
 
