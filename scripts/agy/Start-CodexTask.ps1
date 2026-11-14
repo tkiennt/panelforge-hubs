@@ -46,7 +46,8 @@ $gitNote = @"
 ## Git (Codex only - overrides the git/commit lines below)
 The .git folder is read-only in your sandbox. Do NOT run git commands that write (add, commit, merge, checkout, stash, fetch).
 Read-only git (status, diff, log, show) is fine. If a merge is in progress, resolve the conflict markers in the files only.
-When done, write ONE conventional commit message line to: $commitMsgPath
+Do not create or write files outside the worktree (the sandbox cannot write there), and do not touch node_modules.
+Make the LAST line of your final answer exactly: COMMIT_MSG: <one conventional commit message>
 The runner stages and commits your changes after you finish.
 "@
 $prompt = "# Task $Id`n`n$scope`n$body`n`n$gitNote`n`n$rules"
@@ -98,7 +99,12 @@ if ($status -eq 'SUCCESS' -and ($dirty.Count -gt 0 -or $merging)) {
         $status = 'CONFLICTS_LEFT'
         Write-Host "[codex $Id] not committing: unresolved conflicts in $($markers -join ', ')" -ForegroundColor Yellow
     } else {
-        $msg = if (Test-Path $commitMsgPath) { ([IO.File]::ReadAllText($commitMsgPath, $utf8) -split "`n")[0].Trim() } else { '' }
+        # Commit message comes from the "COMMIT_MSG:" line of the final answer (written by the host, not the sandbox).
+        $msg = ''
+        if (Test-Path $lastPath) {
+            $m = [regex]::Matches([IO.File]::ReadAllText($lastPath, $utf8), '(?m)^\s*COMMIT_MSG:\s*`?(.+?)`?\s*$')
+            if ($m.Count) { $msg = $m[$m.Count - 1].Groups[1].Value.Trim() }
+        }
         git -C $Worktree add -A | Out-Null
         if ($merging -and -not $msg) { git -C $Worktree commit --no-edit -q }
         else {
