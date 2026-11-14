@@ -53,7 +53,14 @@ $taskPath = Join-Path $runDir 'task.md'
 [IO.File]::WriteAllText($taskPath, $prompt, $utf8)
 
 $shortPrompt = "Read the file $taskPath completely and carry out the task it describes, following every rule in it. Work immediately, do not wait for approval."
-$agyArgs = @('-p', $shortPrompt, '--model', $Model, '--output-format', 'stream-json', '--add-dir', $runDir)
+# Headless runs cannot approve MCP calls, so grant read-only graphify tools for this session only (not saved).
+$graphifyTools = 'list_repositories', 'graph_stats', 'graphify_help', 'graphify_find', 'query_graph', 'graphify_callers',
+    'graphify_node', 'graphify_impact', 'graphify_tests_for', 'graphify_file_neighbors', 'graphify_imports_exports',
+    'graphify_trace', 'graphify_rank_files', 'search', 'fetch', 'recall', 'review_status', 'list_workspaces'
+$settingsPath = Join-Path $runDir 'settings.json'
+$settings = @{ permissions = @{ allow = @($graphifyTools | ForEach-Object { "mcp(graphify/$_)" }) } }
+[IO.File]::WriteAllText($settingsPath, ($settings | ConvertTo-Json -Depth 4), $utf8)
+$agyArgs = @('-p', $shortPrompt, '--model', $Model, '--output-format', 'stream-json', '--add-dir', $runDir, '--settings', $settingsPath)
 foreach ($d in $AddDir) { if (Test-Path $d) { $agyArgs += @('--add-dir', $d) } }
 
 # ── Run agy and print compact progress ──────────────────────────────────────
@@ -101,7 +108,7 @@ if ((-not $script:final -or $script:final.status -ne 'SUCCESS') -and $FallbackMo
     $why = if ($script:final) { $script:final.status } else { 'NO_RESULT' }
     Write-Host "[agy $Id] $Model stopped ($why) - continuing with $FallbackModel" -ForegroundColor Yellow
     $resume = "The previous model stopped before finishing. Check git status and git log, then finish the task in $taskPath following its rules."
-    $fbArgs = @('-p', $resume, '--model', $FallbackModel, '--output-format', 'stream-json', '--add-dir', $runDir)
+    $fbArgs = @('-p', $resume, '--model', $FallbackModel, '--output-format', 'stream-json', '--add-dir', $runDir, '--settings', $settingsPath)
     foreach ($d in $AddDir) { if (Test-Path $d) { $fbArgs += @('--add-dir', $d) } }
     if ($script:convId) { $fbArgs += @('--conversation', $script:convId) }
     Invoke-AgyRun $fbArgs

@@ -25,6 +25,12 @@ Work only inside the current worktree, on its current branch. Never push. Never 
   Run `npm run i18n:check` only if you changed `src/locales`. Never run Playwright / e2e tests.
 - Do not paste long command output back into your reasoning; read only the summary lines (`| tail -n 20`).
 
+## Find code with graphify first (saves tokens)
+- Use the graphify MCP (server `graphify`, read-only tools are pre-approved) before grepping or reading many files:
+  `graphify_find` (where a symbol is defined), `graphify_callers`, `graphify_impact` (what a change affects),
+  `graphify_tests_for` (tests for a symbol/file), `query_graph` (how a behaviour works). Repos: `tkiennt/PanelForge_FA26SE251`, `tkiennt/panelforge-fe`.
+- The graph is an indexed snapshot: if a result looks stale or a file was edited in this task, read the current file.
+
 ## Be terse (saves tokens)
 - No plan essays, no restating the task, no progress narration between tool calls.
 - Read files in targeted ranges; do not re-read files you already read.
