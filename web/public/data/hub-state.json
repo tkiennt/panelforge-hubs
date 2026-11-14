@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-14T05:51:27.947Z",
+  "lastSyncedAt": "2026-11-14T06:52:19.222Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,116 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
+      "timestamp": "2026-11-14T13:43:06+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
+      "message": "docs: add THBMinh branch & multi-agent worktree rules for Claude and Antigravity",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-54bd7e3f7396f583c3f834e17a260b413ad87332",
+      "timestamp": "2026-11-14T13:51:26+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "54bd7e3f7396f583c3f834e17a260b413ad87332",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/54bd7e3f7396f583c3f834e17a260b413ad87332",
+      "message": "feat(lettering): synchronize balloon logic with v2.6 and br-34 specs",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f6b8b281751f36a4403224988cd08c7f8f2cc9cf",
+      "timestamp": "2026-11-11T17:45:28+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "f6b8b281751f36a4403224988cd08c7f8f2cc9cf",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f6b8b281751f36a4403224988cd08c7f8f2cc9cf",
+      "message": "feat(script): let writers create pages and panels from the script",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-97bf35c85146d9230f956e0b304112043bf015ac",
+      "timestamp": "2026-11-11T17:49:43+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "97bf35c85146d9230f956e0b304112043bf015ac",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/97bf35c85146d9230f956e0b304112043bf015ac",
+      "message": "feat(script): merge writer page and panel creation from script",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-eb4cfeb93c77ddaa53f6d165af69e90ddb4bdd02",
+      "timestamp": "2026-11-11T18:17:28+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "eb4cfeb93c77ddaa53f6d165af69e90ddb4bdd02",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/eb4cfeb93c77ddaa53f6d165af69e90ddb4bdd02",
+      "message": "feat(script): save page, panel and line structure in one transaction",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-67c73c225b07e5f2d763b0753db8827fcdd485af",
+      "timestamp": "2026-11-11T18:17:29+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "67c73c225b07e5f2d763b0753db8827fcdd485af",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/67c73c225b07e5f2d763b0753db8827fcdd485af",
+      "message": "fix(chapter): drop unmapped User.IsDeleted filter when approving",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f95369e86c5a60021a27f28b13398eb284403a75",
+      "timestamp": "2026-11-11T18:33:26+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "f95369e86c5a60021a27f28b13398eb284403a75",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f95369e86c5a60021a27f28b13398eb284403a75",
+      "message": "feat(script): merge one-transaction script structure save",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1cb44edb96d31e9d0edc89ef7b770384c66bebcb",
+      "timestamp": "2026-11-12T00:07:20+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "1cb44edb96d31e9d0edc89ef7b770384c66bebcb",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1cb44edb96d31e9d0edc89ef7b770384c66bebcb",
+      "message": "fix(bible): enforce review transitions and per-stage concept queue",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-e63d565e16557ecb160687e4b6fcd6aa3fcefd61",
+      "timestamp": "2026-11-12T07:25:15+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "e63d565e16557ecb160687e4b6fcd6aa3fcefd61",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e63d565e16557ecb160687e4b6fcd6aa3fcefd61",
+      "message": "feat(payments): add wallet, workspace payments and paid chapter access",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
+      "timestamp": "2026-11-14T13:42:48+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
+      "message": "docs: add THBMinh branch & multi-agent worktree rules for Claude and Antigravity",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-316cdaf939dea9d984ddacb645bcd007f82cf5d9",
       "timestamp": "2026-11-14T12:51:26+07:00",
@@ -2080,116 +2190,6 @@
       "commitHash": "aadec737896ff998db5fd23b72b1906ee78b66f5",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/aadec737896ff998db5fd23b72b1906ee78b66f5",
       "message": "Merge remote-tracking branch 'origin/trungkien' into feature/publisher-monetization",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
-      "timestamp": "2026-11-13T14:24:11+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
-      "message": "chore(merge): sync trungkien into feature/publisher-monetization",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-5495ec2f192a06da1520801d7148167dc1cc8508",
-      "timestamp": "2026-11-13T14:24:25+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "5495ec2f192a06da1520801d7148167dc1cc8508",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5495ec2f192a06da1520801d7148167dc1cc8508",
-      "message": "docs(agents): add git workflow rules for AI agents",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-7dcd991d71bfe97610a977d323122db1bb08f6cc",
-      "timestamp": "2026-11-13T14:28:11+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "7dcd991d71bfe97610a977d323122db1bb08f6cc",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7dcd991d71bfe97610a977d323122db1bb08f6cc",
-      "message": "docs(agents): require hub tracker update after code changes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-aeebf6596aa2aa605461416226f07202fa17252c",
-      "timestamp": "2026-11-13T14:19:39+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "aeebf6596aa2aa605461416226f07202fa17252c",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/aeebf6596aa2aa605461416226f07202fa17252c",
-      "message": "test: align unit tests with script lifecycle (SCR-38)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-eda8d4f1dde55b73e76e87f879ecf053a792b9d2",
-      "timestamp": "2026-11-13T14:12:11+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "eda8d4f1dde55b73e76e87f879ecf053a792b9d2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/eda8d4f1dde55b73e76e87f879ecf053a792b9d2",
-      "message": "feat(script): commit history, compare with pushed, review pushed",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-36482cd82366a98c5fa48c1fc420eb5f25396ab0",
-      "timestamp": "2026-11-10T13:46:45+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "36482cd82366a98c5fa48c1fc420eb5f25396ab0",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/36482cd82366a98c5fa48c1fc420eb5f25396ab0",
-      "message": "feat(publisher): add publisher role, controller, and query workflows",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-161017a2bc1d20a62656489eb8209a1a16e2a935",
-      "timestamp": "2026-11-10T22:37:22+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "161017a2bc1d20a62656489eb8209a1a16e2a935",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/161017a2bc1d20a62656489eb8209a1a16e2a935",
-      "message": "chore(merge): sync remote origin trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-a53c26d94d7c265698eed2916fe99a1f666451e8",
-      "timestamp": "2026-11-10T22:42:06+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "a53c26d94d7c265698eed2916fe99a1f666451e8",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/a53c26d94d7c265698eed2916fe99a1f666451e8",
-      "message": "feat(canvas): optimize frame template margins to manga print standards",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d722c2aca89180258d3ba60046678eea412731c6",
-      "timestamp": "2026-11-10T23:02:24+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d722c2aca89180258d3ba60046678eea412731c6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d722c2aca89180258d3ba60046678eea412731c6",
-      "message": "feat(canvas): expand frame templates by narrative storytelling groups",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-472b36ef0d73ea7cd997a2a21a8a58c1dc29f1b7",
-      "timestamp": "2026-11-10T23:31:31+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "472b36ef0d73ea7cd997a2a21a8a58c1dc29f1b7",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/472b36ef0d73ea7cd997a2a21a8a58c1dc29f1b7",
-      "message": "feat(canvas): fix panel template reading order and diagonal borders",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
