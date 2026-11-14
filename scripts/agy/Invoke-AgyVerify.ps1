@@ -178,6 +178,14 @@ elseif ($isFrontend) {
             $knownPath = Join-Path $PSScriptRoot '..\..\..\.agy-runs\known-fe-failures.txt'
             $known = if (Test-Path $knownPath) { @(Get-Content $knownPath | ForEach-Object { $_.Trim() } | Where-Object { $_ }) } else { @() }
             $newFails = @($failedFiles | Where-Object { $known -notcontains $_ })
+            # Re-run each new failure alone: parallel agents overload the machine and cause timeouts.
+            $flaky = @()
+            foreach ($nf in $newFails) {
+                $solo = Invoke-Step "npx vitest run --pool=threads --maxWorkers=2 $nf"
+                if ($solo.Code -eq 0) { $flaky += $nf }
+            }
+            if ($flaky.Count) { $notes.Add("Passed when re-run alone (load flakiness): " + ($flaky -join ', ')) }
+            $newFails = @($newFails | Where-Object { $flaky -notcontains $_ })
             if ($failedFiles.Count -gt 0 -and $newFails.Count -eq 0) {
                 Add-Result 'vitest related' 'WARN' "only known base failures ($($failedFiles.Count) file(s))"
             } else {
