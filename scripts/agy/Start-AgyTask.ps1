@@ -20,6 +20,7 @@ param(
     [string]$Task,
     [string]$TaskFile,
     [string]$Model = 'gemini-3.8-flash-medium',
+    [string]$FallbackModel = 'claude-sonnet-5-5-medium',
     [string]$Base = 'trungkien',
     [string[]]$Deny = @(),
     [string[]]$AddDir = @('D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-hub'),
@@ -61,14 +62,19 @@ $jsonl = Join-Path $runDir 'agy.jsonl'
 $final = $null
 Write-Host "[agy $Id] model=$Model worktree=$Worktree" -ForegroundColor Cyan
 
-Push-Location $Worktree
-try {
-    & $agy @agyArgs | ForEach-Object {
+$script:final = $null
+$script:convId = $null
+function Invoke-AgyRun([string[]]$RunArgs) {
+  $script:final = $null
+  Push-Location $Worktree
+  try {
+    & $agy @RunArgs | ForEach-Object {
         $line = "$_"
         [IO.File]::AppendAllText($jsonl, $line + "`n", $utf8)
         if (-not $line.StartsWith('{')) { return }
         try { $ev = $line | ConvertFrom-Json } catch { return }
         $ts = (Get-Date).ToString('HH:mm:ss')
+        if ($ev.event -eq 'init' -and $ev.conversation_id) { $script:convId = $ev.conversation_id }
         if ($ev.event -eq 'step_update') {
             $s = $ev.step_update
             if ($s.step_type -eq 'tool' -and $s.state -eq 'ACTIVE') {
@@ -83,13 +89,29 @@ try {
                 if ($first) { if ($first.Length -gt 140) { $first = $first.Substring(0, 140) + '...' }; Write-Host "$ts  > $first" }
             }
         }
-        elseif ($ev.event -eq 'result') { $final = $ev.result }
+        elseif ($ev.event -eq 'result') { $script:final = $ev.result }
     }
-} finally { Pop-Location }
+  } finally { Pop-Location }
+}
+
+Invoke-AgyRun $agyArgs
+$usedModel = $Model
+# Fallback: quota exhausted / error / no result -> resume the same conversation with a Claude model.
+if ((-not $script:final -or $script:final.status -ne 'SUCCESS') -and $FallbackModel -and $FallbackModel -ne $Model) {
+    $why = if ($script:final) { $script:final.status } else { 'NO_RESULT' }
+    Write-Host "[agy $Id] $Model stopped ($why) - continuing with $FallbackModel" -ForegroundColor Yellow
+    $resume = "The previous model stopped before finishing. Check git status and git log, then finish the task in $taskPath following its rules."
+    $fbArgs = @('-p', $resume, '--model', $FallbackModel, '--output-format', 'stream-json', '--add-dir', $runDir)
+    foreach ($d in $AddDir) { if (Test-Path $d) { $fbArgs += @('--add-dir', $d) } }
+    if ($script:convId) { $fbArgs += @('--conversation', $script:convId) }
+    Invoke-AgyRun $fbArgs
+    $usedModel = $FallbackModel
+}
+$final = $script:final
 
 $elapsed = [int]((Get-Date) - $started).TotalMinutes
 $status = if ($final) { $final.status } else { 'NO_RESULT' }
-Write-Host "[agy $Id] finished: $status after $elapsed min" -ForegroundColor Cyan
+Write-Host "[agy $Id] finished: $status ($usedModel) after $elapsed min" -ForegroundColor Cyan
 
 # ── Verify + report ─────────────────────────────────────────────────────────
 $verifyText = ''
@@ -111,7 +133,7 @@ $summary = if ($final -and $final.response) {
 } else { '(agy returned no final answer - see agy.jsonl)' }
 
 $report = @"
-## agy task $Id - agy: $status - $elapsed min
+## agy task $Id - agy: $status ($usedModel) - $elapsed min
 
 #### agy summary
 $summary
