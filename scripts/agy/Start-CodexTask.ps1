@@ -47,6 +47,13 @@ $lastPath = Join-Path $runDir 'last.md'
 $codexArgs = @('exec', '-C', $Worktree, '-s', 'workspace-write', '-o', $lastPath,
     '-c', 'sandbox_workspace_write.network_access=true', '--add-dir', $runDir)
 foreach ($d in $AddDir) { if (Test-Path $d) { $codexArgs += @('--add-dir', $d) } }
+# A worktree keeps its git metadata in the main repo's .git; the sandbox must be able to write it to commit/merge/fetch.
+$gitCommon = (git -C $Worktree rev-parse --path-format=absolute --git-common-dir 2>$null)
+if ($gitCommon -and (Test-Path $gitCommon)) { $codexArgs += @('--add-dir', (Resolve-Path $gitCommon).Path) }
+# npm/dotnet caches live outside the worktree; npm install / dotnet restore need to write them.
+foreach ($cache in (Join-Path $env:LOCALAPPDATA 'npm-cache'), (Join-Path $env:USERPROFILE '.nuget\packages')) {
+    if (Test-Path $cache) { $codexArgs += @('--add-dir', $cache) }
+}
 if ($Model) { $codexArgs += @('-m', $Model) }
 if ($Effort) { $codexArgs += @('-c', "model_reasoning_effort=`"$Effort`"") }
 $codexArgs += '-'
