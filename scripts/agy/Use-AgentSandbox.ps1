@@ -6,7 +6,12 @@
 .EXAMPLE
   . "$PSScriptRoot\Use-AgentSandbox.ps1"
 #>
-param([string]$SandboxRoot = 'D:\FPT-STUDY\10_FALL-2026\SEP490\.sandbox')
+param(
+    [string]$SandboxRoot = 'D:\FPT-STUDY\10_FALL-2026\SEP490\.sandbox',
+    # Off by default: a new CODEX_HOME makes Codex re-run its elevated Windows sandbox setup
+    # (creates CodexSandbox users, needs admin) which failed with "module could not be found".
+    [switch]$MoveCodexHome
+)
 
 $script:AgentSandboxRoot = $SandboxRoot
 foreach ($d in 'tmp', 'npm-cache', 'nuget\packages', 'nuget\http-cache', 'codex-home') {
@@ -21,6 +26,7 @@ $env:NUGET_HTTP_CACHE_PATH = Join-Path $SandboxRoot 'nuget\http-cache'
 
 # Codex keeps config, auth, sessions and its sandbox under CODEX_HOME. Copy config/auth from the
 # user's ~/.codex when newer, so `codex login` done the normal way keeps working.
+if (-not $MoveCodexHome) { return }
 $codexHome = Join-Path $SandboxRoot 'codex-home'
 $userCodex = Join-Path $env:USERPROFILE '.codex'
 foreach ($f in 'config.toml', 'auth.json') {
