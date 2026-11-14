@@ -159,8 +159,7 @@ Chi tiết task ở [02_BIBLE_PLAN.md](../note/plans/02_BIBLE_PLAN.md) (BIB-09..
 
 | Bảng | Khoá / ràng buộc | Vai trò |
 |---|---|---|
-| `bible_entries` (+ `aliases TEXT[]`, `is_crowd BOOLEAN`, `is_stub`) | PK `id` | Mục Bible; `is_stub` = chờ Writer viết định nghĩa; `is_crowd` = Quần chúng (chỉ Writer bật/tắt) |
-| `bible_entry_names` | PK `(series_bible_id, normalized_name)`, FK `bible_entry_id` CASCADE | Tên chính + bí danh đã chuẩn hoá (trim, gộp khoảng trắng, NFC, lower). Chống trùng tên (409) và chống race khi tự tạo mục nháp (`23505` → dùng lại mục vừa tạo) |
+| `bible_entries` (+ `normalized_name VARCHAR(200)`, `is_crowd BOOLEAN`, `is_stub`) | PK `id`; unique `(series_bible_id, normalized_name)` | Mục Bible không có bí danh; tên bất biến sau khi tạo, riêng stub được Writer đặt lại đúng một lần khi định nghĩa. `normalized_name` dùng trim, gộp khoảng trắng, NFC, lower để chống trùng tên và race khi tự tạo mục nháp (`23505` → dùng lại mục vừa tạo); `is_stub` = chờ Writer viết định nghĩa; `is_crowd` = Quần chúng (chỉ Writer bật/tắt) |
 | `bible_entry_revisions` (+ `current_concept_event_id`) | PK `id` | Bản theo biến thể (`StageName` = `variant_label`); trạng thái `Draft → ConceptSubmitted ↺ ReworkRequired → CanonLocked` (Q20, không còn `WriterEndorsed`) |
 | `bible_revision_events` (+ `concept_version_number`, `asset_sha256`) | PK `id` | Sự kiện bất biến; sự kiện `ConceptSubmitted` là **phiên bản concept** `v1, v2…` |
 | `bible_concept_comments` | PK `id`, FK `revision_id`, `concept_event_id`, `parent_comment_id` (trả lời) | Góp ý theo phiên bản concept, có khoanh vùng `region` và trả lời |

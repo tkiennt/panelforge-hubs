@@ -46,7 +46,7 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | **StudioWorkspace** | Toàn cục | Không gian làm việc khép kín của một Studio, độc lập về dữ liệu, thành viên và quota. |
 | **Series** | Workspace | Một bộ truyện tranh, có cấu trúc pipeline công đoạn, hướng đọc (RTL/LTR), Bible riêng. |
 | **SeriesBible** | Series | Hồ sơ kinh thánh bối cảnh của Series; lưu trữ thiết kế nhân vật, sự kiện, địa điểm, luật thế giới. |
-| **BibleEntry** | SeriesBible | Một nhân vật / địa điểm / đạo cụ (hoặc thuật ngữ, quy tắc, sự kiện); có `name`, `aliases`, cờ **Quần chúng** (`is_crowd`) và cờ nháp chờ định nghĩa (`IsStub`) (Q16). |
+| **BibleEntry** | SeriesBible | Một nhân vật / địa điểm / đạo cụ (hoặc thuật ngữ, quy tắc, sự kiện); có tên bất biến, unique theo `normalized_name`, không có bí danh; riêng stub được Writer đặt lại tên đúng một lần khi định nghĩa. Có cờ **Quần chúng** (`is_crowd`) và cờ nháp chờ định nghĩa (`IsStub`) (Q16). |
 | **BibleEntryRevision** | BibleEntry | Một bản tạo hình của mục, gắn **nhãn biến thể** (`variant_label`, ví dụ "Lúc nhỏ"), ảnh concept CAS SHA-256; không gắn số chương (Q16, BR-15). |
 | **Danh sách thực thể chương** (`chapter_bible_bindings`) | Chapter | Các mục Bible có trong kịch bản chương (người nói tự khớp/tự tạo, đoạn Writer bôi đen) và bản tạo hình chương dùng; khoá cùng kịch bản ở Gate 1 (BR-35). |
 | **Chapter** | Series | Một chương truyện (gồm `ChapterStatus`, `ScriptStatus`, các `ScriptVersion` và tập hợp `Page`). |

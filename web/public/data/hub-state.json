@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-14T14:07:08.787Z",
+  "lastSyncedAt": "2026-11-14T14:31:22.669Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,17 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-BE-d070689c9cacf2f467946bb6d14687b2c776810c",
+      "timestamp": "2026-11-14T21:31:21+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "d070689c9cacf2f467946bb6d14687b2c776810c",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d070689c9cacf2f467946bb6d14687b2c776810c",
+      "message": "feat(bible): require variant_label and block duplicate active variant",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-MOBILE-49b61b2ab2e88026a2f5f7964703280129492ee7",
       "timestamp": "2026-10-27T14:11:16+07:00",
@@ -2179,17 +2190,6 @@
       "commitHash": "83fa8e6c40330dd6b3a59b075db344a7977ea1be",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/83fa8e6c40330dd6b3a59b075db344a7977ea1be",
       "message": "docs(writer): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-5d052bf7eaa3fff0d01600326299ee5daaa4d096",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "5d052bf7eaa3fff0d01600326299ee5daaa4d096",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5d052bf7eaa3fff0d01600326299ee5daaa4d096",
-      "message": "docs(notes): add spec v2.6 and team workboard for all three repos",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
