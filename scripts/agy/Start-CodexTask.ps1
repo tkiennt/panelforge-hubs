@@ -93,8 +93,8 @@ $status = if ($codexExit -eq 0 -and (Test-Path $lastPath)) { 'SUCCESS' } else { 
 $dirty = @(git -C $Worktree status --porcelain 2>$null)
 $merging = (git -C $Worktree rev-parse -q --verify MERGE_HEAD 2>$null)
 if ($status -eq 'SUCCESS' -and ($dirty.Count -gt 0 -or $merging)) {
-    $markers = @(git -C $Worktree diff --name-only --diff-filter=U 2>$null) +
-        @(git -C $Worktree grep -l -E '^(<<<<<<<|>>>>>>>) ' 2>$null) | Sort-Object -Unique
+    # Unmerged (U) index entries are expected - Codex cannot `git add`. Only real markers in file content count.
+    $markers = @(git -C $Worktree grep -l -E '^(<<<<<<<|>>>>>>>)( |$)' 2>$null) | Sort-Object -Unique
     if ($markers.Count -gt 0) {
         $status = 'CONFLICTS_LEFT'
         Write-Host "[codex $Id] not committing: unresolved conflicts in $($markers -join ', ')" -ForegroundColor Yellow
