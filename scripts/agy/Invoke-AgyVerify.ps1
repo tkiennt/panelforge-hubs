@@ -43,20 +43,20 @@ function Get-Tail([string]$Text, [int]$Lines = 6) {
     return ($arr[($arr.Count - $Lines)..($arr.Count - 1)] -join "`n")
 }
 
-function Git([string[]]$GitArgs) {
-    $out = & git -C $Worktree @GitArgs 2>$null
+function Invoke-Git([string[]]$GitArgs) {
+    $out = & git.exe -C $Worktree @GitArgs 2>$null
     return @($out | Where-Object { $_ -ne $null -and "$_".Trim() -ne '' } | ForEach-Object { "$_".Trim() })
 }
 
 # ── Change set ──────────────────────────────────────────────────────────────
-$branch = (Git @('branch', '--show-current')) -join ''
-$commits = Git @('log', '--oneline', "$Base..HEAD")
-$dirty = Git @('status', '--short')
-$changed = @(Git @('diff', '--name-only', "$Base...HEAD")) + @(Git @('diff', '--name-only', 'HEAD')) |
+$branch = (Invoke-Git @('branch', '--show-current')) -join ''
+$commits = Invoke-Git @('log', '--oneline', "$Base..HEAD")
+$dirty = Invoke-Git @('status', '--short')
+$changed = @(Invoke-Git @('diff', '--name-only', "$Base...HEAD")) + @(Invoke-Git @('diff', '--name-only', 'HEAD')) |
     Sort-Object -Unique
-$realChanged = @(Git @('diff', '--name-only', '--ignore-cr-at-eol', "$Base...HEAD")) + @(Git @('diff', '--name-only', '--ignore-cr-at-eol', 'HEAD')) |
+$realChanged = @(Invoke-Git @('diff', '--name-only', '--ignore-cr-at-eol', "$Base...HEAD")) + @(Invoke-Git @('diff', '--name-only', '--ignore-cr-at-eol', 'HEAD')) |
     Sort-Object -Unique
-$wsChanged = @(Git @('diff', '--name-only', '-w', '--ignore-blank-lines', "$Base...HEAD")) | Sort-Object -Unique
+$wsChanged = @(Invoke-Git @('diff', '--name-only', '-w', '--ignore-blank-lines', "$Base...HEAD")) | Sort-Object -Unique
 
 if ($commits.Count -gt 0) { Add-Result 'Commits' 'PASS' "$($commits.Count) commit(s) on $branch" }
 else { Add-Result 'Commits' 'FAIL' "No commits on $branch since $Base" }
@@ -68,7 +68,7 @@ else { Add-Result 'Working tree' 'PASS' 'clean' }
 $eolOnly = @($changed | Where-Object { $realChanged -notcontains $_ })
 $crlfIndexed = @()
 if ($changed.Count -gt 0) {
-    $eolInfo = & git -C $Worktree ls-files --eol -- $changed 2>$null
+    $eolInfo = & git.exe -C $Worktree ls-files --eol -- $changed 2>$null
     $crlfIndexed = @($eolInfo | Where-Object { $_ -match '^i/crlf' } | ForEach-Object { ($_ -split "`t")[-1] })
 }
 if ($eolOnly.Count -eq 0 -and $crlfIndexed.Count -eq 0) { Add-Result 'Line endings' 'PASS' 'no CRLF churn' }
@@ -113,7 +113,7 @@ elseif ($isBackend) {
         $broad = @($codeChanged | Where-Object { $_ -match 'DependencyInjection\.cs$|DbContext\.cs$|IPanelForgeDbContext\.cs$' }).Count -gt 0
         if ($srcNames.Count -gt 0) {
             $grepArgs = @('grep', '-l', '-w') + ($srcNames | ForEach-Object { @('-e', $_) }) + @('--', 'test/')
-            $testFiles += Git $grepArgs
+            $testFiles += Invoke-Git $grepArgs
         }
         $classes = @($testFiles | Where-Object { $_ -like '*.cs' } | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_) } | Sort-Object -Unique)
 

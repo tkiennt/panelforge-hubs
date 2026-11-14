@@ -103,14 +103,15 @@ if (-not $SkipVerify) {
     $verifyCode = $LASTEXITCODE
 }
 
-$usage = if ($final -and $final.usage) { "tokens in=$($final.usage.input_tokens) out=$($final.usage.output_tokens) cache=$($final.usage.cache_read_tokens)" } else { 'tokens n/a' }
 $summary = if ($final -and $final.response) {
-    $lines = "$($final.response)" -split "`n"
-    ($lines | Select-Object -Last 40) -join "`n"
+    $lines = @("$($final.response)" -split "`n" | Where-Object { $_ -notmatch '^\s*I (will|am) (wait|await)' })
+    $start = 0
+    for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i] -match '^\s*(DONE|BLOCKED)') { $start = $i } }
+    ($lines[$start..($lines.Count - 1)] | Select-Object -First 20) -join "`n"
 } else { '(agy returned no final answer - see agy.jsonl)' }
 
 $report = @"
-## agy task $Id - agy: $status - $elapsed min - $usage
+## agy task $Id - agy: $status - $elapsed min
 
 #### agy summary
 $summary
