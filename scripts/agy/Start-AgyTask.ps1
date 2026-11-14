@@ -41,6 +41,8 @@ $runDir = Join-Path $RunsRoot $Id
 New-Item -ItemType Directory -Force -Path $runDir | Out-Null
 foreach ($f in 'done.json', 'report.md', 'agy.jsonl') { $p = Join-Path $runDir $f; if (Test-Path $p) { Remove-Item $p -Force } }
 
+# Temp files and npm/NuGet caches go to the D: sandbox folder (never drive C).
+. (Join-Path $PSScriptRoot 'Use-AgentSandbox.ps1')
 $agy = Join-Path $env:LOCALAPPDATA 'agy\bin\agy.exe'
 if (-not (Test-Path $agy)) { $agy = 'agy' }
 
