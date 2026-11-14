@@ -105,27 +105,32 @@
 - [ ] `src/PanelForge.PanelSplitter/README.md`: ghi đã chuyển sang native, giữ `app.py` làm nguồn đối chiếu parity.
 - **Ngoài phạm vi:** downscale ảnh lớn (chỉ làm khi có số đo thực tế và parity vẫn đạt); phát hiện panel không viền (cần model kiểu Magi).
 
-### Ngôn ngữ phát hành & bản dịch ảnh trang (BR-34, Q9, Q28)
+### Ngôn ngữ bóng thoại (BR-34, quyết định Q9)
 
-> **Q28 (2026-11-14):** bản dịch là **ảnh trang đã dịch**, không phải chữ theo bóng thoại; bàn vẽ và Lettering chỉ làm ngôn ngữ gốc. Hiện trạng code: có `PageTranslation` (Publisher tải ảnh `en`/`ja`, ngôn ngữ cố định trong `ContentLanguages`, ghi đè `Replace`, xoá cứng ở `ChapterManage.cs:291`, lưu R2 riêng `page-translations/…` ngoài `Asset`), reader đã đọc ảnh này (`PublicReaderQueries`, `ChapterReadAccess`, `PublicCatalogQueries`); chưa có `OriginalLanguage`/`ReleaseLanguages` ở Series.
+> Hiện trạng code: chưa có `LanguageCode`/`Languages` ở Series, `ElementState` hay DTO (grep 2026-11-12). Có luồng khác spec: `PageTranslation` — Publisher tải **ảnh trang đã dịch** `en`/`ja` (ngôn ngữ cố định trong `ContentLanguages`), ghi đè/xoá cứng, reader đang đọc ảnh này. **Q28 (2026-11-14):** đa ngôn ngữ làm trong hệ thống tại công đoạn Lettering (ART-14/15); luồng tải ảnh dịch bị gỡ theo [REL-09](06_RELEASE_PLAN.md).
 
-#### ART-14 · Ngôn ngữ Series & ảnh trang dịch append-only — DB + BE + FE · ❌ · đổi theo Q28
-- [ ] Series: `OriginalLanguage` (mặc định `vi`) + `ReleaseLanguages` (mảng, luôn chứa ngôn ngữ gốc); chỉ Producer sửa; migration; FE form Series + i18n. Thay danh sách cố định `ContentLanguages.Translations` bằng `ReleaseLanguages` của Series.
-- [ ] `page_translations` theo spec §6.1.6: thêm `version_number`, `asset_id` (FK `assets`, CAS + quota, dùng lại luồng `UploadArtwork`), `uploaded_by/at`; bỏ `Replace` và xoá cứng — mỗi lần tải là dòng mới. Migration chuyển dòng hiện có thành `version_number = 1` (tạo `Asset` từ object R2 cũ).
-- [ ] Lệnh `UploadPageTranslationCommand(chapterId, pageId, lang, file)` — **Artist/Letterer được giao trang** (thay Publisher; gỡ quyền Publisher ở `PublisherMonetizationController`); chương phải `ChapterApproved`; `lang` thuộc `ReleaseLanguages` và khác ngôn ngữ gốc; ấn bản `lang` đang `Draft` (đang `InReview`/`EditorApproved`/`Approved`/`Published` → 409 trừ khi bị trả về hoặc `Reopen Edition`).
-- [ ] Query ảnh dịch theo trang: phiên bản hiện hành + lịch sử; tiến độ theo ấn bản (số trang có ảnh / tổng, danh sách thiếu) dùng cho *Nộp bản dịch* (REL-09).
-- [ ] FE: màn "Bản dịch" của chương (sau `ChapterApproved`) cho Artist/Letterer — lưới trang × ngôn ngữ, tải ảnh, xem ảnh gốc cạnh ảnh dịch, nút *Nộp bản dịch*. Bỏ ý tưởng bộ chọn ngôn ngữ trên bàn vẽ.
-- [ ] Test: Publisher tải → 403; người không được giao trang → 403; chương chưa `ChapterApproved` → 409; `lang` ngoài Series → 400; tải lại tạo phiên bản 2, bản 1 còn.
+#### ART-14 · Ngôn ngữ Series & bản dịch bóng thoại — DB + BE + FE · ❌ · mới
+- [ ] Series: `OriginalLanguage` (mặc định `vi`) + `ReleaseLanguages` (mảng, luôn chứa ngôn ngữ gốc); chỉ Producer sửa (`UpdateSeriesCommand` hoặc command riêng); migration; FE form Series + i18n.
+- [ ] `ElementState`: nội dung chữ thành từ điển `Texts[languageCode]`; bản gốc vẫn gắn `ScriptLineId` + `IsStale`. Đọc sự kiện cũ (chỉ có một chuỗi chữ) như `Texts[original_language]` khi apply Marten.
+- [ ] Sự kiện + command `UpdateElementTranslation(pageId, elementId, languageCode, text, expectedVersion)`: quyền như sửa chữ (Artist/Letterer trong phạm vi việc — `WorkScopeGuard`, BR-31); từ chối `languageCode` ngoài `ReleaseLanguages`; append-only, BR-11.
+- [ ] `GetPageSnapshotQuery` trả chữ theo `?lang=` + danh sách ngôn ngữ còn thiếu của mỗi bóng thoại.
+- [ ] FE `ArtistDeskView` / `LetteringWorkspace`: bộ chọn "ngôn ngữ đang soạn", hiện cờ bóng thoại thiếu bản dịch; đổi ngôn ngữ không đổi vị trí/kiểu chữ.
+- [ ] Đề xuất dịch bằng AI (tuỳ chọn, sau cùng): đi qua `AiSuggestion` + quyết định của người (BR-02).
+- [ ] Test: dịch ngoài phạm vi trang → 403; ngôn ngữ không thuộc Series → 400; sửa bản dịch không đổi `Position`.
 
-#### ~~ART-15 · Kiểm tra theo ngôn ngữ & tiến độ bản dịch bóng thoại~~ — ⛔ Huỷ theo Q28
-- Không còn bản chữ theo ngôn ngữ trên canvas nên BR-20 chỉ chạy cho ngôn ngữ gốc; tiến độ dịch tính theo ảnh trang (ART-14).
+#### ART-15 · Kiểm tra theo ngôn ngữ & tiến độ bản dịch — BE + FE · ❌ · mới
+- **Phụ thuộc:** ART-14; nối với [ASG-02](03_ASSIGNMENT_PLAN.md) (Ink ∥ Lettering, BR-19) và [REL-09](06_RELEASE_PLAN.md) (nghiệm thu ấn bản).
+- [ ] `LetteringWarningRules` (BR-20) chạy cho từng ngôn ngữ; cảnh báo kèm `languageCode`.
+- [ ] Nộp việc Lettering vào Gate 2 chỉ yêu cầu đủ chữ **ngôn ngữ gốc** (BR-34.4); không chặn vì thiếu bản dịch.
+- [ ] Query tiến độ dịch theo ấn bản: số bóng thoại đã dịch / tổng, danh sách thiếu, cảnh báo BR-20 mức chặn — dùng cho bước nộp bản dịch `SubmitEditionTranslation` (REL-09) và bàn vẽ.
+- [ ] Bản dịch được nhập cả sau khi chương `ChapterApproved` (lớp tranh khoá, lớp chữ ngôn ngữ chưa nghiệm thu vẫn sửa được); chặn sửa bản dịch của ấn bản đang `InReview`/`EditorApproved`/`Approved`/`Published` trừ khi bị Editor trả về hoặc `Reopen Edition`.
 
 ## 3. Changelog
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | ART-14, ART-15 | Giữ, làm rõ | — (chỉ tài liệu) | Q28: bản dịch nhập trong hệ thống tại Lettering, không tải ảnh dịch; `PageTranslation` gỡ theo REL-09 |
 | 2026-11-14 | ART-16, ART-17 | Thêm | — (chỉ tài liệu) | Q27 khôi phục ảnh; VERSION_REVIEW mục 4 (409 thay 500) |
-| 2026-11-14 | ART-14, ART-15 | Đổi / Huỷ | — (chỉ tài liệu) | Q28: bản dịch là ảnh trang do Studio tải, append-only qua `Asset`; huỷ bản chữ theo bóng thoại |
 | 2026-11-12 | BR-31 | ✅ | BE `7dc2c4f`, FE `d5521da` (merge `f0ebc7c` / `4cc89c7`) | P0-01 |
 | 2026-11-12 | — | Lập kế hoạch | — | Gom từ plan tổng + anti-slop GĐ6/GĐ9 |
 | 2026-11-12 | ART-14, ART-15 | Thêm | — (chỉ tài liệu) | Ngôn ngữ bóng thoại theo spec BR-34 / Q9 |

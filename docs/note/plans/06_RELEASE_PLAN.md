@@ -72,24 +72,23 @@
 - [ ] `PublicPreviewView`: watermark chéo không che điều hướng RTL/LTR/Vertical và ngăn feedback.
 
 #### REL-09 · Ấn bản ngôn ngữ `ChapterEdition`: nghiệm thu, phát hành, mở lại theo ngôn ngữ — DB + BE + FE + MO · ❌ · mới (Q10)
-- ✅ **Q28 (2026-11-14, thay câu hỏi VERSION_REVIEW mục 6):** giữ `PageTranslation` làm bản dịch — ảnh trang đã dịch do **Artist/Letterer của Studio** tải sau `ChapterApproved` (append-only qua `Asset`, [ART-14](04_ARTWORK_PLAN.md)); Editor duyệt; Producer cho phép phát hành và phát hành; Publisher chỉ đặt giá. Không ảnh hưởng các công đoạn vẽ.
+- ✅ **Q28 (2026-11-14, thay câu hỏi VERSION_REVIEW mục 6):** đa ngôn ngữ làm **trong hệ thống tại công đoạn Lettering** ([ART-14](04_ARTWORK_PLAN.md)); không tải ảnh trang đã dịch. **Gỡ `PageTranslation`:** bỏ endpoint tải/xoá ảnh dịch của Publisher (`PublisherMonetizationController`, `SetPageTranslationCommand`); reader (`PublicReaderQueries`, `ChapterReadAccess`, `PublicCatalogQueries`) chuyển sang ảnh trong Snapshot của ấn bản đã phát hành (REL-08). Trong lúc REL-08 chưa xong, reader vẫn đọc dữ liệu `PageTranslation` có sẵn (chỉ đọc, không cho tải mới); khi đủ ấn bản thì xoá bảng + object R2 `page-translations/…` (migration có `Down`). VERSION_REVIEW mục 6 (ghi đè/xoá cứng) tự hết.
 - **Phụ thuộc:** [ART-14](04_ARTWORK_PLAN.md) (ngôn ngữ Series), REL-01 (máy trạng thái chương). Là nền cho REL-08, [RDR-07](07_READER_PLAN.md), [RDR-10](07_READER_PLAN.md), [RDR-11](07_READER_PLAN.md).
 - [ ] Entity + bảng `chapter_editions` theo spec §6.1.5 (`Draft → Approved → Published`, unique `(chapter_id, language_code)`, `version` cho BR-11); tự tạo/huỷ ấn bản `Draft` khi Producer đổi `release_languages` (không xoá ấn bản đã phát hành).
 - [ ] `Approve Chapter` (đã có) đồng thời chuyển ấn bản gốc `Approved`.
 - [ ] Trạng thái ấn bản: `Draft → InReview → EditorApproved → Approved → Published` (spec §5.2 máy 5).
-- [ ] `SubmitEditionTranslationCommand(chapterId, lang)` — Artist/Letterer đã tải ảnh dịch: cần chương `ChapterApproved`, **mọi trang** có ảnh dịch `lang` (query ART-14); thiếu → 409 kèm danh sách trang → `InReview`.
-- [ ] **Editor duyệt bản dịch (Q14):** `ReviewEditionCommand` — Editor (Producer dự phòng): duyệt → `EditorApproved`, hoặc trả về `Draft` kèm nhận xét theo trang (thông báo người tải). Luật 4 mắt: Editor không được là người đã tải ảnh dịch của ấn bản → 403.
+- [ ] `SubmitEditionTranslationCommand(chapterId, lang)` — Artist/Letterer phụ trách chữ: cần chương `Approved`, đủ bản dịch, không còn cảnh báo BR-20 mức chặn của `lang` (query ART-15); thiếu → 409 kèm danh sách → `InReview`.
+- [ ] **Editor duyệt bản dịch (Q14):** `ReviewEditionCommand` — Editor (Producer dự phòng): duyệt → `EditorApproved`, hoặc trả về `Draft` kèm `ChangeRequest` lớp Lettering có `language_code` (dùng lại REV-01/REV-02). Luật 4 mắt: Editor không được là người đã nhập bản dịch của ấn bản → 403.
 - [ ] `ApproveEditionCommand(chapterId, lang)` = **Producer cho phép phát hành**: chỉ từ `EditorApproved` → `Approved`, tạo Snapshot (REL-08); audit.
 - [ ] `PublishEditionCommand`, `ReopenEditionCommand(lang, reason)` — chỉ Producer; `Publish` chương hiện tại chuyển thành publish ấn bản gốc. `Reopen` chương → mọi ấn bản chưa phát hành về `Draft`, ấn bản đã phát hành giữ Snapshot cũ.
-- [ ] FE `ChapterReleaseModal` tab "Ấn bản ngôn ngữ": bảng ngôn ngữ × (số trang có ảnh dịch, trạng thái, giá do Publisher đặt — chỉ đọc), nút Cho phép phát hành / Phát hành / Mở lại. Màn quản lý của Publisher bỏ phần tải ảnh dịch, giữ đặt giá.
-- [ ] FE Editor: hàng đợi "Duyệt bản dịch" trong `ReviewView` / `EditorDeskView` (ảnh dịch cạnh ảnh gốc theo trang, nhận xét theo trang, duyệt).
+- [ ] FE `ChapterReleaseModal` tab "Ấn bản ngôn ngữ": bảng ngôn ngữ × (tiến độ dịch, trạng thái, giá do Publisher đặt — chỉ đọc), nút Cho phép phát hành / Phát hành / Mở lại.
+- [ ] FE Editor: hàng đợi "Duyệt bản dịch" trong `ReviewView` / `EditorDeskView` (bản ghép theo ngôn ngữ, khoanh lỗi, duyệt).
 - [ ] Mobile/FE catalog: chỉ liệt kê ấn bản `Published`.
-- [ ] Test: nộp `en` khi chương chưa Approved → 409; thiếu ảnh dịch trang → 409; Publisher tải ảnh dịch → 403; Producer cho phép phát hành khi chưa `EditorApproved` → 409; Editor duyệt bản mình dịch → 403; Reopen `en` không đổi `vi`; Publisher gọi Review/Approve/Publish → 403.
+- [ ] Test: nộp `en` khi chương chưa Approved → 409; thiếu bản dịch → 409; Producer cho phép phát hành khi chưa `EditorApproved` → 409; Editor duyệt bản mình dịch → 403; Reopen `en` không đổi `vi`; Publisher gọi Review/Approve/Publish → 403.
 
 #### REL-08 · Snapshot & ảnh trang theo ấn bản (BR-34.5) — BE · ❌ · mới (Q9, Q10)
-- **Phụ thuộc:** REL-09, [ART-14](04_ARTWORK_PLAN.md).
-- [ ] Mỗi lần `Approve Edition` tạo `edition_snapshots` append-only ghi **đúng phiên bản ảnh dịch đã được Editor duyệt** của từng trang (`page_translations.id` + SHA-256), không ghép lớp chữ (Q28); ấn bản gốc dùng `ChapterSnapshot`.
-- [ ] Reader hiện đang đọc ảnh dịch **mới nhất** (`PublicReaderQueries`, `ChapterReadAccess`, `PublicCatalogQueries`) → đổi sang ảnh trong Snapshot của ấn bản đã `Published`, để ảnh tải lên sau chưa duyệt không lộ ra độc giả.
+- **Phụ thuộc:** REL-09, [ART-14](04_ARTWORK_PLAN.md), [ART-08](04_ARTWORK_PLAN.md) (composite nền).
+- [ ] Mỗi lần `Approve Edition` ghép ảnh trang (lớp tranh + lớp chữ `lang`) và tạo `edition_snapshots` append-only; ấn bản gốc dùng `ChapterSnapshot`.
 - [ ] Ảnh reader/preview lấy từ `current_snapshot_id` của ấn bản ([RDR-11](07_READER_PLAN.md)); PreviewLink chọn ấn bản để xem.
 
 #### REL-10 · Kiểm thử trình duyệt luồng phiên bản & xuất bản — QA · ❌ · từ CF4 §8 (chưa từng chạy)
@@ -107,8 +106,8 @@
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | REL-09 | Bổ sung | — (chỉ tài liệu) | Q28: bản dịch trong hệ thống tại Lettering; gỡ luồng Publisher tải ảnh dịch (`PageTranslation`) |
 | 2026-11-14 | REL-02, REL-09 | Bổ sung | — (chỉ tài liệu) | Q26/Q27: ảnh cuối = bản đã duyệt, snapshot ghi bản kịch bản đã chốt; câu hỏi `PageTranslation` |
-| 2026-11-14 | REL-08, REL-09 | Đổi | — (chỉ tài liệu) | Q28: giữ `PageTranslation` làm bản dịch ảnh trang do Studio tải; Editor duyệt, Producer phát hành; reader đọc theo Snapshot ấn bản |
 | 2026-11-12 | Gate 3 (`IMPACT_FLAGS`, `PAGES_WITHOUT_WORK`) | ✅ một phần | BE `01f5f9f` (merge `f0ebc7c`) | P0-02 |
 | 2026-11-12 | — | Lập kế hoạch | — | Gom từ plan tổng P1-01, P4-03, P4-04 |
 | 2026-11-12 | REL-03, REL-04, REL-05 sửa; REL-08 thêm | Đối chiếu spec Q7, Q9, Q10 | — (chỉ tài liệu) | Publisher đặt giá; ấn bản ngôn ngữ (REL-09) nghiệm thu/phát hành riêng; Snapshot theo ấn bản |

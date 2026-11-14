@@ -91,7 +91,7 @@ ASG-02 (Ink ∥ Lettering) ─► ART-08 (composite nền) ─► REV-* (Gate 2)
 REV-01 (giao thoa 15%) ─► REV-02 (lớp lỗi) ─► REV-03 (Check Balloon Fit, dùng chung ART-06)
 REL-02 (Gate 3 chặn trang chưa giao) ◄── ASG-01
 RDR-01..06 (analytics) độc lập
-ART-14 (ngôn ngữ Series + ảnh trang dịch append-only, Q28; ART-15 huỷ)
+ART-14 (ngôn ngữ Series + bản dịch) ─► ART-15 (kiểm tra & tiến độ dịch)
 ART-14 + REL-01 ─► REL-09 (ấn bản ChapterEdition: nghiệm thu/phát hành theo ngôn ngữ) ─► REL-08 (Snapshot theo ấn bản)
 REL-09 + REL-04 (một tài khoản Publisher) ─► RDR-07 (giá VNĐ theo ấn bản) ─► RDR-10 (mở khoá theo ấn bản)
 RDR-12 (tiền nạp về tài khoản nền tảng) độc lập, nên làm trước RDR-10
