@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-14T04:10:43.497Z",
+  "lastSyncedAt": "2026-11-14T04:23:02.835Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,50 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-30b975a488828e582cf9e777d4ef1272f3bc17db",
+      "timestamp": "2026-11-13T12:15:44+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "30b975a488828e582cf9e777d4ef1272f3bc17db",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/30b975a488828e582cf9e777d4ef1272f3bc17db",
+      "message": "feat(writer): rebuild graphic novel script editor on writersolo rules",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
+      "timestamp": "2026-11-13T12:33:25+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
+      "message": "fix(writer): translate script labels and restore page/panel lines",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0f6ea085eefc7cca832ee077817d48fbafc1ad53",
+      "timestamp": "2026-11-13T12:38:08+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "0f6ea085eefc7cca832ee077817d48fbafc1ad53",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0f6ea085eefc7cca832ee077817d48fbafc1ad53",
+      "message": "feat(writer): colon after character name jumps to dialogue",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
+      "timestamp": "2026-11-13T12:45:57+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
+      "message": "feat(writer): quick chapter switching side tab",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-6f4a129f26adf34218d3b2629ef783fee3aaf036",
       "timestamp": "2026-11-13T10:41:01+07:00",
@@ -2146,50 +2190,6 @@
       "commitHash": "c310e7c337cb4090a0cc53ce8b5e979740b8225e",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c310e7c337cb4090a0cc53ce8b5e979740b8225e",
       "message": "fix(bible): writer and editor endorse per spec V2.6 §5.1",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-fb546ffe601b9c24cd069658524d345e8e205d83",
-      "timestamp": "2026-11-13T13:10:15+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "fb546ffe601b9c24cd069658524d345e8e205d83",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/fb546ffe601b9c24cd069658524d345e8e205d83",
-      "message": "feat(writer): drop unlisted-page warning after script save",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
-      "timestamp": "2026-11-13T13:10:12+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
-      "message": "feat(pages): script sync removes pages and panels it no longer lists",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4323e689d222ccbdb70e8f2570463cc492828338",
-      "timestamp": "2026-11-13T13:04:32+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "4323e689d222ccbdb70e8f2570463cc492828338",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4323e689d222ccbdb70e8f2570463cc492828338",
-      "message": "fix(writer): set warm desk workspace background to contrast paper sheet",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-71abf79fc6010273974987c98eda2c2f2eac038f",
-      "timestamp": "2026-11-13T12:58:44+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "71abf79fc6010273974987c98eda2c2f2eac038f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/71abf79fc6010273974987c98eda2c2f2eac038f",
-      "message": "feat(writer): element menu on empty enter and colon after character",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
