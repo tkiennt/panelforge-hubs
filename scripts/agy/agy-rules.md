@@ -31,6 +31,9 @@ Work only inside the current worktree, on its current branch. Never push. Never 
   `graphify_tests_for` (tests for a symbol/file), `query_graph` (how a behaviour works). Repos: `tkiennt/PanelForge_FA26SE251`, `tkiennt/panelforge-fe`.
 - The graph is an indexed snapshot: if a result looks stale or a file was edited in this task, read the current file.
 
+## Skills
+- Run headless: never stop to ask which mode a skill should use. If a skill (e.g. antislop) asks for a mode, use "DURING" (apply its rules while working) and continue.
+
 ## Be terse (saves tokens)
 - No plan essays, no restating the task, no progress narration between tool calls.
 - Read files in targeted ranges; do not re-read files you already read.

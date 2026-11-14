@@ -88,6 +88,7 @@ try {
 
 $elapsed = [int]((Get-Date) - $started).TotalMinutes
 $status = if ($codexExit -eq 0 -and (Test-Path $lastPath)) { 'SUCCESS' } else { "ERROR($codexExit)" }
+if ($status -eq 'SUCCESS' -and ([IO.File]::ReadAllText($lastPath, $utf8) -match '(?m)^\s*BLOCKED')) { $status = 'BLOCKED' }
 
 # Commit on Codex's behalf (its sandbox cannot write .git). Skip when conflict markers remain.
 $dirty = @(git -C $Worktree status --porcelain 2>$null)
