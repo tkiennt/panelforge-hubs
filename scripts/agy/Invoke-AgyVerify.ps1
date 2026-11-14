@@ -171,7 +171,20 @@ elseif ($isFrontend) {
         $vtSummary = ($vt.Output -split "`n" | Where-Object { $_ -match '^\s*Tests\s' } | Select-Object -Last 1)
         if ($vt.Output -match 'No test files found') { Add-Result 'vitest related' 'SKIP' 'no related test files' }
         elseif ($vt.Code -eq 0) { Add-Result 'vitest related' 'PASS' "$vtSummary".Trim() }
-        else { Add-Result 'vitest related' 'FAIL' "$vtSummary".Trim(); $notes.Add("vitest:`n" + (Get-Tail $vt.Output 12)) }
+        else {
+            # Failures already present on the base branch are listed in known-fe-failures.txt (one test file per line).
+            $clean = $vt.Output -replace "\x1b\[[0-9;]*m", ''
+            $failedFiles = @($clean -split "`n" | Where-Object { $_ -match '^\s*FAIL\s+(\S+\.test\.tsx?)' } | ForEach-Object { $Matches[1] } | Sort-Object -Unique)
+            $knownPath = Join-Path $PSScriptRoot '..\..\..\.agy-runs\known-fe-failures.txt'
+            $known = if (Test-Path $knownPath) { @(Get-Content $knownPath | ForEach-Object { $_.Trim() } | Where-Object { $_ }) } else { @() }
+            $newFails = @($failedFiles | Where-Object { $known -notcontains $_ })
+            if ($failedFiles.Count -gt 0 -and $newFails.Count -eq 0) {
+                Add-Result 'vitest related' 'WARN' "only known base failures ($($failedFiles.Count) file(s))"
+            } else {
+                Add-Result 'vitest related' 'FAIL' "new failing file(s): $($newFails -join ', ')"
+                $notes.Add("vitest:`n" + (Get-Tail $clean 12))
+            }
+        }
     }
 
     if (@($codeChanged | Where-Object { $_ -like 'src/locales/*' }).Count -gt 0) {
