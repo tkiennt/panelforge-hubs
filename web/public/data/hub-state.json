@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-14T03:49:49.054Z",
+  "lastSyncedAt": "2026-11-14T03:55:02.607Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,50 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-501ba46dbcbd61a6b691308ff2c090e34620a23e",
+      "timestamp": "2026-11-13T08:42:37+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "501ba46dbcbd61a6b691308ff2c090e34620a23e",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/501ba46dbcbd61a6b691308ff2c090e34620a23e",
+      "message": "feat(ui): merge diagonal panel split and i18n from origin tam",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-ca0a222fd1ba34afdd16fb3e0f8bba7f8b719800",
+      "timestamp": "2026-11-13T09:40:35+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "ca0a222fd1ba34afdd16fb3e0f8bba7f8b719800",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ca0a222fd1ba34afdd16fb3e0f8bba7f8b719800",
+      "message": "feat(script): update script writing",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-b97f97f601a913473542b9884e789bbefc50056a",
+      "timestamp": "2026-11-13T09:53:40+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "b97f97f601a913473542b9884e789bbefc50056a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b97f97f601a913473542b9884e789bbefc50056a",
+      "message": "feat(script): implement SCR-25 pure grammar rules for typing",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
+      "timestamp": "2026-11-13T10:23:50+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
+      "message": "feat(script): implement writesolo element menu and schema adapter",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-MOBILE-14f8ed3e21daad4833955dc75e0690e2f8786e2e",
       "timestamp": "2026-11-09T12:38:17+07:00",
@@ -2146,50 +2190,6 @@
       "commitHash": "30b975a488828e582cf9e777d4ef1272f3bc17db",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/30b975a488828e582cf9e777d4ef1272f3bc17db",
       "message": "feat(writer): rebuild graphic novel script editor on writersolo rules",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c41ee879317e4d8767034423a0956ed4b75ed6ae",
-      "timestamp": "2026-11-13T11:50:06+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "c41ee879317e4d8767034423a0956ed4b75ed6ae",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c41ee879317e4d8767034423a0956ed4b75ed6ae",
-      "message": "feat(writer): writesolo speaker slot and grammar flow",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-8bd3d540014883268824c2a567d151733869e11e",
-      "timestamp": "2026-11-13T11:15:59+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "8bd3d540014883268824c2a567d151733869e11e",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8bd3d540014883268824c2a567d151733869e11e",
-      "message": "feat(writer): pure WriteSolo keyboard flow (SCR-26, SCR-27)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-6f4a129f26adf34218d3b2629ef783fee3aaf036",
-      "timestamp": "2026-11-13T10:41:01+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "6f4a129f26adf34218d3b2629ef783fee3aaf036",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6f4a129f26adf34218d3b2629ef783fee3aaf036",
-      "message": "fix(test): mock getChangeRequests in ScriptEditorView tests",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-09716d5353cac53cf10d376f5b67dc06e935ee1d",
-      "timestamp": "2026-11-13T10:24:26+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "09716d5353cac53cf10d376f5b67dc06e935ee1d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/09716d5353cac53cf10d376f5b67dc06e935ee1d",
-      "message": "feat(script): add ScriptLineKind and Panel direction schema",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
