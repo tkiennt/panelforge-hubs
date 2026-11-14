@@ -13,7 +13,7 @@ Work only inside the current worktree, on its current branch. Never push. Never 
 - Keep each edited file's existing line endings. Do not rewrite a whole file just to change a few lines.
 - Never run a formatter (prettier, dotnet format) over the whole repo. Format only files you changed:
   `npx prettier --write <your files>`.
-- Commit with Conventional Commits `<type>(<scope>): <description>` (lowercase, imperative, no period).
+- Commit with Conventional Commits `<type>(<scope>): <description>` (lowercase, imperative, no period), header at most 72 characters (a git hook rejects longer).
 
 ## Tests: run only what your change touches
 - Backend: `dotnet build -v q` to compile, then only related tests:

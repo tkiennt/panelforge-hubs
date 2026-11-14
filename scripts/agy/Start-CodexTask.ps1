@@ -109,7 +109,9 @@ if ($status -eq 'SUCCESS' -and ($dirty.Count -gt 0 -or $merging)) {
         if ($merging -and -not $msg) { git -C $Worktree commit --no-edit -q }
         else {
             if (-not $msg) { $msg = "chore(config): apply codex task $Id" }
+            if ($msg.Length -gt 72) { $msg = $msg.Substring(0, 72).TrimEnd() }   # repo hook limit
             git -C $Worktree commit -q -m $msg -m 'Co-Authored-By: Codex <noreply@openai.com>'
+            if ($LASTEXITCODE -ne 0) { $status = 'COMMIT_FAILED'; Write-Host "[codex $Id] git commit failed (hook?) - changes left staged" -ForegroundColor Yellow }
         }
         Write-Host "[codex $Id] committed: $(git -C $Worktree log --oneline -1)" -ForegroundColor Cyan
     }
