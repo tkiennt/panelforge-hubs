@@ -41,6 +41,16 @@
 | **Địa điểm & Đạo cụ đi đủ vòng đời như Nhân vật** (`BibleEntry.IsVisualDesign`); Thuật ngữ/Quy tắc/Sự kiện có hiệu lực không cần khoá (cũ B4) | commit `79b5077` |
 | ~~Chỉ Editor `/endorse`, Producer khoá~~ — **Q20 thay**: Editor xác nhận là khoá, Producer không khoá (BIB-10) | commit `79b5077`, merge `df10ee3` |
 | Ảnh concept + lịch sử yêu cầu vẽ lại trên màn Editor | FE commit `2e96424` |
+| **BIB-03: FE đồng bộ hợp đồng backend** | FE merge `cf77e39`, `2b335f7`, `a6cb774` |
+| **BIB-09: Bí danh, bảng tên chuẩn hoá `bible_entry_names`, biến thể tạo hình thay era** | BE merge `ed02171` (commit `8909e52`, migration `20261114051740_AddSeriesBibleBindingsAndVariants`) |
+| **BIB-10: Duyệt concept theo phiên bản, Editor xác nhận = khoá Canon, góp ý toạ độ `bible_concept_comments`** | BE merge `e78858b` (`ff5b8d8`), FE merge `cf77e39` (`357cee5`), migration `20261114054042_AddBibleConceptVersionsAndComments` |
+| **BIB-11: Bản đồ thực thể chương `chapter_bible_bindings`, biến thể theo Panel `panel_bible_variants`, cờ Quần chúng** | BE merge `ed02171` (`8909e52`) |
+| **BIB-12: Tham chiếu `refs[]` trong payload lưu, tính lại Danh sách thực thể & kế thừa ở commit** | BE merge `37abe0f` (`109d6fa`), tích hợp lưu cả cây `0571fa7` (`7d3012e`) |
+| **BIB-13: Lệnh Danh sách thực thể: Crowd, ChapterCastRevision, Define, CancelReplacement** | BE merge `f979fa9` (`0fc4bb3`, `316cdaf`) |
+| **BIB-14: `ChapterCastGate` hai mốc Submit & Gate 1, đóng băng kịch bản, gỡ `bible-gate`** | BE merge `9c24b93` (`2cd50e9`, migration `20261114063622_AddChapterFrozenScriptVersionId`) |
+| **BIB-15: Đọc Model Sheet theo Panel & binding (`GetPanelBible`); Model Sheet block bàn vẽ Artist Desk** | BE merge `a5a6d55` (`e1c2c9a`), FE merge `db5a007` (`4dae604`) |
+| **BIB-16: Giao diện kịch bản nối Series Bible: mark `bibleRef`, bôi đen tham chiếu, Chapter Cast drawer, blockers list** | FE merge `215c516` (`4e68972`), `0740a2a` (`80ea7a6`), `016b307` (`b3025ba`) |
+| **BIB-17: Gỡ bỏ cơ chế cũ không tương thích ngược (xoá `@mention`, era, link-bible-entries, `SpeakerCharacterId`, `/endorse`, `/lock`); test QA** | BE merge `95c98b9` (`2051754`), `50c2eb5` (`c9e4b4c`), `5a0f9a2` (`ec2c5e1`), `c65f9cf` (`b71095a`); FE merge `2b335f7` (`a55a012`), migration `20261114115859_RemoveLegacyBibleMechanisms` |
 
 ## 2. Hiện trạng frontend (đo 2026-11-12)
 
@@ -87,11 +97,11 @@ Ma trận chuyển trạng thái **sau BIB-10**: `SubmitConceptVersion: Draft | 
 
 ### Frontend (làm theo thứ tự)
 
-#### BIB-03 · Theo kịp hợp đồng backend — FE · ❌ · cũ bước 2
-- [ ] `services/bible.service.ts` + types theo DTO hiện tại; bỏ 8 chỗ `(item as any).status` và so sánh số (backend dùng `JsonStringEnumConverter`).
-- [ ] Nộp concept từ hàng đợi gửi `revisionId`; key danh sách hàng đợi theo `revisionId`.
-- [ ] Quyền nút theo Q20: **Xác nhận (= khoá Canon) chỉ Editor**, cho cả Nhân vật/Địa điểm/Đạo cụ; Yêu cầu vẽ lại cho Writer + Editor + Producer (Q22); Producer không thấy nút xác nhận/khoá. Nếu BIB-10 chưa xong thì gọi endpoint cũ, đổi khi BIB-10 merge.
-- [ ] `typecheck`.
+#### BIB-03 · Theo kịp hợp đồng backend — FE · ✅ · cũ bước 2 (merge `cf77e39`, `2b335f7`, `a6cb774`)
+- [x] `services/bible.service.ts` + types theo DTO hiện tại; bỏ 8 chỗ `(item as any).status` và so sánh số (backend dùng `JsonStringEnumConverter`).
+- [x] Nộp concept từ hàng đợi gửi `revisionId`; key danh sách hàng đợi theo `revisionId`.
+- [x] Quyền nút theo Q20: **Xác nhận (= khoá Canon) chỉ Editor**, cho cả Nhân vật/Địa điểm/Đạo cụ; Yêu cầu vẽ lại cho Writer + Editor + Producer (Q22); Producer không thấy nút xác nhận/khoá.
+- [x] `typecheck`.
 
 #### BIB-04 · Tách cấu trúc `series-bible/` — FE · ❌ · cũ bước 3
 ```
@@ -145,10 +155,10 @@ series-bible/
 
 ### Duyệt concept theo phiên bản (Q20)
 
-#### BIB-10 · Editor xác nhận = khoá Canon; phiên bản concept & góp ý có trả lời — DB + BE + FE · ❌ · Q20
+#### BIB-10 · Editor xác nhận = khoá Canon; phiên bản concept & góp ý có trả lời — DB + BE + FE · ✅ · Q20 (BE merge `e78858b`, FE merge `cf77e39`, migration `20261114054042_AddBibleConceptVersionsAndComments`)
 - **Bối cảnh code:** mỗi lần nộp concept hiện đã ghi một `BibleRevisionEvent` loại `ConceptSubmitted` kèm ảnh (`BibleEntryRevision.SubmitConcept`), `ConceptImageUrl` là ảnh của sự kiện mới nhất. Enum `BibleRevisionStatus` còn `WriterEndorsed = 4`; `/endorse` cho Writer + Editor, `/lock` cho Producer.
-- [ ] [DB + BE] **Phiên bản concept = sự kiện `ConceptSubmitted`** (đã bất biến): thêm `concept_version_number INT NULL` (tăng dần theo revision) và `asset_sha256 VARCHAR(64) NULL` vào `bible_revision_events`; `bible_entry_revisions.current_concept_event_id UUID NULL` trỏ phiên bản đang nộp. Migration điền số phiên bản cho sự kiện cũ theo thứ tự thời gian.
-- [ ] [DB + BE] Góp ý có trả lời — bảng mới:
+- [x] [DB + BE] **Phiên bản concept = sự kiện `ConceptSubmitted`** (đã bất biến): thêm `concept_version_number INT NULL` (tăng dần theo revision) và `asset_sha256 VARCHAR(64) NULL` vào `bible_revision_events`; `bible_entry_revisions.current_concept_event_id UUID NULL` trỏ phiên bản đang nộp. Migration điền số phiên bản cho sự kiện cũ theo thứ tự thời gian.
+- [x] [DB + BE] Góp ý có trả lời — bảng mới:
   ```sql
   CREATE TABLE bible_concept_comments (
     id                 UUID PRIMARY KEY,
@@ -164,13 +174,13 @@ series-bible/
   CREATE INDEX ix_bible_concept_comments_revision ON bible_concept_comments(revision_id, created_at);
   ```
   Endpoint: `GET/POST .../revisions/{revisionId}/comments`, `POST .../comments/{commentId}/replies`, `POST .../comments/{commentId}/resolve`. Quyền: góp ý gốc Writer + Editor; trả lời Writer + Editor + Artist; Producer chỉ đọc. Thông báo: Artist khi có góp ý/yêu cầu vẽ lại; Writer + Editor khi có phiên bản mới; tác giả góp ý khi có trả lời.
-- [ ] [BE] **Bỏ `WriterEndorsed`** (Q20): `Endorse` + `Lock` gộp thành `ConfirmCanon(editorId, conceptEventId)`: chỉ từ `ConceptSubmitted`, `conceptEventId` phải là phiên bản đang nộp (409 nếu Artist vừa nộp bản mới), Editor khác Artist đã nộp phiên bản đó (BR-06 → 403) → `CanonLocked` + sự kiện `Locked`. Migration dữ liệu: revision đang `WriterEndorsed` → `ConceptSubmitted` (Editor xác nhận lại); xoá giá trị enum, gỡ luật "người đã xác nhận không tự khoá".
-- [ ] [BE] Endpoint: `/endorse` + `/lock` → `POST .../revisions/{revisionId}/confirm` (chỉ **Editor**). `/request-rework` cho **Writer + Editor + Producer** (Q22), bắt buộc nhận xét; ghi thêm một góp ý gốc gắn phiên bản đang nộp để hiện trong luồng hội thoại.
-- [ ] [BE] Nộp concept (4A): `409` khi `entry.IsStub` hoặc mô tả revision rỗng ("Thực thể chưa được Writer viết định nghĩa"). Nộp từ `ConceptSubmitted` (Artist tự thay ảnh trước khi được xác nhận) = phiên bản mới.
-- [ ] [BE] Quyền tạo mục, tạo revision chữ, `/supersede`: chỉ **Writer** (bỏ Producer, Q19/Q20).
-- [ ] [FE] Màn duyệt concept: ảnh phiên bản đang nộp + chọn phiên bản cũ để so sánh cạnh nhau; luồng góp ý theo phiên bản (khoanh vùng trên ảnh, trả lời, đánh dấu đã xử lý). Editor: nút "Xác nhận & khoá Canon" + "Yêu cầu vẽ lại"; Writer: góp ý + "Yêu cầu vẽ lại"; Artist: trả lời + nộp phiên bản mới; Producer: xem + "Yêu cầu vẽ lại" (Q22).
-- [ ] [Docs] Đã sửa spec §5.1, §5.2 máy 1, glossary §3.3, chuẩn đặt tên §5.3 (2026-11-14).
-- [ ] Test: Writer gọi `/confirm` → 403; Producer gọi `/confirm`, `/supersede`, góp ý gốc → 403, `/request-rework` → thành công (Q22); Editor xác nhận phiên bản cũ → 409; Editor là Artist nộp → 403; Editor xác nhận → `CanonLocked`; trả lời góp ý không đổi trạng thái; nộp concept khi `IsStub` → 409; migration `WriterEndorsed` → `ConceptSubmitted`.
+- [x] [BE] **Bỏ `WriterEndorsed`** (Q20): `Endorse` + `Lock` gộp thành `ConfirmCanon(editorId, conceptEventId)`: chỉ từ `ConceptSubmitted`, `conceptEventId` phải là phiên bản đang nộp (409 nếu Artist vừa nộp bản mới), Editor khác Artist đã nộp phiên bản đó (BR-06 → 403) → `CanonLocked` + sự kiện `Locked`. Migration dữ liệu: revision đang `WriterEndorsed` → `ConceptSubmitted` (Editor xác nhận lại); xoá giá trị enum, gỡ luật "người đã xác nhận không tự khoá".
+- [x] [BE] Endpoint: `/endorse` + `/lock` → `POST .../revisions/{revisionId}/confirm` (chỉ **Editor**). `/request-rework` cho **Writer + Editor + Producer** (Q22), bắt buộc nhận xét; ghi thêm một góp ý gốc gắn phiên bản đang nộp để hiện trong luồng hội thoại.
+- [x] [BE] Nộp concept (4A): `409` khi `entry.IsStub` hoặc mô tả revision rỗng ("Thực thể chưa được Writer viết định nghĩa"). Nộp từ `ConceptSubmitted` (Artist tự thay ảnh trước khi được xác nhận) = phiên bản mới.
+- [x] [BE] Quyền tạo mục, tạo revision chữ, `/supersede`: chỉ **Writer** (bỏ Producer, Q19/Q20).
+- [x] [FE] Màn duyệt concept: ảnh phiên bản đang nộp + chọn phiên bản cũ để so sánh cạnh nhau; luồng góp ý theo phiên bản (khoanh vùng trên ảnh, trả lời, đánh dấu đã xử lý). Editor: nút "Xác nhận & khoá Canon" + "Yêu cầu vẽ lại"; Writer: góp ý + "Yêu cầu vẽ lại"; Artist: trả lời + nộp phiên bản mới; Producer: xem + "Yêu cầu vẽ lại" (Q22).
+- [x] [Docs] Đã sửa spec §5.1, §5.2 máy 1, glossary §3.3, chuẩn đặt tên §5.3 (2026-11-14).
+- [x] Test: Writer gọi `/confirm` → 403; Producer gọi `/confirm`, `/supersede`, góp ý gốc → 403, `/request-rework` → thành công (Q22); Editor xác nhận phiên bản cũ → 409; Editor là Artist nộp → 403; Editor xác nhận → `CanonLocked`; trả lời góp ý không đổi trạng thái; nộp concept khi `IsStub` → 409; migration `WriterEndorsed` → `ConceptSubmitted`.
 
 ### Nối Bible với luồng sản xuất (Q16, Q19)
 
@@ -178,9 +188,9 @@ series-bible/
 >
 > **Luồng lưu kịch bản hiện tại (FE `ScriptEditorView.handleSaveScript`)** gồm 4 request rời: `batchSave` (dòng) → `syncScriptStructure` (Trang/Panel, ghép Panel theo **số thứ tự**, xoá mềm Panel thừa) → `updatePanelDirection` × N → `commitScriptVersion`. Vì vậy tham chiếu đi cùng `batchSave` (2A), giai đoạn theo Panel đi cùng `syncScriptStructure` (Q24), và **tính lại Danh sách thực thể chương trong `ScriptSnapshotBuilder.CommitAsync`** — hàm dùng chung cho Lưu (`CommitScriptVersionCommand`) và Gửi duyệt (`SubmitScriptCommand`) — khi đã đủ dòng, Trang, Panel (3A).
 
-#### BIB-09 · Bí danh, bảng tên chuẩn hoá & biến thể tạo hình — DB + BE · ❌ · Q16, Q23, 9A
-- [ ] [DB] `bible_entries.aliases TEXT[] NOT NULL DEFAULT '{}'`.
-- [ ] [DB] Bảng chỉ mục tên (9A):
+#### BIB-09 · Bí danh, bảng tên chuẩn hoá & biến thể tạo hình — DB + BE · ✅ · Q16, Q23, 9A (BE merge `ed02171`, commit `8909e52`, migration `20261114051740_AddSeriesBibleBindingsAndVariants`)
+- [x] [DB] `bible_entries.aliases TEXT[] NOT NULL DEFAULT '{}'`.
+- [x] [DB] Bảng chỉ mục tên (9A):
   ```sql
   CREATE TABLE bible_entry_names (
     series_bible_id  UUID NOT NULL REFERENCES series_bibles(id) ON DELETE CASCADE,
@@ -192,15 +202,15 @@ series-bible/
   CREATE INDEX ix_bible_entry_names_entry ON bible_entry_names(bible_entry_id);
   ```
   Ghi cả tên chính và mọi bí danh của mục **đang hoạt động**; đồng bộ trong cùng transaction với tạo/sửa/xoá mục. Migration điền từ dữ liệu hiện có (mục trùng tên sẵn có → báo cáo, không tự gộp).
-- [ ] [BE] `BibleNameNormalizer.Normalize(s)`: trim → gộp khoảng trắng → Unicode NFC → `ToLowerInvariant()`. Dùng chung cho bảng tên và `SpeakerResolver` (BIB-12).
-- [ ] [BE] `BibleEntry.SetAliases(...)`: chuẩn hoá, bỏ trùng, tối đa 20 bí danh × 100 ký tự. Create/Update/Define nhận `aliases`.
-- [ ] [BE] Tạo/sửa thủ công trùng `normalized_name` trong cùng Series → 409 kèm tên mục bị trùng. Tự tạo mục nháp khi lưu (BIB-12) gặp vi phạm unique (`23505`) → nạp lại `bible_entry_id` mà transaction kia vừa tạo và dùng mục đó, không báo lỗi.
-- [ ] [BE] Dùng `StageName` hiện có làm `variant_label` (DTO đổi tên trường thành `variantLabel`, giữ tên cột); biến thể mặc định = bản đầu tiên của mục (`IsDefaultVariant` tính toán). `EffectiveFrom/ToChapterNumber` không còn dùng để chọn bản (gỡ cột ở BIB-17).
-- [ ] [BE] `/supersede` chỉ thay bản **cùng biến thể** (Q23): **sửa `AddBibleEntryRevisionCommand`** — hiện gọi `MarkSuperseded` ngay khi tạo bản thay thế; đổi thành ghi `supersedes_revision_id` trên bản mới, bản cũ vẫn `CanonLocked` dùng được. Nhận thêm `chapterId` (tuỳ chọn): tạo từ màn kịch bản chương N thì gắn luôn bản mới cho chương N (`chosen_by_writer = true`). Khi bản thay thế được Editor khoá (BIB-10 `ConfirmCanon`) chỉ ghi sự kiện `Superseded` cho bản cũ — **không** chuyển binding của chương nào. Lệnh `CancelReplacementRevision` (Writer): xoá bản thay thế chưa có sự kiện ngoài `Created`; binding đang trỏ bản đó về bản kế thừa. Tạo biến thể mới = `AddBibleEntryRevision` với nhãn khác, không supersede.
-- [ ] Test: trùng bí danh 409, hai giao dịch cùng tự tạo "Hắc Long" chỉ ra một mục, supersede giữ biến thể, bản cũ còn dùng được sau khi bản mới khoá (chương gắn bản cũ không đổi), huỷ bản thay thế trả chương về bản kế thừa, nhiều biến thể cùng `CanonLocked`.
+- [x] [BE] `BibleNameNormalizer.Normalize(s)`: trim → gộp khoảng trắng → Unicode NFC → `ToLowerInvariant()`. Dùng chung cho bảng tên và `SpeakerResolver` (BIB-12).
+- [x] [BE] `BibleEntry.SetAliases(...)`: chuẩn hoá, bỏ trùng, tối đa 20 bí danh × 100 ký tự. Create/Update/Define nhận `aliases`.
+- [x] [BE] Tạo/sửa thủ công trùng `normalized_name` trong cùng Series → 409 kèm tên mục bị trùng. Tự tạo mục nháp khi lưu (BIB-12) gặp vi phạm unique (`23505`) → nạp lại `bible_entry_id` mà transaction kia vừa tạo và dùng mục đó, không báo lỗi.
+- [x] [BE] Dùng `StageName` hiện có làm `variant_label` (DTO đổi tên trường thành `variantLabel`, giữ tên cột); biến thể mặc định = bản đầu tiên của mục (`IsDefaultVariant` tính toán). `EffectiveFrom/ToChapterNumber` không còn dùng để chọn bản (gỡ cột ở BIB-17).
+- [x] [BE] `/supersede` chỉ thay bản **cùng biến thể** (Q23): **sửa `AddBibleEntryRevisionCommand`** — hiện gọi `MarkSuperseded` ngay khi tạo bản thay thế; đổi thành ghi `supersedes_revision_id` trên bản mới, bản cũ vẫn `CanonLocked` dùng được. Nhận thêm `chapterId` (tuỳ chọn): tạo từ màn kịch bản chương N thì gắn luôn bản mới cho chương N (`chosen_by_writer = true`). Khi bản thay thế được Editor khoá (BIB-10 `ConfirmCanon`) chỉ ghi sự kiện `Superseded` cho bản cũ — **không** chuyển binding của chương nào. Lệnh `CancelReplacementRevision` (Writer): xoá bản thay thế chưa có sự kiện ngoài `Created`; binding đang trỏ bản đó về bản kế thừa. Tạo biến thể mới = `AddBibleEntryRevision` với nhãn khác, không supersede.
+- [x] Test: trùng bí danh 409, hai giao dịch cùng tự tạo "Hắc Long" chỉ ra một mục, supersede giữ biến thể, bản cũ còn dùng được sau khi bản mới khoá (chương gắn bản cũ không đổi), huỷ bản thay thế trả chương về bản kế thừa, nhiều biến thể cùng `CanonLocked`.
 
-#### BIB-11 · Bản đồ thực thể chương, bảng tham chiếu & cờ Quần chúng — DB + BE · ❌ · Q16, 5A, 7A
-- [ ] [DB] Bản đồ thực thể chương:
+#### BIB-11 · Bản đồ thực thể chương, bảng tham chiếu & cờ Quần chúng — DB + BE · ✅ · Q16, 5A, 7A (BE merge `ed02171`, commit `8909e52`, migration `20261114051740_AddSeriesBibleBindingsAndVariants`)
+- [x] [DB] Bản đồ thực thể chương:
   ```sql
   CREATE TABLE chapter_bible_bindings (
     chapter_id               UUID NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
@@ -222,7 +232,7 @@ series-bible/
   - `bound_revision_id` có thể là bản chưa khoá (giai đoạn mới, bản thay thế v2) → chương chờ; Gate 1 bắt buộc mọi bản chương dùng `CanonLocked` cho mục `is_crowd_at_bind = false`. Không có luật "khoá bản mới thì tự chuyển".
   - `is_crowd_at_bind` (7A): chương chưa `Frozen` luôn đồng bộ theo `bible_entries.is_crowd`; Gate 1 đóng băng giá trị.
   - Binding được **tính lại từ kịch bản** mỗi lần commit (BIB-12): thêm dòng cho mục mới xuất hiện, xoá dòng cho mục không còn được nhắc; giữ `bound_revision_id` của dòng `chosen_by_writer = true`, tính lại bản kế thừa cho dòng còn lại.
-- [ ] [DB] Bản theo Panel (Q23) — giai đoạn khác trong cùng chương (hồi tưởng):
+- [x] [DB] Bản theo Panel (Q23) — giai đoạn khác trong cùng chương (hồi tưởng):
   ```sql
   CREATE TABLE panel_bible_variants (
     panel_id        UUID NOT NULL REFERENCES panels(id) ON DELETE CASCADE,
@@ -234,74 +244,75 @@ series-bible/
   );
   ```
   **Ghi từ payload lưu (Q24):** `syncScriptStructure` nhận `panels[].castRevisions[{ bibleEntryId, revisionId }]`; trong cùng transaction ghi lại toàn bộ dòng của các Panel được giữ và **xoá dòng của Panel bị xoá mềm** (FK cascade không chạy với xoá mềm). Vì FE gửi theo nội dung Panel nên chèn/đổi thứ tự Panel không làm lệch. Panel không có dòng dùng `bound_revision_id` của chương. Không kế thừa sang chương sau. Khoá cùng kịch bản ở Gate 1. Chỉ Writer (payload của Producer có `castRevisions` → 403); thực thể phải có trong chương, bản phải thuộc mục và chưa `Superseded`.
-- [ ] [DB] Bảng tham chiếu (5A): **giữ** `script_line_bible_links` và unique `(script_line_id, bible_entry_id) WHERE is_deleted = false` — mỗi dòng tham chiếu một mục tối đa một lần. Đổi `raw_mention_text varchar(100)` → `surface_text varchar(200) NOT NULL` (migration điền từ tên mục khi null). `resolved_revision_id` gỡ ở BIB-17.
-- [ ] [DB] `bible_entries.is_crowd BOOLEAN NOT NULL DEFAULT false`.
-- [ ] [BE] Dùng lại `BibleEntry.CreateStub/IsStub` cho mục tự tạo; **sửa `CreateStub`**: `Description = ""` (bỏ câu "Thực thể tạm thời… '@Tên'"), `snapshotJson` của revision v1 bỏ `EffectiveFromChapterNumber`.
-- [ ] [BE] Entity + configuration + migration (có `Down`); `DeleteBibleEntry` trả 409 khi mục đang được chương nào gắn hoặc còn tham chiếu.
-- [ ] [BE] Bản đồ chỉ đổi được khi `chapter.ScriptStatus != Frozen` và chương `IsContentEditable` (409 ngược lại), trừ cột `is_crowd_at_bind` của chương chưa chốt (đồng bộ tự động).
+- [x] [DB] Bảng tham chiếu (5A): **giữ** `script_line_bible_links` và unique `(script_line_id, bible_entry_id) WHERE is_deleted = false` — mỗi dòng tham chiếu một mục tối đa một lần. Đổi `raw_mention_text varchar(100)` → `surface_text varchar(200) NOT NULL` (migration điền từ tên mục khi null). `resolved_revision_id` gỡ ở BIB-17.
+- [x] [DB] `bible_entries.is_crowd BOOLEAN NOT NULL DEFAULT false`.
+- [x] [BE] Dùng lại `BibleEntry.CreateStub/IsStub` cho mục tự tạo; **sửa `CreateStub`**: `Description = ""` (bỏ câu "Thực thể tạm thời… '@Tên'"), `snapshotJson` của revision v1 bỏ `EffectiveFromChapterNumber`.
+- [x] [BE] Entity + configuration + migration (có `Down`); `DeleteBibleEntry` trả 409 khi mục đang được chương nào gắn hoặc còn tham chiếu.
+- [x] [BE] Bản đồ chỉ đổi được khi `chapter.ScriptStatus != Frozen` và chương `IsContentEditable` (409 ngược lại), trừ cột `is_crowd_at_bind` của chương chưa chốt (đồng bộ tự động).
 
-#### BIB-12 · Tham chiếu trong payload lưu & tính lại Danh sách thực thể ở commit — BE · ❌ · 1A, 2A, 3A, 6A
-- [ ] [BE] **Payload `BatchSaveScriptLines`** (2A): mỗi dòng có `refs: [{ surfaceText, bibleEntryId?, newDraft?: { name, category } }]`, thay trường `BibleEntryIds` cũ.
+#### BIB-12 · Tham chiếu trong payload lưu & tính lại Danh sách thực thể ở commit — BE · ✅ · 1A, 2A, 3A, 6A (BE merge `37abe0f`, tích hợp lưu cả cây `0571fa7`)
+- [x] [BE] **Payload `BatchSaveScriptLines` / `SaveChapterScript`** (2A): mỗi dòng có `refs: [{ surfaceText, bibleEntryId?, newDraft?: { name, category } }]`, thay trường `BibleEntryIds` cũ.
   - Chỉ chấp nhận trên dòng `Action`, `Narration` (Caption), `Sfx` (1A); dòng khác có `refs` → 400.
   - `surfaceText` phải có trong chữ của dòng (so sau chuẩn hoá) → ngược lại bỏ tham chiếu và trả cảnh báo.
   - `bibleEntryId`: mục Nhân vật/Địa điểm/Đạo cụ cùng Series, đang hoạt động. `newDraft`: tạo mục `Draft` (`CreateStub`, `IsStub = true`, mô tả rỗng) qua bảng `bible_entry_names` (tên đã có → dùng mục có sẵn) rồi gắn.
   - Hai `refs` cùng mục trong một dòng → gộp một (5A).
   - Chỉ **Writer** (Producer 403, BR-07/Q19; khớp SCR-11).
-- [ ] [BE] Chữ của dòng đổi mà không gửi lại `refs`: giữ tham chiếu cũ nếu `surface_text` còn trong chữ mới, không còn → gỡ và trả cảnh báo trong kết quả lưu để FE báo Writer.
-- [ ] [BE] **Payload `syncScriptStructure`** (Q24): mỗi Panel thêm `castRevisions[]` (xem BIB-11); `ScriptStructurePanel` thêm trường, FE gửi theo Panel trong tài liệu.
-- [ ] [BE] **`ChapterCastService.RecomputeAsync` chạy trong `ScriptSnapshotBuilder.CommitAsync`** (3A; dùng chung cho Lưu và Gửi duyệt, cùng transaction), theo thứ tự — chạy cả khi nội dung trùng bản trước (không tạo phiên bản mới nhưng vẫn tính lại):
+- [x] [BE] Chữ của dòng đổi mà không gửi lại `refs`: giữ tham chiếu cũ nếu `surface_text` còn trong chữ mới, không còn → gỡ và trả cảnh báo trong kết quả lưu để FE báo Writer.
+- [x] [BE] **Payload `syncScriptStructure` / `SaveChapterScript`** (Q24): mỗi Panel thêm `castRevisions[]` (xem BIB-11); `ScriptStructurePanel` thêm trường, FE gửi theo Panel trong tài liệu.
+- [x] [BE] **`ChapterCastService.RecomputeAsync` chạy trong `ScriptSnapshotBuilder.CommitAsync`** (3A; dùng chung cho Lưu và Gửi duyệt, cùng transaction), theo thứ tự — chạy cả khi nội dung trùng bản trước (không tạo phiên bản mới nhưng vẫn tính lại):
   1. `SpeakerResolver` (hàm thuần): chuẩn hoá `SpeakerLabel` của dòng `Dialogue` **và `Thought`** (bỏ hậu tố `(nghĩ)`, `BibleNameNormalizer`) và khớp **nguyên chuỗi** với `bible_entry_names` của mục **Nhân vật**; không khớp → tạo mục Nhân vật `Draft` (`CreateStub`, tên = nhãn như Writer gõ, xử lý `23505` theo 9A); trùng nhãn trong cùng lần commit chỉ tạo một mục. Audit "tự tạo từ người nói, chương N". Không quét chữ trong mô tả/lời dẫn/SFX.
   2. Tổng hợp người nói + `script_line_bible_links` + `panel_bible_variants` → đồng bộ `chapter_bible_bindings` (bản kế thừa theo BIB-11, cập nhật `is_crowd_at_bind`), rồi tính lại dây chuyền bản kế thừa cho các chương phía sau chưa `Frozen`.
   3. Dọn mục thừa: `IsStub`, hệ thống tạo, không còn binding và tham chiếu nào, chỉ có sự kiện `Created` → xoá.
   4. Chụp `ScriptVersion` và tính mã băm.
-- [ ] [BE] Commit chỉ **Writer** (hiện cho cả Producer ở `ScriptVersionFeatures.cs:218`) vì commit giờ có thể tạo mục Bible.
-- [ ] [BE] **Phiên bản & mã băm (6A, Q24):** `ScriptVersionRow` thêm `Refs: [{ EntryId, SurfaceText }]` cho dòng và `CastRevisions: [{ EntryId, RevisionId }]` cho hàng `panel`; snapshot thêm khối `castChoices` = các dòng `chosen_by_writer = true` của chương. Chuỗi băm giữ nguyên `Type|Page|Panel|Label|Text`, **chỉ nối thêm** `|refs:…` / `|cast:…` (sort theo GUID) khi có, và một dòng `chapter-cast|…` khi chương có lựa chọn của Writer → chương không có các thứ này giữ nguyên mã băm cũ. Bản kế thừa không vào mã băm. Diff giữa hai lần gửi hiện thêm/gỡ tham chiếu và đổi bản.
-- [ ] [BE] `GET /api/chapters/{id}/cast`: mỗi thực thể kèm nguồn (Người nói/Bôi đen), trạng thái Bible (chờ định nghĩa / chờ Artist / chờ xác nhận / `CanonLocked`), `isCrowd`, `boundRevision` (bản, biến thể, trạng thái), `chosenByWriter` / `inheritedFromChapter`, các bản theo Panel (`panelRevisions[]`), mọi bản của mục để chọn, danh sách dòng/Panel nhắc tới; và `submitGate { canSubmit, blockers[] }` (chờ định nghĩa) + `gate { canStart, blockers[] }` (bản chưa khoá, kèm nguồn kế thừa).
-- [ ] Test: khớp bí danh, `Minh (nghĩ)`, dòng `Thought`, tên có dấu viết hoa khác nhau, tự tạo một lần cho nhiều dòng cùng tên, dọn mục thừa, `refs` trên dòng thoại → 400, tham chiếu bị gỡ khi sửa chữ, chèn Panel giữa chừng giữ đúng giai đoạn theo Panel, hash chương không có tham chiếu/lựa chọn không đổi so với trước, đổi bản Writer chọn sau khi gửi → bản hiện tại ≠ bản đã gửi.
-- [ ] *(Sau, 3B)* Gộp 4 request lưu thành một endpoint `SaveScript` một transaction — ghi ở 01_SCRIPT_PLAN.
+- [x] [BE] Commit chỉ **Writer** (hiện cho cả Producer ở `ScriptVersionFeatures.cs:218`) vì commit giờ có thể tạo mục Bible.
+- [x] [BE] **Phiên bản & mã băm (6A, Q24):** `ScriptVersionRow` thêm `Refs: [{ EntryId, SurfaceText }]` cho dòng và `CastRevisions: [{ EntryId, RevisionId }]` cho hàng `panel`; snapshot thêm khối `castChoices` = các dòng `chosen_by_writer = true` của chương. Chuỗi băm giữ nguyên `Type|Page|Panel|Label|Text`, **chỉ nối thêm** `|refs:…` / `|cast:…` (sort theo GUID) khi có, và một dòng `chapter-cast|…` khi chương có lựa chọn của Writer → chương không có các thứ này giữ nguyên mã băm cũ. Bản kế thừa không vào mã băm. Diff giữa hai lần gửi hiện thêm/gỡ tham chiếu và đổi bản.
+- [x] [BE] `GET /api/chapters/{id}/cast`: mỗi thực thể kèm nguồn (Người nói/Bôi đen), trạng thái Bible (chờ định nghĩa / chờ Artist / chờ xác nhận / `CanonLocked`), `isCrowd`, `boundRevision` (bản, biến thể, trạng thái), `chosenByWriter` / `inheritedFromChapter`, các bản theo Panel (`panelRevisions[]`), mọi bản của mục để chọn, danh sách dòng/Panel nhắc tới; và `submitGate { canSubmit, blockers[] }` (chờ định nghĩa) + `gate { canStart, blockers[] }` (bản chưa khoá, kèm nguồn kế thừa).
+- [x] Test: khớp bí danh, `Minh (nghĩ)`, dòng `Thought`, tên có dấu viết hoa khác nhau, tự tạo một lần cho nhiều dòng cùng tên, dọn mục thừa, `refs` trên dòng thoại → 400, tham chiếu bị gỡ khi sửa chữ, chèn Panel giữa chừng giữ đúng giai đoạn theo Panel, hash chương không có tham chiếu/lựa chọn không đổi so với trước, đổi bản Writer chọn sau khi gửi → bản hiện tại ≠ bản đã gửi.
+- [x] *(3B đã hoàn thành ở SCR-14)* Gộp 4 request lưu thành một endpoint `SaveScript` / `SubmitScript` một transaction.
 
-#### BIB-13 · Lệnh Danh sách thực thể & kế thừa bản — BE · ❌ · Q18, Q19, Q23, Q24, 4A, 7A
-- [ ] [BE] `SetBibleEntryCrowdCommand(entryId, bool)` — **chỉ Writer**, bất kỳ lúc nào (7A); cập nhật `is_crowd_at_bind` cho mọi chương chưa `Frozen` có mục đó. Chương đã chốt không đổi.
-- [ ] [BE] `SetChapterCastRevisionCommand(chapterId, entryId, revisionId | null)` — **chỉ Writer**, kịch bản chưa `Frozen`; bản phải thuộc mục, chưa `Superseded` (**không bắt buộc đã khoá**) → `bound_revision_id`, `chosen_by_writer = true`; `null` → về bản kế thừa. Kết quả trả: các chương phía sau chưa chốt sẽ kế thừa theo, và **cảnh báo** các chương phía sau đã chốt với bản khác (không chặn). Tính lại bản kế thừa của các chương sau; Audit.
-- [ ] ~~`SetPanelCastRevisionCommand`~~ — bỏ theo Q24: giai đoạn theo Panel đi trong payload `syncScriptStructure` (BIB-11, BIB-12).
-- [ ] [BE] `DefineBibleEntryCommand(entryId, name, aliases, description, details…)` — **chỉ Writer** (Q19), mục `IsStub = true`: mô tả bắt buộc; sinh mã chuẩn thay `STUB_xxxx`; `PromoteFromStub()`; **ghi đè revision v1 `Draft`** hiện có (không tạo v2); cập nhật `bible_entry_names`. Sau đó mục vào hàng đợi Artist.
-- [ ] Bốn lệnh `SetBibleEntryCrowd`, `SetChapterCastRevision`, `DefineBibleEntry`, `CancelReplacementRevision` (BIB-09): Producer và vai trò khác → 403. Không có lệnh bôi/gỡ tham chiếu rời (2A), không có lệnh gắn tay (gắn là tự động). `SetChapterCastRevision` làm đổi mã băm (Q24) → nếu kịch bản đang `InReview`, Writer phải gửi duyệt lại trước khi Producer chốt.
-- [ ] **`ChapterCastService.ResolveInheritedAsync`** (Q23, Q24; dùng chung cho commit, đổi bản, khoá bản thay thế): dòng `chosen_by_writer = false` lấy bản của chương gần nhất phía trước cùng Series có thực thể, đi theo chuỗi thay thế tới bản đã khoá mới nhất; tính lại dây chuyền cho các chương sau chưa `Frozen`. Không cần Writer xác nhận (Q22).
-- [ ] Khi Editor khoá Canon một bản (BIB-10) → binding Writer đã chọn **không đổi**; các chương đang gắn bản đó hết vướng Gate 1. Nếu bản vừa khoá là bản thay thế → bản cũ thành `Superseded`; chạy lại `ResolveInheritedAsync` cho các chương chưa `Frozen` **đang kế thừa** (D1/Q24) — chương Writer tự chọn bản cũ và chương đã chốt giữ nguyên.
-- [ ] Hàng đợi thiết kế (`GetBibleDesignQueueQuery`): chỉ mục `IsVisualDesign`, không `IsStub`, không `is_crowd`; kèm các chương đang chờ mục đó để Artist ưu tiên.
-- [ ] Test mỗi lệnh: thành công, 403 (Producer), 409 (Frozen, bản không thuộc mục, bản `Superseded`, sai Series, Define trên mục đã định nghĩa); chọn bản chưa khoá → chương chờ, khoá xong hết vướng; bật Quần chúng không đổi chương đã chốt; khoá bản thay thế → chương đang kế thừa chuyển sang bản mới, chương Writer tự chọn bản cũ giữ nguyên; huỷ bản thay thế → chương đang chờ về bản kế thừa.
+#### BIB-13 · Lệnh Danh sách thực thể & kế thừa bản — BE · ✅ · Q18, Q19, Q23, Q24, 4A, 7A (BE merge `f979fa9`)
+- [x] [BE] `SetBibleEntryCrowdCommand(entryId, bool)` — **chỉ Writer**, bất kỳ lúc nào (7A); cập nhật `is_crowd_at_bind` cho mọi chương chưa `Frozen` có mục đó. Chương đã chốt không đổi.
+- [x] [BE] `SetChapterCastRevisionCommand(chapterId, entryId, revisionId | null)` — **chỉ Writer**, kịch bản chưa `Frozen`; bản phải thuộc mục, chưa `Superseded` (**không bắt buộc đã khoá**) → `bound_revision_id`, `chosen_by_writer = true`; `null` → về bản kế thừa. Kết quả trả: các chương phía sau chưa chốt sẽ kế thừa theo, và **cảnh báo** các chương phía sau đã chốt với bản khác (không chặn). Tính lại bản kế thừa của các chương sau; Audit.
+- [x] ~~`SetPanelCastRevisionCommand`~~ — bỏ theo Q24: giai đoạn theo Panel đi trong payload `syncScriptStructure` / `SaveChapterScript` (BIB-11, BIB-12).
+- [x] [BE] `DefineBibleEntryCommand(entryId, name, aliases, description, details…)` — **chỉ Writer** (Q19), mục `IsStub = true`: mô tả bắt buộc; sinh mã chuẩn thay `STUB_xxxx`; `PromoteFromStub()`; **ghi đè revision v1 `Draft`** hiện có (không tạo v2); cập nhật `bible_entry_names`. Sau đó mục vào hàng đợi Artist.
+- [x] Bốn lệnh `SetBibleEntryCrowd`, `SetChapterCastRevision`, `DefineBibleEntry`, `CancelReplacementRevision` (BIB-09): Producer và vai trò khác → 403. Không có lệnh bôi/gỡ tham chiếu rời (2A), không có lệnh gắn tay (gắn là tự động). `SetChapterCastRevision` làm đổi mã băm (Q24) → nếu kịch bản đang `InReview`, Writer phải gửi duyệt lại trước khi Producer chốt.
+- [x] **`ChapterCastService.ResolveInheritedAsync`** (Q23, Q24; dùng chung cho commit, đổi bản, khoá bản thay thế): dòng `chosen_by_writer = false` lấy bản của chương gần nhất phía trước cùng Series có thực thể, đi theo chuỗi thay thế tới bản đã khoá mới nhất; tính lại dây chuyền cho các chương sau chưa `Frozen`. Không cần Writer xác nhận (Q22).
+- [x] Khi Editor khoá Canon một bản (BIB-10) → binding Writer đã chọn **không đổi**; các chương đang gắn bản đó hết vướng Gate 1. Nếu bản vừa khoá là bản thay thế → bản cũ thành `Superseded`; chạy lại `ResolveInheritedAsync` cho các chương chưa `Frozen` **đang kế thừa** (D1/Q24) — chương Writer tự chọn bản cũ và chương đã chốt giữ nguyên.
+- [x] Hàng đợi thiết kế (`GetBibleDesignQueueQuery`): chỉ mục `IsVisualDesign`, không `IsStub`, không `is_crowd`; kèm các chương đang chờ mục đó để Artist ưu tiên.
+- [x] Test mỗi lệnh: thành công, 403 (Producer), 409 (Frozen, bản không thuộc mục, bản `Superseded`, sai Series, Define trên mục đã định nghĩa); chọn bản chưa khoá → chương chờ, khoá xong hết vướng; bật Quần chúng không đổi chương đã chốt; khoá bản thay thế → chương đang kế thừa chuyển sang bản mới, chương Writer tự chọn bản cũ giữ nguyên; huỷ bản thay thế → chương đang chờ về bản kế thừa.
 
-#### BIB-14 · Chốt Bible khi Gửi duyệt & tại Gate 1 — BE · ❌ · Q16, Q21, 7A · thay `CheckChapterBibleGateQuery`
-- [ ] [BE] `ChapterCastGate` — một nguồn luật cho `GET /cast`, Gửi duyệt và Gate 1, hai mức (Q21):
-  - `EvaluateSubmitAsync` (**Gửi duyệt / Gửi duyệt lại**, `SubmitScriptCommand`): chặn khi còn mục `is_crowd_at_bind = false` mà `IsStub` (chờ định nghĩa) hoặc chưa có `bound_revision_id` (mục chưa có bản nào). Không đòi xác nhận bản (Q22), không đòi ảnh `CanonLocked` ở mốc này. Vi phạm → 409 kèm danh sách.
+#### BIB-14 · Chốt Bible khi Gửi duyệt & tại Gate 1 — BE · ✅ · Q16, Q21, 7A · thay `CheckChapterBibleGateQuery` (BE merge `9c24b93`, migration `20261114063622_AddChapterFrozenScriptVersionId`)
+> *Ghi chú:* endpoint `bible-gate` và các legacy endpoints đã bị gỡ bỏ hoàn toàn (quy tắc không tương thích ngược, 2026-11-14).
+- [x] [BE] `ChapterCastGate` — một nguồn luật cho `GET /cast`, Gửi duyệt và Gate 1, hai mức (Q21):
+  - `EvaluateSubmitAsync` (**Gửi duyệt / Gửi duyệt lại**, `SubmitScriptCommand` / `SubmitChapterScriptCommand`): chặn khi còn mục `is_crowd_at_bind = false` mà `IsStub` (chờ định nghĩa) hoặc chưa có `bound_revision_id` (mục chưa có bản nào). Không đòi xác nhận bản (Q22), không đòi ảnh `CanonLocked` ở mốc này. Vi phạm → 409 kèm danh sách.
   - `EvaluateStartAsync` (**Gate 1**): toàn bộ điều kiện Gửi duyệt + **mọi bản chương dùng** — `bound_revision_id` của chương và `revision_id` trong `panel_bible_variants` của các Panel chương — đã `CanonLocked` (bỏ qua mục `is_crowd_at_bind`). Bản chưa khoá thì chặn, kèm nguồn ("chờ Naruto Mặc định v2, kế thừa từ chương 2"), không rơi về bản cũ. Tính lại bản đồ từ **bản đã gửi** ngay lúc chốt.
-- [ ] [BE] `FreezeChapterScriptCommand` gọi gate trước khi `StartProduction`; vi phạm → 409 kèm danh sách (tên, biến thể, lý do: chờ định nghĩa / biến thể chờ Artist vẽ / chờ Editor xác nhận). Thành công → đóng băng `is_crowd_at_bind` và `bound_revision_id`.
-- [ ] [BE] Chốt lại sau khi Producer mở lại: binding đổi `bound_revision_id`, giai đoạn theo Panel đổi, hoặc thêm/bớt thực thể → gắn ⚑ các Panel có dòng nhắc tới thực thể đó (hoặc Panel có giai đoạn bị đổi), dùng chung cơ chế với [SCR-01](01_SCRIPT_PLAN.md).
-- [ ] [BE] `ChapterSnapshotBuilder` (Gate 3) ghi bản đồ thực thể vào manifest (mục, bản, mã băm Model Sheet) kèm giai đoạn theo Panel; phần kịch bản ghi `frozen_script_version_id` thay `ContentRevision` mới nhất từng Scene (Q25/Q26, [SCR-41](01_SCRIPT_PLAN.md)); bỏ đoạn đọc Bible theo era (`EffectiveFromChapterNumber`, khoảng dòng 74). Cùng đợt: đổi `pages.GetAsync(...).Version` (replay toàn bộ event) sang đọc version stream nhiều trang một query, giữ nghĩa `-1` cho trang chưa có event (VERSION_REVIEW mục 5).
-- [ ] Xoá `CheckChapterBibleGateQuery` + endpoint `bible-gate`; FE `ScriptReviewView` và `roles/editor/views/script-review/ChecksTab.tsx` (đang đọc `ChapterBibleGateResultDto`) chuyển sang `GET /cast`.
-- [ ] Test: Gửi duyệt khi còn mục nháp → 409, gắn cờ Quần chúng → qua; Writer không đổi bản → Gửi duyệt qua với bản kế thừa; Ch1 chốt với v1 → Writer tạo v2 từ Ch2 → Ch2 Gate 1 409 tới khi Editor khoá v2, Ch3 kế thừa v2, Ch1 giữ v1; Panel hồi tưởng đặt "Lúc nhỏ" v1 chưa khoá → Gate 1 409; đủ điều kiện → Frozen + binding khoá; sửa binding khi Frozen → 409; mở lại Ch1 không tự kế thừa v2; gỡ cờ Quần chúng sau Gate 1 không mở lại vướng của chương đã chốt.
+- [x] [BE] `FreezeChapterScriptCommand` gọi gate trước khi `StartProduction`; vi phạm → 409 kèm danh sách (tên, biến thể, lý do: chờ định nghĩa / biến thể chờ Artist vẽ / chờ Editor xác nhận). Thành công → đóng băng `is_crowd_at_bind` và `bound_revision_id`.
+- [x] [BE] Chốt lại sau khi Producer mở lại: binding đổi `bound_revision_id`, giai đoạn theo Panel đổi, hoặc thêm/bớt thực thể → gắn ⚑ các Panel có dòng nhắc tới thực thể đó (hoặc Panel có giai đoạn bị đổi), dùng chung cơ chế với [SCR-01](01_SCRIPT_PLAN.md).
+- [x] [BE] `ChapterSnapshotBuilder` (Gate 3) ghi bản đồ thực thể vào manifest (mục, bản, mã băm Model Sheet) kèm giai đoạn theo Panel; phần kịch bản ghi `frozen_script_version_id` thay `ContentRevision` mới nhất từng Scene (Q25/Q26, [SCR-41](01_SCRIPT_PLAN.md)); bỏ đoạn đọc Bible theo era (`EffectiveFromChapterNumber`, khoảng dòng 74). Cùng đợt: đổi `pages.GetAsync(...).Version` (replay toàn bộ event) sang đọc version stream nhiều trang một query, giữ nghĩa `-1` cho trang chưa có event (VERSION_REVIEW mục 5).
+- [x] Xoá `CheckChapterBibleGateQuery` + endpoint `bible-gate`; FE `ScriptReviewView` và `roles/editor/views/script-review/ChecksTab.tsx` (đang đọc `ChapterBibleGateResultDto`) chuyển sang `GET /cast`.
+- [x] Test: Gửi duyệt khi còn mục nháp → 409, gắn cờ Quần chúng → qua; Writer không đổi bản → Gửi duyệt qua với bản kế thừa; Ch1 chốt với v1 → Writer tạo v2 từ Ch2 → Ch2 Gate 1 409 tới khi Editor khoá v2, Ch3 kế thừa v2, Ch1 giữ v1; Panel hồi tưởng đặt "Lúc nhỏ" v1 chưa khoá → Gate 1 409; đủ điều kiện → Frozen + binding khoá; sửa binding khi Frozen → 409; mở lại Ch1 không tự kế thừa v2; gỡ cờ Quần chúng sau Gate 1 không mở lại vướng của chương đã chốt.
 
-#### BIB-15 · Bàn vẽ, AI và kiểm tra nhất quán đọc theo binding — BE · ❌ · Q16
-- [ ] [BE] `GetPanelBible`: lấy bản của từng thực thể trong Panel — `panel_bible_variants` nếu Panel có bản riêng, ngược lại `chapter_bible_bindings.bound_revision_id` — lọc theo thực thể có dòng nhắc tới trong Panel (người nói hoặc bôi đen), trả Model Sheet của bản đó; mục `is_crowd_at_bind` không hiện.
-- [ ] [BE] `ConsistencyChecker`, context AI (`AiWorkflowFacts`, Writer/Artist Agent), `GetBibleEntriesAtChapterQuery`: thay `EffectiveRevisionAt(N)` bằng binding của chương; chương chưa qua Gate 1 dùng bản tự gắn hiện tại.
-- [ ] [FE] Bàn vẽ: hiện chưa màn nào gọi `bibleService.getPanelBible` (`GET /panels/{id}/bible`). Thêm khối Model Sheet theo Panel đang chọn ở `ArtistDeskView` / `workspace/ScriptReaderColumn.tsx` (ảnh, tên, biến thể, bản; nhãn "Hồi tưởng · Lúc nhỏ v1" khi Panel có giai đoạn riêng).
-- [ ] Test: chương 5 giữ bản cũ sau khi bản thay thế được khoá; Panel hồi tưởng hiện Model Sheet "Lúc nhỏ", Panel khác hiện "Mặc định" trong cùng chương.
+#### BIB-15 · Bàn vẽ, AI và kiểm tra nhất quán đọc theo binding — BE + FE · ✅ · Q16 (BE merge `a5a6d55`, FE merge `db5a007`)
+- [x] [BE] `GetPanelBible`: lấy bản của từng thực thể trong Panel — `panel_bible_variants` nếu Panel có bản riêng, ngược lại `chapter_bible_bindings.bound_revision_id` — lọc theo thực thể có dòng nhắc tới trong Panel (người nói hoặc bôi đen), trả Model Sheet của bản đó; mục `is_crowd_at_bind` không hiện.
+- [x] [BE] `ConsistencyChecker`, context AI (`AiWorkflowFacts`, Writer/Artist Agent), `GetBibleEntriesAtChapterQuery`: thay `EffectiveRevisionAt(N)` bằng binding của chương; chương chưa qua Gate 1 dùng bản tự gắn hiện tại.
+- [x] [FE] Bàn vẽ: thêm khối Model Sheet theo Panel đang chọn ở `ArtistDeskView` / `workspace/ScriptReaderColumn.tsx` (ảnh, tên, biến thể, bản; nhãn "Hồi tưởng · Lúc nhỏ v1" khi Panel có giai đoạn riêng).
+- [x] Test: chương 5 giữ bản cũ sau khi bản thay thế được khoá; Panel hồi tưởng hiện Model Sheet "Lúc nhỏ", Panel khác hiện "Mặc định" trong cùng chương.
 
-#### BIB-16 · Giao diện Danh sách thực thể chương & bôi đen — FE · ❌ · Q16, Q19, 1A, 2A, 5A
-- [ ] [FE] Editor kịch bản (chỉ Writer): node `scriptLine` (`flow/nodes/ScriptLineBlockNode.ts`) đang đặt `marks: ''` → thêm mark `bibleRef` (attrs `entryId`, `surfaceText`) và chỉ cho phép trên dòng `el = action | caption | sfx` (plugin chặn ở dòng khác). Bôi đen → menu nổi "Tham chiếu Series Bible" (ô tìm theo tên/bí danh) + "Tạo bản nháp" khi chưa có (tên điền sẵn, chọn loại, một bước, không bắt nhập mô tả).
-- [ ] [FE] Lưu tham chiếu qua `scriptFlowAdapter`: mark → `refs[{ surfaceText, bibleEntryId | newDraft }]` trong payload `batchSave`. Mọi chỗ cùng `surfaceText` trong dòng đều gạch chân (5A); hover hiện tên mục, có nút gỡ. Báo khi kết quả lưu trả cảnh báo mất tham chiếu.
-- [ ] [FE] Ô người nói: gợi ý tên/bí danh Bible khi gõ (không bắt buộc chọn); tên mới hiện chip "Sẽ tạo bản nháp".
-- [ ] [FE] Ngăn phải `ScriptEditorView`: danh sách thực thể (nguồn, trạng thái Bible, bản đang gắn kèm nhãn "Kế thừa từ chương N" hoặc "Writer chọn"; ô chọn bản gồm mọi biến thể/bản của mục, kể cả chưa khoá, có nút "Về bản kế thừa"; khi đổi hiện danh sách chương phía sau sẽ kế thừa và cảnh báo chương đã chốt lệch bản; nút **Quần chúng**; nút "Viết định nghĩa" với mục nháp; nút "Tạo bản thay thế" / "Huỷ bản thay thế") — **thao tác chỉ hiện với Writer**, vai trò khác chỉ xem; bấm thực thể → nhảy tới dòng/Panel.
-- [ ] [FE] **Giai đoạn theo Panel** (Q24): chọn một hoặc nhiều Panel → "Đặt giai đoạn cho Panel" (chọn thực thể + bản); lưu như thuộc tính của dòng `panel` trong tài liệu editor, `scriptFlowAdapter` đưa vào `panels[].castRevisions` của `syncScriptStructure`; Panel có giai đoạn riêng hiện nhãn nhỏ cạnh tiêu đề (ví dụ "Naruto · Lúc nhỏ v1"). Đổi giai đoạn = có thay đổi chưa lưu, như sửa chữ.
-- [ ] [FE] Nút **Gửi duyệt** của Writer hiện danh sách việc còn thiếu từ `submitGate.blockers` (viết định nghĩa / gắn Quần chúng), khoá nút khi `canSubmit = false`. Nút **Bắt đầu sản xuất** (và tab Gate 1 của [ASG-01](03_ASSIGNMENT_PLAN.md)) hiện `gate.blockers` (biến thể chưa khoá), khoá nút khi `canStart = false`.
-- [ ] [FE] Form mục Bible: ô bí danh (chip), nhãn biến thể thay cho "chương bắt đầu/kết thúc", cờ Quần chúng; hàng đợi thiết kế hiện "Chương đang chờ".
-- [ ] [FE] Bỏ UI era (chương hiệu lực), `@mention`. i18n vi/en; test.
+#### BIB-16 · Giao diện Danh sách thực thể chương & bôi đen — FE · ✅ · Q16, Q19, 1A, 2A, 5A (FE merge `215c516`, `0740a2a`, `016b307`)
+- [x] [FE] Editor kịch bản (chỉ Writer): node `scriptLine` (`flow/nodes/ScriptLineBlockNode.ts`) thêm mark `bibleRef` (attrs `entryId`, `surfaceText`) và chỉ cho phép trên dòng `el = action | caption | sfx`. Bôi đen → menu nổi "Tham chiếu Series Bible" (ô tìm theo tên/bí danh) + "Tạo bản nháp" khi chưa có (tên điền sẵn, chọn loại, một bước, không bắt nhập mô tả).
+- [x] [FE] Lưu tham chiếu qua `scriptFlowAdapter`: mark → `refs[{ surfaceText, bibleEntryId | newDraft }]` trong payload lưu. Mọi chỗ cùng `surfaceText` trong dòng đều gạch chân (5A); hover hiện tên mục, có nút gỡ. Báo khi kết quả lưu trả cảnh báo mất tham chiếu.
+- [x] [FE] Ô người nói: gợi ý tên/bí danh Bible khi gõ (không bắt buộc chọn); tên mới hiện chip "Sẽ tạo bản nháp".
+- [x] [FE] Ngăn phải `ScriptEditorView` / Chapter Cast drawer: danh sách thực thể (nguồn, trạng thái Bible, bản đang gắn kèm nhãn "Kế thừa từ chương N" hoặc "Writer chọn"; ô chọn bản gồm mọi biến thể/bản của mục, kể cả chưa khoá, có nút "Về bản kế thừa"; khi đổi hiện danh sách chương phía sau sẽ kế thừa và cảnh báo chương đã chốt lệch bản; nút **Quần chúng**; nút "Viết định nghĩa" với mục nháp; nút "Tạo bản thay thế" / "Huỷ bản thay thế") — **thao tác chỉ hiện với Writer**, vai trò khác chỉ xem; bấm thực thể → nhảy tới dòng/Panel.
+- [x] [FE] **Giai đoạn theo Panel** (Q24): chọn một hoặc nhiều Panel → "Đặt giai đoạn cho Panel" (chọn thực thể + bản); lưu như thuộc tính của dòng `panel` trong tài liệu editor, `scriptFlowAdapter` đưa vào `panels[].castRevisions` của payload lưu; Panel có giai đoạn riêng hiện nhãn nhỏ cạnh tiêu đề (ví dụ "Naruto · Lúc nhỏ v1"). Đổi giai đoạn = có thay đổi chưa lưu, như sửa chữ.
+- [x] [FE] Nút **Gửi duyệt** của Writer hiện danh sách việc còn thiếu từ `submitGate.blockers` (viết định nghĩa / gắn Quần chúng), khoá nút khi `canSubmit = false`. Nút **Bắt đầu sản xuất** (và tab Gate 1 của [ASG-01](03_ASSIGNMENT_PLAN.md)) hiện `gate.blockers` (biến thể chưa khoá), khoá nút khi `canStart = false`.
+- [x] [FE] Form mục Bible: ô bí danh (chip), nhãn biến thể thay cho "chương bắt đầu/kết thúc", cờ Quần chúng; hàng đợi thiết kế hiện "Chương đang chờ".
+- [x] [FE] Bỏ UI era (chương hiệu lực), `@mention`. i18n vi/en; test.
 
-#### BIB-17 · Gỡ cơ chế cũ — BE + FE + DB · ❌ · sau BIB-14/15/16
-- [ ] [BE] Gỡ `ScriptLine.SpeakerCharacterId` + `ValidateSpeakerAsync`, `LinkBibleEntriesCommand` + endpoint, trường `BibleEntryIds` của payload lưu (thay bằng `refs`), `EffectiveRevisionAt`, `DeleteBibleEntryEraCommand` + endpoint `eras`, cột `EffectiveFrom/ToChapterNumber`, cột `script_line_bible_links.resolved_revision_id`, endpoint `/endorse` + `/lock` cũ (sau BIB-10). Migration có `Down`. **Giữ** `script_line_bible_links` (mở rộng ở BIB-11) và `CreateStub/IsStub/PromoteFromStub`.
-- [ ] [FE] Gỡ `@tiptap/extension-mention` và code gọi các endpoint trên.
-- [ ] [QA] Viết bộ test case Series Bible mới theo Q16–Q24: người nói tự khớp/tự tạo (thoại + suy nghĩ), bôi đen (đúng loại dòng), Quần chúng, định nghĩa mục nháp, phiên bản concept + góp ý/trả lời, Editor xác nhận = khoá, Producer yêu cầu vẽ lại, bản kế thừa Ch1–Ch3, giai đoạn theo Panel, supersede/huỷ bản thay thế, Gửi duyệt và Gate 1.
-- [ ] Mục "ép `ChapterNumber` decimal về int" ở rà soát 2026-11-13 tự hết khi gỡ `EffectiveRevisionAt`.
+#### BIB-17 · Gỡ cơ chế cũ — BE + FE + DB + QA · ✅ · sau BIB-14/15/16 (BE merge `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE merge `2b335f7`, migration `20261114115859_RemoveLegacyBibleMechanisms`)
+- [x] [BE] Gỡ `ScriptLine.SpeakerCharacterId` + `ValidateSpeakerAsync`, `LinkBibleEntriesCommand` + endpoint, trường `BibleEntryIds` của payload lưu (thay bằng `refs`), `EffectiveRevisionAt`, `DeleteBibleEntryEraCommand` + endpoint `eras`, cột `EffectiveFrom/ToChapterNumber`, cột `script_line_bible_links.resolved_revision_id`, endpoint `/endorse` + `/lock` cũ (sau BIB-10). Migration có `Down`. **Giữ** `script_line_bible_links` (mở rộng ở BIB-11) và `CreateStub/IsStub/PromoteFromStub`.
+- [x] [FE] Gỡ `@tiptap/extension-mention` và code gọi các endpoint trên.
+- [x] [QA] Viết bộ test case Series Bible mới theo Q16–Q24: người nói tự khớp/tự tạo (thoại + suy nghĩ), bôi đen (đúng loại dòng), Quần chúng, định nghĩa mục nháp, phiên bản concept + góp ý/trả lời, Editor xác nhận = khoá, Producer yêu cầu vẽ lại, bản kế thừa Ch1–Ch3, giai đoạn theo Panel, supersede/huỷ bản thay thế, Gửi duyệt và Gate 1.
+- [x] Mục "ép `ChapterNumber` decimal về int" ở rà soát 2026-11-13 tự hết khi gỡ `EffectiveRevisionAt`.
 
 ### Luồng triển khai BE → FE
 
@@ -315,16 +326,16 @@ series-bible/
 
 **Thứ tự làm:**
 
-| Pha | Repo | Task | Nội dung | Kiểm tra |
+| Pha | Repo | Task | Nội dung | Kiểm tra / Bằng chứng |
 |---|---|---|---|---|
-| 0 | BE | [SCR-11](01_SCRIPT_PLAN.md) | Producer không sửa kịch bản; commit chỉ Writer | `dotnet build` + test |
-| 1a | BE + DB | BIB-09, BIB-11 | Một đợt migration: `aliases`, `is_crowd`, `bible_entry_names`, `chapter_bible_bindings`, `panel_bible_variants`, `surface_text`, `supersedes_revision_id`; sửa `CreateStub`; supersede gắn chương N, không đánh `Superseded` sớm; `CancelReplacementRevision` | Test domain, migration có `Down` |
-| 1b | BE + DB | BIB-10 (song song 1a, sandbox riêng; merge sau 1a) | Bỏ `WriterEndorsed` + chuyển dữ liệu; `/confirm`; `request-rework` cho Writer/Editor/Producer; phiên bản concept; `bible_concept_comments`; chặn nộp concept khi mục nháp | Test quyền và trạng thái |
-| 2 | BE | BIB-12, BIB-13 | `refs` trong `batchSave`; `castRevisions` trong `syncScriptStructure`; `ChapterCastService` (resolve người nói, kế thừa, recompute) trong `CommitAsync`; mã băm 6A + Q24; lệnh Crowd / ChapterCastRevision / Define; `GET /cast` | Test kịch bản Naruto Ch1–Ch3 + hồi tưởng |
-| 3 | BE | BIB-14 | `ChapterCastGate` hai mốc vào Submit/Freeze; khoá bản đồ; ⚑ khi chốt lại; Snapshot; xoá `bible-gate` | Test Gate |
-| 4 | BE | BIB-15 (BE) | `GetPanelBible` theo Panel; `ConsistencyChecker` + AI theo binding | Test Model Sheet theo Panel |
-| 5 | FE | BIB-03 → BIB-16 → BIB-15 (FE) → BIB-10 (FE) | Service/types; mark `bibleRef` + menu bôi đen; gợi ý người nói; ngăn Danh sách thực thể; giai đoạn theo Panel; vướng ở Gửi duyệt / Bắt đầu sản xuất; `ChecksTab` → `/cast`; Model Sheet ở bàn vẽ; màn duyệt concept. Bắt đầu khi pha 2 có `GET /cast` | `typecheck`, `i18n:check`, `eslint` |
-| 6 | BE + FE | BIB-17 + QA | Gỡ `@mention`, era, `/endorse`, `/lock`, `LinkBibleEntries`, `BibleEntryIds`, `resolved_revision_id`; bộ test case Q16–Q24 | Full test |
+| 0 | BE | [SCR-11](01_SCRIPT_PLAN.md) | Producer không sửa kịch bản; commit chỉ Writer | ✅ BE merge `fa90712` |
+| 1a | BE + DB | BIB-09, BIB-11 | Một đợt migration: `aliases`, `is_crowd`, `bible_entry_names`, `chapter_bible_bindings`, `panel_bible_variants`, `surface_text`, `supersedes_revision_id`; sửa `CreateStub`; supersede gắn chương N, không đánh `Superseded` sớm; `CancelReplacementRevision` | ✅ BE merge `ed02171` (migration `20261114051740_AddSeriesBibleBindingsAndVariants`) |
+| 1b | BE + DB | BIB-10 (song song 1a, sandbox riêng; merge sau 1a) | Bỏ `WriterEndorsed` + chuyển dữ liệu; `/confirm`; `request-rework` cho Writer/Editor/Producer; phiên bản concept; `bible_concept_comments`; chặn nộp concept khi mục nháp | ✅ BE merge `e78858b`, FE merge `cf77e39` (migration `20261114054042_AddBibleConceptVersionsAndComments`) |
+| 2 | BE | BIB-12, BIB-13 | `refs` trong `batchSave`; `castRevisions` trong `syncScriptStructure`; `ChapterCastService` (resolve người nói, kế thừa, recompute) trong `CommitAsync`; mã băm 6A + Q24; lệnh Crowd / ChapterCastRevision / Define; `GET /cast` | ✅ BE merge `37abe0f`, `f979fa9`, `0571fa7` |
+| 3 | BE | BIB-14 | `ChapterCastGate` hai mốc vào Submit/Freeze; khoá bản đồ; ⚑ khi chốt lại; Snapshot; xoá `bible-gate` | ✅ BE merge `9c24b93` (migration `20261114063622_AddChapterFrozenScriptVersionId`) |
+| 4 | BE | BIB-15 (BE) | `GetPanelBible` theo Panel; `ConsistencyChecker` + AI theo binding | ✅ BE merge `a5a6d55` |
+| 5 | FE | BIB-03 → BIB-16 → BIB-15 (FE) → BIB-10 (FE) | Service/types; mark `bibleRef` + menu bôi đen; gợi ý người nói; ngăn Danh sách thực thể; giai đoạn theo Panel; vướng ở Gửi duyệt / Bắt đầu sản xuất; `ChecksTab` → `/cast`; Model Sheet ở bàn vẽ; màn duyệt concept | ✅ FE merge `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `016b307` |
+| 6 | BE + FE | BIB-17 + QA | Gỡ `@mention`, era, `/endorse`, `/lock`, `LinkBibleEntries`, `BibleEntryIds`, `resolved_revision_id`; bộ test case Q16–Q24 | ✅ BE merge `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE merge `2b335f7`, migration `20261114115859_RemoveLegacyBibleMechanisms` |
 
 BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) độc lập, làm sau pha 5 hoặc xen kẽ khi rảnh.
 
@@ -348,6 +359,7 @@ BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) độc lập
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | BIB-03, BIB-09..BIB-17 | ✅ Hoàn thành | BE `ed02171`, `e78858b`, `37abe0f`, `f979fa9`, `9c24b93`, `a5a6d55`, `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `2b335f7`, `016b307`, `a6cb774` | Toàn bộ luồng Series Bible kết nối Script & Gate 1 đã hoàn thành và gộp vào `trungkien`. Xoá bỏ hoàn toàn các cơ chế legacy (bible-gate, endorse/lock, era, mention) theo quy tắc không tương thích ngược |
 | 2026-11-12 | cũ B1, B3, B5, B6 (một phần) | ✅ | BE `1cb44ed`, merge `a092b0f` | Guard trạng thái, hàng đợi theo giai đoạn |
 | 2026-11-12 | cũ B4, L7 | ✅ | BE `79b5077`, merge `df10ee3` | Địa điểm/Đạo cụ khoá được; chỉ Editor duyệt |
 | 2026-11-14 | Q16, BIB-09, BIB-11..BIB-17 | Lập kế hoạch | — (chỉ tài liệu) | Bible chốt theo chương: bí danh, biến thể tạo hình, Danh sách & Bản đồ thực thể chương, chốt ở Gate 1 |

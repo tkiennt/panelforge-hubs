@@ -91,7 +91,7 @@ Chapter
 | POST | `/script/unfreeze` (hoặc `reopen`) | Producer | Mở lại kịch bản: `Frozen → Draft` (lý do bắt buộc, append-only `script_reopens`) |
 | GET | `/script-versions`, `/{id}`, `/diff?from&to` | Thành viên | Lịch sử phiên bản & so sánh diff |
 
-Endpoint cũ (`freeze-script`, `unfreeze-script`, `scenes/*`, `script-lines/*`, `pages/sync-script-structure`) chạy song song, `[Obsolete]`, gỡ ở SCR-23. Editor và Producer góp ý theo dòng (SCR-37), không có endpoint `/script/request-changes`.
+Endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link-bible-entries`, `bible-gate`) đã được gỡ bỏ hoàn toàn (không chạy song song, không giữ shim `[Obsolete]`, tuân thủ quy tắc Không tương thích ngược 2026-11-14). Editor và Producer góp ý theo dòng (SCR-37), không có endpoint `/script/request-changes`.
 
 ### 3.5 Quyết định
 
@@ -109,6 +109,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `scenes/*`, `script-lines/*`, 
 | D10 ✅ | Kéo thả sắp xếp Page/Panel trong Board view khi nào? | **Đã chốt 2026-11-13, cập nhật theo D12:** chỉ khi `Draft` hoặc `InReview`; Panel đã có artwork thì hỏi xác nhận và gắn ⚑ như sửa muộn |
 | D12 ✅ | Luồng nộp kịch bản Writer → Editor → Start Production | **User chốt 2026-11-13, bổ sung D3 (2026-11-14):** `ScriptStatus` chỉ còn `Draft ↔ InReview → Frozen` (Producer `Unfreeze` có lý do: `Frozen → Draft`). Bỏ `ChangesRequested` và `Amending`. `InReview`: Writer vẫn sửa và lưu, Editor đọc bản đã gửi; **chỉ Writer** được `Recall` về `Draft` — Editor/Producer không đẩy kịch bản về Draft. Editor **chỉ góp ý theo dòng**, không đổi trạng thái, **không bắt buộc** trước Gate 1; góp ý **không chặn** Gate 1 (D3); Producer thấy cảnh báo non-blocking "Còn X góp ý trên kịch bản". Producer bấm **Start Production** khi `InReview` → `Frozen` + `ChapterStatus PreProduction → InProduction` (`PreProduction` là mặc định khi tạo chương). Bỏ duyệt kịch bản qua Assignment, bỏ Bible Gate `@Tag` lúc freeze (D11), bỏ tự dựng trang lúc freeze, hash theo `Kind/Text/SpeakerLabel` + Trang/Panel. Writer nào trong studio cũng soạn/nộp được (chưa cần `WriterUserId`); giao trang (ASG-01) làm sau. Thay thế §3.1 và D3/D4 ở các điểm khác nhau |
 | D11 ✅ | Editor kịch bản theo bảng H.1 riêng hay bám WriterSolo? Có liên kết Series Bible trong kịch bản? | **User chốt 2026-11-13:** editor gõ **giống WriterSolo** (luật đo trực tiếp, thay bảng H.1), kịch bản là **chữ thuần, không liên kết Series Bible** (bỏ `@mention`, ô chọn người nói từ Bible, `speakerCharacterId` luôn null), xây lại không tương thích dữ liệu cũ. D7 giữ dưới dạng Parens `(nghĩ)`. ⚠️ Lệch đặc tả master Module 1 (`@Bible` trong ACTION_DIRECTION, stub `@Tên_Mới`, Bible Gate chỉ xét `@Tag`) — chưa sửa đặc tả |
+| D13 ✅ | Quy tắc không tương thích ngược (No backward compatibility) | **Đã chốt 2026-11-14:** Bám theo spec hiện hành duy nhất; dữ liệu demo/seed được tạo lại sau. Không giữ code/endpoint cũ, không shim `[Obsolete]`, không migration chuyển đổi dữ liệu cũ. Toàn bộ endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link-bible-entries`, `bible-gate`, `eras`) và các cột/trường cũ (`SpeakerCharacterId`, `BibleEntryIds`, era) được xoá bỏ dứt điểm |
 
 ---
 
@@ -185,13 +186,12 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `scenes/*`, `script-lines/*`, 
 - [ ] `UnfreezeChapterScriptCommand`: Producer mở lại `Frozen → Draft` kèm lý do bắt buộc, append-only `script_reopens` (SCR-09), kích hoạt phân tích ảnh hưởng (SCR-01). Bỏ `RequestScriptReopenCommand`, `DecideScriptReopenCommand`, `RefreezeScriptCommand`.
 - [ ] Mỗi command có test (thành công + 403 + 409).
 
-#### SCR-11 · Luật quyền sửa kịch bản — BE · ❌ · cũ S2-04
-- [ ] Viết lại `ScriptLineRules.AuthorizeAsync` theo `ScriptStatus` + `Chapter.WriterUserId`.
-- [ ] Producer chỉ sửa khi chưa có Writer (BR-07/23); xác minh 403 khi Producer sửa thoại (plan tổng M1-04 🔍).
-- [ ] Test ma trận vai trò × trạng thái.
-- [ ] **(Rà soát 2026-11-13, xác nhận lệch BR-07)** BE `ScriptLineRules.AuthorizeAsync` ghi "Producer luôn được" → Producer sửa/xoá dòng kịch bản bất kỳ lúc nào; spec BR-07 và §5.1 yêu cầu Producer chỉ đọc (403). **Câu hỏi 24 đã chốt (2026-11-13): theo spec, Producer chỉ đọc** → mọi lệnh sửa/xoá/sắp xếp dòng, Page, Panel của kịch bản trả 403 với Producer; Producer vẫn được góp ý, Bắt đầu sản xuất, Mở lại. Bỏ dòng "Producer chỉ sửa khi chưa có Writer" ở trên và ghi chú "Producer sửa được" ở SCR-12 / comment `ScriptEditorView.tsx:272`.
-- [ ] [BE] Vai trò khác Writer/Producer đang đi qua `AiWorkflowFacts.EvaluateAssignmentAsync` (có việc là sửa được) → Artist/Letterer/Editor phải luôn 403 với lệnh sửa dòng kịch bản (spec §5.1: chỉ đọc / Editor chỉ góp ý).
-- [ ] [FE] `ScriptEditorView.tsx:274` `canEditScript = !effectiveRole || PRODUCER || WRITER`: khi chưa xác định được vai trò lại **mở quyền sửa** (fail-open) → đổi thành chỉ đúng vai trò được phép; đồng bộ với quyết định câu hỏi 24.
+#### SCR-11 · Luật quyền sửa kịch bản — BE + FE · ✅ · cũ S2-04 (BE merge `fa90712`, FE merge `0740a2a`)
+- [x] Viết lại `ScriptLineRules.AuthorizeAsync` theo `ScriptStatus` + quyền Writer: chỉ Writer được sửa/xoá kịch bản, Producer và các vai trò khác chỉ đọc (403).
+- [x] Producer chỉ đọc khi sửa kịch bản (BR-07/23, Q24); Producer chỉ góp ý theo dòng, Bắt đầu sản xuất, Mở lại kịch bản.
+- [x] Test ma trận vai trò × trạng thái.
+- [x] [BE] Vai trò khác Writer/Producer (Artist, Letterer, Editor) luôn nhận 403 với mọi lệnh sửa dòng/cây kịch bản.
+- [x] [FE] `ScriptEditorView.tsx`: `canEditScript` chỉ mở quyền cho đúng vai trò Writer; Producer chỉ xem và góp ý.
 
 #### SCR-12 · Gỡ stage Script khỏi pipeline (D1) — BE + DB · 🟡 · cũ S2-05
 - [x] `CreateSeriesCommand` / `MasterDataSeeder`: bỏ stage `script` cho Series mới (BE `5e55c97`). Template đã seed trong DB cũ giữ nguyên (D6).
@@ -204,11 +204,33 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `scenes/*`, `script-lines/*`, 
 #### SCR-13 · `GetChapterScriptQuery` — BE · ❌ · cũ S3-01
 - [ ] Trả `pages[].panels[].lines[]`, `scriptStatus`, `revisionId`, `frozenRevisionId`, `openChangeRequests[]`.
 
-#### SCR-14 · `SaveChapterScriptCommand` (PUT cả cây) — BE · ❌ · cũ S3-02
-- [ ] Một transaction: upsert Page/Panel (không xoá Page/Panel có artwork, trả cảnh báo), upsert/xoá mềm dòng theo Id client, tham chiếu bôi đen `refs[]` của dòng (Q19/2A), `Panel.Direction`; cuối transaction chạy `RecomputeChapterCastAsync` + chụp `ScriptVersion` như `CommitScriptVersion` hiện tại ([BIB-12](02_BIBLE_PLAN.md)). Đây là phương án **3B** — gộp 4 request lưu của FE thành một; trước khi có, BIB-12 tính lại ở `CommitScriptVersion` (3A).
-- [ ] `expectedRevisionId` lệch → 409; hash không đổi → không tạo revision.
-- [ ] Tái dùng `ScriptLineRules.ValidateContent`, xử lý `refs` của BIB-12 (thay `ValidateSpeakerAsync/ValidateBibleEntriesAsync/SetBibleLinksAsync` — gỡ ở BIB-17), khớp người nói theo `speaker_label` (`SpeakerResolver`), `ReworkApprovedLetteringAsync`, logic tạo Page/Panel của `SyncScriptStructureCommand`.
-- [ ] Test: lưu 2 lần cùng nội dung → 1 revision; xung đột → 409; sửa kịch bản sau khi mở lại (Unfreeze) với dòng có bóng → Lettering Approved → ReworkRequired (SCR-01).
+#### SCR-14 · `SaveChapterScriptCommand` (PUT cả cây) & Submit — BE + FE · ✅ · cũ S3-02 (BE merge `0571fa7`, `5a0f9a2`, `c65f9cf`; FE merge `0740a2a`)
+- [x] Gộp toàn bộ luồng lưu/nộp kịch bản thành các endpoint nhận trọn vẹn cả cây kịch bản (`ChapterScriptBody`):
+  - `PUT /api/chapters/{id}/script` (`SaveChapterScriptCommand`): lưu cả cây kịch bản, tính lại cast và snapshot phiên bản mới.
+  - `POST /api/chapters/{id}/script/submit` (`SubmitChapterScriptCommand`): lưu cả cây kịch bản rồi chuyển trạng thái sang `InReview` trong **MỘT TRANSACTION DUY NHẤT**.
+- [x] **Đặc tả luồng Lưu & Nộp duyệt chi tiết (khớp 100% với mã nguồn):**
+  - Cả hai endpoint đều nhận toàn bộ cây kịch bản (`pages[].panels[].lines[]`). Toàn bộ quá trình chạy trong một giao dịch cơ sở dữ liệu (`UnitOfWork.ExecuteInTransactionAsync`). Bất kỳ lỗi nào ở bất kỳ bước nào đều ném `ScriptSaveAbortException` khiến giao dịch bị **rollback toàn bộ**, không lưu bất kỳ thay đổi nào (kể cả các mục Bible nháp được tự động tạo từ người nói hoặc từ tham chiếu `newDraft`).
+  - **Các bước thực thi tuần tự trong transaction:**
+    1. **Kiểm tra quyền:** Chỉ vai trò **Writer** mới được phép lưu hoặc gửi duyệt kịch bản (`ScriptLineRules.AuthorizeAsync` ném 403 nếu không phải Writer hoặc kịch bản đã bị chốt `Frozen`).
+    2. **Kiểm tra xung đột phiên bản (Optimistic Concurrency):** So sánh `body.ExpectedRevisionId` với phiên bản mới nhất hiện tại (`ScriptVersion`). Nếu không khớp, ném 409 `ScriptSaveAbortException` ("Kịch bản đã được lưu ở phiên bản khác...").
+    3. **Ghi cây Trang → Panel → Dòng:**
+       - Kiểm tra hợp lệ payload: dòng `Dialogue` và `Thought` không được chứa tham chiếu bôi đen `refs` (vi phạm ném 400); `surfaceText` phải tồn tại trong nội dung dòng.
+       - Upsert các Trang (`Page`) và Panel (`Panel`), xoá mềm các Panel/Trang không còn xuất hiện (giữ lại và cảnh báo nếu có artwork).
+       - Upsert các dòng kịch bản (`ScriptLine`), xoá mềm dòng đã xoá, áp dụng tham chiếu Bible (`ScriptBibleRefs.ApplyAsync`), kích hoạt rework lettering (`ReworkApprovedLetteringAsync`) nếu dòng bị sửa hoặc xoá có bóng thoại đã duyệt.
+       - Áp dụng hướng panel (`Panel.Direction`) và biến thể tạo hình theo panel (`ApplyCastRevisions` vào `panel_bible_variants`).
+    4. **Tính lại Cast & Chụp phiên bản kịch bản:**
+       - `ScriptSnapshotBuilder.CommitAsync` chạy `ChapterCastService.RecomputeAsync`: chuẩn hoá người nói qua `SpeakerResolver`, tự động tạo mục nháp `Draft` (`CreateStub`) nếu nhân vật chưa có trong Bible, đồng bộ `chapter_bible_bindings`, tính toán kế thừa biến thể cho các chương sau, dọn dẹp các mục stub mồ côi.
+       - Chụp bản ghi `ScriptVersion` kèm mã băm SHA-256 (`Type|Page|Panel|Label|Text|refs:...|cast:...`). Nếu nội dung không đổi (mã băm trùng khớp), hệ thống trả về phiên bản hiện có mà không tạo phiên bản mới.
+    5. **Kiểm tra kịch bản trống (chỉ Submit):** Nếu `outcome.Version.LineCount == 0`, ném 400 `ScriptSaveAbortException` ("Kịch bản còn trống, chưa gửi duyệt được.").
+    6. **Kiểm tra Series Bible Gate khi nộp (chỉ Submit):** `_castGate.EvaluateSubmitAsync` kiểm tra toàn bộ thực thể trong `chapter_bible_bindings`. Nếu có bất kỳ thực thể không phải Quần chúng (`is_crowd_at_bind = false`) mà vẫn đang là mục nháp chưa định nghĩa (`entry.IsStub`) HOẶC chưa được gán bản thiết kế (`bound_revision_id is null`), lập tức ném 409 `ScriptSaveAbortException` chặn nộp kèm danh sách blocker.
+    7. **Chuyển trạng thái sang `InReview` (chỉ Submit):** `ScriptSubmitRules.ApplySubmitAsync` cập nhật trạng thái chương `ScriptStatus` từ `Draft` sang `InReview`, gán `LastSubmittedVersionId = outcome.Version.Id`, và bắn thông báo cho Editor cùng Producer. Ném 409 nếu trạng thái kịch bản không hợp lệ (ví dụ đã bị `Frozen`).
+    8. **Commit Transaction:** `SaveChangesAsync` và hoàn tất giao dịch.
+  - **Điểm khác biệt của `PUT /api/chapters/{id}/script`:** Chạy cùng hàm cốt lõi `ChapterScriptSaver.SaveAsync` (bước 1 đến 4), không thực hiện bước 5 (kiểm tra rỗng), bước 6 (submit gate) và bước 7 (chuyển trạng thái).
+  - **Gate 1 (Bắt đầu sản xuất / Freeze Script do Producer thực hiện):**
+    - `FreezeChapterScriptCommand`: Chụp lại live snapshot của kịch bản và **so sánh mã băm SHA-256** với bản đã nộp (`pushed.ContentHash != snapshot.Hash`). Nếu Writer đã lưu sửa kịch bản sau lần gửi duyệt gần nhất, trả lỗi 409 buộc Writer phải gửi duyệt lại để bản Producer chốt khớp chính xác với bản Editor đã đọc.
+    - Gọi `_castGate.EvaluateStartAsync`: bắt buộc mọi bản thiết kế (cả bản gắn cho chương và bản theo từng Panel) phải đạt trạng thái `CanonLocked` (đối với thực thể không phải Quần chúng).
+    - Các ý kiến đóng góp theo dòng (Line Comments) của Editor/Producer **không chặn** Gate 1 (tuân thủ quyết định D3); hệ thống chỉ hiển thị cảnh báo thông tin trên UI.
+- [x] Toàn bộ code lưu cũ nhiều request rời (`batchSave`, `syncScriptStructure`, `commitScriptVersion`) và code tương thích chuyển tiếp đã được dọn sạch dứt điểm (BE commit `ec2c5e1`, `b71095a`; FE commit `80ea7a6`).
 
 #### SCR-15 · Lịch sử & so sánh — BE · ❌ · cũ S3-03
 - [ ] **Nguồn duy nhất là `ScriptVersion` (Q25)** — đã có `GetScriptVersions/GetScriptVersion/GetScriptWorkingCopy`; thêm `DiffScriptVersionsQuery` (theo khoá dòng, kèm thay đổi tham chiếu và bản Bible của Q24).
@@ -410,6 +432,7 @@ Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-2
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-14 | SCR-11, SCR-14 | ✅ Hoàn thành | BE `fa90712`, `0571fa7`, `5a0f9a2`, `c65f9cf`; FE `0740a2a` | SCR-11: Producer chỉ đọc khi sửa kịch bản (403), quyền Writer chuẩn hoá. SCR-14: Whole-tree save & submit kịch bản trong một transaction (`PUT /script`, `POST /script/submit`), gỡ bỏ hoàn toàn legacy endpoints và DTO SpeakerCharacterId |
 | 2026-11-14 | D3, SCR-39 (Docs) | ✅ Chốt | — (chỉ tài liệu) | User chốt D3: Gate 1 yêu cầu InReview, góp ý không chặn (xoá "chặn khi còn CR kịch bản mở"), cảnh báo UI non-blocking "Còn X góp ý". SCR-39 hoàn tất phần docs: vẽ lại máy trạng thái ScriptStatus Draft ↔ InReview → Frozen, bảng endpoint, gỡ ChangesRequested/Amending |
 | 2026-11-14 | SCR-15, SCR-23, SCR-39, SCR-40, SCR-41 | Lập kế hoạch | — (chỉ tài liệu) | Q25/Q26 từ VERSION_REVIEW: `ScriptVersion` nguồn duy nhất, đề xuất AI là `AiProposal`, khôi phục = commit mới, báo phiên bản mới khi chốt, `frozen_script_version_id` |
 | 2026-11-12 | — | Lập kế hoạch | — | Từ `SCRIPT_FLOW_REFACTOR_PLAN.md` |
