@@ -129,7 +129,7 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
    - Thanh công cụ gắn bên phải màn hình cho phép chèn 1-chạm các khối chuẩn Manga:
      - `Trang (# Page)`: Ngắt trang mới.
      - `Khung (Panel)`: Thêm khung hình mới (kèm 1 Scene mặc định ẩn dưới DB theo D2).
-     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường; bôi đen để tham chiếu tới Series Bible).
+     - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường; Writer bôi đen để tham chiếu tới Series Bible — chỉ trên dòng Mô tả, Lời dẫn, SFX; không trên tiêu đề Panel và lời thoại, Q19).
      - `Lời thoại (Dialogue / Thought)`: Thoại/suy nghĩ kèm `speaker_character_id`.
      - `Dẫn chuyện (Narration)`: Hộp dẫn chuyện.
      - `Hiệu ứng (SFX)`: Âm thanh truyện tranh (`BÙM!`, `XẸT!`).

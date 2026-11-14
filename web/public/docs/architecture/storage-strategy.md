@@ -36,7 +36,7 @@
   - **Marten event store** cho aggregate `Page`: `PageCreated`, `PageCanvasUpdated`, `PageReordered`, `ElementAdded`, `ElementMoved`, `ElementRemoved`, `PageDeleted`. Xóa là xóa mềm, event được giữ lại.
 - **Lịch sử bất biến đã có ở hai nơi:**
   - `ContentRevision` (script, layout, image prompt): `VersionNumber` tăng dần, `PayloadJson`, `ContentHash`, `PreviousRevisionId`, `SourceSuggestionId`. Append-only.
-  - `BibleEntryRevision`: `SnapshotJson`, `ContentHash`, `AuthorId`, có hiệu lực từ chương nào.
+  - `BibleEntryRevision`: `SnapshotJson`, `ContentHash`, `AuthorId`, `variant_label` (cột `StageName`) — biến thể tạo hình, không theo mốc chương (Q16).
 - **`AuditLog`:** người làm, thời điểm, hành động, thực thể, thay đổi, IP.
 - **Firebase** hiện được dùng để xác minh danh tính (`FirebaseIdentityVerifier`), không dùng để lưu file.
 
@@ -132,9 +132,9 @@ Cốt truyện không nên là một khối văn bản. Yêu cầu cần biết 
 
 | Lớp | Bảng | Vai trò | Tính chất |
 |---|---|---|---|
-| Bản làm việc | `ScriptLine` (SceneId, LineOrder, SpeakerCharacterId, DialogueText, StageDirection) | Truy vấn từng dòng, hiển thị, gắn vào balloon | Sửa được |
-| Lịch sử | `ContentRevision` (Kind = Script / Layout / ImagePrompt, PayloadJson, ContentHash, PreviousRevisionId) | Xem lại, so sánh, khôi phục | **Bất biến**, chỉ thêm |
-| Ngữ cảnh | `BibleEntry` + `BibleEntryRevision` | Nhân vật, địa điểm, thuật ngữ, plot fact có hiệu lực theo chương | Bất biến theo phiên bản |
+| Bản làm việc | `ScriptLine` (SceneId, LineOrder, Kind, SpeakerLabel, Text) + `script_line_bible_links` (tham chiếu bôi đen) | Truy vấn từng dòng, hiển thị, gắn vào balloon | Sửa được |
+| Lịch sử | `ScriptVersion` theo chương (Lưu = commit, Gửi duyệt = push; rows + refs, SHA-256) và `ContentRevision` (Kind = Script / Layout / ImagePrompt) | Gửi duyệt, so sánh, chốt Gate 1, khôi phục | **Bất biến**, chỉ thêm |
+| Ngữ cảnh | `BibleEntry` + `BibleEntryRevision` + `chapter_bible_bindings` | Nhân vật, địa điểm, thuật ngữ, plot fact; bản tạo hình chương dùng lấy từ bản đồ thực thể chương | Bất biến theo phiên bản; bản đồ khoá ở Gate 1 |
 
 Mối quan hệ giữa các tầng nội dung:
 
@@ -151,6 +151,39 @@ Scene ──< ScriptLine ──(sourceScriptLineId)──> Panel ──< Element
 ### Điểm cần chú ý
 
 Hiện chỉ có **một nơi** tạo `ContentRevision` và sửa `ScriptLine`: lệnh duyệt đề xuất AI (`ReviewSuggestionCommand`). Mình không thấy controller nào cho Writer **sửa script bằng tay**. Khi thêm API đó, mỗi lần lưu phải **tạo `ContentRevision` mới trong cùng một transaction** với việc cập nhật `ScriptLine`, nếu không sẽ có chỗ sửa mà không có lịch sử, trái với yêu cầu 4.4 và mục "script history" của Writer.
+
+
+### 4.1. Series Bible ↔ Kịch bản (Q16–Q20) — bảng & API
+
+Chi tiết task ở [02_BIBLE_PLAN.md](../note/plans/02_BIBLE_PLAN.md) (BIB-09..BIB-17, BIB-10). Tóm tắt lược đồ:
+
+| Bảng | Khoá / ràng buộc | Vai trò |
+|---|---|---|
+| `bible_entries` (+ `aliases TEXT[]`, `is_crowd BOOLEAN`, `is_stub`) | PK `id` | Mục Bible; `is_stub` = chờ Writer viết định nghĩa; `is_crowd` = Quần chúng (chỉ Writer bật/tắt) |
+| `bible_entry_names` | PK `(series_bible_id, normalized_name)`, FK `bible_entry_id` CASCADE | Tên chính + bí danh đã chuẩn hoá (trim, gộp khoảng trắng, NFC, lower). Chống trùng tên (409) và chống race khi tự tạo mục nháp (`23505` → dùng lại mục vừa tạo) |
+| `bible_entry_revisions` (+ `current_concept_event_id`) | PK `id` | Bản theo biến thể (`StageName` = `variant_label`); trạng thái `Draft → ConceptSubmitted ↺ ReworkRequired → CanonLocked` (Q20, không còn `WriterEndorsed`) |
+| `bible_revision_events` (+ `concept_version_number`, `asset_sha256`) | PK `id` | Sự kiện bất biến; sự kiện `ConceptSubmitted` là **phiên bản concept** `v1, v2…` |
+| `bible_concept_comments` | PK `id`, FK `revision_id`, `concept_event_id`, `parent_comment_id` (trả lời) | Góp ý theo phiên bản concept, có khoanh vùng `region` và trả lời |
+| `script_line_bible_links` (`surface_text`, bỏ `resolved_revision_id`) | Unique `(script_line_id, bible_entry_id) WHERE is_deleted = false` | Tham chiếu bôi đen; chỉ trên dòng Action / Narration / Sfx |
+| `chapter_bible_bindings` | PK `(chapter_id, bible_entry_id)`; `bound_revision_id` NULL trước Gate 1 | Bản đồ thực thể chương: `source` (Speaker/Highlight), `variant_label` + `variant_confirmed` (biến thể chương dùng, kể cả chưa khoá — Q21), `is_crowd_at_bind`, `bound_by`, `bound_at`; khoá cùng kịch bản ở Gate 1, đưa vào Snapshot Gate 3 |
+
+**Luồng lưu:** `batchSave` nhận `refs[]` theo dòng → … → `CommitScriptVersion` chạy trong một transaction: khớp người nói (tự tạo mục nháp) → đồng bộ `chapter_bible_bindings` → dọn mục nháp thừa → chụp `ScriptVersion` (băm nối `|refs:` chỉ khi dòng có tham chiếu).
+
+**API (sau BIB-10..BIB-14):**
+
+| Method | Route | Role | Ghi chú |
+|---|---|---|---|
+| `GET` | `/api/chapters/{id}/cast` | Thành viên | Danh sách thực thể chương + `gate { canStart, blockers[] }` |
+| `POST` | `/api/series/{seriesId}/bible/entries/{entryId}/define` | Writer | `DefineBibleEntryCommand`: định nghĩa mục nháp, ghi đè revision v1 |
+| `PUT` | `/api/series/{seriesId}/bible/entries/{entryId}/crowd` | Writer | `SetBibleEntryCrowdCommand` |
+| `PUT` | `/api/chapters/{id}/cast/{entryId}/variant` | Writer | `SetChapterCastVariantCommand` theo nhãn biến thể, kể cả chưa khoá (kịch bản chưa `Frozen`) |
+| `POST` | `/api/series/{seriesId}/bible/entries/{entryId}/concept` | Artist | Nộp phiên bản concept; `409` khi mục còn nháp |
+| `GET/POST` | `.../revisions/{revisionId}/comments`, `.../comments/{commentId}/replies`, `.../comments/{commentId}/resolve` | Writer, Editor (góp ý); + Artist (trả lời) | Góp ý theo phiên bản |
+| `POST` | `.../revisions/{revisionId}/request-rework` | Writer, Editor | Bắt buộc nhận xét |
+| `POST` | `.../revisions/{revisionId}/confirm` | Editor | Xác nhận = `CanonLocked` (thay `/endorse` + `/lock`); khác Artist nộp (BR-06) |
+| `POST` | `.../revisions/{revisionId}/supersede` | Writer | Bản thay thế cùng biến thể; bản cũ `Superseded` khi bản mới được khoá |
+| `POST` | `/api/chapters/{id}/submit-script` | Writer | Gửi duyệt gọi `ChapterCastGate.EvaluateSubmitAsync` (định nghĩa, Quần chúng, biến thể — Q21) |
+| `POST` | `/api/chapters/{id}/freeze-script` | Producer | Gate 1 gọi `ChapterCastGate.EvaluateStartAsync` (ảnh `CanonLocked` đúng biến thể); thay endpoint `bible-gate` |
 
 ---
 
@@ -289,7 +322,7 @@ Xuất lỗi: báo lỗi, không làm hỏng dữ liệu có cấu trúc
 | | Phê duyệt, khóa chương | PostgreSQL (trạng thái chương, `AuditLog`) | Không | 🟡 |
 | | Xuất bản | Job nền, kết quả vào `exports/` | **PDF/CBZ/JSON trong object storage** | 📋 |
 | **Writer** | Script, thoại, người nói | PostgreSQL (`ScriptLine` + `ContentRevision`) | Không | ✅ (qua AI) / 📋 (sửa tay) |
-| | Liên kết nội dung với Bible | PostgreSQL (khóa tham chiếu) | Không | 🟡 |
+| | Liên kết nội dung với Bible (tham chiếu bôi đen, cờ Quần chúng, biến thể theo chương) | PostgreSQL (`script_line_bible_links`, `chapter_bible_bindings`, mục 4.1) | Không | 📋 |
 | | Quyết định với đề xuất AI | PostgreSQL (`AiSuggestionDecision`) | Không | ✅ |
 | **Artist** | Layout trang, khung panel | PostgreSQL (`Panel.BoundingBox`) + Marten (canvas) | Không | ✅ |
 | | Artwork Thumbnail/Pencil/Ink/Color | PostgreSQL (`Assets` + tham chiếu trong layer) | **Ảnh gốc, display, thumb trong object storage** | 📋 |

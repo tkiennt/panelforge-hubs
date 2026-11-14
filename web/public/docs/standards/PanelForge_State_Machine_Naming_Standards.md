@@ -187,7 +187,7 @@ stateDiagram-v2
   - `chapter.publish`: Producer phát hành chương (các ấn bản `ChapterEdition` mở bán theo giá Publisher đặt).
 - **Guards (camelCase, boolean predicate):**
   - `isScriptInReview`, `isLiveEqualSubmitted`: kịch bản đang `InReview` và bản hiện tại trùng bản đã gửi (Q15).
-  - `isCastCanonLocked`: mọi mục Bible trong kịch bản chương (trừ Quần chúng) đã `CanonLocked` (BR-35).
+  - `isCastCanonLocked`: mọi mục Bible trong kịch bản chương (trừ Quần chúng) có bản `CanonLocked` của đúng biến thể chương dùng (BR-35, Q21).
   - `isAllPagesApproved`: Tất cả các trang trong chương đã đạt stage cuối cùng.
   - `isReleaseDateReached`: Thời gian hiện tại đã vượt qua `releaseDate`.
   - `isProducer`: Người gọi lệnh có quyền Producer trên Workspace.
@@ -205,8 +205,8 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: script.initialize
-    Draft --> InReview: script.submit [isWriter] / pushSubmittedVersion()
-    InReview --> InReview: script.resubmit [isWriter] / pushSubmittedVersion()
+    Draft --> InReview: script.submit [isWriter && isCastFinalized] / pushSubmittedVersion()
+    InReview --> InReview: script.resubmit [isWriter && isCastFinalized] / pushSubmittedVersion()
     InReview --> Draft: script.recall [isWriter]
     InReview --> Frozen: chapter.start_production [isProducer && isLiveEqualSubmitted && isCastCanonLocked] / lockScriptAndBindings()
     Frozen --> Draft: script.reopen [isProducer && hasValidReason] / unlockScriptEditor()
@@ -218,39 +218,37 @@ stateDiagram-v2
   - `InReview`: Đã gửi; Editor đọc bản đã gửi và góp ý theo dòng; Writer vẫn sửa và gửi lại.
   - `Frozen`: Chỉ đọc; Bản đồ thực thể chương khoá cùng lúc (BR-35).
 - **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`, `script.reopen`.
-- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastCanonLocked`, `hasValidReason`.
+- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể; mục ≥ 2 biến thể đã được Writer xác nhận), `isCastCanonLocked`, `hasValidReason`.
 - **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`, `unlockScriptEditor`.
 
 ---
 
 ### 5.3. Series Bible Revision (`BibleRevisionStatus`)
-- **Thực thể sở hữu:** `BibleEntryRevision` (Vòng đời thiết kế nhân vật, bối cảnh)
-- **Người quyết định:** `Artist` (nộp), `Editor` (xác nhận / vẽ lại; Writer chỉ góp ý), `Producer` (khoá) — Q17
+- **Thực thể sở hữu:** `BibleEntryRevision` (Vòng đời thiết kế nhân vật, bối cảnh) + `BibleConceptVersion` (phiên bản concept bất biến) + `BibleConceptComment` (góp ý có trả lời)
+- **Người quyết định:** `Artist` (nộp phiên bản concept), `Writer` / `Editor` (góp ý, yêu cầu vẽ lại), `Editor` (xác nhận = khoá Canon). Producer chỉ đọc — Q20
 
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: bible.draft_spec
-    Draft --> ConceptSubmitted: bible.upload_concept [hasCasAsset] / calculateSha256()
-    ConceptSubmitted --> ConceptSubmitted: bible.comment [isWriterOrEditor] / recordComment()
-    ConceptSubmitted --> WriterEndorsed: bible.endorse [isEditor && isNotSubmitter] / recordEndorsement()
-    ConceptSubmitted --> ReworkRequired: bible.request_rework [isEditor && hasNote] / attachReviewNotes()
-    ReworkRequired --> ConceptSubmitted: bible.reupload_concept [hasCasAsset]
-    WriterEndorsed --> CanonLocked: bible.lock_canon [isProducer && isNotEndorser] / freezeAsCanon()
-    CanonLocked --> Superseded: bible.supersede [isProducer] / createSameVariantRevision()
+    Draft --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset && isDefined] / calculateSha256()
+    ConceptSubmitted --> ConceptSubmitted: bible.comment [isWriterOrEditorOrArtist] / recordComment()
+    ConceptSubmitted --> ReworkRequired: bible.request_rework [isWriterOrEditor && hasNote] / attachReviewNotes()
+    ReworkRequired --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset]
+    ConceptSubmitted --> CanonLocked: bible.confirm_canon [isEditor && isNotSubmitter && isCurrentVersion] / freezeAsCanon()
+    CanonLocked --> Superseded: bible.replacement_locked / rebindUnfrozenChapters()
 ```
 
 #### Bảng chi tiết phần tử:
 - **States:**
   - `Draft`: Bản nháp đặc tả bằng lời của Writer; mục tự tạo từ người nói / bôi đen mang cờ `IsStub` cho tới khi Writer viết định nghĩa (Q16).
-  - `ConceptSubmitted`: Artist đã vẽ và nộp file thiết kế lên hệ thống lưu trữ CAS SHA-256.
-  - `WriterEndorsed`: Editor xác nhận thiết kế khớp hoàn toàn với kịch bản văn học, Writer chỉ góp ý (Điều kiện cần để Lock; Q17).
-  - `ReworkRequired`: Thiết kế chưa đạt, yêu cầu Artist chỉnh sửa.
-  - `CanonLocked`: Producer chốt thành Canon chính thức của bộ truyện (Bất biến, không thể sửa trực tiếp).
-  - `Superseded`: Bị bản mới cùng biến thể thay thế; chương đã chốt vẫn dùng bản này.
+  - `ConceptSubmitted`: Artist đã nộp một phiên bản concept (bất biến, số tăng dần, CAS SHA-256).
+  - `ReworkRequired`: Thiết kế chưa đạt, Writer hoặc Editor yêu cầu Artist nộp phiên bản mới.
+  - `CanonLocked`: Editor xác nhận đúng phiên bản đang nộp và khoá thành Canon (Bất biến, Q20). Không còn `WriterEndorsed`.
+  - `Superseded`: Bản thay thế cùng biến thể (Writer tạo qua `/supersede`) đã được khoá; chương chưa chốt tự chuyển sang bản mới, chương đã chốt vẫn dùng bản này.
 - **Events:**
-  - `bible.upload_concept`, `bible.comment`, `bible.endorse`, `bible.request_rework`, `bible.lock_canon`, `bible.supersede`.
-- **Guards:** `hasCasAsset`, `isWriterOrEditor`, `isEditor`, `isNotSubmitter`, `isNotEndorser`, `hasNote`, `isProducer`.
-- **Actions:** `calculateSha256`, `recordComment`, `recordEndorsement`, `freezeAsCanon`, `createSameVariantRevision`.
+  - `bible.submit_concept_version`, `bible.comment` (có `parentCommentId` để trả lời), `bible.request_rework`, `bible.confirm_canon`, `bible.supersede` (Writer tạo bản thay thế), `bible.replacement_locked`.
+- **Guards:** `hasCasAsset`, `isDefined` (`!IsStub`), `isWriterOrEditor`, `isWriterOrEditorOrArtist`, `isEditor`, `isNotSubmitter`, `isCurrentVersion`, `hasNote`.
+- **Actions:** `calculateSha256`, `recordComment`, `attachReviewNotes`, `freezeAsCanon`, `rebindUnfrozenChapters`.
 
 ---
 

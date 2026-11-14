@@ -212,9 +212,9 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 - [ ] Trả `pages[].panels[].lines[]`, `scriptStatus`, `revisionId`, `frozenRevisionId`, `openChangeRequests[]`.
 
 #### SCR-14 · `SaveChapterScriptCommand` (PUT cả cây) — BE · ❌ · cũ S3-02
-- [ ] Một transaction: upsert Page/Panel (không xoá Page/Panel có artwork, trả cảnh báo), upsert/xoá mềm dòng theo Id client, Bible links, @stub.
+- [ ] Một transaction: upsert Page/Panel (không xoá Page/Panel có artwork, trả cảnh báo), upsert/xoá mềm dòng theo Id client, tham chiếu bôi đen `refs[]` của dòng (Q19/2A), `Panel.Direction`; cuối transaction chạy `RecomputeChapterCastAsync` + chụp `ScriptVersion` như `CommitScriptVersion` hiện tại ([BIB-12](02_BIBLE_PLAN.md)). Đây là phương án **3B** — gộp 4 request lưu của FE thành một; trước khi có, BIB-12 tính lại ở `CommitScriptVersion` (3A).
 - [ ] `expectedRevisionId` lệch → 409; hash không đổi → không tạo revision.
-- [ ] Tái dùng `ScriptLineRules.ValidateContent/ValidateSpeakerAsync/ValidateBibleEntriesAsync/SetBibleLinksAsync`, `ReworkApprovedLetteringAsync`, logic tạo Page/Panel của `SyncScriptStructureCommand`.
+- [ ] Tái dùng `ScriptLineRules.ValidateContent`, xử lý `refs` của BIB-12 (thay `ValidateSpeakerAsync/ValidateBibleEntriesAsync/SetBibleLinksAsync` — gỡ ở BIB-17), khớp người nói theo `speaker_label` (`SpeakerResolver`), `ReworkApprovedLetteringAsync`, logic tạo Page/Panel của `SyncScriptStructureCommand`.
 - [ ] Test: lưu 2 lần cùng nội dung → 1 revision; xung đột → 409; Amending sửa dòng có bóng → Lettering Approved → ReworkRequired.
 
 #### SCR-15 · Lịch sử & so sánh — BE · ❌ · cũ S3-03
@@ -273,7 +273,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 | Hạng mục | WriterSolo (quan sát) | PanelForge hiện tại | Hướng đích |
 |---|---|---|---|
 | Chuyển loại dòng | Page→Enter→Panel→Enter→Action; Action→Enter→Action; **Tab**→Character→Enter→Dialogue | Enter trên dòng nội dung luôn ra Action; Tab xoay vòng Action→Dialogue→Caption→SFX; Page/Panel tạo bằng `#`/`!`/`-`/`"` + Tab (khó nhớ) | Bảng chuyển trạng thái tường minh (H.1), không phụ thuộc ký tự mồi |
-| Thoại | Tên và thoại **cùng dòng**, 2 cột | Đã có lưới 2 cột (`script-line grid`), nhưng speaker chỉ gán được bằng regex `@Tên: "..."` lúc Enter (`ScriptLineBlockNode.ts:730`) | Ô người nói riêng, gợi ý từ Bible ngay khi gõ, Enter sang ô thoại |
+| Thoại | Tên và thoại **cùng dòng**, 2 cột | Đã có lưới 2 cột (`script-line grid`), nhưng speaker chỉ gán được bằng regex `@Tên: "..."` lúc Enter (`ScriptLineBlockNode.ts:730`) | ~~Ô người nói riêng, gợi ý từ Bible~~ → dòng Character gõ tay (D11, SCR-27 huỷ); gợi ý tên/bí danh Bible khi gõ ở BIB-16 |
 | Đánh số | PAGE n / PANEL n tự đánh số, header tự đếm `PANELS: n` | Tự đánh số `1.1, 1.2` nhưng số nằm **trong text** (`" Panel 1.2: [Toàn cảnh]`) | Số là nhãn không sửa được; text của dòng Panel là `Panel.Direction` |
 | Tiêu đề panel | Lỗi dính chữ `PANEL 1WIDE SHOT…` | Nhãn và mô tả lẫn trong một chuỗi | Nhãn và mô tả là 2 vùng tách biệt |
 | Toolbar loại dòng | Bấm nút làm **mất focus** editor, không có tooltip phím tắt | Palette nổi + dock dưới | Nút giữ focus (`onMouseDown` preventDefault), tooltip ghi phím tắt |
@@ -296,7 +296,7 @@ Endpoint cũ (`freeze-script`, `unfreeze-script`, `*-script-reopen`, `scenes/*`,
 | Narration | Narration | SFX | Dialogue | Action |
 | SFX | SFX | Action | Narration | Action |
 
-Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl+1..5` Action/Dialogue/Thought/Narration/SFX · `/` mở menu loại dòng ở đầu dòng trống · `Alt+↑/↓` di chuyển dòng/panel · `@` gợi ý Bible (giữ hiện có). Dán văn bản tự do vẫn đi qua `AiScriptConvertModal`.
+Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl+1..5` Action/Dialogue/Thought/Narration/SFX · `/` mở menu loại dòng ở đầu dòng trống · `Alt+↑/↓` di chuyển dòng/panel. Không còn `@` gợi ý Bible (D11/Q16): Writer bôi đen đoạn chữ trên dòng Action/Caption/SFX để gắn tham chiếu Bible ([BIB-16](02_BIBLE_PLAN.md)); ô người nói gợi ý tên/bí danh Bible khi gõ. Dán văn bản tự do vẫn đi qua `AiScriptConvertModal`.
 
 #### SCR-25 · Luật gõ dạng hàm thuần (`scriptGrammar.ts`) — FE · ✅ (làm lại theo D11)
 - [x] [FE] `flow/grammar/scriptGrammar.ts`: `onEnter`, `onTab`, `onShiftTab`, `completeCharacterName`, `isThoughtParens` — luật đo trên WriterSolo 2026-11-13 (Enter: Page→Panel→Action→Action, Character/Parens→Dialogue, Dialogue/Caption/SFX→Action; Tab dòng trống đổi loại, dòng có chữ chèn Character/Parens bên dưới). Bỏ Transition/Scene heading khỏi vòng Tab.
