@@ -28,8 +28,8 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | Thuật ngữ Tiếng Anh | Tiếng Việt chuẩn | Phạm vi | Mô tả trách nhiệm |
 |---|---|---|---|
 | **Administrator** | Quản trị viên hệ thống | Toàn hệ thống | Quản lý tài khoản (bao gồm duy nhất 1 tài khoản Publisher toàn hệ thống, Q12), tài khoản ngân hàng nền tảng (Q13), cấp quyền tạo Studio, quota AI. Không can thiệp nội dung. |
-| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible (Q20), giao việc Page/Panel, nghiệm thu chương (Gate 3) và phát hành (Q7). |
-| **Writer** | Tác giả kịch bản | Workspace / Series | Độc quyền sáng tác kịch bản (`Page -> Panel -> Content`), bôi đen tham chiếu Bible, gắn cờ Quần chúng, viết định nghĩa mục nháp, đổi biến thể theo chương, góp ý / yêu cầu vẽ lại concept Bible (Q19, Q20). |
+| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và phát hành (Q7). |
+| **Writer** | Tác giả kịch bản | Workspace / Series | Độc quyền sáng tác kịch bản (`Page -> Panel -> Content`), bôi đen tham chiếu Bible, gắn cờ Quần chúng, viết định nghĩa mục nháp, đổi biến thể theo chương khi cần (mặc định tự đề xuất, Q22), góp ý / yêu cầu vẽ lại concept Bible (Q19, Q20). |
 | **Artist** | Họa sĩ (Chì / Mực) | Workspace / Series | Vẽ Concept Art Bible, thực hiện Pencil & Ink trên Page được giao (mặc định có cả `graphic:write` và `letter:write` theo BR-31). |
 | **Letterer** | Người đặt thoại & SFX | Workspace / Series | Vai trò phụ việc tùy chọn (`letter:write` only): bố trí Position Record bóng thoại `{x,y,w,h}`, nội dung đa ngôn ngữ và SFX. |
 | **Editor** | Biên tập viên | Workspace / Series | Xác nhận concept Series Bible = khoá Canon (Q20); duyệt Gate 2 (`CompositeUnderReview`), khoanh vùng tạo Change Request (sinh nhiều CR chung `group_id` nếu vắt nhiều Panel ≥ 15%), duyệt bản dịch `ChapterEdition`. |
@@ -100,7 +100,7 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: Writer viết; mỗi lần Lưu tạo ScriptVersion (SHA-256)
-    Draft --> InReview: Writer Gửi duyệt (push bản mới nhất; Danh sách thực thể chương đã chốt: mục nháp, Quần chúng, biến thể — Q21)
+    Draft --> InReview: Writer Gửi duyệt (push bản mới nhất; Danh sách thực thể chương đã chốt: mục nháp đã định nghĩa hoặc Quần chúng — Q21, Q22)
     InReview --> InReview: Writer lưu tiếp / Gửi duyệt lại; Editor góp ý theo dòng
     InReview --> Draft: Writer Hủy gửi duyệt
     InReview --> Frozen: Producer Bắt đầu sản xuất (Gate 1; bản hiện tại = bản đã gửi; Bible đã khoá Canon)
@@ -118,14 +118,14 @@ stateDiagram-v2
 ---
 
 ### 3.3. BibleRevisionStatus (Vòng đời Series Bible)
-*Thực thể: `BibleEntryRevision` — Quyết định: `Writer` (định nghĩa, góp ý, yêu cầu vẽ lại), `Artist` (nộp phiên bản concept, trả lời góp ý), `Editor` (góp ý, yêu cầu vẽ lại, **xác nhận = khoá Canon**). Producer chỉ đọc — Q19, Q20*
+*Thực thể: `BibleEntryRevision` — Quyết định: `Writer` (định nghĩa, góp ý, yêu cầu vẽ lại), `Artist` (nộp phiên bản concept, trả lời góp ý), `Editor` (góp ý, yêu cầu vẽ lại, **xác nhận = khoá Canon**), `Producer` (chỉ yêu cầu vẽ lại) — Q19, Q20, Q22*
 
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: Writer đặc tả / hệ thống tự tạo (IsStub chờ định nghĩa)
     Draft --> ConceptSubmitted: Artist nộp phiên bản concept (CAS SHA-256), mục đã có định nghĩa
     ConceptSubmitted --> ConceptSubmitted: Writer/Editor góp ý, Artist trả lời (theo phiên bản)
-    ConceptSubmitted --> ReworkRequired: Writer hoặc Editor yêu cầu vẽ lại kèm nhận xét
+    ConceptSubmitted --> ReworkRequired: Writer, Editor hoặc Producer yêu cầu vẽ lại kèm nhận xét (Q22)
     ReworkRequired --> ConceptSubmitted: Artist nộp phiên bản concept mới
     ConceptSubmitted --> CanonLocked: Editor xác nhận = khoá canon (🔒 Bất biến, Q20)
     CanonLocked --> Superseded: Bản thay thế cùng biến thể được khoá (chương chưa chốt tự chuyển, chương đã chốt giữ bản cũ)
@@ -135,7 +135,7 @@ stateDiagram-v2
 |---|---|---|
 | `Draft` | Bản mô tả của Writer (chờ Artist vẽ concept). Mục tự tạo từ người nói / bôi đen bắt đầu ở đây với cờ `IsStub` (chờ Writer viết định nghĩa; Artist chưa nộp concept được, `409`). | Writer / hệ thống |
 | `ConceptSubmitted` | Artist đã nộp một **phiên bản concept** (bất biến, `v1, v2…`, ảnh CAS SHA-256). Góp ý và trả lời gắn theo phiên bản, không đổi trạng thái. | Artist |
-| `ReworkRequired` | Bản vẽ bị trả về kèm nhận xét; Artist nộp phiên bản mới. | Writer hoặc Editor |
+| `ReworkRequired` | Bản vẽ bị trả về kèm nhận xét; Artist nộp phiên bản mới. | Writer, Editor hoặc Producer |
 | `CanonLocked` | Editor xác nhận phiên bản đang nộp và khoá vĩnh viễn làm bản mẫu chính thức của Series (khác Artist đã nộp, BR-06). Không thể unlock; sửa thiết kế cùng biến thể qua `/supersede`, tạo hình khác thì thêm biến thể mới. | Editor |
 | `Superseded` | Bản thay thế cùng biến thể đã được khoá; không chọn tay được cho chương mới, chương đã chốt vẫn dùng (suy ra từ sự kiện, không phải giá trị enum). | Hệ thống (khi Editor khoá bản thay thế) |
 

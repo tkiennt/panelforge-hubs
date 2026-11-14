@@ -218,21 +218,21 @@ stateDiagram-v2
   - `InReview`: Đã gửi; Editor đọc bản đã gửi và góp ý theo dòng; Writer vẫn sửa và gửi lại.
   - `Frozen`: Chỉ đọc; Bản đồ thực thể chương khoá cùng lúc (BR-35).
 - **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`, `script.reopen`.
-- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể; mục ≥ 2 biến thể đã được Writer xác nhận), `isCastCanonLocked`, `hasValidReason`.
+- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21/Q22: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể — mặc định hoặc Writer đã đổi), `isCastCanonLocked`, `hasValidReason`.
 - **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`, `unlockScriptEditor`.
 
 ---
 
 ### 5.3. Series Bible Revision (`BibleRevisionStatus`)
 - **Thực thể sở hữu:** `BibleEntryRevision` (Vòng đời thiết kế nhân vật, bối cảnh) + `BibleConceptVersion` (phiên bản concept bất biến) + `BibleConceptComment` (góp ý có trả lời)
-- **Người quyết định:** `Artist` (nộp phiên bản concept), `Writer` / `Editor` (góp ý, yêu cầu vẽ lại), `Editor` (xác nhận = khoá Canon). Producer chỉ đọc — Q20
+- **Người quyết định:** `Artist` (nộp phiên bản concept), `Writer` / `Editor` (góp ý, yêu cầu vẽ lại), `Producer` (chỉ yêu cầu vẽ lại, Q22), `Editor` (xác nhận = khoá Canon) — Q20
 
 ```mermaid
 stateDiagram-v2
     [*] --> Draft: bible.draft_spec
     Draft --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset && isDefined] / calculateSha256()
     ConceptSubmitted --> ConceptSubmitted: bible.comment [isWriterOrEditorOrArtist] / recordComment()
-    ConceptSubmitted --> ReworkRequired: bible.request_rework [isWriterOrEditor && hasNote] / attachReviewNotes()
+    ConceptSubmitted --> ReworkRequired: bible.request_rework [isWriterOrEditorOrProducer && hasNote] / attachReviewNotes()
     ReworkRequired --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset]
     ConceptSubmitted --> CanonLocked: bible.confirm_canon [isEditor && isNotSubmitter && isCurrentVersion] / freezeAsCanon()
     CanonLocked --> Superseded: bible.replacement_locked / rebindUnfrozenChapters()
@@ -247,7 +247,7 @@ stateDiagram-v2
   - `Superseded`: Bản thay thế cùng biến thể (Writer tạo qua `/supersede`) đã được khoá; chương chưa chốt tự chuyển sang bản mới, chương đã chốt vẫn dùng bản này.
 - **Events:**
   - `bible.submit_concept_version`, `bible.comment` (có `parentCommentId` để trả lời), `bible.request_rework`, `bible.confirm_canon`, `bible.supersede` (Writer tạo bản thay thế), `bible.replacement_locked`.
-- **Guards:** `hasCasAsset`, `isDefined` (`!IsStub`), `isWriterOrEditor`, `isWriterOrEditorOrArtist`, `isEditor`, `isNotSubmitter`, `isCurrentVersion`, `hasNote`.
+- **Guards:** `hasCasAsset`, `isDefined` (`!IsStub`), `isWriterOrEditor`, `isWriterOrEditorOrArtist`, `isWriterOrEditorOrProducer`, `isEditor`, `isNotSubmitter`, `isCurrentVersion`, `hasNote`.
 - **Actions:** `calculateSha256`, `recordComment`, `attachReviewNotes`, `freezeAsCanon`, `rebindUnfrozenChapters`.
 
 ---
