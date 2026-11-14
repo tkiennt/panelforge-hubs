@@ -289,7 +289,7 @@ Endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link
 | Hạng mục | WriterSolo (quan sát) | PanelForge hiện tại | Hướng đích |
 |---|---|---|---|
 | Chuyển loại dòng | Page→Enter→Panel→Enter→Action; Action→Enter→Action; **Tab**→Character→Enter→Dialogue | Enter trên dòng nội dung luôn ra Action; Tab xoay vòng Action→Dialogue→Caption→SFX; Page/Panel tạo bằng `#`/`!`/`-`/`"` + Tab (khó nhớ) | Bảng chuyển trạng thái tường minh (H.1), không phụ thuộc ký tự mồi |
-| Thoại | Tên và thoại **cùng dòng**, 2 cột | Đã có lưới 2 cột (`script-line grid`), nhưng speaker chỉ gán được bằng regex `@Tên: "..."` lúc Enter (`ScriptLineBlockNode.ts:730`) | ~~Ô người nói riêng, gợi ý từ Bible~~ → dòng Character gõ tay (D11, SCR-27 huỷ); gợi ý tên/bí danh Bible khi gõ ở BIB-16 |
+| Thoại | Tên và thoại **cùng dòng**, 2 cột | Đã có lưới 2 cột (`script-line grid`), nhưng speaker chỉ gán được bằng regex `@Tên: "..."` lúc Enter (`ScriptLineBlockNode.ts:730`) | ~~Ô người nói riêng, gợi ý từ Bible~~ → dòng Character gõ tay (D11, SCR-27 huỷ); gợi ý đúng tên mục Bible khi gõ ở BIB-16, không có bí danh |
 | Đánh số | PAGE n / PANEL n tự đánh số, header tự đếm `PANELS: n` | Tự đánh số `1.1, 1.2` nhưng số nằm **trong text** (`" Panel 1.2: [Toàn cảnh]`) | Số là nhãn không sửa được; text của dòng Panel là `Panel.Direction` |
 | Tiêu đề panel | Lỗi dính chữ `PANEL 1WIDE SHOT…` | Nhãn và mô tả lẫn trong một chuỗi | Nhãn và mô tả là 2 vùng tách biệt |
 | Toolbar loại dòng | Bấm nút làm **mất focus** editor, không có tooltip phím tắt | Palette nổi + dock dưới | Nút giữ focus (`onMouseDown` preventDefault), tooltip ghi phím tắt |
@@ -312,7 +312,7 @@ Endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link
 | Narration | Narration | SFX | Dialogue | Action |
 | SFX | SFX | Action | Narration | Action |
 
-Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl+1..5` Action/Dialogue/Thought/Narration/SFX · `/` mở menu loại dòng ở đầu dòng trống · `Alt+↑/↓` di chuyển dòng/panel. Không còn `@` gợi ý Bible (D11/Q16): Writer bôi đen đoạn chữ trên dòng Action/Caption/SFX để gắn tham chiếu Bible ([BIB-16](02_BIBLE_PLAN.md)); ô người nói gợi ý tên/bí danh Bible khi gõ. Dán văn bản tự do vẫn đi qua `AiScriptConvertModal`.
+Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl+1..5` Action/Dialogue/Thought/Narration/SFX · `/` mở menu loại dòng ở đầu dòng trống · `Alt+↑/↓` di chuyển dòng/panel. Không còn `@` gợi ý Bible (D11/Q16): Writer bôi đen đoạn chữ trên dòng Action/Caption/SFX để gắn tham chiếu Bible ([BIB-16](02_BIBLE_PLAN.md)); ô người nói gợi ý đúng tên mục Bible khi gõ, nhãn khác tên mục sẽ tạo draft mới. Dán văn bản tự do vẫn đi qua `AiScriptConvertModal`.
 
 #### SCR-25 · Luật gõ dạng hàm thuần (`scriptGrammar.ts`) — FE · ✅ (làm lại theo D11)
 - [x] [FE] `flow/grammar/scriptGrammar.ts`: `onEnter`, `onTab`, `onShiftTab`, `completeCharacterName`, `isThoughtParens` — luật đo trên WriterSolo 2026-11-13 (Enter: Page→Panel→Action→Action, Character/Parens→Dialogue, Dialogue/Caption/SFX→Action; Tab dòng trống đổi loại, dòng có chữ chèn Character/Parens bên dưới). Bỏ Transition/Scene heading khỏi vòng Tab.

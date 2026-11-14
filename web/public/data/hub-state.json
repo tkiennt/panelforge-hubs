@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-14T14:31:22.669Z",
+  "lastSyncedAt": "2026-11-14T16:16:37.167Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,50 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-BE-66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
+      "timestamp": "2026-11-14T22:58:46+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
+      "message": "chore(merge): sync feature/bib-01-canon-display into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
+      "timestamp": "2026-11-14T23:16:35+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
+      "message": "refactor(bible): remove entry aliases and match speakers by name only",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-4e8fd57c267380bad800861a0be6fd00159e3e35",
+      "timestamp": "2026-11-14T21:32:47+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "4e8fd57c267380bad800861a0be6fd00159e3e35",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/4e8fd57c267380bad800861a0be6fd00159e3e35",
+      "message": "chore(merge): sync feature/bib-02-variant-validate into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-665cd15f7fae733e507df844cc097b685c0a09ec",
+      "timestamp": "2026-11-14T22:58:45+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "665cd15f7fae733e507df844cc097b685c0a09ec",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/665cd15f7fae733e507df844cc097b685c0a09ec",
+      "message": "feat(bible): show canon revision on entries and keep entry name fixed",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-d070689c9cacf2f467946bb6d14687b2c776810c",
       "timestamp": "2026-11-14T21:31:21+07:00",
@@ -2146,50 +2190,6 @@
       "commitHash": "2609b9d209aad7f3b874a695287999a2cc2520f6",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2609b9d209aad7f3b874a695287999a2cc2520f6",
       "message": "chore(config): ignore local worktrees and drop unused prisma schema",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "timestamp": "2026-11-12T13:39:19+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "message": "docs(script): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "timestamp": "2026-11-12T13:39:18+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "message": "docs(notes): point backend docs to shared spec and team workboard",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-a78d79d70597dd9110cc91f640780da363474150",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "a78d79d70597dd9110cc91f640780da363474150",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a78d79d70597dd9110cc91f640780da363474150",
-      "message": "chore(config): normalize gitignore and drop unused prisma and metadata",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "message": "docs(writer): align chapter script spec with hidden default scene",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
