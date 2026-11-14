@@ -164,8 +164,9 @@ Chi tiết task ở [02_BIBLE_PLAN.md](../note/plans/02_BIBLE_PLAN.md) (BIB-09..
 | `bible_entry_revisions` (+ `current_concept_event_id`) | PK `id` | Bản theo biến thể (`StageName` = `variant_label`); trạng thái `Draft → ConceptSubmitted ↺ ReworkRequired → CanonLocked` (Q20, không còn `WriterEndorsed`) |
 | `bible_revision_events` (+ `concept_version_number`, `asset_sha256`) | PK `id` | Sự kiện bất biến; sự kiện `ConceptSubmitted` là **phiên bản concept** `v1, v2…` |
 | `bible_concept_comments` | PK `id`, FK `revision_id`, `concept_event_id`, `parent_comment_id` (trả lời) | Góp ý theo phiên bản concept, có khoanh vùng `region` và trả lời |
+| `panel_bible_variants` | PK `(panel_id, bible_entry_id)`, FK `revision_id` | Bản đặt riêng cho thực thể trong một Panel (giai đoạn khác trong cùng chương, ví dụ hồi tưởng); không kế thừa sang chương sau; khoá cùng kịch bản ở Gate 1 (Q23) |
 | `script_line_bible_links` (`surface_text`, bỏ `resolved_revision_id`) | Unique `(script_line_id, bible_entry_id) WHERE is_deleted = false` | Tham chiếu bôi đen; chỉ trên dòng Action / Narration / Sfx |
-| `chapter_bible_bindings` | PK `(chapter_id, bible_entry_id)`; `bound_revision_id` NULL trước Gate 1 | Bản đồ thực thể chương: `source` (Speaker/Highlight), `variant_label` + `variant_chosen_by_writer` (biến thể chương dùng, mặc định tự đề xuất, Writer đổi khi cần, kể cả sang biến thể chưa khoá — Q21, Q22), `is_crowd_at_bind`, `bound_by`, `bound_at`; khoá cùng kịch bản ở Gate 1, đưa vào Snapshot Gate 3 |
+| `chapter_bible_bindings` | PK `(chapter_id, bible_entry_id)`; `bound_revision_id` NULL trước Gate 1 | Bản đồ thực thể chương: `source` (Speaker/Highlight), `bound_revision_id` (bản cụ thể, có thể chưa khoá) + `chosen_by_writer` (false = bản kế thừa từ chương gần nhất phía trước, tính lại tới khi chốt — Q23), `is_crowd_at_bind`, `bound_by`, `bound_at`; khoá cùng kịch bản ở Gate 1, đưa vào Snapshot Gate 3 |
 
 **Luồng lưu:** `batchSave` nhận `refs[]` theo dòng → … → `CommitScriptVersion` chạy trong một transaction: khớp người nói (tự tạo mục nháp) → đồng bộ `chapter_bible_bindings` → dọn mục nháp thừa → chụp `ScriptVersion` (băm nối `|refs:` chỉ khi dòng có tham chiếu).
 
@@ -176,14 +177,16 @@ Chi tiết task ở [02_BIBLE_PLAN.md](../note/plans/02_BIBLE_PLAN.md) (BIB-09..
 | `GET` | `/api/chapters/{id}/cast` | Thành viên | Danh sách thực thể chương + `gate { canStart, blockers[] }` |
 | `POST` | `/api/series/{seriesId}/bible/entries/{entryId}/define` | Writer | `DefineBibleEntryCommand`: định nghĩa mục nháp, ghi đè revision v1 |
 | `PUT` | `/api/series/{seriesId}/bible/entries/{entryId}/crowd` | Writer | `SetBibleEntryCrowdCommand` |
-| `PUT` | `/api/chapters/{id}/cast/{entryId}/variant` | Writer | `SetChapterCastVariantCommand` đổi giai đoạn khỏi mặc định (hoặc `null` để về mặc định), kể cả sang biến thể chưa khoá (kịch bản chưa `Frozen`) |
+| `PUT` | `/api/chapters/{id}/cast/{entryId}/revision` | Writer | `SetChapterCastRevisionCommand`: chọn bản cho chương (kể cả chưa khoá) hoặc `null` để về bản kế thừa; trả danh sách chương phía sau sẽ kế thừa và cảnh báo chương đã chốt lệch bản |
+| `PUT` | `/api/panels/{panelId}/bible-variants/{entryId}` | Writer | `SetPanelCastRevisionCommand`: bản riêng cho thực thể trong Panel (hoặc `null` để theo chương) |
+| `DELETE` | `.../revisions/{revisionId}` (bản thay thế) | Writer | Huỷ bản thay thế chưa có sự kiện duyệt; chương đang chờ quay về bản kế thừa |
 | `POST` | `/api/series/{seriesId}/bible/entries/{entryId}/concept` | Artist | Nộp phiên bản concept; `409` khi mục còn nháp |
 | `GET/POST` | `.../revisions/{revisionId}/comments`, `.../comments/{commentId}/replies`, `.../comments/{commentId}/resolve` | Writer, Editor (góp ý); + Artist (trả lời) | Góp ý theo phiên bản |
 | `POST` | `.../revisions/{revisionId}/request-rework` | Writer, Editor, Producer | Bắt buộc nhận xét (Q22) |
 | `POST` | `.../revisions/{revisionId}/confirm` | Editor | Xác nhận = `CanonLocked` (thay `/endorse` + `/lock`); khác Artist nộp (BR-06) |
 | `POST` | `.../revisions/{revisionId}/supersede` | Writer | Bản thay thế cùng biến thể; bản cũ `Superseded` khi bản mới được khoá |
 | `POST` | `/api/chapters/{id}/submit-script` | Writer | Gửi duyệt gọi `ChapterCastGate.EvaluateSubmitAsync` (mục nháp đã định nghĩa hoặc Quần chúng — Q21) |
-| `POST` | `/api/chapters/{id}/freeze-script` | Producer | Gate 1 gọi `ChapterCastGate.EvaluateStartAsync` (ảnh `CanonLocked` đúng biến thể); thay endpoint `bible-gate` |
+| `POST` | `/api/chapters/{id}/freeze-script` | Producer | Gate 1 gọi `ChapterCastGate.EvaluateStartAsync` (mọi bản chương dùng — của chương và theo Panel — đã `CanonLocked`); thay endpoint `bible-gate` |
 
 ---
 

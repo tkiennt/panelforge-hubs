@@ -128,7 +128,7 @@ stateDiagram-v2
     ConceptSubmitted --> ReworkRequired: Writer, Editor hoặc Producer yêu cầu vẽ lại kèm nhận xét (Q22)
     ReworkRequired --> ConceptSubmitted: Artist nộp phiên bản concept mới
     ConceptSubmitted --> CanonLocked: Editor xác nhận = khoá canon (🔒 Bất biến, Q20)
-    CanonLocked --> Superseded: Bản thay thế cùng biến thể được khoá (chương chưa chốt tự chuyển, chương đã chốt giữ bản cũ)
+    CanonLocked --> Superseded: Bản thay thế cùng biến thể được khoá (chương gắn bản cũ giữ nguyên, Q23)
 ```
 
 | Tên trạng thái | Ý nghĩa chuẩn | Actor thực hiện |
@@ -137,7 +137,7 @@ stateDiagram-v2
 | `ConceptSubmitted` | Artist đã nộp một **phiên bản concept** (bất biến, `v1, v2…`, ảnh CAS SHA-256). Góp ý và trả lời gắn theo phiên bản, không đổi trạng thái. | Artist |
 | `ReworkRequired` | Bản vẽ bị trả về kèm nhận xét; Artist nộp phiên bản mới. | Writer, Editor hoặc Producer |
 | `CanonLocked` | Editor xác nhận phiên bản đang nộp và khoá vĩnh viễn làm bản mẫu chính thức của Series (khác Artist đã nộp, BR-06). Không thể unlock; sửa thiết kế cùng biến thể qua `/supersede`, tạo hình khác thì thêm biến thể mới. | Editor |
-| `Superseded` | Bản thay thế cùng biến thể đã được khoá; không chọn tay được cho chương mới, chương đã chốt vẫn dùng (suy ra từ sự kiện, không phải giá trị enum). | Hệ thống (khi Editor khoá bản thay thế) |
+| `Superseded` | Bản thay thế cùng biến thể đã được khoá; không chọn tay được nữa, chương đang gắn bản này vẫn dùng — không tự chuyển (Q23) (suy ra từ sự kiện, không phải giá trị enum). | Hệ thống (khi Editor khoá bản thay thế) |
 
 > `WriterEndorsed` bị bỏ theo Q20 (Editor xác nhận là khoá luôn). Dữ liệu cũ đang `WriterEndorsed` chuyển về `ConceptSubmitted` để Editor xác nhận lại.
 

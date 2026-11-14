@@ -187,7 +187,7 @@ stateDiagram-v2
   - `chapter.publish`: Producer phát hành chương (các ấn bản `ChapterEdition` mở bán theo giá Publisher đặt).
 - **Guards (camelCase, boolean predicate):**
   - `isScriptInReview`, `isLiveEqualSubmitted`: kịch bản đang `InReview` và bản hiện tại trùng bản đã gửi (Q15).
-  - `isCastCanonLocked`: mọi mục Bible trong kịch bản chương (trừ Quần chúng) có bản `CanonLocked` của đúng biến thể chương dùng (BR-35, Q21).
+  - `isCastCanonLocked`: mọi bản Bible chương dùng (bản của chương + bản theo Panel, trừ Quần chúng) đã `CanonLocked` (BR-35, Q23).
   - `isAllPagesApproved`: Tất cả các trang trong chương đã đạt stage cuối cùng.
   - `isReleaseDateReached`: Thời gian hiện tại đã vượt qua `releaseDate`.
   - `isProducer`: Người gọi lệnh có quyền Producer trên Workspace.
@@ -235,7 +235,7 @@ stateDiagram-v2
     ConceptSubmitted --> ReworkRequired: bible.request_rework [isWriterOrEditorOrProducer && hasNote] / attachReviewNotes()
     ReworkRequired --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset]
     ConceptSubmitted --> CanonLocked: bible.confirm_canon [isEditor && isNotSubmitter && isCurrentVersion] / freezeAsCanon()
-    CanonLocked --> Superseded: bible.replacement_locked / rebindUnfrozenChapters()
+    CanonLocked --> Superseded: bible.replacement_locked (chương gắn bản cũ giữ nguyên, Q23)
 ```
 
 #### Bảng chi tiết phần tử:
@@ -244,11 +244,11 @@ stateDiagram-v2
   - `ConceptSubmitted`: Artist đã nộp một phiên bản concept (bất biến, số tăng dần, CAS SHA-256).
   - `ReworkRequired`: Thiết kế chưa đạt, Writer hoặc Editor yêu cầu Artist nộp phiên bản mới.
   - `CanonLocked`: Editor xác nhận đúng phiên bản đang nộp và khoá thành Canon (Bất biến, Q20). Không còn `WriterEndorsed`.
-  - `Superseded`: Bản thay thế cùng biến thể (Writer tạo qua `/supersede`) đã được khoá; chương chưa chốt tự chuyển sang bản mới, chương đã chốt vẫn dùng bản này.
+  - `Superseded`: Bản thay thế cùng biến thể (Writer tạo qua `/supersede`) đã được khoá; không chọn tay được nữa, chương đang gắn bản này vẫn dùng (không tự chuyển, Q23).
 - **Events:**
   - `bible.submit_concept_version`, `bible.comment` (có `parentCommentId` để trả lời), `bible.request_rework`, `bible.confirm_canon`, `bible.supersede` (Writer tạo bản thay thế), `bible.replacement_locked`.
 - **Guards:** `hasCasAsset`, `isDefined` (`!IsStub`), `isWriterOrEditor`, `isWriterOrEditorOrArtist`, `isWriterOrEditorOrProducer`, `isEditor`, `isNotSubmitter`, `isCurrentVersion`, `hasNote`.
-- **Actions:** `calculateSha256`, `recordComment`, `attachReviewNotes`, `freezeAsCanon`, `rebindUnfrozenChapters`.
+- **Actions:** `calculateSha256`, `recordComment`, `attachReviewNotes`, `freezeAsCanon`.
 
 ---
 
