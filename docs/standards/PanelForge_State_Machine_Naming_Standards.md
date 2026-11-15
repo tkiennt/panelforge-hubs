@@ -169,25 +169,68 @@ stateDiagram-v2
     PreProduction --> InProduction: chapter.start_production [isProducer && isScriptInReview && isLiveEqualSubmitted && isCastCanonLocked] / freezeScript()
     InProduction --> ChapterApproved: chapter.approve [isAllPagesApproved && isProducer] / recordApproval()
     ChapterApproved --> InProduction: chapter.reopen [hasValidReason && isProducer] / notifyTeam()
-    ChapterApproved --> HandedOffAndPublished: chapter.handoff [isProducer] -> edition.publish [isPublisher] / makePublic()
-    HandedOffAndPublished --> [*]
+    PreProduction --> Archived: chapter.archive [isProducer && isArchiveOnly]
+    InProduction --> Archived: chapter.archive [isProducer]
+    ChapterApproved --> Archived: chapter.archive [isProducer]
+    Archived --> PreProduction: chapter.restore [isProducer]
+    Archived --> InProduction: chapter.restore [isProducer]
+    ChapterApproved --> [*]: Bàn giao phát sinh sự kiện ChapterHandedOff (D1)
 ```
 
 #### Bảng chi tiết phần tử:
 - **States (PascalCase, Adjective/Participle):**
   - `PreProduction`: Đang trong giai đoạn tiền kỳ (soạn kịch bản & Bible) trước Gate 1.
   - `InProduction`: Đang trong chu kỳ sản xuất nội dung vẽ và đặt thoại.
-  - `ChapterApproved`: Đã được Producer nghiệm thu toàn bộ chất lượng tại Gate 3 và sẵn sàng bàn giao (gộp `Locked` cũ, Q1).
-  - `HandedOffAndPublished`: Đã bàn giao sang Publisher và Publisher đã phát hành (hoặc đến giờ hẹn) ấn bản ngôn ngữ cho độc giả (Quyết định 2026-11-15).
+  - `ChapterApproved`: Đã được Producer nghiệm thu toàn bộ chất lượng tại Gate 3 và sẵn sàng bàn giao (gộp `Locked` cũ, Q1). Vòng đời Chapter dừng tại đây (Quyết định 2026-11-15 (D1)).
+  - `Archived`: Trạng thái lưu trữ mềm (Soft-deleted) cho chương có dữ liệu hoặc đã sản xuất, bảo lưu toàn bộ lịch sử kiểm toán và có thể khôi phục (Quyết định 2026-11-15 (D3)).
 - **Events (dot.case) & Commands:**
   - `chapter.create`: Khởi tạo chương mới.
   - `chapter.start_production`: Producer duyệt Gate 1 (Script Freeze) chuyển sang sản xuất.
   - `chapter.approve`: Producer bấm nút nghiệm thu chương (Gate 3).
   - `chapter.reopen` (`ReopenChapter`): Producer mở lại chương về `InProduction` kèm lý do Audit (độc quyền Producer).
-  - `chapter.handoff` (`HandOffToPublisher`): Producer bàn giao chương đã duyệt sang Publisher.
-  - `edition.publish` (`PublishEdition`): Publisher phát hành ngay ấn bản ngôn ngữ (Quyết định 2026-11-15).
-  - `edition.schedule` (`ScheduleEdition`): Publisher lên lịch hẹn giờ phát hành ấn bản (Quyết định 2026-11-15).
-  - *(Lưu ý: Không có lệnh return/reject bàn giao từ Publisher)*
+  - `chapter.archive` (`ArchiveChapter`): Producer lưu trữ chương vào kho (khi đã có kịch bản/InProduction, D3).
+  - `chapter.restore` (`RestoreChapter`): Producer khôi phục chương từ kho lưu trữ.
+  - `chapter.delete` (`DeleteChapter`): Xóa vĩnh viễn (chỉ áp dụng với chương rỗng ở PreProduction, D3).
+  - *(Lưu ý: Bàn giao là Sự kiện miền `ChapterHandedOff`, không làm đổi trạng thái Chapter. Không có lệnh return/reject bàn giao từ Publisher).*
+
+---
+
+### 5.1.b. Chapter Edition Lifecycle (`ChapterEditionStatus`, Quyết định 2026-11-15 (D1, D4, D5))
+- **Thực thể sở hữu:** `ChapterEdition` (Ấn bản ngôn ngữ: bản gốc hoặc bản dịch)
+- **Người quyết định:** `Translator/Letterer` (nộp bản dịch), `Editor` (thẩm định bản dịch), `Producer` (duyệt ấn bản), `Publisher` (cấu hình giá, phát hành/hẹn giờ)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft: edition.create
+    Draft --> Approved: chapter.gate3_approved [isOriginalEdition] (D5)
+    Draft --> InReview: edition.submit [isTranslationEdition && hasCompleteTranslation]
+    InReview --> Draft: edition.request_changes [isEditor]
+    InReview --> Reviewed: edition.approve_review [isEditor && isNotSubmitter] / recordReviewer()
+    Reviewed --> Approved: edition.approve [isProducer && isChapterApproved] / createEditionSnapshot()
+    Approved --> Published: edition.publish [isPublisher && isPriceConfigured] / setPublishedPointer()
+    Approved --> Published: edition.schedule [isPublisher && isPriceConfigured && isReleaseTimeReached]
+    Published --> [*]
+```
+
+#### Bảng chi tiết phần tử:
+- **States:**
+  - `Draft`: Đang biên soạn bản dịch hoặc bản gốc chờ nghiệm thu chương.
+  - `InReview`: Bản dịch đã nộp, chờ Editor thẩm định.
+  - `Reviewed`: Editor đã thẩm định đạt chất lượng (đổi tên từ `EditorApproved`, lưu `reviewed_by` + `reviewer_role`, D5).
+  - `Approved`: Producer cho phép phát hành (tạo snapshot hoàn chỉnh; bản gốc tự động đạt `Approved` khi Gate 3 đạt, D5).
+  - `Published`: Publisher đã phát hành ra công chúng (lưu con trỏ `current_published_snapshot_id`, D1).
+- **Events:**
+  - `edition.submit`: Nộp bản dịch hoàn chỉnh.
+  - `edition.approve_review`: Editor duyệt bản dịch (`Reviewed`, D5).
+  - `edition.request_changes`: Editor yêu cầu sửa bản dịch.
+  - `edition.approve`: Producer duyệt phát hành ấn bản.
+  - `edition.publish`: Publisher phát hành ngay (bắt buộc đã cấu hình Free/Paid, D4).
+  - `edition.schedule`: Publisher đặt lịch hẹn giờ phát hành (bắt buộc đã cấu hình Free/Paid, D4).
+- **Guards:**
+  - `isOriginalEdition`: Là ấn bản gốc (tự động chuyển sang `Approved` khi Gate 3 chương hoàn tất).
+  - `isNotSubmitter`: Tuân thủ quy tắc 4-mắt BR-06 (Editor duyệt bản dịch khác người nộp).
+  - `isChapterApproved`: Chương phải đạt Gate 3 (`ChapterApproved`) trước khi ấn bản dịch được duyệt `Approved`.
+  - `isPriceConfigured`: Bắt buộc cấu hình hình thức thương mại (Miễn phí hoặc Trả phí kèm giá VNĐ và số trang xem thử) trước khi xuất bản (BR-33, D4).
 - **Guards (camelCase, boolean predicate):**
   - `isScriptInReview`, `isLiveEqualSubmitted`: kịch bản đang `InReview` và bản hiện tại trùng bản đã gửi (Q15).
   - `isCastCanonLocked`: mọi bản Bible chương dùng (bản của chương + bản theo Panel, trừ Quần chúng) đã `CanonLocked` (BR-35, Q23).
@@ -333,7 +376,8 @@ Trong quá trình bảo vệ đồ án tốt nghiệp, giảng viên thẩm đ�
 - *Lỗi:* Ghi trạng thái `Chapter: InProduction -> Frozen -> Approved -> ReworkRequired`.
 - *Nguyên nhân:* `Frozen` là của Kịch bản (`Script`), `ReworkRequired` là của Công việc (`Assignment`), không phải của Chương (`Chapter`).
 - *Cách khắc phục:* Chia thành các máy trạng thái độc lập:
-  - `ChapterStatus`: `PreProduction` $\rightarrow$ `InProduction` $\rightarrow$ `ChapterApproved` $\rightarrow$ `HandedOffAndPublished`.
+  - `ChapterStatus`: `PreProduction` $\rightarrow$ `InProduction` $\rightarrow$ `ChapterApproved` (phát sinh `ChapterHandedOff`; `Archived` - D1, D3).
+  - `ChapterEditionStatus`: `Draft` $\rightarrow$ `InReview` $\rightarrow$ `Reviewed` $\rightarrow$ `Approved` $\rightarrow$ `Published` (D1, D5).
   - `ScriptStatus`: `Draft` $\rightarrow$ `InReview` $\rightarrow$ `Frozen` (Producer mở lại → `Draft`).
   - `Page/Panel Stage`: `PencilInProgress` $\rightarrow$ `InkAndLetterTrack` $\rightarrow$ `CompositeUnderReview` $\rightarrow$ `PanelReworkRequired` $\rightarrow$ `Approved`.
 

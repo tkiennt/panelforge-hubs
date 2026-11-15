@@ -86,17 +86,17 @@ Ma trận chuyển trạng thái **sau BIB-10**: `SubmitConceptVersion: Draft | 
 
 ### Backend còn lại
 
-#### BIB-01 · Bản nháp không ghi đè thông tin Canon đang hiệu lực — BE + FE · 🟡 · đã chốt A, đang triển khai · cũ B2/L1
+#### BIB-01 · Bản nháp không ghi đè thông tin Canon đang hiệu lực — BE + FE · ✅ · BE merge `66b80be`, `b90bde5`; FE merge `3a76596` · cũ B2/L1
 - **Bối cảnh:** commit `2b43cc3` cố ý cho phép tạo revision mới trên giai đoạn đã khoá (bản mới đi lại luồng duyệt). Nhưng `GetCurrentRevision` lấy VersionNumber lớn nhất → `entry.Name/Description/ReferenceImageUrl` bị bản nháp ghi đè trong khi Canon vẫn là bản cũ.
 - [x] **User chốt A (2026-11-14):** thông tin cấp mục dùng mô tả và ảnh của bản `CanonLocked` mới nhất, chưa `Superseded`, thuộc **biến thể mặc định**; fallback bản mới nhất khi mục chưa có Canon.
-- [ ] [BE] Chỉ cập nhật cache thông tin cấp mục khi một bản được khoá Canon. Tạo/sửa bản `Draft`, `ConceptSubmitted` hoặc `ReworkRequired` không được ghi đè tên, mô tả hay ảnh đang hiển thị của mục.
-- [ ] [FE] Khi có bản mới hơn Canon nhưng chưa khoá, giữ mô tả/ảnh Canon và hiện nhãn **`Có bản nháp vN`**.
-- [ ] Test: chưa có Canon dùng bản mới nhất; có Canon thì draft mới không đổi cache; khoá Canon cập nhật cache; bản `Superseded` không được chọn.
+- [x] [BE] Chỉ cập nhật cache thông tin cấp mục khi một bản được khoá Canon. Tạo/sửa bản `Draft`, `ConceptSubmitted` hoặc `ReworkRequired` không được ghi đè tên, mô tả hay ảnh đang hiển thị của mục.
+- [x] [FE] Khi có bản mới hơn Canon nhưng chưa khoá, giữ mô tả/ảnh Canon và hiện nhãn **`Có bản nháp vN`** qua `BibleEntryDto.latestDraftVersionNumber`.
+- [x] Test: chưa có Canon dùng bản mới nhất; có Canon thì draft mới không đổi cache; khoá Canon cập nhật cache; bản `Superseded` không được chọn.
 
-#### BIB-02 · Validate biến thể mới — BE · 🟡 · cũ B6/L6 · đổi theo Q16
-- [ ] `variant_label` (cột `StageName` hiện có) bắt buộc khi tạo biến thể mới, không trùng nhãn biến thể khác còn hiệu lực của cùng mục → 409. Bỏ kiểm "`from` không trùng chương bắt đầu".
-- [ ] Đổi `variant_label` trong bản sửa nội dung không được tách biến thể (xác minh chặn đổi).
-- [ ] Test.
+#### BIB-02 · Validate biến thể mới — BE · ✅ · merge `4e8fd57` · cũ B6/L6 · đổi theo Q16
+- [x] `variant_label` (cột `StageName` hiện có) bắt buộc khi tạo biến thể mới, không trùng nhãn biến thể khác còn hiệu lực của cùng mục → 409. Bỏ kiểm "`from` không trùng chương bắt đầu".
+- [x] Đổi `variant_label` trong bản sửa nội dung không được tách biến thể (xác minh chặn đổi).
+- [x] Test.
 
 ### Frontend (làm theo thứ tự)
 
@@ -313,6 +313,12 @@ series-bible/
 - [x] [QA] Viết bộ test case Series Bible mới theo Q16–Q24: người nói tự khớp/tự tạo (thoại + suy nghĩ), bôi đen (đúng loại dòng), Quần chúng, định nghĩa mục nháp, phiên bản concept + góp ý/trả lời, Editor xác nhận = khoá, Producer yêu cầu vẽ lại, bản kế thừa Ch1–Ch3, giai đoạn theo Panel, supersede/huỷ bản thay thế, Gửi duyệt và Gate 1.
 - [x] Mục "ép `ChapterNumber` decimal về int" ở rà soát 2026-11-13 tự hết khi gỡ `EffectiveRevisionAt`.
 
+#### BIB-18 · Đóng băng SubmittedScriptManifest khi nộp kịch bản & kiểm tra Gate 1 (D2) — DB + BE + FE · ❌
+- [ ] [DB] Tạo bảng `submitted_script_manifests` (`id UUID PRIMARY KEY`, `chapter_id UUID NOT NULL`, `script_version_id UUID NOT NULL`, `script_content_hash VARCHAR(64) NOT NULL`, `submitted_at TIMESTAMPTZ NOT NULL`, `submitted_by UUID NOT NULL`, `bible_manifest_json JSONB NOT NULL`). Trong đó `bible_manifest_json` lưu mảng `[{ entry_id, entry_name, variant_label, canon_version_id, content_hash }]` (Quyết định 2026-11-15 (D2)).
+- [ ] [BE] Trong lệnh `SubmitChapterScriptCommand`: tạo bản ghi `SubmittedScriptManifest` đóng băng SHA-256 của `ScriptVersion` cùng danh sách các mục Bible và mã băm tương ứng tại thời điểm Writer bấm Nộp.
+- [ ] [BE] Trong lệnh `FreezeChapterScriptCommand` (Gate 1): so sánh trạng thái hiện tại của các mục Bible với bản ghi `SubmittedScriptManifest`. Nếu có mục Bible bị thay đổi bản ghi Canon hoặc thay đổi nội dung sau thời điểm nộp kịch bản → trả về `409 Conflict` (yêu cầu nộp lại kịch bản để cập nhật manifest).
+- [ ] [FE] Màn Gate 1: hiển thị thông báo chi tiết khi gặp lỗi 409 Bible manifest conflict; chỉ rõ mục Bible nào bị thay đổi sau khi nộp kịch bản.
+
 ### Luồng triển khai BE → FE
 
 **Luồng chạy khi xong:**
@@ -328,15 +334,15 @@ series-bible/
 | Pha | Repo | Task | Nội dung | Kiểm tra / Bằng chứng |
 |---|---|---|---|---|
 | 0 | BE | [SCR-11](01_SCRIPT_PLAN.md) | Producer không sửa kịch bản; commit chỉ Writer | ✅ BE merge `fa90712` |
-| 1a | BE + DB | BIB-09, BIB-11 | Nền cũ đã thêm `aliases` và `bible_entry_names`; quyết định 2026-11-14 yêu cầu bỏ cả hai, chuyển sang `bible_entries.normalized_name` unique, tên bất biến và stub chỉ đổi tên một lần. Giữ `is_crowd`, `chapter_bible_bindings`, `panel_bible_variants`, `surface_text`, `supersedes_revision_id`; giữ luật supersede và `CancelReplacementRevision` | 🟡 nền cũ merge `ed02171`; cập nhật tên đang triển khai |
+| 1a | BE + DB | BIB-09, BIB-11 | Bỏ `aliases` và `bible_entry_names`, chuyển sang `bible_entries.normalized_name` unique, tên bất biến và stub chỉ đổi tên một lần. Giữ `is_crowd`, `chapter_bible_bindings`, `panel_bible_variants`, `surface_text`, `supersedes_revision_id`; giữ luật supersede và `CancelReplacementRevision` | ✅ BE merge `b90bde5` (migration `20261114161005_RemoveBibleEntryAliases`); FE merge `3a76596` |
 | 1b | BE + DB | BIB-10 (song song 1a, sandbox riêng; merge sau 1a) | Bỏ `WriterEndorsed` + chuyển dữ liệu; `/confirm`; `request-rework` cho Writer/Editor/Producer; phiên bản concept; `bible_concept_comments`; chặn nộp concept khi mục nháp | ✅ BE merge `e78858b`, FE merge `cf77e39` (migration `20261114054042_AddBibleConceptVersionsAndComments`) |
 | 2 | BE | BIB-12, BIB-13 | `refs` trong `batchSave`; `castRevisions` trong `syncScriptStructure`; `ChapterCastService` (resolve người nói, kế thừa, recompute) trong `CommitAsync`; mã băm 6A + Q24; lệnh Crowd / ChapterCastRevision / Define; `GET /cast` | ✅ BE merge `37abe0f`, `f979fa9`, `0571fa7` |
 | 3 | BE | BIB-14 | `ChapterCastGate` hai mốc vào Submit/Freeze; khoá bản đồ; ⚑ khi chốt lại; Snapshot; xoá `bible-gate` | ✅ BE merge `9c24b93` (migration `20261114063622_AddChapterFrozenScriptVersionId`) |
 | 4 | BE | BIB-15 (BE) | `GetPanelBible` theo Panel; `ConsistencyChecker` + AI theo binding | ✅ BE merge `a5a6d55` |
 | 5 | FE | BIB-03 → BIB-16 → BIB-15 (FE) → BIB-10 (FE) | Service/types; mark `bibleRef` + menu bôi đen; gợi ý người nói; ngăn Danh sách thực thể; giai đoạn theo Panel; vướng ở Gửi duyệt / Bắt đầu sản xuất; `ChecksTab` → `/cast`; Model Sheet ở bàn vẽ; màn duyệt concept | ✅ FE merge `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `016b307` |
-| 6 | BE + FE | BIB-17 + QA | Gỡ `@mention`, era, `/endorse`, `/lock`, `LinkBibleEntries`, `BibleEntryIds`, `resolved_revision_id`; bộ test case Q16–Q24 | ✅ BE merge `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE merge `2b335f7`, migration `20261114115859_RemoveLegacyBibleMechanisms` |
+| 6 | BE + FE | BIB-17 + QA | Gỡ `@mention`, era, `/endorse`, `/lock`, `LinkBibleEntries`, `BibleEntryIds`, `resolved_revision_id`; bộ test case Q16–Q24 | ✅ BE merge `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE merge `2b335f7`, gỡ era UI merge `8c43b10`; migration `20261114115859_RemoveLegacyBibleMechanisms` |
 
-BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) độc lập, làm sau pha 5 hoặc xen kẽ khi rảnh.
+BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) vẫn mở và được theo dõi độc lập; không nằm trong phần P1-08 đã hoàn thành.
 
 ## 5. Quyết định
 
@@ -352,14 +358,14 @@ BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) độc lập
 | 11 | Chốt Bible khi nào | ✅ Q21–Q23: Gửi duyệt chốt Danh sách thực thể (định nghĩa hoặc Quần chúng; bản kế thừa, Writer đổi khi cần); Gate 1 chốt mọi bản chương dùng (của chương + theo Panel) đã `CanonLocked` (BIB-14) |
 | 10 | Duyệt concept | ✅ Q20, Q22: phiên bản concept bất biến, góp ý theo phiên bản có trả lời, Writer + Editor + Producer yêu cầu vẽ lại (BIB-10) |
 | 4 | Detail modal: sheet hay full-screen | ⏳ Đề xuất sheet bên phải (BIB-06) |
-| 5 | Thông tin hiện hành khi có bản nháp trên biến thể đã khoá | ✅ BIB-01/A (2026-11-14): lấy bản `CanonLocked` mới nhất chưa `Superseded` của biến thể mặc định, fallback bản mới nhất khi chưa có Canon; cache chỉ đổi lúc khoá Canon; FE báo `Có bản nháp vN`. Đang triển khai |
+| 5 | Thông tin hiện hành khi có bản nháp trên biến thể đã khoá | ✅ BIB-01/A (2026-11-14): lấy bản `CanonLocked` mới nhất chưa `Superseded` của biến thể mặc định, fallback bản mới nhất khi chưa có Canon; cache chỉ đổi lúc khoá Canon; FE báo `Có bản nháp vN`. BE merge `66b80be`; FE merge `3a76596` |
 | 12 | Quy tắc tên mục Bible | ✅ (2026-11-14): tên bất biến và unique theo tên chuẩn hoá, không có bí danh; Writer chỉ được đặt lại tên stub đúng một lần khi định nghĩa; người nói khác tên mục thì tự tạo draft mới |
 
 ## 6. Changelog
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-14 | BIB-01, BIB-09, BIB-12, BIB-16 | 🟡 Đã chốt, đang triển khai | — (chỉ tài liệu) | Chốt BIB-01 phương án A: cache mô tả/ảnh chỉ theo Canon của biến thể mặc định, draft không ghi đè, FE báo `Có bản nháp vN`. Chốt tên bất biến, unique `normalized_name`, không bí danh; tên stub được đặt một lần khi định nghĩa; người nói phải trùng tên mục sau chuẩn hoá |
+| 2026-11-14 | BIB-01, BIB-02, bỏ bí danh và era UI | ✅ Hoàn thành | BE `4e8fd57`, `66b80be`, `b90bde5`; FE `8c43b10`, `3a76596` | Cache mô tả/ảnh theo Canon của biến thể mặc định, draft không ghi đè và FE báo `Có bản nháp vN`; tên bất biến, unique `normalized_name`, không bí danh; migration `20261114161005_RemoveBibleEntryAliases`; gỡ era UI |
 | 2026-11-14 | BIB-03, BIB-09..BIB-17 | ✅ Hoàn thành | BE `ed02171`, `e78858b`, `37abe0f`, `f979fa9`, `9c24b93`, `a5a6d55`, `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `2b335f7`, `016b307`, `a6cb774` | Toàn bộ luồng Series Bible kết nối Script & Gate 1 đã hoàn thành và gộp vào `trungkien`. Xoá bỏ hoàn toàn các cơ chế legacy (bible-gate, endorse/lock, era, mention) theo quy tắc không tương thích ngược |
 | 2026-11-12 | cũ B1, B3, B5, B6 (một phần) | ✅ | BE `1cb44ed`, merge `a092b0f` | Guard trạng thái, hàng đợi theo giai đoạn |
 | 2026-11-12 | cũ B4, L7 | ✅ | BE `79b5077`, merge `df10ee3` | Địa điểm/Đạo cụ khoá được; chỉ Editor duyệt |

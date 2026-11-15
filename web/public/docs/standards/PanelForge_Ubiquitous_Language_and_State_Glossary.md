@@ -28,12 +28,12 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | Thuật ngữ Tiếng Anh | Tiếng Việt chuẩn | Phạm vi | Mô tả trách nhiệm |
 |---|---|---|---|
 | **Administrator** | Quản trị viên hệ thống | Toàn hệ thống | Quản lý tài khoản (bao gồm duy nhất 1 tài khoản Publisher toàn hệ thống, Q12), tài khoản ngân hàng nền tảng (Q13), cấp quyền tạo Studio, quota AI. Không can thiệp nội dung. |
-| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và phát hành (Q7). |
+| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và bàn giao cho Publisher (Quyết định 2026-11-15: Producer bàn giao, Publisher phát hành; mở lại InProduction vẫn do Producer). |
 | **Writer** | Tác giả kịch bản | Workspace / Series | Độc quyền sáng tác kịch bản (`Page -> Panel -> Content`), bôi đen tham chiếu Bible, gắn cờ Quần chúng, viết định nghĩa mục nháp, đổi biến thể theo chương khi cần (mặc định tự đề xuất, Q22), góp ý / yêu cầu vẽ lại concept Bible (Q19, Q20). |
 | **Artist** | Họa sĩ (Chì / Mực) | Workspace / Series | Vẽ Concept Art Bible, thực hiện Pencil & Ink trên Page được giao (mặc định có cả `graphic:write` và `letter:write` theo BR-31). |
 | **Letterer** | Người đặt thoại & SFX | Workspace / Series | Vai trò phụ việc tùy chọn (`letter:write` only): bố trí Position Record bóng thoại `{x,y,w,h}`, nội dung đa ngôn ngữ và SFX. |
 | **Editor** | Biên tập viên | Workspace / Series | Xác nhận concept Series Bible = khoá Canon (Q20); duyệt Gate 2 (`CompositeUnderReview`), khoanh vùng tạo Change Request (sinh nhiều CR chung `group_id` nếu vắt nhiều Panel ≥ 15%), duyệt bản dịch `ChapterEdition`. |
-| **Publisher** | Đối tác phát hành (1 tài khoản duy nhất) | Publisher Portal | Xem/tải gói bàn giao & PreviewLink chỉ đọc; **quy định thương mại** (Free/Trả phí, `price_vnd`, `free_preview_pages`) theo từng ấn bản ngôn ngữ (Q7, Q12). Không sửa nội dung hay phát hành. |
+| **Publisher** | Đối tác phát hành (1 tài khoản duy nhất) | Publisher Portal | Xem/tải gói bàn giao & PreviewLink chỉ đọc; cấu hình tài khoản ngân hàng (không duyệt thanh toán VietQR); **quy định thương mại** (Free/Trả phí, `price_vnd`, `free_preview_pages`) và chọn phát hành ngay hoặc hẹn giờ theo từng ấn bản ngôn ngữ (Quyết định 2026-11-15: Publisher phát hành ấn bản sau bàn giao; không có lệnh trả về/từ chối bàn giao; không sửa nội dung sản xuất). |
 | **External Reviewer** | Người đánh giá bên ngoài | Ngoài nền tảng | Nhận link xem thử có watermark (`PreviewLink`), gửi nhận xét trước ngày xuất bản. Không có tài khoản WS. |
 | **Reader** | Độc giả | Web Catalog / Mobile Reader | Đăng ký tài khoản `User`, chọn ngôn ngữ đọc, nạp Ví VNĐ (`wallets`) và mở khóa từng ấn bản ngôn ngữ (`edition_entitlements`). |
 
@@ -49,8 +49,12 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | **BibleEntry** | SeriesBible | Một nhân vật / địa điểm / đạo cụ (hoặc thuật ngữ, quy tắc, sự kiện); có tên bất biến, unique theo `normalized_name`, không có bí danh; riêng stub được Writer đặt lại tên đúng một lần khi định nghĩa. Có cờ **Quần chúng** (`is_crowd`) và cờ nháp chờ định nghĩa (`IsStub`) (Q16). |
 | **BibleEntryRevision** | BibleEntry | Một bản tạo hình của mục, gắn **nhãn biến thể** (`variant_label`, ví dụ "Lúc nhỏ"), ảnh concept CAS SHA-256; không gắn số chương (Q16, BR-15). |
 | **Danh sách thực thể chương** (`chapter_bible_bindings`) | Chapter | Các mục Bible có trong kịch bản chương (người nói tự khớp/tự tạo, đoạn Writer bôi đen) và bản tạo hình chương dùng; khoá cùng kịch bản ở Gate 1 (BR-35). |
-| **Chapter** | Series | Một chương truyện (gồm `ChapterStatus`, `ScriptStatus`, các `ScriptVersion` và tập hợp `Page`). |
-| **ScriptVersion** | Chapter | Phiên bản kịch bản bất biến tạo mỗi lần Writer lưu (mã băm SHA-256); chương giữ con trỏ bản đã gửi duyệt (Q15). |
+| **Chapter** | Series | Một chương truyện (gồm `ChapterStatus`: `PreProduction`, `InProduction`, `ChapterApproved`, `Archived`; kết thúc tại `ChapterApproved`, D1, D3). |
+| **SubmittedScriptManifest** | Chapter | Bản ghi đóng băng kịch bản & danh mục thực thể Bible tại thời điểm nộp (Gate 1 submit): lưu SHA-256 kịch bản + danh mục thực thể Bible và SHA-256 từng mục; phát hiện xung đột trả 409 Conflict (Quyết định 2026-11-15 (D2)). |
+| **ChapterHandedOff** | Chapter | Sự kiện miền / bản ghi kiểm toán ghi nhận Producer bàn giao chương đã đạt Gate 3 cho Publisher (lưu `handed_off_at`, `handed_off_by`, D1). |
+| **ChapterEdition** | Chapter | Ấn bản ngôn ngữ của chương (`Draft`, `InReview`, `Reviewed`, `Approved`, `Published`); lưu con trỏ `current_published_snapshot_id` (D1, D5). |
+| **ScriptVersion** | Chapter | Phiên bản kịch bản bất biến tạo mỗi lần Writer lưu (mã băm SHA-256); chương giữ con trỏ bản đã gửi duyệt (Q15, D9c). |
+| **PageReviewStatus** / **PanelStageProgress** | Page / Panel | Tách bạch trạng thái duyệt cấp Trang (`Draft`, `Reviewing`, `Approved`, `ChangesRequested`) và tiến độ kỹ thuật cấp Khung ảnh (`InProgress`, `Submitted`, `InReview`, `ChangesRequested`, `Approved`). Trang đạt Approved ⇔ 100% Panel Approved (D6). |
 | **ChapterEdition** | Chapter × Lang | Ấn bản theo từng ngôn ngữ (`original_language` / `release_languages`) với trạng thái xuất bản và giá VNĐ riêng (Q9, Q10). |
 | **Scene (Ẩn dưới DB)** | Chapter | Một Scene mặc định ẩn do hệ thống tạo cho mỗi Chapter (`scene_id` NOT NULL dưới DB theo D2); không hiển thị trên UI kịch bản và đã bỏ `ChapterScript` (D5). |
 | **PanelContent** | Panel | Đơn vị nội dung trong Panel (`ACTION_DIRECTION`, `DIALOGUE/THOUGHT`, `NARRATION`, `SFX`), chữ thuần; thoại ghi tên người nói `speaker_label`. Liên kết Bible: người nói tự khớp/tự tạo, lời dẫn do Writer bôi đen tham chiếu; gom ở Danh sách thực thể chương (Q16). |
@@ -69,8 +73,8 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 
 ## 3. BẢNG QUY CHUẨN TRẠNG THÁI TOÀN HỆ THỐNG (STATE ENUMS & MACHINES)
 
-### 3.1. ChapterStatus (Vòng đời Chương — chuẩn V2.6 Final)
-*Thực thể: `Chapter` — Người quyết định: `Producer`*
+### 3.1. ChapterStatus (Vòng đời Chương — chuẩn V2.6 Final, Quyết định 2026-11-15 (D1, D3))
+*Thực thể: `Chapter` — Người quyết định: `Producer` (Gate 3, bàn giao, mở lại InProduction, lưu trữ/khôi phục)*
 
 ```mermaid
 stateDiagram-v2
@@ -78,16 +82,45 @@ stateDiagram-v2
     PreProduction --> InProduction: Producer duyệt Gate 1 (Script Freeze)
     InProduction --> ChapterApproved: Producer nghiệm thu Gate 3 (100% Page Approved)
     ChapterApproved --> InProduction: Producer mở lại chương kèm lý do Audit (BR-12)
-    ChapterApproved --> HandedOffAndPublished: Producer bàn giao & phát hành (publishAt <= UtcNow)
-    HandedOffAndPublished --> [*]
+    PreProduction --> Archived: Producer xóa/lưu trữ chương (D3)
+    InProduction --> Archived: Producer lưu trữ chương (D3)
+    ChapterApproved --> Archived: Producer lưu trữ chương (D3)
+    Archived --> PreProduction: Producer khôi phục chương (khi chưa InProduction)
+    Archived --> InProduction: Producer khôi phục chương
+    ChapterApproved --> [*]: Bàn giao phát sinh sự kiện ChapterHandedOff (D1)
 ```
 
 | Tên trạng thái | Ý nghĩa chuẩn | Quyền chuyển | Ghi chú & Điểm sửa |
 |---|---|---|---|
 | `PreProduction` | Đang chuẩn bị kịch bản & Series Bible trước Gate 1. | Mặc định | Khóa sửa kịch bản khi sang `InProduction`. |
-| `InProduction` | Chương đang trong quá trình vẽ tranh & đặt thoại. | Producer | Bắt đầu từ Gate 1. |
-| `ChapterApproved` | Producer xác nhận toàn bộ trang đã hoàn tất và đạt Gate 3. | Producer | Gộp `Locked` cũ vào `ChapterApproved` theo **Q1**. |
-| `HandedOffAndPublished` | Chương đã bàn giao & phát hành công khai cho độc giả. | Producer | `Published` là trạng thái trên từng `ChapterEdition` (**Q7, Q10**). |
+| `InProduction` | Chương đang trong quá trình vẽ tranh & đặt thoại. | Producer | Bắt đầu từ Gate 1 sau khi duyệt kịch bản và khóa Bible. |
+| `ChapterApproved` | Producer xác nhận toàn bộ trang đã hoàn tất, đạt Gate 3 và sẵn sàng bàn giao cho Publisher. | Producer | Gộp `Locked` cũ vào `ChapterApproved` theo **Q1**. Vòng đời Chapter dừng tại đây (D1). Bàn giao phát sinh sự kiện `ChapterHandedOff` (lưu `handed_off_at`, `handed_off_by`). Mở lại `InProduction` độc quyền của Producer (không có luồng Publisher trả về bàn giao). |
+| `Archived` | Chương bị đưa vào kho lưu trữ (soft deletion giữ nguyên toàn bộ lịch sử revision, audit log và provenance, Quyết định 2026-11-15 (D3)). | Producer | Chương rỗng ở `PreProduction` được xóa cứng khỏi CSDL; chương đã có dữ liệu / `InProduction` chỉ được chuyển sang `Archived`. Có thể khôi phục bất kỳ lúc nào. Chương đã có ấn bản `Published` không bao giờ được xóa. |
+
+---
+
+### 3.1.b. ChapterEditionStatus (Vòng đời Ấn bản Ngôn ngữ — Quyết định 2026-11-15 (D1, D4, D5))
+*Thực thể: `ChapterEdition` — Người quyết định: `Letterer/Translator` (nộp bản dịch), `Editor` (duyệt Reviewed), `Producer` (duyệt Approved), `Publisher` (cấu hình giá, phát hành/hẹn giờ Published)*
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft: Khởi tạo ấn bản
+    Draft --> Approved: Ấn bản gốc — Gate 3 Chapter đạt (D5)
+    Draft --> InReview: Ấn bản dịch — nộp đủ bản dịch
+    InReview --> Draft: Editor yêu cầu sửa bản dịch (ChangeRequest)
+    InReview --> Reviewed: Editor duyệt (đổi từ EditorApproved, lưu reviewed_by + reviewer_role, D5)
+    Reviewed --> Approved: Producer duyệt phát hành ấn bản dịch (Gate 3 chương đã đạt)
+    Approved --> Published: Publisher phát hành ngay / đến giờ hẹn (đã cấu hình Free/Paid, D1, D4)
+    Published --> [*]
+```
+
+| Tên trạng thái | Ý nghĩa chuẩn | Quyền chuyển | Ghi chú & Điểm sửa |
+|---|---|---|---|
+| `Draft` | Đang chuẩn bị nội dung hoặc bản dịch. | Mặc định | Ấn bản gốc tự động tạo cùng Chapter; ấn bản dịch do dịch giả nhập. |
+| `InReview` | Ấn bản dịch đã nộp bản dịch hoàn chỉnh, chờ thẩm định. | Letterer / Translator | Chỉ dành cho ấn bản dịch. |
+| `Reviewed` | Ấn bản dịch đã được Editor thẩm định đạt chất lượng (đổi tên từ `EditorApproved`, lưu `reviewed_by` + `reviewer_role`, Quyết định 2026-11-15 (D5)). | Editor (hoặc Producer dự phòng) | Tuân thủ luật 4 mắt BR-06: Editor duyệt phải khác người nhập bản dịch. |
+| `Approved` | Producer phê duyệt cho phép xuất bản ấn bản (ấn bản gốc tự động đạt `Approved` khi Gate 3 đạt, D5). | Producer | Tạo `EditionSnapshot` chứa bản ghép render hoàn chỉnh. |
+| `Published` | Ấn bản đã phát hành ra công chúng trên Reader (hoặc đến giờ hẹn). | Publisher | Lưu con trỏ `current_published_snapshot_id` (D1). Bắt buộc cấu hình Free/Paid trước khi xuất bản (D4). |
 
 > [!WARNING]
 > **ĐIỂM SỬA QUAN TRỌNG:** Loại bỏ hoàn toàn chữ `Locked` khỏi vòng đời Chapter. Không đưa `Frozen` hay `InProgress` vào `ChapterStatus`!
@@ -180,14 +213,16 @@ stateDiagram-v2
 
 ---
 
-### 3.5. StageProgressStatus (Tiến độ Kỹ thuật của Panel)
-*Thực thể: `StageProgress` — Đơn vị: Panel × Stage*
+### 3.5. Phân Định Tiến Độ Panel và Duyệt Trang (Quyết định 2026-11-15 (D6))
+*Thực thể: `PanelStageProgress` (cấp Khung) & `PageReviewStatus` (cấp Trang)*
 
-- `InProgress`: Đang vẽ / gia công.
-- `Submitted`: Đã nộp bài.
-- `InReview`: Editor đang mở xem xét.
-- `ChangesRequested`: Có yêu cầu sửa đổi (tương ứng với `ReworkRequired` bên Assignment).
-- `Approved`: Công đoạn đã được duyệt, đóng băng chỉ đọc.
+- **`PanelStageProgress` (Tiến độ kỹ thuật từng công đoạn của Panel):**
+  - Đơn vị: `Panel × Stage` (`Pencil`, `Ink`, `Color`, `Lettering`).
+  - Trạng thái: `InProgress` → `Submitted` → `InReview` → `ChangesRequested` / `Approved`.
+- **`PageReviewStatus` (Trạng thái duyệt nghiệm thu Trang):**
+  - Đơn vị: `Page`.
+  - Trạng thái: `Draft` → `Reviewing` → `ChangesRequested` / `Approved`.
+  - **Quy tắc suy diễn (Derivation Rule):** Trang đạt `Approved` khi và chỉ khi 100% Panel trên trang đó có `PanelStageProgress` đạt `Approved` ở công đoạn tương ứng. Trạng thái Trang phản ánh tổng thể trên Kanban và là điều kiện tiên quyết nghiệm thu Gate 3 (BR-12).
 
 ---
 

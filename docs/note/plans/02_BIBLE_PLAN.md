@@ -313,6 +313,12 @@ series-bible/
 - [x] [QA] Viết bộ test case Series Bible mới theo Q16–Q24: người nói tự khớp/tự tạo (thoại + suy nghĩ), bôi đen (đúng loại dòng), Quần chúng, định nghĩa mục nháp, phiên bản concept + góp ý/trả lời, Editor xác nhận = khoá, Producer yêu cầu vẽ lại, bản kế thừa Ch1–Ch3, giai đoạn theo Panel, supersede/huỷ bản thay thế, Gửi duyệt và Gate 1.
 - [x] Mục "ép `ChapterNumber` decimal về int" ở rà soát 2026-11-13 tự hết khi gỡ `EffectiveRevisionAt`.
 
+#### BIB-18 · Đóng băng SubmittedScriptManifest khi nộp kịch bản & kiểm tra Gate 1 (D2) — DB + BE + FE · ❌
+- [ ] [DB] Tạo bảng `submitted_script_manifests` (`id UUID PRIMARY KEY`, `chapter_id UUID NOT NULL`, `script_version_id UUID NOT NULL`, `script_content_hash VARCHAR(64) NOT NULL`, `submitted_at TIMESTAMPTZ NOT NULL`, `submitted_by UUID NOT NULL`, `bible_manifest_json JSONB NOT NULL`). Trong đó `bible_manifest_json` lưu mảng `[{ entry_id, entry_name, variant_label, canon_version_id, content_hash }]` (Quyết định 2026-11-15 (D2)).
+- [ ] [BE] Trong lệnh `SubmitChapterScriptCommand`: tạo bản ghi `SubmittedScriptManifest` đóng băng SHA-256 của `ScriptVersion` cùng danh sách các mục Bible và mã băm tương ứng tại thời điểm Writer bấm Nộp.
+- [ ] [BE] Trong lệnh `FreezeChapterScriptCommand` (Gate 1): so sánh trạng thái hiện tại của các mục Bible với bản ghi `SubmittedScriptManifest`. Nếu có mục Bible bị thay đổi bản ghi Canon hoặc thay đổi nội dung sau thời điểm nộp kịch bản → trả về `409 Conflict` (yêu cầu nộp lại kịch bản để cập nhật manifest).
+- [ ] [FE] Màn Gate 1: hiển thị thông báo chi tiết khi gặp lỗi 409 Bible manifest conflict; chỉ rõ mục Bible nào bị thay đổi sau khi nộp kịch bản.
+
 ### Luồng triển khai BE → FE
 
 **Luồng chạy khi xong:**

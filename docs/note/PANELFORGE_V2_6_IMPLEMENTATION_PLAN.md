@@ -323,3 +323,27 @@ Các mục 11–17 đã ghi vào đặc tả (bảng "Nhật ký quyết định
 21. ✅ **Luồng nộp kịch bản** (D12 của [01_SCRIPT_PLAN.md](plans/01_SCRIPT_PLAN.md), user chốt 2026-11-13, bổ sung D3 2026-11-14): `Draft ↔ InReview → Frozen`; chỉ Writer gửi duyệt / hủy gửi duyệt; Editor chỉ góp ý theo dòng, không bắt buộc và không chặn trước Gate 1 (D3); Producer thấy cảnh báo non-blocking "Còn X góp ý trên kịch bản"; Producer bấm *Bắt đầu sản xuất* khi `InReview` (chương `PreProduction → InProduction`); bỏ `ChangesRequested` / `Amending` và duyệt kịch bản qua Assignment. ✅ Đã ghi vào đặc tả master (Q15, Module 1 mục 4, §5.2 máy 4 và máy 5 `ScriptStatus`).
 
 22. ✅ **Lưu = commit, Gửi duyệt = push** (user chốt 2026-11-13, đối chiếu tài liệu thiết kế): mỗi lần lưu tạo `ScriptVersion` bất biến (SHA-256, trùng nội dung thì không tạo); gửi duyệt ghi con trỏ `LastSubmittedVersionId` / `PreviousSubmittedVersionId`. Editor đọc bản đã gửi; Writer sửa, lưu và *Gửi duyệt lại* khi `InReview`; *Bắt đầu sản xuất* bị từ chối nếu bản live khác bản đã gửi. Lịch sử tuyến tính nên không lưu `parentCommitHash` (cha = phiên bản số liền trước). Không thêm `jsondiffpatch` / `react-diff-viewer`: diff LCS từng dòng tự viết (`shared/features/script-versions`), khoá dòng ổn định `line:{id}` đóng vai `objectHash`.
+
+---
+
+### Quyết định 2026-11-15 (D1–D9) & Thứ tự triển khai các task mới
+
+Căn cứ biên bản quyết định D1–D9 ngày 2026-11-15 và cập nhật đặc tả master, các task mới và task cập nhật được sắp xếp theo thứ tự ưu tiên và phụ thuộc kỹ thuật như sau:
+
+1. **Phụ thuộc cốt lõi (Core Prerequisites):**
+   - **REL-01** (Mô hình Chapter kết thúc ở `ChapterApproved`, bàn giao là Domain Event `ChapterHandedOff`, trạng thái `Archived` - D1, D3) và **REL-09** (Thực thể `ChapterEdition` và vòng đời ấn bản ngôn ngữ: ấn bản gốc `Draft → Approved` khi Gate 3 đạt; ấn bản dịch `Draft → InReview → Reviewed → Approved → Published`, lưu con trỏ `current_published_snapshot_id` - D1, D5) **PHẢI HOÀN THÀNH TRƯỚC** khi triển khai:
+     - **REL-04** (Publisher Portal cấu hình Free/Paid và xuất bản theo ấn bản - D4)
+     - **RDR-07** (Định giá theo ấn bản ngôn ngữ, bắt buộc cấu hình Free/Paid, không mặc định Free - D4)
+     - **RDR-10** (Mở khóa ấn bản ngôn ngữ qua Ví VNĐ - D1)
+     - **RDR-11** (Reader chọn ngôn ngữ, không fallback - D9b).
+2. **Nghiệp vụ tiền kỳ & Kịch bản (Script & Bible Gate):**
+   - **SCR-42** (Autosave working copy vs Save immutable ScriptVersion, debounce working copy - D9c)
+   - **SCR-43** (ChapterNumber kiểu `decimal(5,1)`, khóa cứng khi `InProduction` - D9a)
+   - **BIB-18** (Đóng băng `SubmittedScriptManifest` lúc Submit và kiểm tra 409 Conflict tại Gate 1 - D2)
+   - **REL-11** (Xóa cứng PreProduction rỗng vs Lưu trữ Archive chapter có dữ liệu - D3).
+3. **Độc lập / Chất lượng kiểm soát (Quality Control):**
+   - **REV-01** (Cập nhật công thức diện tích giao thoa $\text{Area}(\text{Error} \cap \text{Panel}) / \min(\text{Area}(\text{Error}), \text{Area}(\text{Panel})) \ge 15\%$ - D8)
+   - **REV-10** (Tách biệt `PageReviewStatus` và `PanelStageProgress`, Trang Approved suy diễn từ 100% Panel Approved - D6) — **triển khai độc lập (alone)**, không phụ thuộc luồng xuất bản.
+4. **Reader & Thanh toán:**
+   - **RDR-13** (Kiểm tra tính lũy thừa Idempotent khi mở khóa ví VNĐ).
+   - **RDR-14** (Hỗ trợ đa ngôn ngữ nâng cao: `original_language` bất biến, retired language, per-language balloon overrides - D7, Planned Later).

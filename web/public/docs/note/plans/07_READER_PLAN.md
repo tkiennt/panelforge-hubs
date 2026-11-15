@@ -72,7 +72,7 @@ Chưa có: số liệu đọc chi tiết (hoàn thành, thời gian, nền tản
 #### RDR-07 · Giá & xem trước theo ấn bản, Publisher quy định — DB + BE + FE + MO · 🟡 · cũ P4-05
 - **Hiện trạng:** giá đặt trên chương (`Chapter.IsLocked` + `PriceVnd`) qua `UpdateChapterCommand` (Producer + Editor); `ChapterEditGuard` chỉ cho sửa khi `InProduction`; chương trả phí trả 403 toàn bộ (`PublicReaderQueries.cs:68`). Ví VNĐ đã đúng Q11.
 - **Phụ thuộc:** [REL-09](06_RELEASE_PLAN.md) (entity `ChapterEdition`), [REL-04](06_RELEASE_PLAN.md) (một tài khoản Publisher).
-- [ ] Cấu hình thương mại nằm trên `ChapterEdition`: `IsPaid`, `PriceVnd`, `FreePreviewPages`; `SetMonetization(...)` kiểm bất biến (Free ⇒ giá 0). Ấn bản mới mặc định Free. Bỏ `IsLocked/PriceVnd` khỏi `Chapter`, `Create/UpdateChapterCommand` và DTO.
+- [ ] Cấu hình thương mại nằm trên `ChapterEdition`: `IsPaid`, `PriceVnd`, `FreePreviewPages`; `SetMonetization(...)` kiểm bất biến (Free ⇒ giá 0, Paid ⇒ giá > 0 và số trang preview ≥ 0). Bắt buộc Publisher phải cấu hình rõ ràng Miễn phí hoặc Trả phí trước khi phát hành; tuyệt đối không có mặc định "chưa cấu hình = Free" (BR-33, Quyết định 2026-11-15 (D4)). Bỏ `IsLocked/PriceVnd` khỏi `Chapter`, `Create/UpdateChapterCommand` và DTO.
 - [ ] `SetEditionMonetizationCommand(editionId, isPaid, priceVnd, freePreviewPages)`: **chỉ Publisher** (`SystemRole.Publisher`, duy nhất — BR-33.3), mọi trạng thái ấn bản, audit; Producer/Editor/vai trò khác → 403.
 - [ ] Query đọc cấu hình cho Producer (chỉ xem) trong `ChapterReleaseModal` ([REL-03](06_RELEASE_PLAN.md)).
 - [ ] Reader query theo ấn bản: chưa mở khoá → N trang đầu + `IsPreview = true`; endpoint ảnh trang chặn trang > N.
@@ -92,7 +92,7 @@ Chưa có: số liệu đọc chi tiết (hoàn thành, thời gian, nền tản
 
 #### RDR-11 · Độc giả chọn ngôn ngữ đọc (BR-34.7) — BE + FE + MO · ❌ · mới (Q9)
 - **Phụ thuộc:** [ART-14](04_ARTWORK_PLAN.md), [REL-08](06_RELEASE_PLAN.md), [REL-09](06_RELEASE_PLAN.md).
-- [ ] Reader API nhận `?lang=`; trả danh sách **ấn bản đã phát hành** (ngôn ngữ, Free / giá / đã mở khoá) và ảnh trang từ Snapshot của ấn bản chọn; `lang` không có ấn bản phát hành → ấn bản gốc.
+- [ ] Reader API nhận `?lang=`: trả danh sách **ấn bản đã phát hành** (ngôn ngữ, Free / giá / đã mở khoá) và ảnh trang từ Snapshot của ấn bản chọn (`current_published_snapshot_id`, D1). Nếu tham số `?lang=` truyền vào không có ấn bản nào được phát hành hoặc không tồn tại, trả về `404 Not Found` (mã lỗi `EDITION_NOT_PUBLISHED`), **tuyệt đối không tự động fallback về ngôn ngữ gốc** (Quyết định 2026-11-15 (D9b)). Nếu không truyền `?lang=`, API trả về ấn bản mặc định theo ngôn ngữ ưa thích của độc giả nếu đã phát hành, ngược lại là ấn bản gốc nếu đã phát hành.
 - [ ] `users.preferred_reading_language` + endpoint lưu lựa chọn; khách lưu ở thiết bị. Mặc định: ngôn ngữ giao diện nếu có ấn bản phát hành, ngược lại ngôn ngữ gốc.
 - [ ] Web reader + Mobile `comic_reader_page.dart`: bộ chọn ngôn ngữ kèm nhãn Free / Đã mở / giá; heartbeat gửi `languageCode` (RDR-02).
 
@@ -110,6 +110,16 @@ Chưa có: số liệu đọc chi tiết (hoàn thành, thời gian, nền tản
 
 #### RDR-09 · Catalog công khai — FE · ❌ · UI checklist C2
 - [ ] `PublicCatalogView`: lưới, thẻ thể loại, lọc tìm kiếm, tỉ lệ ảnh bìa thống nhất.
+
+#### RDR-13 · Kiểm tra tính lũy thừa khi mở khóa ví (Wallet Unlock Idempotency) — BE · ❌
+- [ ] [BE] Trong lệnh `UnlockChapterEditionCommand`: kiểm tra giao dịch mở khóa theo cặp `(reader_id, chapter_edition_id)`. Nếu độc giả đã mở khóa ấn bản này trước đó, trả về thành công ngay lập tức (`HTTP 200 OK`) mà không trừ tiền lần thứ hai trong Ví VNĐ. Đảm bảo tính lũy thừa (Idempotent) tuyệt đối cho hệ thống thanh toán ví.
+
+#### RDR-14 · (Kế hoạch giai đoạn sau) Hỗ trợ đa ngôn ngữ nâng cao (D7) — BE + FE · ❌ · Planned Later
+- [ ] Quản lý đa ngôn ngữ nâng cao (Quyết định 2026-11-15 (D7)):
+  - Ngôn ngữ gốc (`original_language`) của Series/Chapter là bất biến sau khi khởi tạo (không thể sửa đổi).
+  - Ngôn ngữ dịch bị hủy kích hoạt (retired language): không nhận bản dịch mới, các ấn bản đã xuất bản trước đó vẫn đọc được bình thường.
+  - Quản lý ấn bản ngôn ngữ nháp độc lập (`ChapterEdition` draft) cho từng thứ tiếng.
+  - Per-language balloon overrides: cho phép căn chỉnh lại kích thước/tọa độ bong bóng thoại cho từng ngôn ngữ mà không ảnh hưởng tới layout gốc.
 
 ## 4. Changelog
 

@@ -457,6 +457,17 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [ ] [FE] Màn Gate 1 / `ScriptReviewView`: gửi `expectedSubmittedVersionId`; nhận 409 → hộp "Có phiên bản mới vX" + diff + nút "Chốt vX"; khi đang mở màn mà có lần gửi mới (thông báo hoặc nạp lại định kỳ) thì hiện dải cảnh báo.
 - [ ] Test: Producer xem v1, Writer gửi v2 → chốt v1 bị 409 kèm v2; chốt v2 thành công, `frozen_script_version_id = v2`.
 
+#### SCR-42 · Autosave working copy vs Save immutable ScriptVersion (D9c) — DB + BE + FE · ❌
+- [ ] [DB + BE] Bảng `chapter_script_working_copies` lưu working copy khả biến của Writer cho autosave (debounce). Autosave cập nhật bản working copy này, tuyệt đối không tạo bản ghi mới trong `script_versions` (Quyết định 2026-11-15 (D9c)).
+- [ ] [BE] Nút "Save" (Lưu phiên bản thủ công): tạo một bản ghi `ScriptVersion` bất biến (commit snapshot bất biến kèm mã băm SHA-256).
+- [ ] [BE] Nút "Submit Script" tại Gate 1: trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (D2).
+- [ ] [FE] Tích hợp debounce autosave (3-5s) gọi endpoint `/working-copy`; nút "Lưu phiên bản" (Save) gọi `POST /script-versions`; nút "Nộp kịch bản" (Submit) kiểm tra working copy đã lưu thành version rồi gọi submit.
+
+#### SCR-43 · ChapterNumber decimal & khóa cứng khi InProduction (D9a) — DB + BE + FE · ❌
+- [ ] [DB] Đổi kiểu dữ liệu cột `chapters.chapter_number` từ `int` sang `decimal(5,1)` (hỗ trợ số chương lẻ/ngoại truyện như `12.5`, Quyết định 2026-11-15 (D9a)).
+- [ ] [BE] Hỗ trợ số chương lẻ như `12.5`. Khi `Chapter.Status != PreProduction` (tức `InProduction` trở đi), chặn không cho sửa `ChapterNumber` (ném DomainException / 409 Conflict).
+- [ ] [FE] Cho phép nhập số thập phân trong modal tạo/sửa chương. Nếu chương đang ở `PreProduction`, hiển thị cảnh báo UI khi sửa số chương về nguy cơ xáo trộn thứ tự chương. Nếu chương đã `InProduction`, disable ô nhập `ChapterNumber`.
+
 ---
 
 ## 5. Thứ tự, rủi ro, BR

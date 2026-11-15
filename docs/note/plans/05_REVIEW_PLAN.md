@@ -24,7 +24,7 @@
 ## 2. Task
 
 #### REV-01 · `FindIntersectingPanelIds` ≥ 15% — BE + FE · ❌ · cũ P2-01
-- [ ] Hàm Domain thuần: `OverlapRatio = Area(Error ∩ Panel) / Area(Error)`; trả PanelId có ratio ≥ 0.15.
+- [ ] Hàm Domain thuần: `OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel))`; trả PanelId có ratio ≥ 0.15 (Quyết định 2026-11-15 (D8)).
 - [ ] `ReturnWorkFromReviewCommand` / `RequestAssignmentChangesCommand`: không có `PanelId` thì tự tính từ `RegionJson`; **một CR mỗi Panel giao thoa**, các CR cùng vùng lỗi chung `ChangeRequest.GroupId` (Guid?, migration) — đã chốt 2026-11-12, không dùng bảng nối.
 - [ ] FE danh sách CR gom theo `GroupId`; đóng từng CR theo Panel.
 - [ ] Test: hộp vắt 2 panel 50/50 → 2 panel; lấn 10% → 1 panel.
@@ -69,6 +69,11 @@
 - [ ] [BE] Sau Gate 3 → 409 ("Producer mở lại chương").
 - [ ] [FE] `ReviewView`: trang đã duyệt có nút "Mở lại để sửa" → vào chế độ khoanh lỗi.
 - [ ] Test: Panel lỗi về rework, Panel khác giữ `Approved`; Gate 3 bị chặn tới khi duyệt lại; sau `ChapterApproved` → 409.
+
+#### REV-10 · Phân tách PageReviewStatus và PanelStageProgress (D6) — DB + BE + FE · ❌
+- [ ] [DB + BE] Tách biệt tường minh giữa `PageReviewStatus` (cấp Trang: `Draft`, `Reviewing`, `ChangesRequested`, `Approved`) và `PanelStageProgress` (cấp Panel: `InProgress`, `Submitted`, `InReview`, `ChangesRequested`, `Approved`) (Quyết định 2026-11-15 (D6)).
+- [ ] [BE] Logic suy diễn: Trang đạt `PageReviewStatus.Approved` khi và chỉ khi 100% Panel thuộc trang đó có `PanelStageProgress == Approved` ở công đoạn tương ứng. Chặn không cho set trực tiếp `PageReviewStatus = Approved` nếu còn bất kỳ Panel nào chưa `Approved`.
+- [ ] [FE] Kanban & Review UI: Badge trạng thái duyệt trang suy diễn từ tiến độ các Panel; tooltip hiển thị rõ tiến độ từng panel.
 
 ## 3. Changelog
 

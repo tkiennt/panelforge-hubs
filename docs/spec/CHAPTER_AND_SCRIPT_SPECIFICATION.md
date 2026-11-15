@@ -38,10 +38,10 @@ stateDiagram-v2
 - **Khóa chính:** `Id` (`Guid`).
 - **Khóa ngoại:** `SeriesId` (`Guid`), `WorkspaceId` (`Guid`).
 - **Thuộc tính tiến độ:**
-  - `ChapterNumber` (`int`): Thứ tự chương (1, 2, 3...).
+  - `ChapterNumber` (`decimal(5,1)`): Thứ tự chương (1, 2, 3..., hỗ trợ chương số lẻ/ngoại truyện như `12.5`, Quyết định 2026-11-15 (D9a)). Khi chương đã bước sang `InProduction`, `ChapterNumber` bị khóa cứng không được phép sửa để bảo toàn liên kết tài sản và kiểm toán; ở `PreProduction`, việc sửa số chương phải hiển thị cảnh báo về rủi ro xáo trộn thứ tự chương.
   - `Title` (`string`): Tiêu đề chương.
   - `TargetReleaseDate` (`DateTime?`): Hạn chót phát hành mục tiêu.
-  - `Status` (`ChapterStatus`): Vòng đời chương chuẩn V2.6 (`PreProduction`, `InProduction`, `ChapterApproved`, `HandedOffAndPublished`).
+  - `Status` (`ChapterStatus`): Vòng đời chương chuẩn V2.6 kết thúc tại `ChapterApproved` (`PreProduction`, `InProduction`, `ChapterApproved`, `Archived`; Quyết định 2026-11-15 (D1, D3)). Bàn giao phát sinh sự kiện `ChapterHandedOff` (lưu `handed_off_at`, `handed_off_by`); xuất bản thuộc về từng ấn bản ngôn ngữ `ChapterEdition` (`Published`).
   - `IsScriptFrozen` (`bool`): Cờ khóa kịch bản (ngăn chặn chỉnh sửa kịch bản khi đã bước sang Gate 1 sản xuất).
   - `PipelineStages` (`ICollection<ChapterStage>`): Danh sách công đoạn sản xuất (`PencilInProgress`, `InkAndLetterTrack`, `CompositeUnderReview`, `Approved`).
 
@@ -50,7 +50,7 @@ stateDiagram-v2
 - Truy xuất nhanh theo `ChapterId` và hỗ trợ `ContentHash` (SHA-256) / `IsScriptFrozen` trực tiếp trên `Chapter`.
 
 #### 3. `ChapterStatus` (`PanelForge.Domain.Enums.ChapterStatus`)
-Chuẩn hóa 4 trạng thái cốt lõi: `PreProduction`, `InProduction`, `ChapterApproved`, `HandedOffAndPublished` (đã gộp `Locked` vào `ChapterApproved` theo Q1; `Published` là trạng thái trên từng ấn bản ngôn ngữ `ChapterEdition`).
+Chuẩn hóa các trạng thái cốt lõi của Chương: `PreProduction`, `InProduction`, `ChapterApproved`, `Archived` (Quyết định 2026-11-15 (D1, D3)). Vòng đời chương kết thúc tại `ChapterApproved` (Gate 3). Bàn giao không đổi trạng thái chương mà phát sinh sự kiện `ChapterHandedOff` (lưu `handed_off_at`, `handed_off_by`). Xuất bản độc lập trên từng ấn bản ngôn ngữ `ChapterEdition` (`Draft`, `InReview`, `Reviewed`, `Approved`, `Published`).
 
 ### 2.2. Domain Services & Quy Tắc Nghiệp Vụ
 
@@ -59,10 +59,12 @@ Chuẩn hóa 4 trạng thái cốt lõi: `PreProduction`, `InProduction`, `Chapt
 - **Quy tắc bắt buộc:**
   - Chuyển từ `PreProduction` sang `InProduction` chỉ xảy ra tại Gate 1 khi Producer bấm **Approve Script & Start Production**, kích hoạt đóng băng kịch bản `IsScriptFrozen = true`.
   - Chuyển từ `InProduction` sang `ChapterApproved` chỉ xảy ra tại Gate 3 khi kiểm tra chốt an toàn `ChapterLockGate` (BR-12): 100% Trang `Approved`, 0 ChangeRequest mở, 0 cờ Impact, 0 lỗi Blocking.
-  - Chuyển từ `ChapterApproved` sang `HandedOffAndPublished` do **Producer** thực hiện bàn giao / phát hành; **Publisher** chỉ sử dụng Publisher Portal (chỉ đọc nội dung sản xuất) và cấu hình thương mại (giá VNĐ, số trang xem trước miễn phí) trên từng `ChapterEdition`.
+  - Vòng đời sản xuất của chương kết thúc tại `ChapterApproved`. Khi Producer duyệt khóa chương và bàn giao, hệ thống kích hoạt sự kiện `ChapterHandedOff` (lưu `handed_off_at`, `handed_off_by`) (Quyết định 2026-11-15 (D1)). Thao tác phát hành và hẹn giờ xuất bản thuộc thẩm quyền của **Publisher** trên từng ấn bản ngôn ngữ `ChapterEdition` (`Published`). Producer có quyền mở lại chương về `InProduction` nếu cần sửa chữa với lý do kiểm toán rõ ràng (D5).
 
 #### 2. `ProductionAccessGuard` (Zero-Trust RBAC Gate)
-- **Tạo và Xóa Chapter (`CreateChapter`, `DeleteChapter`):** Duy nhất người dùng có vai trò `Producer` hoặc `WorkspaceOwner` mới có quyền thực thi. Người dùng vai trò `Writer`, `Artist`, `Letterer`, `Editor` chỉ được xem hoặc nhận task phân công.
+- **Tạo, Xóa và Lưu trữ Chapter (`CreateChapter`, `DeleteChapter`, `ArchiveChapter` - Quyết định 2026-11-15 (D3)):** Duy nhất người dùng vai trò `Producer` hoặc `WorkspaceOwner` mới có quyền thực thi:
+  - **Xóa vĩnh viễn (Hard Delete):** Chỉ được phép xóa cứng khi chương đang ở `PreProduction` và hoàn toàn rỗng (chưa có kịch bản, trang, hoặc tài sản nào).
+  - **Lưu trữ (Archive):** Khi chương đã có kịch bản hoặc đã bước vào `InProduction` trở đi, hệ thống **cấm xóa vĩnh viễn** mà chuyển sang trạng thái `Archived` (ẩn khỏi danh sách làm việc, có thể khôi phục `RestoreChapter`, giữ nguyên toàn bộ lịch sử revision, audit log và provenance). Chương đã có ấn bản phát hành (`Published`) không bao giờ được xóa.
 - **Biên kịch (`EditScript`):** Độc quyền cho `Writer` được phân công (`Producer` chỉ đọc, không sửa kịch bản — BR-07). Nếu `IsScriptFrozen == true`, mọi vai trò (kể cả Writer) đều bị từ chối sửa nội dung trừ khi `Producer` thực hiện thao tác mở khóa kịch bản đặc quyền (`UnfreezeScriptCommand`).
 
 ### 2.3. Hợp Đồng API RESTful (API Contracts)
@@ -73,7 +75,8 @@ Chuẩn hóa 4 trạng thái cốt lõi: `PreProduction`, `InProduction`, `Chapt
 | `GET` | `/api/chapters/series/{seriesId}` | Thành viên Workspace | Lấy danh sách chương (hỗ trợ phân trang) |
 | `GET` | `/api/chapters/{id}` | Thành viên Workspace | Lấy thông tin chi tiết của 1 chương |
 | `PUT` | `/api/chapters/{id}` | **Producer** | Cập nhật tiêu đề, số chương, ngày phát hành mục tiêu |
-| `DELETE` | `/api/chapters/{id}` | **Producer** | Xóa chương (Yêu cầu xác nhận xóa) |
+| `DELETE` | `/api/chapters/{id}` | **Producer** | Xóa cứng chương (chỉ áp dụng với chương rỗng ở `PreProduction`, D3) |
+| `POST` | `/api/chapters/{id}/archive` · `/restore` | **Producer** | Lưu trữ / Khôi phục chương (khi chương đã có dữ liệu / `InProduction`, D3) |
 | `GET` | `/api/chapters/{id}/script-versions` · `/working-copy` · `/{versionId}` | Thành viên Workspace | Danh sách phiên bản, bản đang sửa, một phiên bản (Q15) |
 | `POST` | `/api/chapters/{id}/script-versions` | **Writer** | Lưu = commit một `ScriptVersion` (trùng nội dung thì không tạo) |
 | `POST` | `/api/chapters/{id}/submit-script` · `/recall-script` | **Writer** | Gửi duyệt (`Draft/InReview → InReview`) · Hủy gửi (`InReview → Draft`) |
@@ -130,7 +133,7 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
      - `Trang (# Page)`: Ngắt trang mới.
      - `Khung (Panel)`: Thêm khung hình mới (kèm 1 Scene mặc định ẩn dưới DB theo D2).
      - `Hành động (Action)`: Mô tả vẽ gì, góc nhìn (tên nhân vật viết bình thường; Writer bôi đen để tham chiếu tới Series Bible — chỉ trên dòng Mô tả, Lời dẫn, SFX; không trên tiêu đề Panel và lời thoại, Q19).
-     - `Lời thoại (Dialogue / Thought)`: Thoại/suy nghĩ kèm `speaker_character_id`.
+     - `Lời thoại (Dialogue / Thought)`: Thoại/suy nghĩ kèm tên người nói `speaker_label` (string plain text; so khớp chính xác tên mục Bible sau khi chuẩn hoá và bỏ `(nghĩ)`, không hỗ trợ aliases/biệt danh, Q16, Quyết định 2026-11-15).
      - `Dẫn chuyện (Narration)`: Hộp dẫn chuyện.
      - `Hiệu ứng (SFX)`: Âm thanh truyện tranh (`BÙM!`, `XẸT!`).
 3. **Phím tắt Comic Markdown:**
@@ -155,16 +158,20 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
 3. Nhấp vào nút **"Quản lý chương (Duyệt)"** ở góc trên bên phải.
 4. Nhập tiêu đề, số chương, ngày phát hành dự kiến và bấm **"Tạo chương"**.
 
-### 4.2. Cách Xóa Chương An Toàn (Type-to-Confirm)
-1. Trong modal **Quản lý chương**, tìm đến dòng chương muốn xóa.
-2. Nhấp vào biểu tượng thùng rác màu đỏ (**Xóa chương**).
-3. Hộp thoại xác nhận an toàn sẽ hiện lên. Người dùng bắt buộc phải gõ đúng chữ **`DELETE`** vào ô xác nhận để kích hoạt nút xóa. Điều này loại bỏ hoàn toàn rủi ro vô tình xóa nhầm dữ liệu chương đang sản xuất.
-4. Tại giao diện soạn kịch bản (`ScriptEditorView`), Producer cũng có thể nhấn nút thùng rác trên thanh điều hướng để xóa chương hiện hành.
+### 4.2. Cách Xóa & Lưu Trữ Chương An Toàn (Quyết định 2026-11-15 (D3))
+1. Trong modal **Quản lý chương**, tìm đến dòng chương muốn xử lý:
+   - **Với chương rỗng ở `PreProduction` (chưa có kịch bản / trang):** Hiển thị biểu tượng thùng rác màu đỏ (**Xóa vĩnh viễn**). Hộp thoại xác nhận yêu cầu gõ đúng chữ **`DELETE`** để xóa hoàn toàn khỏi CSDL.
+   - **Với chương đã có kịch bản hoặc đang trong sản xuất (`InProduction` / `ChapterApproved`):** Biểu tượng thùng rác chuyển thành biểu tượng hộp lưu trữ (**Lưu trữ chương / Archive**). Hộp thoại xác nhận lưu trữ chương, đưa trạng thái về `Archived`, ẩn khỏi danh sách làm việc mà vẫn giữ trọn vẹn dữ liệu và lịch sử kiểm toán. Chương đã lưu trữ có thể khôi phục bất kỳ lúc nào qua nút **Khôi phục (Restore)**.
+   - **Chương đã có ấn bản phát hành (`Published`):** Hệ thống khóa nút xóa và lưu trữ; tuyệt đối không thể xóa chương đã phát hành.
+2. Tại giao diện soạn kịch bản (`ScriptEditorView`), Producer cũng chỉ có thể xóa chương khi chương chưa có nội dung kịch bản hoặc chọn lưu trữ.
 
 ### 4.3. Cách Soạn Kịch Bản & Khóa Kịch Bản
 1. Vào mục **Kịch bản (Script)** từ menu điều hướng.
 2. Lựa chọn chương cần viết trong danh sách.
 3. Sử dụng thanh công cụ bên phải hoặc gõ trực tiếp markdown để tạo cấu trúc Trang và Khung ảnh.
-4. Hệ thống tự động lưu bản nháp theo cơ chế Debounce.
-5. Khi hoàn tất và được Producer phê duyệt, kịch bản sẽ được chuyển sang trạng thái **Đóng băng (Frozen)** để bảo toàn nội dung, ngăn chặn việc sửa đổi kịch bản trong lúc họa sĩ đang vẽ Storyboard.
+4. **Cơ chế Autosave vs Save (Quyết định 2026-11-15 (D9c)):**
+   - **Autosave (Tự động lưu working copy):** Khi Writer đang gõ kịch bản, hệ thống tự động lưu bản nháp sau mỗi khoảng thời gian debounce vào bảng working copy khả biến (`chapter_script_working_copies`). Autosave **không sinh `ScriptVersion` mới**.
+   - **Save (Lưu phiên bản thủ công):** Khi Writer bấm nút **"Lưu phiên bản" (Save)**, hệ thống tạo một bản ghi `ScriptVersion` bất biến (commit snapshot bất biến kèm mã hash SHA-256 nội dung).
+   - **Nộp kịch bản (Submit Script tại Gate 1):** Writer bấm **"Nộp kịch bản"**, hệ thống trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (lưu SHA-256 script + danh mục thực thể Bible và SHA-256 từng mục tại thời điểm nộp, D2).
+5. Khi hoàn tất và được Producer phê duyệt tại Gate 1, kịch bản sẽ được chuyển sang trạng thái **Đóng băng (Frozen)** (`IsScriptFrozen = true`) để bảo toàn nội dung, ngăn chặn việc sửa đổi kịch bản trong lúc họa sĩ đang vẽ Storyboard.
 
