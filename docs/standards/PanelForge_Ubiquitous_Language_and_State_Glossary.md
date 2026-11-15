@@ -28,12 +28,12 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | Thuật ngữ Tiếng Anh | Tiếng Việt chuẩn | Phạm vi | Mô tả trách nhiệm |
 |---|---|---|---|
 | **Administrator** | Quản trị viên hệ thống | Toàn hệ thống | Quản lý tài khoản (bao gồm duy nhất 1 tài khoản Publisher toàn hệ thống, Q12), tài khoản ngân hàng nền tảng (Q13), cấp quyền tạo Studio, quota AI. Không can thiệp nội dung. |
-| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và phát hành (Q7). |
+| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và bàn giao cho Publisher (Quyết định 2026-11-15: Producer bàn giao, Publisher phát hành; mở lại InProduction vẫn do Producer). |
 | **Writer** | Tác giả kịch bản | Workspace / Series | Độc quyền sáng tác kịch bản (`Page -> Panel -> Content`), bôi đen tham chiếu Bible, gắn cờ Quần chúng, viết định nghĩa mục nháp, đổi biến thể theo chương khi cần (mặc định tự đề xuất, Q22), góp ý / yêu cầu vẽ lại concept Bible (Q19, Q20). |
 | **Artist** | Họa sĩ (Chì / Mực) | Workspace / Series | Vẽ Concept Art Bible, thực hiện Pencil & Ink trên Page được giao (mặc định có cả `graphic:write` và `letter:write` theo BR-31). |
 | **Letterer** | Người đặt thoại & SFX | Workspace / Series | Vai trò phụ việc tùy chọn (`letter:write` only): bố trí Position Record bóng thoại `{x,y,w,h}`, nội dung đa ngôn ngữ và SFX. |
 | **Editor** | Biên tập viên | Workspace / Series | Xác nhận concept Series Bible = khoá Canon (Q20); duyệt Gate 2 (`CompositeUnderReview`), khoanh vùng tạo Change Request (sinh nhiều CR chung `group_id` nếu vắt nhiều Panel ≥ 15%), duyệt bản dịch `ChapterEdition`. |
-| **Publisher** | Đối tác phát hành (1 tài khoản duy nhất) | Publisher Portal | Xem/tải gói bàn giao & PreviewLink chỉ đọc; **quy định thương mại** (Free/Trả phí, `price_vnd`, `free_preview_pages`) theo từng ấn bản ngôn ngữ (Q7, Q12). Không sửa nội dung hay phát hành. |
+| **Publisher** | Đối tác phát hành (1 tài khoản duy nhất) | Publisher Portal | Xem/tải gói bàn giao & PreviewLink chỉ đọc; cấu hình tài khoản ngân hàng (không duyệt thanh toán VietQR); **quy định thương mại** (Free/Trả phí, `price_vnd`, `free_preview_pages`) và chọn phát hành ngay hoặc hẹn giờ theo từng ấn bản ngôn ngữ (Quyết định 2026-11-15: Publisher phát hành ấn bản sau bàn giao; không có lệnh trả về/từ chối bàn giao; không sửa nội dung sản xuất). |
 | **External Reviewer** | Người đánh giá bên ngoài | Ngoài nền tảng | Nhận link xem thử có watermark (`PreviewLink`), gửi nhận xét trước ngày xuất bản. Không có tài khoản WS. |
 | **Reader** | Độc giả | Web Catalog / Mobile Reader | Đăng ký tài khoản `User`, chọn ngôn ngữ đọc, nạp Ví VNĐ (`wallets`) và mở khóa từng ấn bản ngôn ngữ (`edition_entitlements`). |
 
@@ -70,7 +70,7 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 ## 3. BẢNG QUY CHUẨN TRẠNG THÁI TOÀN HỆ THỐNG (STATE ENUMS & MACHINES)
 
 ### 3.1. ChapterStatus (Vòng đời Chương — chuẩn V2.6 Final)
-*Thực thể: `Chapter` — Người quyết định: `Producer`*
+*Thực thể: `Chapter` — Người quyết định: `Producer` (Gate 3, bàn giao, mở lại InProduction), `Publisher` (phát hành / hẹn giờ ấn bản)*
 
 ```mermaid
 stateDiagram-v2
@@ -78,7 +78,7 @@ stateDiagram-v2
     PreProduction --> InProduction: Producer duyệt Gate 1 (Script Freeze)
     InProduction --> ChapterApproved: Producer nghiệm thu Gate 3 (100% Page Approved)
     ChapterApproved --> InProduction: Producer mở lại chương kèm lý do Audit (BR-12)
-    ChapterApproved --> HandedOffAndPublished: Producer bàn giao & phát hành (publishAt <= UtcNow)
+    ChapterApproved --> HandedOffAndPublished: Producer bàn giao & Publisher phát hành ấn bản (Quyết định 2026-11-15)
     HandedOffAndPublished --> [*]
 ```
 
@@ -86,8 +86,8 @@ stateDiagram-v2
 |---|---|---|---|
 | `PreProduction` | Đang chuẩn bị kịch bản & Series Bible trước Gate 1. | Mặc định | Khóa sửa kịch bản khi sang `InProduction`. |
 | `InProduction` | Chương đang trong quá trình vẽ tranh & đặt thoại. | Producer | Bắt đầu từ Gate 1. |
-| `ChapterApproved` | Producer xác nhận toàn bộ trang đã hoàn tất và đạt Gate 3. | Producer | Gộp `Locked` cũ vào `ChapterApproved` theo **Q1**. |
-| `HandedOffAndPublished` | Chương đã bàn giao & phát hành công khai cho độc giả. | Producer | `Published` là trạng thái trên từng `ChapterEdition` (**Q7, Q10**). |
+| `ChapterApproved` | Producer xác nhận toàn bộ trang đã hoàn tất, đạt Gate 3 và bàn giao cho Publisher. | Producer | Gộp `Locked` cũ vào `ChapterApproved` theo **Q1**. Mở lại `InProduction` độc quyền của Producer (không có luồng Publisher trả về bàn giao, Quyết định 2026-11-15). |
+| `HandedOffAndPublished` | Chương đã bàn giao và Publisher đã phát hành (hoặc đến giờ hẹn) ít nhất một ấn bản cho độc giả. | Publisher (sau bàn giao) | Quyết định 2026-11-15: Producer duyệt Gate 3 & bàn giao; Publisher chọn phát hành ngay hoặc hẹn giờ theo từng ấn bản ngôn ngữ. Không có thao tác từ chối/trả về bàn giao; mở lại `InProduction` vẫn thuộc Producer. |
 
 > [!WARNING]
 > **ĐIỂM SỬA QUAN TRỌNG:** Loại bỏ hoàn toàn chữ `Locked` khỏi vòng đời Chapter. Không đưa `Frozen` hay `InProgress` vào `ChapterStatus`!

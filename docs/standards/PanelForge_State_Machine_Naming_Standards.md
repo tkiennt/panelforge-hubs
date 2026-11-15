@@ -160,8 +160,8 @@ Dưới đây là kết quả refactor chuẩn hóa toàn bộ các State Machin
 
 ### 5.1. Chapter Lifecycle (`ChapterStatus`)
 - **Thực thể sở hữu:** `Chapter`
-- **Người quyết định (Actors):** `Producer`
-- **Nguyên tắc refactor:** Gộp `Locked` vào `ChapterApproved` (Q1), dùng `HandedOffAndPublished` cho trạng thái bàn giao/phát hành của Chapter (`Published` nằm ở từng `ChapterEdition`), và không đưa trạng thái của kịch bản/vẽ vào Chapter.
+- **Người quyết định (Actors):** `Producer` (Gate 1, Gate 3, bàn giao, mở lại InProduction), `Publisher` (phát hành ngay / hẹn giờ ấn bản)
+- **Nguyên tắc refactor:** Gộp `Locked` vào `ChapterApproved` (Q1), dùng `HandedOffAndPublished` cho trạng thái bàn giao/phát hành của Chapter (`Published` nằm ở từng `ChapterEdition`), và không đưa trạng thái của kịch bản/vẽ vào Chapter. Theo **Quyết định 2026-11-15**: Producer duyệt Gate 3 (`ChapterApproved`) và bàn giao sang Publisher (`HandOffToPublisher`); Publisher chọn phát hành ngay (`PublishEdition`) hoặc hẹn giờ (`ScheduleEdition`) theo từng ấn bản ngôn ngữ (`HandedOffAndPublished`). Tuyệt đối không có lệnh trả về / từ chối bàn giao từ Publisher (`no return command`). Mở lại sản xuất (`InProduction`) vẫn độc quyền thuộc Producer.
 
 ```mermaid
 stateDiagram-v2
@@ -169,7 +169,7 @@ stateDiagram-v2
     PreProduction --> InProduction: chapter.start_production [isProducer && isScriptInReview && isLiveEqualSubmitted && isCastCanonLocked] / freezeScript()
     InProduction --> ChapterApproved: chapter.approve [isAllPagesApproved && isProducer] / recordApproval()
     ChapterApproved --> InProduction: chapter.reopen [hasValidReason && isProducer] / notifyTeam()
-    ChapterApproved --> HandedOffAndPublished: chapter.publish [isReleaseDateReached && isProducer] / makePublic()
+    ChapterApproved --> HandedOffAndPublished: chapter.handoff [isProducer] -> edition.publish [isPublisher] / makePublic()
     HandedOffAndPublished --> [*]
 ```
 
@@ -177,20 +177,24 @@ stateDiagram-v2
 - **States (PascalCase, Adjective/Participle):**
   - `PreProduction`: Đang trong giai đoạn tiền kỳ (soạn kịch bản & Bible) trước Gate 1.
   - `InProduction`: Đang trong chu kỳ sản xuất nội dung vẽ và đặt thoại.
-  - `ChapterApproved`: Đã được Producer nghiệm thu toàn bộ chất lượng tại Gate 3 (gộp `Locked` cũ, Q1).
-  - `HandedOffAndPublished`: Đã bàn giao gói xuất bản và phát hành công khai cho độc giả (do Producer thực hiện, Q7).
-- **Events (dot.case):**
+  - `ChapterApproved`: Đã được Producer nghiệm thu toàn bộ chất lượng tại Gate 3 và sẵn sàng bàn giao (gộp `Locked` cũ, Q1).
+  - `HandedOffAndPublished`: Đã bàn giao sang Publisher và Publisher đã phát hành (hoặc đến giờ hẹn) ấn bản ngôn ngữ cho độc giả (Quyết định 2026-11-15).
+- **Events (dot.case) & Commands:**
   - `chapter.create`: Khởi tạo chương mới.
   - `chapter.start_production`: Producer duyệt Gate 1 (Script Freeze) chuyển sang sản xuất.
-  - `chapter.approve`: Producer bấm nút nghiệm thu chương.
-  - `chapter.reopen`: Producer mở lại chương để sửa đổi bổ sung.
-  - `chapter.publish`: Producer phát hành chương (các ấn bản `ChapterEdition` mở bán theo giá Publisher đặt).
+  - `chapter.approve`: Producer bấm nút nghiệm thu chương (Gate 3).
+  - `chapter.reopen` (`ReopenChapter`): Producer mở lại chương về `InProduction` kèm lý do Audit (độc quyền Producer).
+  - `chapter.handoff` (`HandOffToPublisher`): Producer bàn giao chương đã duyệt sang Publisher.
+  - `edition.publish` (`PublishEdition`): Publisher phát hành ngay ấn bản ngôn ngữ (Quyết định 2026-11-15).
+  - `edition.schedule` (`ScheduleEdition`): Publisher lên lịch hẹn giờ phát hành ấn bản (Quyết định 2026-11-15).
+  - *(Lưu ý: Không có lệnh return/reject bàn giao từ Publisher)*
 - **Guards (camelCase, boolean predicate):**
   - `isScriptInReview`, `isLiveEqualSubmitted`: kịch bản đang `InReview` và bản hiện tại trùng bản đã gửi (Q15).
   - `isCastCanonLocked`: mọi bản Bible chương dùng (bản của chương + bản theo Panel, trừ Quần chúng) đã `CanonLocked` (BR-35, Q23).
   - `isAllPagesApproved`: Tất cả các trang trong chương đã đạt stage cuối cùng.
   - `isReleaseDateReached`: Thời gian hiện tại đã vượt qua `releaseDate`.
   - `isProducer`: Người gọi lệnh có quyền Producer trên Workspace.
+  - `isPublisher`: Người gọi lệnh có quyền Publisher trên nền tảng.
 - **Actions (camelCase, verb phrase):**
   - `recordApproval`: Ghi nhận thời điểm và ID người duyệt.
   - `makePublic`: Bật cờ công khai trên Catalog API và gửi thông báo cho Reader.

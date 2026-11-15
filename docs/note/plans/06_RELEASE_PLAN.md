@@ -22,17 +22,18 @@
 - Publisher: **phương án A** — portal chỉ đọc với nội dung sản xuất (nhận gói, PreviewLink); Publish/Reopen chuyển về Producer.
 - **Bổ sung Q7 (2026-11-12):** Publisher **quy định thương mại** (Free/Trả phí, giá VNĐ, số trang xem trước) theo từng ấn bản ngôn ngữ qua Publisher Portal — chi tiết ở [RDR-07](07_READER_PLAN.md). Producer chỉ xem cấu hình này.
 - **Bổ sung Q10:** mỗi cặp (chương, ngôn ngữ) là một **ấn bản `ChapterEdition`**; Producer nghiệm thu, phát hành, mở lại **từng ấn bản**; Snapshot và gói xuất theo ấn bản (BR-34.5–6). `Approve Chapter` = khoá tranh + nghiệm thu ấn bản gốc.
+- **Quyết định 2026-11-15 (Quyền phát hành & bàn giao V2.6):** Producer duyệt nghiệm thu chương (`ChapterApproved`) và bàn giao sang Publisher (`HandOffToPublisher`); **PUBLISHER** chọn thời điểm phát hành ngay hoặc hẹn giờ (`PublishEdition`, `ScheduleEdition`), theo từng ấn bản ngôn ngữ (chuyển chương sang `HandedOffAndPublished`). Tuyệt đối không có cơ chế trả về / từ chối bàn giao từ Publisher. Mở lại sản xuất (về `InProduction`) vẫn độc quyền thuộc Producer. Publisher cấu hình tài khoản ngân hàng nhận thanh toán; Publisher không duyệt thanh toán VietQR; Publisher giữ quyền định giá ấn bản và số trang xem trước (preview).
 
 ## 3. Task
 
 #### REL-01 · Chuẩn hoá máy trạng thái Chương — DB + BE + FE + MO · 🟡 · cũ P1-01 · **làm cùng [SCR-08](01_SCRIPT_PLAN.md)**
-- [ ] Enum: thêm `PreProduction = 0` (mặc định khi tạo), `HandedOffAndPublished`; chuẩn hoá `ChapterApproved`; xoá `Locked = 3` (gộp vào `ChapterApproved`, Q1).
+- [ ] Enum: thêm `PreProduction = 0` (mặc định khi tạo), `HandedOffAndPublished`; chuẩn hoá `ChapterApproved`; xoá `Locked = 3` (gộp vào `ChapterApproved`, Q1). (Quyết định 2026-11-15: Producer duyệt `ChapterApproved` & bàn giao; Publisher phát hành ấn bản -> `HandedOffAndPublished`).
 - [ ] Migration: `UPDATE chapters SET status = 2 WHERE status = 3`; chương chưa freeze → `PreProduction`.
-- [ ] Domain `Chapter`: `StartProduction()`, `MarkHandedOffAndPublished()`; `Reopen()` chỉ `ChapterApproved → InProduction` kèm lý do.
+- [ ] Domain `Chapter`: `StartProduction()`, `MarkHandedOffAndPublished()`; `Reopen()` chỉ `ChapterApproved → InProduction` kèm lý do (chỉ Producer).
 - [ ] Rà mọi điều kiện `Status == InProduction` (~24 file).
 - [ ] (Rà soát 2026-11-13) `PreProduction` đã có (D12); enum vẫn còn `Approved = 2, Locked = 3, Published = 4` → còn việc gộp `Locked`, thêm `HandedOffAndPublished`.
 - [ ] FE/Mobile: type enum, badge, i18n.
-- **DoD:** `PreProduction → InProduction → ChapterApproved → HandedOffAndPublished` chạy end-to-end; Reopen có audit.
+- **DoD:** `PreProduction → InProduction → ChapterApproved → HandedOffAndPublished` chạy end-to-end (Producer duyệt Gate 3 & bàn giao, Publisher phát hành ấn bản); Reopen độc quyền Producer có audit.
 
 #### REL-02 · Gate 3 hoàn chỉnh — BE · 🟡 · phần còn lại P0-02
 - [ ] Sau [ASG-01](03_ASSIGNMENT_PLAN.md): `PAGES_WITHOUT_WORK` chuyển từ cảnh báo thành **chặn**; cập nhật test `LockGate_PageWithoutProductionWork_IsWarningOnly`.
@@ -44,21 +45,21 @@
 - [ ] Snapshot ghi `frozen_script_version_id` (Q26, [SCR-41](01_SCRIPT_PLAN.md), [BIB-14](02_BIBLE_PLAN.md)).
 - [ ] Test: chương 0 việc → 409; kịch bản đang `Draft` sau Unfreeze → 409; ảnh upload sau khi trang được duyệt không vào Snapshot.
 
-#### REL-03 · `ChapterReleaseModal.tsx` — FE · ❌ · cũ M1-12
-- [ ] Khung modal Producer một chỗ với các tab: Gate 1 (ASG-01), Chuyển phạm vi, Gate 3 (danh sách item lock gate + nút Approve), Bàn giao (REL-05), Phát hành (nút Publish + **cấu hình giá do Publisher đặt, chỉ đọc** — [RDR-07](07_READER_PLAN.md)).
+#### REL-03 · `ChapterReleaseModal.tsx` — FE · ❌ · cũ M1-12 (Ảnh hưởng Quyết định 2026-11-15)
+- [ ] Khung modal Producer một chỗ với các tab: Gate 1 (ASG-01), Chuyển phạm vi, Gate 3 (danh sách item lock gate + nút Approve), Bàn giao sang Publisher (REL-05). Quyền phát hành ấn bản chuyển sang Publisher Portal của Publisher (REL-04).
 - [ ] Gate 3 hiển thị checklist điều kiện từng nấc (ý tưởng Lucian #189), số liệu thật từ `GET /lock-gate`.
-- [ ] Bước "Editor xác nhận biên tập" trước cổng phát hành của Producer (checklist BR-28) — việc còn lại của `editor-review-screens.md`; chốt có cần trạng thái riêng hay chỉ là item trong lock gate.
+- [ ] Bước "Editor xác nhận biên tập" trước cổng bàn giao của Producer (checklist BR-28) — việc còn lại của `editor-review-screens.md`; chốt có cần trạng thái riêng hay chỉ là item trong lock gate.
 
-#### REL-04 · Publisher Portal: chỉ đọc nội dung + một tài khoản Publisher duy nhất — BE + FE · 🟡 · cũ P4-03
-- [ ] `POST /api/chapters/{id}/publish` và `/reopen` chỉ cho Producer (hiện Publish chỉ cho Publisher, Reopen cho Producer + Publisher — `ChaptersController.cs:445,456`, xác nhận lại 2026-11-13); cập nhật test `ChapterPublishFlowTests`.
-- [ ] Đồng bộ comment và thông báo: `Chapter.Publish` ghi "Publisher duyệt xuất bản"; `ApproveChapterCommand` gửi Publisher thông báo "Có chương chờ duyệt xuất bản" → đổi thành thông báo bàn giao (Publisher không duyệt), Producer là người phát hành.
-- [ ] Rà `PublisherController` + `Features/Publisher/*`: giữ query đọc, bỏ/chặn command duyệt/từ chối/lên lịch.
+#### REL-04 · Publisher Portal: Bàn giao, định giá, cấu hình ngân hàng & phát hành ấn bản — BE + FE · 🟡 · cũ P4-03 (Ảnh hưởng Quyết định 2026-11-15)
+- [ ] Quyết định 2026-11-15: Producer bàn giao chương (`ChapterApproved`); Publisher nhận gói bàn giao và độc quyền chọn phát hành ngay hoặc hẹn giờ theo từng ấn bản ngôn ngữ (`POST /api/editions/{id}/publish`, `POST /api/editions/{id}/schedule` -> `HandedOffAndPublished`). Tuyệt đối không có lệnh trả về / từ chối bàn giao từ Publisher. Mở lại sản xuất (`InProduction`) giữ độc quyền cho Producer (`POST /api/chapters/{id}/reopen`). Cập nhật test `ChapterPublishFlowTests`.
+- [ ] Publisher cấu hình thông tin tài khoản ngân hàng nhận thanh toán trên Publisher Portal (không duyệt thanh toán VietQR; hệ thống tự động xác nhận hoặc Admin đối soát).
+- [ ] Rà `PublisherController` + `Features/Publisher/*`: thêm command phát hành ấn bản / lên lịch phát hành (`PublishEdition`, `ScheduleEdition`); chặn/loại bỏ lệnh trả về; giữ query đọc gói bàn giao.
 - [ ] **Một Publisher duy nhất (Q12):** giữ `SystemRole.Publisher` thấy mọi Series (đúng spec, không cần liên kết Series ↔ Publisher). Chặn tạo/gán tài khoản Publisher thứ hai: `AssignUserRoleCommand`, `CreateUserByAdminCommand`, `UpdateUserByAdminCommand` trả 409 khi đã có một Publisher đang hoạt động; seed đúng một Publisher; test.
-- [ ] FE `roles/publisher/*`: ẩn nút hành động sản xuất; thêm mục "Quy định thương mại" (RDR-07); RBAC matrix, i18n, docs.
+- [ ] FE `roles/publisher/*`: hiển thị gói bàn giao, cấu hình tài khoản ngân hàng, mục "Quy định thương mại" (giá VNĐ & preview, RDR-07), nút Phát hành ngay / Lên lịch phát hành theo từng ấn bản; không có nút từ chối / trả về bàn giao; RBAC matrix, i18n, docs.
 
 #### REL-05 · Bước HandedOff & gói bàn giao — BE + FE · 🟡 · cũ P4-04
 - [ ] Xác minh export Webtoon vertical slice + JSON provenance; bổ sung nếu thiếu.
-- [ ] `HandOffChapterCommand`: gói export (snapshot hash) + publisher name/external ref → `HandedOff`, audit.
+- [ ] `HandOffChapterCommand`: Producer kích hoạt bàn giao gói export (snapshot hash) + publisher name/external ref sang Publisher sau khi chương `ChapterApproved` → `HandedOff`, audit (Quyết định 2026-11-15).
 - [ ] Export chọn ngôn ngữ (một gói cho mỗi ngôn ngữ trong `release_languages`) — sau REL-08.
 - [ ] **Gắn Snapshot vào `ExportJob`** (còn mở từ `PanelForge_FA26SE251/docs/implementation/CF4_Version_Provenance.md` §7): thêm `ChapterSnapshotId` (sau REL-09: `EditionSnapshotId`) vào `ExportJob` khi tạo job; thay `OpenJsonExport.SnapshotOfAsync` (dò Snapshot theo `VersionVector`) bằng id đã gắn, để gói xuất luôn đúng bản đã nghiệm thu.
 - [ ] Tab Bàn giao trong `ChapterReleaseModal`.
@@ -80,11 +81,11 @@
 - [ ] `SubmitEditionTranslationCommand(chapterId, lang)` — Artist/Letterer phụ trách chữ: cần chương `Approved`, đủ bản dịch, không còn cảnh báo BR-20 mức chặn của `lang` (query ART-15); thiếu → 409 kèm danh sách → `InReview`.
 - [ ] **Editor duyệt bản dịch (Q14):** `ReviewEditionCommand` — Editor (Producer dự phòng): duyệt → `EditorApproved`, hoặc trả về `Draft` kèm `ChangeRequest` lớp Lettering có `language_code` (dùng lại REV-01/REV-02). Luật 4 mắt: Editor không được là người đã nhập bản dịch của ấn bản → 403.
 - [ ] `ApproveEditionCommand(chapterId, lang)` = **Producer cho phép phát hành**: chỉ từ `EditorApproved` → `Approved`, tạo Snapshot (REL-08); audit.
-- [ ] `PublishEditionCommand`, `ReopenEditionCommand(lang, reason)` — chỉ Producer; `Publish` chương hiện tại chuyển thành publish ấn bản gốc. `Reopen` chương → mọi ấn bản chưa phát hành về `Draft`, ấn bản đã phát hành giữ Snapshot cũ.
-- [ ] FE `ChapterReleaseModal` tab "Ấn bản ngôn ngữ": bảng ngôn ngữ × (tiến độ dịch, trạng thái, giá do Publisher đặt — chỉ đọc), nút Cho phép phát hành / Phát hành / Mở lại.
+- [ ] Quyết định 2026-11-15: `PublishEditionCommand`, `ScheduleEditionCommand` do Publisher thực hiện trên Publisher Portal sau khi Producer bàn giao (`Approved` → `Published` / `HandedOffAndPublished`). Producer độc quyền cho phép phát hành (`ApproveEditionCommand`) và mở lại (`ReopenEditionCommand` / `ReopenChapter` về `Draft`/`InProduction`).
+- [ ] FE `ChapterReleaseModal` tab "Ấn bản ngôn ngữ": bảng ngôn ngữ × (tiến độ dịch, trạng thái, giá do Publisher đặt — chỉ đọc), nút Cho phép phát hành / Bàn giao / Mở lại (chỉ Producer). Nút Phát hành / Lên lịch nằm ở Publisher Portal.
 - [ ] FE Editor: hàng đợi "Duyệt bản dịch" trong `ReviewView` / `EditorDeskView` (bản ghép theo ngôn ngữ, khoanh lỗi, duyệt).
 - [ ] Mobile/FE catalog: chỉ liệt kê ấn bản `Published`.
-- [ ] Test: nộp `en` khi chương chưa Approved → 409; thiếu bản dịch → 409; Producer cho phép phát hành khi chưa `EditorApproved` → 409; Editor duyệt bản mình dịch → 403; Reopen `en` không đổi `vi`; Publisher gọi Review/Approve/Publish → 403.
+- [ ] Test: nộp `en` khi chương chưa Approved → 409; thiếu bản dịch → 409; Producer cho phép phát hành khi chưa `EditorApproved` → 409; Editor duyệt bản mình dịch → 403; Reopen `en` không đổi `vi`; Publisher gọi Review/Approve → 403; Publisher gọi PublishEdition/ScheduleEdition trước khi Producer bàn giao → 409.
 
 #### REL-08 · Snapshot & ảnh trang theo ấn bản (BR-34.5) — BE · ❌ · mới (Q9, Q10)
 - **Phụ thuộc:** REL-09, [ART-14](04_ARTWORK_PLAN.md), [ART-08](04_ARTWORK_PLAN.md) (composite nền).
@@ -106,6 +107,7 @@
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-15 | REL-01, REL-03, REL-04, REL-05, REL-09 | Cập nhật | — (chỉ tài liệu) | Quyết định 2026-11-15: Producer duyệt & bàn giao; Publisher phát hành / hẹn giờ theo ấn bản (-> HandedOffAndPublished); không có lệnh trả về bàn giao; mở lại InProduction giữ độc quyền Producer; Publisher cấu hình tài khoản ngân hàng (không duyệt VietQR), giữ định giá & preview |
 | 2026-11-14 | REL-09 | Bổ sung | — (chỉ tài liệu) | Q28: bản dịch trong hệ thống tại Lettering; gỡ luồng Publisher tải ảnh dịch (`PageTranslation`) |
 | 2026-11-14 | REL-02, REL-09 | Bổ sung | — (chỉ tài liệu) | Q26/Q27: ảnh cuối = bản đã duyệt, snapshot ghi bản kịch bản đã chốt; câu hỏi `PageTranslation` |
 | 2026-11-12 | Gate 3 (`IMPACT_FLAGS`, `PAGES_WITHOUT_WORK`) | ✅ một phần | BE `01f5f9f` (merge `f0ebc7c`) | P0-02 |
