@@ -1,5 +1,5 @@
 {
-  "lastSyncedAt": "2026-11-16T04:33:17.208Z",
+  "lastSyncedAt": "2026-11-17T05:47:22.962Z",
   "diagrams": [
     {
       "id": "CF1",
@@ -543,6 +543,72 @@
     }
   ],
   "syncLogs": [
+    {
+      "id": "sync-FE-99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
+      "timestamp": "2026-11-14T13:43:06+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
+      "message": "docs: add THBMinh branch & multi-agent worktree rules for Claude and Antigravity",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-54bd7e3f7396f583c3f834e17a260b413ad87332",
+      "timestamp": "2026-11-14T13:51:26+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "54bd7e3f7396f583c3f834e17a260b413ad87332",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/54bd7e3f7396f583c3f834e17a260b413ad87332",
+      "message": "feat(lettering): synchronize balloon logic with v2.6 and br-34 specs",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-ab2857a42cef3f3113cee723851228aea753ee32",
+      "timestamp": "2026-11-16T11:47:50+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "ab2857a42cef3f3113cee723851228aea753ee32",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ab2857a42cef3f3113cee723851228aea753ee32",
+      "message": "fix(lettering): surface balloon save errors and limit languages to series editions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-bfe13e4d54e4d91b177f263365198d43f3c4807c",
+      "timestamp": "2026-11-17T12:34:35+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "bfe13e4d54e4d91b177f263365198d43f3c4807c",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/bfe13e4d54e4d91b177f263365198d43f3c4807c",
+      "message": "feat(lettering): add 1-click dialogue translation in script panel",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
+      "timestamp": "2026-11-14T13:42:48+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
+      "message": "docs: add THBMinh branch & multi-agent worktree rules for Claude and Antigravity",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-6506e1af18afa21597db40655220db21cbdb5798",
+      "timestamp": "2026-11-17T12:34:23+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "6506e1af18afa21597db40655220db21cbdb5798",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/6506e1af18afa21597db40655220db21cbdb5798",
+      "message": "feat(translation): add libretranslate dialogue translation api",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-c41ee879317e4d8767034423a0956ed4b75ed6ae",
       "timestamp": "2026-11-13T11:50:06+07:00",
@@ -2124,72 +2190,6 @@
       "commitHash": "dd1084704dae953569d5b854387594ff89c8a10f",
       "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/dd1084704dae953569d5b854387594ff89c8a10f",
       "message": "fix(review): raise review and reader touch targets to 44dp",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-03e15e35cdfc1026f39a1ddd1280086524499328",
-      "timestamp": "2026-11-11T12:52:35+07:00",
-      "repo": "MOBILE",
-      "author": "trung kien",
-      "commitHash": "03e15e35cdfc1026f39a1ddd1280086524499328",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/03e15e35cdfc1026f39a1ddd1280086524499328",
-      "message": "fix(review): merge mobile touch target and type size fixes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-eda8d4f1dde55b73e76e87f879ecf053a792b9d2",
-      "timestamp": "2026-11-13T14:12:11+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "eda8d4f1dde55b73e76e87f879ecf053a792b9d2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/eda8d4f1dde55b73e76e87f879ecf053a792b9d2",
-      "message": "feat(script): commit history, compare with pushed, review pushed",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4e689725e33b8d1c6d44a43d01e1a4281bc757c0",
-      "timestamp": "2026-11-14T14:42:51+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "4e689725e33b8d1c6d44a43d01e1a4281bc757c0",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4e689725e33b8d1c6d44a43d01e1a4281bc757c0",
-      "message": "feat(writer): add chapter cast drawer and bible refs marking (BIB-16)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-91709b9de8161afd458702b50467b63018dee01f",
-      "timestamp": "2026-11-14T15:46:15+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "91709b9de8161afd458702b50467b63018dee01f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/91709b9de8161afd458702b50467b63018dee01f",
-      "message": "style(writer): format bible-16 files and normalize line endings",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-215c516b6ee66197c69554fd048c92587ada4278",
-      "timestamp": "2026-11-14T16:04:02+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "215c516b6ee66197c69554fd048c92587ada4278",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/215c516b6ee66197c69554fd048c92587ada4278",
-      "message": "chore(merge): sync feature/bible-16-cast-panel into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4dae6046baab79194437010409a5594cb4fae504",
-      "timestamp": "2026-11-14T16:23:20+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "4dae6046baab79194437010409a5594cb4fae504",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4dae6046baab79194437010409a5594cb4fae504",
-      "message": "feat(artist): add panel model sheet block with panel bible binding",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
