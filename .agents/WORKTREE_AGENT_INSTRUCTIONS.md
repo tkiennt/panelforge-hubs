@@ -5,7 +5,7 @@
 > **Áp dụng cho:** Tất cả các AI Agent (Lead Orchestrator, Sub-agents, Cursor, Claude Code, Antigravity) & Developers.  
 > 
 > 🚨 **ĐIỀU KIỆN KÍCH HOẠT SANDBOX WORKTREE (QUAN TRỌNG):**  
-> - **Khi chỉ có 1 Agent làm việc (Single-Agent Mode - Mặc định):** **KHÔNG TẠO SANDBOX WORKTREE.** Agent làm việc, đọc, sửa code và commit trực tiếp trên thư mục repo gốc ở nhánh `trungkien`.  
+> - **Khi chỉ có 1 Agent làm việc (Single-Agent Mode - Mặc định):** **KHÔNG TẠO SANDBOX WORKTREE.** Agent làm việc, đọc, sửa code và commit trực tiếp trên thư mục repo gốc ở nhánh `{work-branch}`.  
 > - **Khi có từ 2 Agent trở lên cùng làm việc song song (Multi-Agent Swarm):** **BẮT BUỘC TẠO SANDBOX WORKTREE** để cô lập 100% môi trường, loại bỏ xung đột mã nguồn (file collision), lock DLL và quản lý tự động vòng đời Worktree ➔ Commit ➔ Push ➔ Cleanup.
 
 ---
@@ -15,7 +15,7 @@
 ```mermaid
 flowchart TD
     subgraph Host ["Máy chủ / Môi trường phát triển"]
-        MainWS["Main Workspace (Root)<br/>d:/.../SEP490/Github<br/>Branch: trungkien / main"]
+        MainWS["Main Workspace (Root)<br/>d:/.../SEP490/Github<br/>Branch: {work-branch} / main"]
         
         subgraph Worktrees ["Các Sandbox Agent Song Song (Git Worktrees)"]
             AgentScript["Agent Script: ../panelforge-agent-script<br/>Branch: feature/script-editor-*"]
@@ -35,12 +35,12 @@ flowchart TD
     MainWS -.->|worktree_manager create| AgentArtist
     MainWS -.->|worktree_manager create| AgentCustom
 
-    AgentScript -->|Merge local vào trungkien| MainWS
-    AgentKanban -->|Merge local vào trungkien| MainWS
-    AgentArtist -->|Merge local vào trungkien| MainWS
-    AgentCustom -->|Merge local vào trungkien| MainWS
+    AgentScript -->|Merge local vào {work-branch}| MainWS
+    AgentKanban -->|Merge local vào {work-branch}| MainWS
+    AgentArtist -->|Merge local vào {work-branch}| MainWS
+    AgentCustom -->|Merge local vào {work-branch}| MainWS
 
-    MainWS -->|Chỉ push duy nhất trungkien| GitHubRemote
+    MainWS -->|Chỉ push duy nhất {work-branch}| GitHubRemote
 ```
 
 ---
@@ -77,9 +77,9 @@ flowchart TD
     end
 
     subgraph IntegrationLevel ["3. Tầng Gộp & Đẩy Remote (Root Workspace)"]
-        I1["7. Chuyển sang nhánh trungkien tại thư mục gốc<br/>git checkout trungkien"]
-        I2["8. Gộp nhánh Sandbox vào trungkien<br/>git merge feature/... -m '...'"]
-        I3["9. Kiểm thử nghiệm thu & Chỉ push duy nhất trungkien<br/>git push origin trungkien"]
+        I1["7. Chuyển sang nhánh {work-branch} tại thư mục gốc<br/>git checkout {work-branch}"]
+        I2["8. Gộp nhánh Sandbox vào {work-branch}<br/>git merge feature/... -m '...'"]
+        I3["9. Kiểm thử nghiệm thu & Chỉ push duy nhất {work-branch}<br/>git push origin {work-branch}"]
         I4["10. Thu hồi Sandbox & Prune<br/>worktree_manager.ps1 remove"]
     end
 
@@ -99,7 +99,7 @@ Sub-agent khi nhận task kiểm tra ngay branch hiện tại:
 ```powershell
 cd "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\PanelForge_FA26SE251"
 git branch --show-current
-# BẮT BUỘC là: feature/[module]-be (Không được là main hoặc trungkien)
+# BẮT BUỘC là: feature/[module]-be (Không được là main hoặc {work-branch})
 
 cd "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\panelforge-fe"
 git branch --show-current
@@ -138,37 +138,37 @@ git -C "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\PanelForge_FA26
 git -C "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\panelforge-fe" commit -m "fix(artist): lock active stage to true stage and prevent skipping ahead"
 ```
 
-### Bước 7: Chuyển về Thư mục Gốc & Gộp vào nhánh `trungkien`
-> ⚠️ **BẤT BIẾN QUAN TRỌNG:** **TUYỆT ĐỐI KHÔNG PUSH NHÁNH PHỤ / FEATURE LÊN REMOTE GITHUB** để tránh tạo thêm nhánh rác trên GitHub. Mọi thay đổi phải được gộp vào `trungkien` trước khi push.
+### Bước 7: Chuyển về Thư mục Gốc & Gộp vào nhánh `{work-branch}`
+> ⚠️ **BẤT BIẾN QUAN TRỌNG:** **TUYỆT ĐỐI KHÔNG PUSH NHÁNH PHỤ / FEATURE LÊN REMOTE GITHUB** để tránh tạo thêm nhánh rác trên GitHub. Mọi thay đổi phải được gộp vào `{work-branch}` trước khi push.
 
 1. Quay về thư mục gốc tương ứng (`PanelForge_FA26SE251`, `panelforge-fe`, hoặc `panelforge-mobile`).
-2. Chuyển sang nhánh `trungkien` và kéo code mới nhất:
+2. Chuyển sang nhánh `{work-branch}` và kéo code mới nhất:
    ```powershell
-   git checkout trungkien
-   git pull origin trungkien
+   git checkout {work-branch}
+   git pull origin {work-branch}
    ```
-3. Gộp nhánh feature từ worktree vào `trungkien`:
+3. Gộp nhánh feature từ worktree vào `{work-branch}`:
    ```powershell
    git merge feature/[module]-[be|fe|mobile] -m "<type>(<scope>): <mo-ta-nghiep-vu-ro-rang>"
    ```
 
 ### Bước 8: Kiểm thử Nghiệm thu & Quy tắc Push (Batch Push / On-Demand Only)
-1. Chạy nghiệm thu nhanh trên nhánh `trungkien`:
+1. Chạy nghiệm thu nhanh trên nhánh `{work-branch}`:
    - Backend: `dotnet build PanelForge_FA26SE251/PanelForge.slnx`
    - Frontend: `cd panelforge-fe && npm run typecheck`
    - Mobile: `cd panelforge-mobile && flutter analyze`
 2. **QUY TẮC PUSH LÊN REMOTE GITHUB:**
    - ❌ **TUYỆT ĐỐI KHÔNG PUSH SAU MỖI LẦN LÀM / MỖI PROMPT / MỖI TASK NHỎ.**
-   - **CHỈ PUSH DUY NHẤT NHÁNH `trungkien` LÊN REMOTE GITHUB KHI:**
+   - **CHỈ PUSH DUY NHẤT NHÁNH `{work-branch}` LÊN REMOTE GITHUB KHI:**
      1. Đã hoàn thành trọn vẹn **1 module lớn**.
      2. **HOẶC khi Người dùng trực tiếp yêu cầu** (vd: *"push code"*, *"push lên github"*).
    - Lệnh push (khi thỏa mãn 1 trong 2 điều kiện trên):
      ```powershell
-     git push origin trungkien
+     git push origin {work-branch}
      ```
 
 ### Bước 9: Thu hồi Sandbox & Dọn dẹp Nhánh cục bộ (Cleanup Protocol)
-Sau khi gộp code vào `trungkien` (dù chưa push lên GitHub ngay hay đã push), thu hồi worktree để giải phóng tài nguyên và xóa nhánh feature cục bộ đã gộp xong:
+Sau khi gộp code vào `{work-branch}` (dù chưa push lên GitHub ngay hay đã push), thu hồi worktree để giải phóng tài nguyên và xóa nhánh feature cục bộ đã gộp xong:
 ```powershell
 powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action remove -AgentRole <task-id>
 ```
@@ -184,8 +184,8 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 | **Cài đặt Git Hook Commit** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action setup-hooks` |
 | **Kiểm tra cú pháp commit** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action check-commit -Message "<type>(<scope>): <desc>"` |
 | **Commit chuẩn trong sandbox** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action commit -AgentRole <task-id> -Target <backend\|frontend\|mobile> -Message "<type>(<scope>): <desc>"` |
-| **Gộp trungkien & dọn dẹp (Cục bộ)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile>` |
-| **Gộp trungkien, push & dọn dẹp (Khi xong module/User bảo)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile> -Push` |
+| **Gộp {work-branch} & dọn dẹp (Cục bộ)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile>` |
+| **Gộp {work-branch}, push & dọn dẹp (Khi xong module/User bảo)** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action finish -AgentRole <task-id> -Target <all\|backend\|frontend\|mobile> -Push` |
 | **Xóa & dọn dẹp worktree** | `powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action remove -AgentRole <task-id>` |
 
 ---
@@ -206,7 +206,7 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 2. Tra cứu vị trí file cần sửa trong .agents/CODEBASE_MAP.md.
 3. Không chạy test sau mỗi prompt. Chỉ chạy fast pre-commit ngay trước khi commit.
 4. Commit rõ ràng theo chuẩn Conventional Commits: <type>(<scope>): <description> (cấm "fix bugs").
-5. Merge vào nhánh 'trungkien' tại repo gốc. KHÔNG push sau mỗi lần làm; chỉ push khi xong trọn vẹn module lớn hoặc khi User yêu cầu trực tiếp.
+5. Merge vào nhánh '{work-branch}' tại repo gốc. KHÔNG push sau mỗi lần làm; chỉ push khi xong trọn vẹn module lớn hoặc khi User yêu cầu trực tiếp.
 ```
 
 ---
@@ -216,8 +216,8 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 1. ❌ **CẤM** tạo sandbox worktree khi chỉ có 1 Agent làm việc đơn lẻ (phải làm việc trực tiếp tại repo để tiết kiệm tài nguyên và đơn giản hoá luồng).
 2. ❌ **CẤM** sửa trực tiếp vào thư mục gốc khi có từ 2 Agent trở lên chạy song song (khi đó bắt buộc phải tạo worktree sandbox).
 3. ❌ **CẤM** tự ý push code lên remote sau mỗi lần làm / mỗi prompt. Chỉ push khi hoàn thành 1 module lớn hoặc khi Người dùng yêu cầu.
-4. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `trungkien` (hoặc `main` khi có yêu cầu).
+4. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `{work-branch}` (hoặc `main` khi có yêu cầu).
 5. ❌ **CẤM** commit thông điệp mơ hồ, tối nghĩa như `fix bugs`, `update code`, `wip`, `temp`.
-6. ❌ **CẤM** chuyển sang nhánh `main` hoặc `trungkien` bên trong thư mục worktree sandbox của Agent khi đang chạy Multi-Agent.
+6. ❌ **CẤM** chuyển sang nhánh `main` hoặc `{work-branch}` bên trong thư mục worktree sandbox của Agent khi đang chạy Multi-Agent.
 7. ❌ **CẤM** tự ý chạy `dotnet test` hoặc `npm run test` sau mỗi prompt nhỏ lẻ.
 8. ❌ **CẤM** dùng `git push --force` hoặc sửa commit history đã đẩy lên remote.

@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     PanelForge Automated Git Worktree & Commit Orchestrator for AI Agents & Developers.
 .DESCRIPTION
@@ -24,7 +24,8 @@ param (
     [string]$Target = "all",
 
     [Parameter(Mandatory = $false)]
-    [string]$BaseBranch = "trungkien",
+    # De trong: doc nhanh lam viec cua may nay tu `git config panelforge.workBranch` (xem work_branch.ps1).
+    [string]$BaseBranch = "",
 
     [Parameter(Mandatory = $false)]
     [string]$Message,
@@ -93,13 +94,22 @@ function Validate-CommitMessageFormat {
     return $true
 }
 
-function Resolve-BaseBranch {
-    param ([string]$RepoPath, [string]$Preferred)
-    $branchCheck = git -C $RepoPath branch --list $Preferred
-    if (-not [string]::IsNullOrWhiteSpace($branchCheck)) {
-        return $Preferred
+function Get-WorkBranch {
+    param ([string]$RepoPath)
+    if ($BaseBranch) { return $BaseBranch }
+    $configured = (git -C $RepoPath config --local --get panelforge.workBranch) 2>$null
+    if ([string]::IsNullOrWhiteSpace($configured)) {
+        throw "Repo '$RepoPath' chua chon nhanh lam viec. Chay: powershell -File .agents/scripts/work_branch.ps1 -Action set -Branch <ten-nhanh>"
     }
-    return "main"
+    return $configured.Trim()
+}
+
+function Resolve-BaseBranch {
+    param ([string]$RepoPath)
+    $workBranch = Get-WorkBranch -RepoPath $RepoPath
+    if (git -C $RepoPath branch --list $workBranch) { return $workBranch }
+    if (git -C $RepoPath branch -r --list "origin/$workBranch") { return "origin/$workBranch" }
+    throw "Khong tim thay nhanh '$workBranch' (ca local lan origin) trong '$RepoPath'."
 }
 
 function List-Worktrees {
@@ -175,7 +185,7 @@ function Create-AgentWorktree {
     if ($Target -eq "all" -or $Target -eq "backend") {
         $BackendWorktree = Join-Path $SandboxDir "PanelForge_FA26SE251"
         $beBranch = "feature/$Module-be"
-        $actualBase = Resolve-BaseBranch -RepoPath $BackendRoot -Preferred $BaseBranch
+        $actualBase = Resolve-BaseBranch -RepoPath $BackendRoot
 
         if (Test-Path $BackendWorktree) {
             Write-Host "[-] Backend worktree da ton tai tai: $BackendWorktree" -ForegroundColor Yellow
@@ -195,7 +205,7 @@ function Create-AgentWorktree {
     if ($Target -eq "all" -or $Target -eq "frontend") {
         $FrontendWorktree = Join-Path $SandboxDir "panelforge-fe"
         $feBranch = "feature/$Module-fe"
-        $actualBase = Resolve-BaseBranch -RepoPath $FrontendRoot -Preferred $BaseBranch
+        $actualBase = Resolve-BaseBranch -RepoPath $FrontendRoot
 
         if (Test-Path $FrontendWorktree) {
             Write-Host "[-] Frontend worktree da ton tai tai: $FrontendWorktree" -ForegroundColor Yellow
@@ -215,7 +225,7 @@ function Create-AgentWorktree {
     if ($Target -eq "all" -or $Target -eq "mobile") {
         $MobileWorktree = Join-Path $SandboxDir "panelforge-mobile"
         $mobileBranch = "feature/$Module-mobile"
-        $actualBase = Resolve-BaseBranch -RepoPath $MobileRoot -Preferred $BaseBranch
+        $actualBase = Resolve-BaseBranch -RepoPath $MobileRoot
 
         if (Test-Path $MobileWorktree) {
             Write-Host "[-] Mobile worktree da ton tai tai: $MobileWorktree" -ForegroundColor Yellow
@@ -423,7 +433,7 @@ function Generate-PRTemplate {
 ### 3. Linked Task / Issue Reference
 - Resolves #IssueNumber
 - Agent Role: $AgentRole
-- Target Branch: $BaseBranch
+- Target Branch: $(Get-WorkBranch -RepoPath $FrontendRoot)
 "@
 
     Write-Host "`n--- PR DESCRIPTION TEMPLATE ---" -ForegroundColor Cyan
@@ -456,7 +466,7 @@ function Finish-Worktree {
         if (-not (Test-Path $t.Sandbox)) { continue }
 
         $featureBranch = (git -C $t.Sandbox branch --show-current).Trim()
-        if ([string]::IsNullOrWhiteSpace($featureBranch) -or $featureBranch -eq "trungkien" -or $featureBranch -eq "main") {
+        if ([string]::IsNullOrWhiteSpace($featureBranch) -or $featureBranch -eq (Get-WorkBranch -RepoPath $t.Root) -or $featureBranch -eq "main") {
             Write-Host "[-] $($t.Name): Sandbox dang o nhanh '$featureBranch', khong phai feature branch. Bo qua merge." -ForegroundColor Yellow
             continue
         }
@@ -472,35 +482,36 @@ function Finish-Worktree {
             git -C $t.Sandbox commit -m $Message
         }
 
-        Write-Host "`n[*] Giai doan gop: $($t.Name) -> Merge '$featureBranch' vao 'trungkien'..." -ForegroundColor Cyan
+        $workBranch = Get-WorkBranch -RepoPath $t.Root
+        Write-Host "`n[*] Giai doan gop: $($t.Name) -> Merge '$featureBranch' vao '$workBranch'..." -ForegroundColor Cyan
 
-        # 1. Checkout trungkien at root
-        git -C $t.Root checkout trungkien 2>$null
+        # 1. Checkout $workBranch at root
+        git -C $t.Root checkout $workBranch 2>$null
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "  Chua co nhanh trungkien cuc bo tai $($t.Name), tao tu origin/trungkien..." -ForegroundColor Gray
-            git -C $t.Root checkout -b trungkien origin/trungkien 2>$null
+            Write-Host "  Chua co nhanh $workBranch cuc bo tai $($t.Name), tao tu origin/$workBranch..." -ForegroundColor Gray
+            git -C $t.Root checkout -b $workBranch origin/$workBranch 2>$null
         }
 
         # 2. Pull latest from remote
-        Write-Host "  Dang pull code moi nhat tu origin/trungkien..." -ForegroundColor Gray
-        git -C $t.Root pull origin trungkien --ff-only 2>$null
+        Write-Host "  Dang pull code moi nhat tu origin/$workBranch..." -ForegroundColor Gray
+        git -C $t.Root pull origin $workBranch --ff-only 2>$null
 
-        # 3. Merge feature branch into trungkien
-        $mergeMsg = if ($Message) { $Message } else { "feat($AgentRole): merge $featureBranch into trungkien" }
-        Write-Host "  Dang merge '$featureBranch' vao 'trungkien'..." -ForegroundColor Gray
+        # 3. Merge feature branch into $workBranch
+        $mergeMsg = if ($Message) { $Message } else { "feat($AgentRole): merge $featureBranch into $workBranch" }
+        Write-Host "  Dang merge '$featureBranch' vao '$workBranch'..." -ForegroundColor Gray
         git -C $t.Root merge $featureBranch -m $mergeMsg
         if ($LASTEXITCODE -ne 0) {
-            Write-Error "Merge that bai do conflict tai $($t.Name)! Hay resolve conflict bang tay tren nhanh trungkien."
+            Write-Error "Merge that bai do conflict tai $($t.Name)! Hay resolve conflict bang tay tren nhanh $workBranch."
         }
 
-        # 4. Push only trungkien to remote (Chi push khi hoan thanh module lon hoac co switch -Push)
+        # 4. Push only $workBranch to remote (Chi push khi hoan thanh module lon hoac co switch -Push)
         if ($Push) {
-            Write-Host "  Dang push duy nhat nhanh 'trungkien' len remote origin..." -ForegroundColor Yellow
-            git -C $t.Root push origin trungkien
+            Write-Host "  Dang push duy nhat nhanh '$workBranch' len remote origin..." -ForegroundColor Yellow
+            git -C $t.Root push origin $workBranch
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "  [OK] Push thanh cong len origin/trungkien!" -ForegroundColor Green
+                Write-Host "  [OK] Push thanh cong len origin/$workBranch!" -ForegroundColor Green
             } else {
-                Write-Error "Push len origin/trungkien that bai!"
+                Write-Error "Push len origin/$workBranch that bai!"
             }
         } else {
             Write-Host "  [INFO] Bo qua push remote theo quy tac (Chi push khi hoan thanh module lon hoac khi user yeu cau/them switch -Push)." -ForegroundColor Cyan
@@ -512,7 +523,7 @@ function Finish-Worktree {
     # 5. Clean up sandbox worktree
     Write-Host "`n[*] Tien hanh thu hoi va don dep Sandbox Worktree..." -ForegroundColor Cyan
     Remove-AgentWorktree
-    Write-Host "[SUCCESS] Hoan tat quy trinh: Code da duoc merge vao trungkien cuc bo va thu hoi worktree sach se!" -ForegroundColor Green
+    Write-Host "[SUCCESS] Hoan tat quy trinh: Code da duoc merge vao nhanh lam viec cuc bo va thu hoi worktree sach se!" -ForegroundColor Green
 }
 
 Show-Header

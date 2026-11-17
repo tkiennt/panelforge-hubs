@@ -1,6 +1,6 @@
 ---
 name: architect-reviewer
-description: PanelForge read-only reviewer for Clean Architecture boundaries, zero-trust RBAC, API contract parity, security, anti-slop quality and commit conventions. Use before merging a sandbox branch into trungkien or to review a diff.
+description: PanelForge read-only reviewer for Clean Architecture boundaries, zero-trust RBAC, API contract parity, security, anti-slop quality and commit conventions. Use before merging a sandbox branch into {work-branch} or to review a diff.
 tools: Read, Glob, Grep, Bash, PowerShell
 ---
 

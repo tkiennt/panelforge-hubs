@@ -58,6 +58,27 @@ flowchart TD
 
 ---
 
+## 2B. NHÁNH LÀM VIỆC THEO MÁY (`{work-branch}`)
+
+Mỗi thành viên push lên một nhánh riêng, nên nhánh làm việc **do người code chọn** và được **ghi nhớ trên từng máy**. Trong mọi quy tắc, tài liệu và brief, `{work-branch}` nghĩa là nhánh đã chọn của máy hiện tại — không bao giờ là một tên nhánh ghi cứng.
+
+- **Nơi lưu:** khóa `panelforge.workBranch` trong `.git/config` của từng repo code (`PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`). Chỉ tồn tại trên máy này, không commit, không ảnh hưởng máy khác.
+- **Đầu phiên (bắt buộc, trước mọi lệnh git ghi):**
+  ```powershell
+  powershell -File panelforge-hub/.agents/scripts/work_branch.ps1 -Action get
+  ```
+  - Có giá trị → dùng nhánh đó, **không hỏi lại**.
+  - `(chua chon)` → hỏi người dùng tên nhánh (gợi ý nhánh repo đang đứng), rồi lưu:
+    `powershell -File panelforge-hub/.agents/scripts/work_branch.ps1 -Action set -Branch <tên>`
+    (thêm `-Repos panelforge-fe` … nếu mỗi repo dùng nhánh khác).
+  - `Match = KHAC` (repo đang ở nhánh khác) → báo người dùng và hỏi trước khi `git checkout {work-branch}`; không tự chuyển nhánh khi working tree còn thay đổi.
+- **Đổi nhánh:** chỉ khi người dùng yêu cầu, bằng `-Action set`. Agent không tự sửa giá trị đã lưu.
+- **Cấm:** commit/push lên `main`; push lên nhánh của người khác; thay `{work-branch}` bằng tên nhánh lấy từ tài liệu, lịch sử commit hay brief cũ.
+- **Multi-agent:** worktree tách từ `{work-branch}` và merge về `{work-branch}`. `worktree_manager.ps1` tự đọc `panelforge.workBranch`; `-BaseBranch` chỉ để ghi đè một lần.
+- **Agent ngoài Claude Code** (Antigravity `agy`, Codex…): brief giao việc phải ghi rõ tên nhánh lấy từ `work_branch.ps1 -Action get`.
+
+---
+
 ## 3. NGUYÊN TẮC HOẠT ĐỘNG VÀ HỢP TÁC (OPERATIONAL PROTOCOL)
 
 1. **Quy tắc Multi-Repo (Multi-Repo Boundary Rule):**
@@ -90,7 +111,7 @@ flowchart TD
    - **CHỈ PUSH LÊN REMOTE GITHUB KHI:**
      1. Đã hoàn thành trọn vẹn **1 module lớn** (sau khi đã gộp vào nhánh chính và xác nhận hoàn chỉnh).
      2. **HOẶC khi Người dùng trực tiếp yêu cầu** (ví dụ: *"push code"*, *"push git"*, *"đẩy lên github"*).
-   - Trong quá trình phát triển thường ngày: Chỉ commit cục bộ (`git commit`) trong worktree sandbox hoặc gộp cục bộ vào nhánh `trungkien`/`main` để lưu vết, tuyệt đối không chạy `git push` lên remote origin.
+   - Trong quá trình phát triển thường ngày: Chỉ commit cục bộ (`git commit`) trong worktree sandbox hoặc gộp cục bộ vào nhánh `{work-branch}`/`main` để lưu vết, tuyệt đối không chạy `git push` lên remote origin.
 
 7. **Giao thức Bàn giao Hợp đồng (Handoff Artifacts Protocol):**
    - Khi `backend-expert` hoàn thành API/Feature: Cung cấp tóm tắt Endpoint, DTO Models (Request/Response) và ví dụ JSON để `frontend-expert` và `mobile-expert` triển khai ngay.
@@ -115,7 +136,7 @@ flowchart TD
 ## 3B. KẾ HOẠCH TRIỂN KHAI DÙNG CHUNG (SHARED IMPLEMENT PLAN)
 
 - Cả `backend-expert`, `frontend-expert`, `mobile-expert`, `db-architect`, `qa-tester` làm theo **một bộ plan duy nhất** ở `note/plans/` (plan tổng: `note/PANELFORGE_V2_6_IMPLEMENTATION_PLAN.md`; đặc tả: `docs/V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md`).
-- Quy tắc phối hợp ở `note/plans/README.md` §2: nhận task ở §2 "Đang làm" của `docs/tracking/TEAM_WORKBOARD.md` trước khi code (commit + push hub ngay), worktree riêng theo ID task, mỗi agent chỉ làm sub-task có tiền tố repo của mình (`[BE]`/`[FE]`/`[MO]`/`[DB]`/`[QA]`), BE ghi Hợp đồng API vào task trước khi FE/MO nối API, merge từng repo vào `trungkien` của repo đó.
+- Quy tắc phối hợp ở `note/plans/README.md` §2: nhận task ở §2 "Đang làm" của `docs/tracking/TEAM_WORKBOARD.md` trước khi code (commit + push hub ngay), worktree riêng theo ID task, mỗi agent chỉ làm sub-task có tiền tố repo của mình (`[BE]`/`[FE]`/`[MO]`/`[DB]`/`[QA]`), BE ghi Hợp đồng API vào task trước khi FE/MO nối API, merge từng repo vào `{work-branch}` của repo đó.
 - Lead giao task cho sub-agent bằng ID task (vd `RDR-07 [BE]`) kèm đường dẫn sandbox.
 
 ## 4. QUY CHUẨN TỐI ƯU CONTEXT & ĐỊNH VỊ 1-CHẠM (ZERO-EXPLORATION PROTOCOL)
@@ -138,7 +159,7 @@ Nhằm tối ưu hóa tài nguyên máy và tốc độ xử lý mà vẫn đả
 
 1. **Khi làm việc với 1 Agent duy nhất (Single-Agent Mode - Mặc định):**
    - ❌ **TUYỆT ĐỐI KHÔNG TẠO SANDBOX / WORKTREE.**
-   - Agent đọc, sửa mã nguồn, build và commit trực tiếp trên thư mục làm việc của repository (`PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`, `panelforge-hub`) trên nhánh `trungkien` (hoặc nhánh task được user chỉ định).
+   - Agent đọc, sửa mã nguồn, build và commit trực tiếp trên thư mục làm việc của repository (`PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`, `panelforge-hub`) trên nhánh `{work-branch}` (hoặc nhánh task được user chỉ định).
    - Không sinh thêm thư mục sandbox ngoài `panelforge-agent-*`, tiết kiệm tài nguyên I/O và đơn giản hoá luồng làm việc.
 
 2. **Khi có từ 2 Agent trở lên cùng làm việc song song (Multi-Agent Swarm / Concurrent Mode):**
@@ -157,7 +178,7 @@ Nhằm tối ưu hóa tài nguyên máy và tốc độ xử lý mà vẫn đả
 ## 6. QUY CHUẨN COMMIT RÕ RÀNG & GỘP TRUNGKIEN TRƯỚC KHI PUSH (ZERO REMOTE EXTRA BRANCHES)
 
 1. **Quy tắc Phân định Môi trường Code (Single-Agent vs Multi-Agent):**
-   - **1 Agent:** Code trực tiếp tại repo chính trên nhánh `trungkien`, không tạo worktree sandbox.
+   - **1 Agent:** Code trực tiếp tại repo chính trên nhánh `{work-branch}`, không tạo worktree sandbox.
    - **Từ 2 Agent trở lên:** Bắt buộc tạo worktree sandbox riêng cho từng agent theo lệnh:
      ```powershell
      powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action create -AgentRole <task-id> -Module "<task-id>" -Target <all|backend|frontend|mobile>
@@ -189,32 +210,32 @@ Nhằm tối ưu hóa tài nguyên máy và tốc độ xử lý mà vẫn đả
      - Mobile: `flutter --prefix <sandbox>/panelforge-mobile analyze`
    - Chỉ chạy test khi Người dùng đưa ra chỉ thị rõ ràng.
 
-4. **BẮT BUỘC GỘP VÀO `trungkien` TRƯỚC KHI PUSH & QUY TẮC PUSH THEO MODULE (Zero Remote Extra Branches & Batch Push Invariant):**
-   - ❌ **TUYỆT ĐỐI CẤM PUSH SAU MỖI LẦN LÀM:** Không tự ý chạy `git push` sau mỗi task nhỏ, sau mỗi lượt làm việc hay sau mỗi prompt. Mọi thay đổi bình thường chỉ dừng lại ở commit cục bộ và gộp cục bộ vào nhánh `trungkien`.
+4. **BẮT BUỘC GỘP VÀO `{work-branch}` TRƯỚC KHI PUSH & QUY TẮC PUSH THEO MODULE (Zero Remote Extra Branches & Batch Push Invariant):**
+   - ❌ **TUYỆT ĐỐI CẤM PUSH SAU MỖI LẦN LÀM:** Không tự ý chạy `git push` sau mỗi task nhỏ, sau mỗi lượt làm việc hay sau mỗi prompt. Mọi thay đổi bình thường chỉ dừng lại ở commit cục bộ và gộp cục bộ vào nhánh `{work-branch}`.
    - ❌ **TUYỆT ĐỐI CẤM PUSH NHÁNH PHỤ / FEATURE LÊN REMOTE GITHUB:** Không chạy `git push origin feature/...` lên remote repository nhằm tránh rác nhánh và làm phân mảnh lịch sử git trên GitHub.
-   - 🚀 **ĐIỀU KIỆN ĐƯỢC PHÉP PUSH LÊN REMOTE:** Chỉ chạy `git push origin trungkien` khi:
+   - 🚀 **ĐIỀU KIỆN ĐƯỢC PHÉP PUSH LÊN REMOTE:** Chỉ chạy `git push origin {work-branch}` khi:
      1. **Đã hoàn thành trọn vẹn 1 module lớn** (toàn bộ các sub-task của module đã được kiểm tra, build xanh và gộp đầy đủ).
      2. **HOẶC khi Người dùng trực tiếp yêu cầu** (ví dụ: *"push code"*, *"push lên github"*, *"đẩy lên remote"*).
    - **Quy trình gộp và đẩy chuẩn (Chuẩn 5 bước):**
      1. **Commit trong Worktree:** Commit toàn bộ mã nguồn rõ ràng bên trong sandbox worktree.
-     2. **Kiểm tra & Gộp cục bộ vào `trungkien`:**
+     2. **Kiểm tra & Gộp cục bộ vào `{work-branch}`:**
         - Quay về thư mục gốc của repository (`PanelForge_FA26SE251`, `panelforge-fe`, hoặc `panelforge-mobile`).
-        - Chuyển sang nhánh `trungkien`: `git checkout trungkien`
-        - Kéo code mới nhất từ remote: `git pull origin trungkien`
-        - Gộp nhánh feature từ worktree vào `trungkien`:
+        - Chuyển sang nhánh `{work-branch}`: `git checkout {work-branch}`
+        - Kéo code mới nhất từ remote: `git pull origin {work-branch}`
+        - Gộp nhánh feature từ worktree vào `{work-branch}`:
           ```powershell
           git merge feature/<module>-<scope> -m "<type>(<scope>): <mo-ta-nghiep-vu-ro-rang>"
           ```
-     3. **Chạy kiểm thử nghiệm thu:** Xác nhận build và kiểm tra cú pháp thành công trên nhánh `trungkien`.
+     3. **Chạy kiểm thử nghiệm thu:** Xác nhận build và kiểm tra cú pháp thành công trên nhánh `{work-branch}`.
      4. **Dọn dẹp Worktree cục bộ:** Thu hồi sandbox và xóa nhánh feature cục bộ đã gộp xong:
         ```powershell
         powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" -Action remove -AgentRole <task-id>
         ```
      5. **Đẩy lên Remote (CHỈ THỰC HIỆN KHI XONG MODULE LỚN HOẶC USER YÊU CẦU):**
-        - Nếu **chưa** xong module lớn và user **chưa** yêu cầu: Giữ nguyên ở nhánh `trungkien` cục bộ, **KHÔNG PUSH**.
+        - Nếu **chưa** xong module lớn và user **chưa** yêu cầu: Giữ nguyên ở nhánh `{work-branch}` cục bộ, **KHÔNG PUSH**.
         - Nếu **đã hoàn thành 1 module lớn** hoặc **User yêu cầu**:
           ```powershell
-          git push origin trungkien
+          git push origin {work-branch}
           ```
    - **Lệnh tự động 1-chạm:** Có thể chạy action hoàn tất tự động (mặc định chỉ merge và dọn dẹp cục bộ; chỉ thêm `-Push` khi hoàn thành module lớn hoặc khi user yêu cầu):
      ```powershell
