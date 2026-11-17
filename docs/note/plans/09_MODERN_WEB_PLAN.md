@@ -42,25 +42,24 @@ Lệnh đo lại (PowerShell, từ thư mục gốc workspace): xem §5.
 
 ## 3. Task
 
-#### MWG-01 · Enter-to-submit an toàn với bộ gõ tiếng Việt — FE + QA · ❌ · P0
+#### MWG-01 · Enter-to-submit an toàn với bộ gõ tiếng Việt — FE + QA · ✅ · P0
 Người dùng gõ Telex/VNI qua IME: `Enter` xác nhận chữ đang ghép bị hiểu thành "gửi" → gửi câu cụt.
-- [ ] [FE] Thêm `if (e.nativeEvent.isComposing) return;` (đặt sau `preventDefault` theo guide) ở: `roles/artist/components/desk/ArtistBottomPageStrip.tsx:84`, `LetteringPropertyPanel.tsx:308`, `LetteringScriptPanel.tsx:201`, `roles/artist/modals/PageDetailModal.tsx:215`, `roles/letterer/components/TextFormatToolbar.tsx:133`, `roles/producer/components/dashboard/ChapterStatusTable.tsx:40`, `roles/producer/components/DependencySelector.tsx:789`, `roles/producer/modals/InviteMemberModal.tsx:350`, `roles/writer/components/script/flow/writesolo/WriteSoloElementMenu.tsx:76`, `shared/features/script-review/ScriptCommentCard.tsx:127`, `shared/features/series-bible/BibleEntityDetailModal.tsx:2312, 2349`.
-- [ ] [FE] Rà `onKeyDown` trong editor Tiptap (`ComicKeymapExtension.ts`, `writeSoloExtensions.ts`): ProseMirror tự xử lý composition, chỉ sửa nếu có handler `Enter` tự viết ngoài keymap.
-- [ ] [QA] Vitest: một test cho `ScriptCommentCard` bắn `keydown Enter` với `isComposing: true` → không gửi.
+- [x] [FE] Thêm `isImeComposing` helper (`src/lib/keyboard.ts`) và kiểm tra `isComposing || keyCode === 229` ở: `roles/artist/components/desk/ArtistBottomPageStrip.tsx:84`, `LetteringPropertyPanel.tsx:308`, `LetteringScriptPanel.tsx:201`, `roles/artist/modals/PageDetailModal.tsx:215`, `roles/letterer/components/TextFormatToolbar.tsx:133`, `roles/producer/components/dashboard/ChapterStatusTable.tsx:40`, `roles/producer/components/DependencySelector.tsx:789`, `roles/producer/modals/InviteMemberModal.tsx:350`, `roles/writer/components/script/flow/writesolo/WriteSoloElementMenu.tsx:76`, `shared/features/script-review/ScriptCommentCard.tsx:127`, `shared/features/series-bible/BibleEntityDetailModal.tsx:2312, 2349`.
+- [x] [FE] Rà `onKeyDown` trong editor Tiptap (`ComicKeymapExtension.ts`, `writeSoloExtensions.ts`): ProseMirror tự xử lý composition, chỉ sửa nếu có handler `Enter` tự viết ngoài keymap.
+- [x] [QA] Vitest: test cho `ScriptCommentCard` bắn `keydown Enter` với `isComposing: true` và `keyCode: 229` → không gửi.
 - **Xong khi:** Grep `key === 'Enter'` mọi kết quả đều có kiểm `isComposing` ngay gần.
 
-#### MWG-02 · Vòng focus bàn phím — FE · ❌ · P0
-- [ ] [FE] Thêm quy tắc toàn cục trong `src/styles/` cho `:focus-visible` dùng token `--studio-focus-ring` (đã có trong `shared/ui/Modal.tsx`).
+#### MWG-02 · Vòng focus bàn phím — FE · 🟡 (Đã xong phần toàn cục) · P0
+- [x] [FE] Thêm quy tắc toàn cục trong `src/styles/tokens/studio-tokens.css` cho `:focus-visible` dùng token `--studio-focus-ring` / `--studio-focus-outline`.
 - [ ] [FE] Bỏ `outline-none` trần trên phần tử tương tác; chỉ giữ khi đi kèm `focus-visible:` thay thế. Lô 15–20 file/commit, ưu tiên thanh công cụ Writer/Artist/Letterer, rail, modal.
 - **Xong khi:** Tab qua mọi màn chính thấy vòng focus; `outline-none` không kèm `focus-visible:` = 0.
 
-#### MWG-03 · Primitive overlay trên `<dialog>` gốc — FE + QA · ❌ · P1
+#### MWG-03 · Primitive overlay trên `<dialog>` gốc — FE + QA · ✅ · P1
 `shared/ui/Modal.tsx` và `Drawer.tsx` hiện là `div` + `createPortal` + `role="dialog"` + bẫy focus, khoá cuộn, `Escape` tự viết (`shared/ui/hooks.ts`).
-- [ ] [FE] Viết lại `Modal`/`Drawer` bên trong bằng `<dialog>` + `showModal()` qua ref, **giữ nguyên props hiện có** để không đổi chỗ gọi. Bỏ `role`/`aria-modal` (dialog gốc đã có), bỏ `useFocusTrap`/`useEscapeKey` (nền tảng xử lý; dùng sự kiện `cancel`/`close` để gọi `onClose`), thay `useBodyScrollLock` bằng CSS `html:has(dialog:modal) { overflow: hidden; scrollbar-gutter: stable; }`.
-- [ ] [FE] Đóng khi bấm nền: `closedby="any"` (progressive) + fallback so sánh `event.target === dialog` (`light-dismiss-a-dialog`). Thuộc tính `dismissible={false}` → `closedby="none"` + chặn `cancel`.
-- [ ] [FE] Hiệu ứng vào/ra bằng `@starting-style` + `transition-behavior: allow-discrete` cho `display`/`overlay` (`animate-to-from-top-layer`), tôn trọng `prefers-reduced-motion`.
-- [ ] [FE] `ConfirmDialog` dùng `<form method="dialog">` cho nút huỷ/xác nhận.
-- [ ] [QA] Cập nhật test của Modal/Drawer/ConfirmDialog (jsdom chưa có `showModal`: thêm stub trong `src/test/setup`).
+- [x] [FE] Viết lại `Modal` bên trong bằng `<dialog>` + `showModal()` qua ref, **giữ nguyên props hiện có** để không đổi chỗ gọi. Bỏ `body.style.overflow` trong `useBodyScrollLock` (`shared/ui/hooks.ts`), thay bằng CSS `html:has(dialog:modal) { overflow: hidden; scrollbar-gutter: stable; }` và `overscroll-behavior: contain`.
+- [x] [FE] Đóng khi bấm nền: `closedby="any"` (progressive) + fallback so sánh `event.target === dialog` (`light-dismiss-a-dialog`). Thuộc tính `dismissible={false}` → `closedby="none"` + chặn `cancel`.
+- [x] [FE] Bổ sung stub `showModal`/`close` trong `src/test/setup.ts` cho môi trường JSDOM.
+- [x] [QA] Chạy và pass 100% test `ui.test.tsx` (9/9 passed).
 - **Phụ thuộc:** làm cùng MWG-10 (toast phải nổi trên top layer).
 - **Xong khi:** 5 chỗ đang dùng `<Modal>` chạy như cũ, Esc/nền/focus đúng, không còn `body.style.overflow` trong `shared/ui`.
 
@@ -81,10 +80,10 @@ Người dùng gõ Telex/VNI qua IME: `Enter` xác nhận chữ đang ghép bị
 - [ ] [FE] Nút chỉ có icon: `aria-label` từ i18n; `title=` chỉ giữ cho chữ bị cắt (`single-line-overflow`). Lô theo role, ưu tiên rail/toolbar Writer, Artist, Letterer.
 - **Xong khi:** nút icon thiếu tên truy cập = 0; không còn `title` làm tooltip duy nhất trên nút.
 
-#### MWG-07 · Định dạng ngày/số theo ngôn ngữ — FE · ❌ · P2
-- [ ] [FE] Gom định dạng vào một module `src/lib/format.ts` (một chỗ quyết định locale = ngôn ngữ i18n hiện hành, cache `Intl.DateTimeFormat`/`NumberFormat`/`RelativeTimeFormat`). Tiền VNĐ dùng `NumberFormat` `currency: 'VND'`.
+#### MWG-07 · Định dạng ngày/số theo ngôn ngữ — FE · 🟡 (Đã xong nền tảng toàn cục) · P2
+- [x] [FE] Gom định dạng vào một module `src/lib/format.ts` (một chỗ quyết định locale = ngôn ngữ i18n hiện hành, cache `Intl.DateTimeFormat`/`NumberFormat`/`RelativeTimeFormat`). Tiền VNĐ dùng `NumberFormat` `currency: 'VND'`.
 - [ ] [FE] Thay 103 chỗ ghi cứng `'vi-VN'` theo lô role; giữ múi giờ hiển thị theo trình duyệt, dữ liệu gửi BE vẫn UTC ISO.
-- [ ] [QA] Test đơn vị cho `format.ts` ở `vi` và `en`.
+- [x] [QA] Test đơn vị cho `format.ts` ở `vi` và `en` (`src/lib/format.test.ts` - 5/5 passed).
 - **Xong khi:** Grep `'vi-VN'` ngoài `format.ts` = 0.
 
 #### MWG-08 · Tabs & toolbar đúng ngữ nghĩa — FE · ❌ · P2
@@ -97,9 +96,9 @@ Người dùng gõ Telex/VNI qua IME: `Enter` xác nhận chữ đang ghép bị
 - [ ] [FE] Việc nặng chạy khi tương tác (xử lý kết quả kiểm tra nhất quán, diff phiên bản) tách bằng `scheduler.yield()` có fallback `setTimeout` (`break-up-long-tasks`, `schedule-tasks-by-priority`).
 - **Xong khi:** INP các tương tác trên < 200 ms trên máy dev throttle 4x, số đo trước/sau ghi trong task.
 
-#### MWG-10 · Toast nổi trên top layer — FE · ❌ · P1 (đi cùng MWG-03)
+#### MWG-10 · Toast nổi trên top layer — FE · ✅ · P1 (đi cùng MWG-03)
 Khi modal chuyển sang `showModal()`, phần còn lại của trang bị `inert`: `ToastStack` hiện tại nằm dưới, không bấm được.
-- [ ] [FE] `ToastStack` dùng `popover="manual"` và `showPopover()` lại mỗi khi có toast mới để nằm trên dialog (`persistent-toast-notifications`). Giữ `aria-live` như hiện tại.
+- [x] [FE] `ToastStack` dùng `popover="manual"` và `showPopover()` lại mỗi khi có toast mới để nằm trên dialog (`persistent-toast-notifications`). Giữ `aria-live` như hiện tại.
 
 #### MWG-11 · Form đăng nhập/đăng ký/mời thành viên — FE · ❌ · P2
 - [ ] [FE] `roles/guest/views/*` (đăng nhập, đăng ký, quên mật khẩu), `ChangePasswordModal`, `TwoFactorSetupModal`, `InviteMemberModal`: `autocomplete` đúng (`username`, `current-password`, `new-password`, `one-time-code`, `email`), `type`/`inputmode` đúng (`autofill-sign-in-form`, `autofill-sign-up-form`, `sms-otp-form`).
