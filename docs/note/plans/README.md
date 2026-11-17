@@ -18,6 +18,7 @@
 | 6 | [06_RELEASE_PLAN.md](06_RELEASE_PLAN.md) | `REL` | Vòng đời Chương & ấn bản ngôn ngữ (Editor duyệt bản dịch, Producer cho phép phát hành), Gate 3, Snapshot theo ấn bản, PreviewLink, Export, Publisher Portal (một Publisher duy nhất) | Module 5 · §5.2 · BR-09/12/16/17/32/34 | Gate 3 xong một phần (P0) |
 | 7 | [07_READER_PLAN.md](07_READER_PLAN.md) | `RDR` | Độc giả: thống kê đọc & doanh thu VNĐ (Producer xem), đánh giá, kiếm tiền theo ấn bản (Publisher đặt giá VNĐ, mua ngôn ngữ nào đọc ngôn ngữ đó), chọn ngôn ngữ đọc | Module 5 · BR-32/33/34 · §6.1 | Chưa làm |
 | 8 | [08_UI_QUALITY_PLAN.md](08_UI_QUALITY_PLAN.md) | `UIQ` | Chống AI-slop, token thiết kế, i18n, mobile, chốt chặn, thuật ngữ | AGENTS.md §7 · DESIGN_RULES | Đợt 1 xong; GĐ5–GĐ12 chưa làm |
+| 9 | [09_MODERN_WEB_PLAN.md](09_MODERN_WEB_PLAN.md) | `MWG` | Chuẩn nền tảng web: bộ gõ IME, focus bàn phím, overlay `<dialog>`/Popover API, tooltip, định dạng `Intl`, INP/ảnh, CSP | Modern Web Guidance (skill FE) · AGENTS.md §3.8 | Chưa làm; mốc đo 2026-11-17 |
 
 Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, audit transactional, CAS, optimistic concurrency, event store): xem bảng M0/M1 trong plan tổng, không có plan riêng.
 

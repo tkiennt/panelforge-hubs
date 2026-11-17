@@ -125,6 +125,7 @@ Mỗi thành viên push lên một nhánh riêng, nên nhánh làm việc **do n
      - Cỡ chữ tối thiểu `text-xs` (12px), cấm dùng cỡ chữ siêu nhỏ `text-[10px]` hay `text-[11px]`.
      - Phông chữ chuẩn: `font-sans` (Plus Jakarta Sans), `font-serif` (Playfair Display), `font-studio` (Be Vietnam Pro), `font-comic` (Patrick Hand), `font-mono` (JetBrains Mono).
      - Chỉ dùng icon họ **Lucide Icons** (`w-3.5` inline/badge, `w-4` button/nav).
+   - **Chuẩn nền tảng web (Modern Web Guidance):** trước khi viết/sửa HTML/CSS/JS phía client, tra skill offline `panelforge-fe/.claude/skills/modern-web-guidance/` (bản cố định của GoogleChrome/modern-web-guidance). Mặc định bắt buộc và chính sách trình duyệt ở `panelforge-fe/CLAUDE.md` mục "Modern Web Guidance"; kế hoạch refactor ở `docs/note/plans/09_MODERN_WEB_PLAN.md` (`MWG`).
    - **Mobile UI:** Tuân thủ `panelforge-mobile/lib/theme/app_theme.dart` (Tangerine `#F97316`, Paper `#FCF9F2`, Obsidian `#07080D`, Mint `#10B981`, Rose `#EF4444`).
    - **Đa ngôn ngữ (i18n Parity):** Tuyệt đối không hardcode text tiếng Anh hoặc tiếng Việt trực tiếp vào view mới. Mọi chuỗi giao diện phải được khai báo song ngữ đồng thời vào cả 2 tệp:
      - `panelforge-fe/src/locales/vi/<namespace>.json`
