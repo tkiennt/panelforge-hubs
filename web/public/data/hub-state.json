@@ -1,2044 +1,8 @@
 {
-  "lastSyncedAt": "2026-11-17T05:47:22.962Z",
-  "diagrams": [
-    {
-      "id": "CF1",
-      "coreFlow": "CF1",
-      "title": "CF1: Studio, Series & Series Bible Setup",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 1,
-          "updatedAt": "2026-10-06T10:00:00+07:00",
-          "updatedBy": "Architect Lead",
-          "repo": "BE",
-          "commitHash": "56c5aad",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/56c5aad",
-          "changelog": "V2.0: Single-Tier Series Bible & Basic Studio Setup",
-          "mermaidCode": "flowchart TD\n    Admin([Administrator]) -->|UC-01 Login & UC-02 Studio Quota| Workspace[Workspace / Studio Created]\n    Producer([Producer]) -->|Create Series| Series[Series Initialized]\n    Producer -->|Draft Bible| BibleSingle[Series Bible Entry (Single Revision)]\n    BibleSingle -->|Lock Canon| Canon[Canon Locked]\n    Canon --> Production[Ready for Chapter Production]"
-        },
-        {
-          "version": 2,
-          "updatedAt": "2026-10-28T13:34:01+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "cea3e94",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/cea3e94",
-          "changelog": "V2.5: 3-Party Collaborative Bible & Multi-Era Timeskip Gate",
-          "mermaidCode": "flowchart TD\n    Admin([Administrator]) -->|UC-02 System Quota & Permissions| Studio[Studio Workspace Created]\n    Producer([Producer]) -->|Invite Members & Assign Series Roles| Roles[RBAC: Writer, Artist, Editor]\n    Writer([Writer]) -->|1. Create Lore & Character Spec| Draft[Bible Entry: Draft]\n    Draft -->|Queue into Bible Design Queue| Queue[Design Queue Badge]\n    Artist([Artist]) -->|2. Claim Entry & Upload CAS SHA-256 Concept Art| Concept[Bible Entry: ConceptSubmitted]\n    Concept -->|3. Review Creative Vision| WriterEndorse{Writer Decision}\n    WriterEndorse -->|Rework Required + Feedback| Concept\n    WriterEndorse -->|Writer Endorsed| Endorsed[Bible Entry: WriterEndorsed]\n    Endorsed -->|4. Producer Final Canon Lock| Canon[Bible Entry: CanonLocked]\n    Canon -.->|Covers Chapter via effectiveFromChapterNumber| Era[Multi-Era / Timeskip Stage]\n    Era -->|Chapter-Scoped Bible Gate| Gate{CheckChapterBibleGate}\n    Gate -->|Passed: ALL LOCKED| CF2[Proceed to CF2 Production]\n    Gate -->|Blocked: CHARACTER_NOT_LOCKED| Blocked[Block Chapter Production]"
-        }
-      ]
-    },
-    {
-      "id": "CF2",
-      "coreFlow": "CF2",
-      "title": "CF2: Chapter Production & Independent Script Authoring",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 1,
-          "updatedAt": "2026-10-06T10:00:00+07:00",
-          "updatedBy": "Architect Lead",
-          "repo": "BE",
-          "commitHash": "56c5aad",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/56c5aad",
-          "changelog": "V2.0: Monolithic Assignment & Forced Panel Scripting",
-          "mermaidCode": "flowchart TD\n    Producer([Producer]) -->|Create Assignments| Ass[Single Assignment for Scene]\n    Writer([Writer]) -->|Must have Assignment| Write[Write Script with forced Panels]\n    Write -->|Direct to Drawing| Draw[Artist Draw]\n    Draw -->|Lettering| Letter[Lettering on Canvas]\n    Letter --> Done([Chapter Done])"
-        },
-        {
-          "version": 2,
-          "updatedAt": "2026-10-26T23:05:39+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "ccfe936",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ccfe936",
-          "changelog": "V2.5: Independent Script Authoring & Script Freeze Gate",
-          "mermaidCode": "flowchart TD\n    Writer([Writer]) -->|Independent Authoring: Story Arc -> Scene -> ScriptLine| Script[Narrative Script Editor]\n    Script -->|Reference Bible Entities| EntityLink[Entity Linking & Character Validation]\n    Script -->|Producer Review| Producer([Producer])\n    Producer -->|Command: ApproveScript & Freeze| FreezeGate[Script Frozen: IsScriptFrozen = true]\n    FreezeGate -->|Opens Production Pipeline| Kanban[Chapter Kanban Board Unlocked]\n    Kanban -->|Layout Stage: 100% ScriptLine Coverage Guard| Layout[Layout & Thumbnail Editor]\n    Layout -->|Generate Wireframe Guide| ExportGuide[Export 1200x1800 Guide for CSP/PS]\n    ExportGuide -->|Parallel Production: Artist A & Artist B| Artwork[Artwork & Lettering Stages]\n    Artwork -->|Panel/Layer Lock & Granular Submission| CF3[Proceed to CF3 Quality Control]"
-        }
-      ]
-    },
-    {
-      "id": "CF3",
-      "coreFlow": "CF3",
-      "title": "CF3: Quality Control & Consistency Gate",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 1,
-          "updatedAt": "2026-10-06T10:00:00+07:00",
-          "updatedBy": "Architect Lead",
-          "repo": "BE",
-          "commitHash": "56c5aad",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/56c5aad",
-          "changelog": "V2.0: Generic Review Approvals",
-          "mermaidCode": "flowchart TD\n    Sub[Submission] --> Review[Editor Review]\n    Review -->|Approve| Passed[Approved]\n    Review -->|Reject| Rework[Changes Requested]"
-        },
-        {
-          "version": 2,
-          "updatedAt": "2026-10-27T12:03:47+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "0aa0055",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0aa0055",
-          "changelog": "V2.5: Dual Gate Review & Visual Annotation Studio",
-          "mermaidCode": "flowchart TD\n    Artist([Artist/Letterer]) -->|Submit Stage Artifact| Sub[Submission: Pending]\n    Sub -->|Editor opens Studio| Review[Review Studio Canvas]\n    Review -->|AI Consistency Engine| AICheck{AI Consistency Finding}\n    AICheck -->|Color/Style/Face Mismatch| Finding[Consistency Finding: Open]\n    Review -->|Spatial Annotation + Feedback| CR[Change Request Created]\n    CR -->|Send back to Assignee| Rework[StageProgress: ChangesRequested]\n    Review -->|Gate Approval: Reviewer != Submitter| GatePass[StageProgress: Approved]\n    GatePass -.->|If Source Revision Changes| Inval[Stage Invalidated: Back to InProgress]\n    GatePass -->|All Stages Cleared| CF5[Proceed to CF5 Approval & Release]"
-        }
-      ]
-    },
-    {
-      "id": "CF4",
-      "coreFlow": "CF4",
-      "title": "CF4: Version Control, CAS Storage & Provenance",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 2,
-          "updatedAt": "2026-10-22T13:00:44+07:00",
-          "updatedBy": "hoa03",
-          "repo": "BE",
-          "commitHash": "3ae939b",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/3ae939b",
-          "changelog": "V2.5: Append-Only Event Store & CAS SHA-256",
-          "mermaidCode": "flowchart TD\n    Action([User / Agent Mutation]) --> Event[Append-Only Event Store]\n    Event -->|Upload Artifact| CAS[CAS SHA-256 Content Addressed Storage]\n    CAS -->|Verify Checksum| Integrity{Hash Match?}\n    Integrity -->|Yes| Provenance[Record Provenance: AI Provider, Model, Prompt, Human Editor]\n    Integrity -->|No| Reject[Reject Mutation: HTTP 400]\n    Provenance --> AuditTrail[Audit Trail & Historical Revision Recovery]"
-        }
-      ]
-    },
-    {
-      "id": "CF5",
-      "coreFlow": "CF5",
-      "title": "CF5: Approval, Release, Mobile Review & Reader Preview",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 2,
-          "updatedAt": "2026-10-27T14:18:23+07:00",
-          "updatedBy": "MinhTHB",
-          "repo": "MOBILE",
-          "commitHash": "004769f",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/004769f",
-          "changelog": "V2.5: Producer Snapshot & Mobile Preview QR Sync",
-          "mermaidCode": "flowchart TD\n    Chapters[All Panels Approved] --> Producer([Producer Review])\n    Producer -->|Approve Chapter| ChApprove[Chapter: Approved]\n    ChApprove -->|Producer Lock| Snapshot[Generate Immutable ChapterSnapshot]\n    Snapshot -->|Generate QR Preview Token| QR[QR Preview Token Created]\n    QR -->|Scan with panelforge-mobile| MobileApp[Mobile Review Canvas & Reader]\n    MobileApp -->|Mobile Feedback & Reader Mode| Feedback[Preview Feedback Collected]\n    Snapshot -->|Publish Release| Published[Chapter: Published to Public Catalog]\n    Published -->|Watermark & Rights Protection| Reader([Web & Mobile Public Readers])"
-        }
-      ]
-    },
-    {
-      "id": "AssignmentStatus",
-      "coreFlow": "CF2",
-      "title": "AssignmentStatus State Machine",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 1,
-          "updatedAt": "2026-10-06T10:00:00+07:00",
-          "updatedBy": "Architect Lead",
-          "repo": "BE",
-          "commitHash": "56c5aad",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/56c5aad",
-          "changelog": "V2.0: Linear Assignment Lifecycle",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> Assigned: Producer giao việc\n    Assigned --> InProgress: Bắt đầu làm\n    InProgress --> Submitted: Nộp kết quả\n    Submitted --> Approved: Producer duyệt\n    Submitted --> ReworkRequired: Yêu cầu sửa\n    ReworkRequired --> InProgress: Làm lại\n    Approved --> [*]"
-        },
-        {
-          "version": 2,
-          "updatedAt": "2026-10-27T12:03:47+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "0aa0055",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0aa0055",
-          "changelog": "V2.5: Production-Ready Assignment with Gate Dependencies",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> Assigned: Producer giao việc (BR-14)\n    Assigned --> InProgress: Bắt đầu (stage trước Approved)\n    Assigned --> Blocked: Dependency chưa xong / script chưa khóa\n    InProgress --> Blocked: Bị chặn bởi thay đổi nguồn\n    Blocked --> InProgress: Hết chặn\n    InProgress --> Submitted: Nộp artifact (SHA-256)\n    Submitted --> UnderReview: Editor mở bài nộp\n    UnderReview --> Done: Đạt chuẩn cổng duyệt\n    UnderReview --> ReworkRequired: Trả về kèm ghi chú\n    ReworkRequired --> InProgress: Bắt đầu sửa đổi\n    Assigned --> Cancelled: Producer hủy / giao lại\n    Done --> [*]"
-        }
-      ]
-    },
-    {
-      "id": "StageProgress",
-      "coreFlow": "CF2",
-      "title": "StageProgress State Machine",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 2,
-          "updatedAt": "2026-10-27T12:03:47+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "0aa0055",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0aa0055",
-          "changelog": "V2.5: Gate-Controlled StageProgress with Invalidation",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> NotStarted: Khởi tạo trên Pipeline\n    NotStarted --> InProgress: Stage trước đã Approved (BR-19)\n    InProgress --> Submitted: Nộp artifact + SHA-256 hash\n    Submitted --> InReview: Editor mở kiểm tra\n    InReview --> Approved: Duyệt cổng (Reviewer != Submitter)\n    InReview --> ChangesRequested: Trả về kèm comment + vùng khoanh\n    ChangesRequested --> InProgress: Người nhận tiến hành sửa\n    Approved --> InProgress: Bị vô hiệu hóa do revision nguồn thay đổi\n    Approved --> [*]: Mở stage kế tiếp, stage này đóng băng"
-        }
-      ]
-    },
-    {
-      "id": "Submission",
-      "coreFlow": "CF3",
-      "title": "Submission Lifecycle",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 2,
-          "updatedAt": "2026-10-27T12:03:47+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "0aa0055",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0aa0055",
-          "changelog": "V2.5: Immutable Submissions with Supersede Pattern",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> Pending: Tạo lần nộp với SHA-256 artifact\n    Pending --> Approved: Editor duyệt đạt yêu cầu\n    Pending --> Rejected: Editor từ chối dứt điểm\n    Pending --> Superseded: Nghệ sĩ nộp phiên bản mới thay thế\n    Approved --> [*]\n    Rejected --> [*]\n    Superseded --> [*]"
-        }
-      ]
-    },
-    {
-      "id": "ChapterStatus",
-      "coreFlow": "CF5",
-      "title": "ChapterStatus State Machine",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 2,
-          "updatedAt": "2026-10-26T23:05:39+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "ccfe936",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ccfe936",
-          "changelog": "V2.5: Chapter Production to Immutable Snapshot & Publish",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> InProduction: Khởi tạo chương mới\n    InProduction --> Approved: Producer duyệt khi 100% item đạt stage cuối\n    InProduction --> InProduction: Producer từ chối kèm lý do\n    Approved --> Locked: Khóa chương, sinh ChapterSnapshot bất biến\n    Locked --> Published: Phát hành công khai ra catalog\n    Locked --> InProduction: Mở lại khẩn cấp kèm lý do (thu hồi token cũ)\n    Approved --> InProduction: Mở lại để chỉnh sửa\n    Published --> [*]"
-        }
-      ]
-    },
-    {
-      "id": "SeriesBibleRevision",
-      "coreFlow": "CF1",
-      "title": "SeriesBibleRevision State Machine",
-      "currentVersion": 2,
-      "revisions": [
-        {
-          "version": 1,
-          "updatedAt": "2026-10-06T10:00:00+07:00",
-          "updatedBy": "Architect Lead",
-          "repo": "BE",
-          "commitHash": "56c5aad",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/56c5aad",
-          "changelog": "V2.0: Single-Tier Draft & Direct Unlock",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> Draft: Tạo bản nháp\n    Draft --> CanonLocked: Khóa Canon\n    CanonLocked --> Draft: Mở khóa trực tiếp (/unlock)"
-        },
-        {
-          "version": 2,
-          "updatedAt": "2026-10-28T13:34:01+07:00",
-          "updatedBy": "trung kien",
-          "repo": "BE",
-          "commitHash": "cea3e94",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/cea3e94",
-          "changelog": "V2.5: 2-Tier Collaborative Bible Lifecycle with /supersede",
-          "mermaidCode": "stateDiagram-v2\n    [*] --> Draft: Writer tạo lore, mô tả ngoại hình\n    Draft --> ConceptSubmitted: Artist tải Model Sheet (CAS SHA-256)\n    ConceptSubmitted --> ReworkRequired: Writer/Editor yêu cầu vẽ lại kèm feedback\n    ReworkRequired --> ConceptSubmitted: Artist tải lại bản vẽ sửa đổi\n    ConceptSubmitted --> WriterEndorsed: Writer xác nhận chuẩn tầm nhìn kịch bản\n    WriterEndorsed --> CanonLocked: Producer duyệt tối cao và khóa Canon\n    CanonLocked --> [*]: Bất biến vĩnh viễn (Muốn sửa phải dùng /supersede)"
-        }
-      ]
-    }
-  ],
-  "tasks": [
-    {
-      "id": "PF-CF1-01",
-      "coreFlow": "CF1",
-      "linkedDiagramNode": "Draft",
-      "title": "3-Party Series Bible & CAS SHA-256 Storage",
-      "status": "Done",
-      "priority": "P0",
-      "owner": "trung kien",
-      "subTasks": [
-        {
-          "id": "SUB-CF1-BE-01",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "CAS SHA-256 storage & Artist upload endpoint",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "0cbdffb",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0cbdffb",
-          "completedAt": "2026-10-27T12:48:38+07:00"
-        },
-        {
-          "id": "SUB-CF1-FE-01",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "SeriesBibleView UI with Artist upload & Design Queue",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "9a9365e",
-          "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9a9365e",
-          "completedAt": "2026-10-27T12:48:48+07:00"
-        },
-        {
-          "id": "SUB-CF1-MOBILE-01",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Mobile Series Detail & Bible Lore Preview",
-          "status": "Done",
-          "completedBy": "MinhTHB",
-          "commitHash": "004769f",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/004769f",
-          "completedAt": "2026-10-27T14:18:23+07:00"
-        }
-      ]
-    },
-    {
-      "id": "PF-CF1-02",
-      "coreFlow": "CF1",
-      "linkedDiagramNode": "Era",
-      "title": "Multi-Era Character Management & Timeskip Lifecycle",
-      "status": "Done",
-      "priority": "P0",
-      "owner": "trung kien",
-      "subTasks": [
-        {
-          "id": "SUB-CF1-BE-02",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "Era & Versioning CQRS commands with CoversChapter query",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "cea3e94",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/cea3e94",
-          "completedAt": "2026-10-28T13:34:01+07:00"
-        },
-        {
-          "id": "SUB-CF1-FE-02",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "Era stage tabs & Version generation modal in SeriesBibleView",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "829d811",
-          "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/829d811",
-          "completedAt": "2026-10-29T12:19:29+07:00"
-        },
-        {
-          "id": "SUB-CF1-MOBILE-02",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Display active character era in Mobile Series Detail",
-          "status": "Done",
-          "completedBy": "Trần Bảo Minh",
-          "commitHash": "49b61b2",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/49b61b2",
-          "completedAt": "2026-10-27T14:11:16+07:00"
-        }
-      ]
-    },
-    {
-      "id": "PF-CF2-01",
-      "coreFlow": "CF2",
-      "linkedDiagramNode": "Script",
-      "title": "Independent Writer Script Authoring Flow",
-      "status": "Done",
-      "priority": "P0",
-      "owner": "trung kien",
-      "subTasks": [
-        {
-          "id": "SUB-CF2-BE-01",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "Open ScriptLine authorization for Writer role without Assignment",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "63f03df",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/63f03df",
-          "completedAt": "2026-10-23T14:33:16+07:00"
-        },
-        {
-          "id": "SUB-CF2-FE-01",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "ScriptEditorView with Scene & ScriptLine narrative mode",
-          "status": "Done",
-          "completedBy": "hoa03",
-          "commitHash": "7a72eaa",
-          "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7a72eaa",
-          "completedAt": "2026-10-27T14:29:25+07:00"
-        },
-        {
-          "id": "SUB-CF2-MOBILE-01",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Mobile Script Reading Mode in Reader Studio",
-          "status": "Done",
-          "completedBy": "MinhTHB",
-          "commitHash": "004769f",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/004769f",
-          "completedAt": "2026-10-27T14:18:23+07:00"
-        }
-      ]
-    },
-    {
-      "id": "PF-CF2-02",
-      "coreFlow": "CF2",
-      "linkedDiagramNode": "FreezeGate",
-      "title": "Script Freeze Gate & Producer Hand-off",
-      "status": "InProgress",
-      "priority": "P0",
-      "owner": "trung kien",
-      "subTasks": [
-        {
-          "id": "SUB-CF2-BE-02",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "ApproveScript & Freeze gate command with migration",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "ccfe936",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ccfe936",
-          "completedAt": "2026-10-26T23:05:39+07:00"
-        },
-        {
-          "id": "SUB-CF2-FE-02",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "Producer Freeze Script button & read-only lock banner",
-          "status": "InProgress",
-          "completedBy": null,
-          "commitHash": null,
-          "commitUrl": null,
-          "completedAt": null
-        },
-        {
-          "id": "SUB-CF2-MOBILE-02",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Display Freeze Status in Chapter Details",
-          "status": "Todo",
-          "completedBy": null,
-          "commitHash": null,
-          "commitUrl": null,
-          "completedAt": null
-        }
-      ]
-    },
-    {
-      "id": "PF-CF3-01",
-      "coreFlow": "CF3",
-      "linkedDiagramNode": "AICheck",
-      "title": "Chapter-Scoped Bible Gate Verification",
-      "status": "Done",
-      "priority": "P0",
-      "owner": "trung kien",
-      "subTasks": [
-        {
-          "id": "SUB-CF3-BE-01",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "CheckChapterBibleGateQuery returning CHARACTER_NOT_LOCKED",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "0aa0055",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0aa0055",
-          "completedAt": "2026-10-27T12:03:47+07:00"
-        },
-        {
-          "id": "SUB-CF3-FE-01",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "Bible Gate Blocking Alert & character unlock indicator",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "f331ede",
-          "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f331ede",
-          "completedAt": "2026-10-27T12:04:12+07:00"
-        },
-        {
-          "id": "SUB-CF3-MOBILE-01",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Bible Gate indicator on Mobile Review Hub",
-          "status": "Done",
-          "completedBy": "MinhTHB",
-          "commitHash": "004769f",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/004769f",
-          "completedAt": "2026-10-27T14:18:23+07:00"
-        }
-      ]
-    },
-    {
-      "id": "PF-CF4-01",
-      "coreFlow": "CF4",
-      "linkedDiagramNode": "CAS",
-      "title": "Append-Only Event Store & CAS SHA-256 Storage",
-      "status": "Done",
-      "priority": "P0",
-      "owner": "hoa03",
-      "subTasks": [
-        {
-          "id": "SUB-CF4-BE-01",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "Page canvas history & JSON export with provenance metadata",
-          "status": "Done",
-          "completedBy": "hoa03",
-          "commitHash": "3ae939b",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/3ae939b",
-          "completedAt": "2026-10-22T13:00:44+07:00"
-        },
-        {
-          "id": "SUB-CF4-FE-01",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "Canvas undo/redo with provenance tracking",
-          "status": "Done",
-          "completedBy": "hoa03",
-          "commitHash": "52fabb7",
-          "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/52fabb7",
-          "completedAt": "2026-10-27T14:33:26+07:00"
-        },
-        {
-          "id": "SUB-CF4-MOBILE-01",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Mobile Review Canvas with annotation history",
-          "status": "Done",
-          "completedBy": "MinhTHB",
-          "commitHash": "004769f",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/004769f",
-          "completedAt": "2026-10-27T14:18:23+07:00"
-        }
-      ]
-    },
-    {
-      "id": "PF-CF5-01",
-      "coreFlow": "CF5",
-      "linkedDiagramNode": "QR",
-      "title": "Mobile Preview QR Sync & Reader Studio",
-      "status": "Done",
-      "priority": "P1",
-      "owner": "chinsuhdh",
-      "subTasks": [
-        {
-          "id": "SUB-CF5-BE-01",
-          "platform": "BE",
-          "repoUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251",
-          "title": "Preview link generation with token expiration & watermark metadata",
-          "status": "Done",
-          "completedBy": "chinsuhdh",
-          "commitHash": "b663fd9",
-          "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b663fd9",
-          "completedAt": "2026-10-22T19:29:56+07:00"
-        },
-        {
-          "id": "SUB-CF5-FE-01",
-          "platform": "FE",
-          "repoUrl": "https://github.com/tkiennt/panelforge-fe",
-          "title": "QR Code modal generation with one-click copy and permission gates",
-          "status": "Done",
-          "completedBy": "trung kien",
-          "commitHash": "5f268ef",
-          "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5f268ef",
-          "completedAt": "2026-10-28T12:43:58+07:00"
-        },
-        {
-          "id": "SUB-CF5-MOBILE-01",
-          "platform": "MOBILE",
-          "repoUrl": "https://github.com/tranbaoming/panelforge-mobile",
-          "title": "Flutter QR scanner & Mobile Review Canvas with Watermark",
-          "status": "Done",
-          "completedBy": "MinhTHB",
-          "commitHash": "004769f",
-          "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/004769f",
-          "completedAt": "2026-10-27T14:18:23+07:00"
-        }
-      ]
-    }
-  ],
+  "lastSyncedAt": "2026-11-17T06:27:41.322Z",
+  "diagrams": [],
+  "tasks": [],
   "syncLogs": [
-    {
-      "id": "sync-FE-99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
-      "timestamp": "2026-11-14T13:43:06+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/99fa33f4d5392b1b96e84dbf2c86e7a5d0705b9f",
-      "message": "docs: add THBMinh branch & multi-agent worktree rules for Claude and Antigravity",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-54bd7e3f7396f583c3f834e17a260b413ad87332",
-      "timestamp": "2026-11-14T13:51:26+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "54bd7e3f7396f583c3f834e17a260b413ad87332",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/54bd7e3f7396f583c3f834e17a260b413ad87332",
-      "message": "feat(lettering): synchronize balloon logic with v2.6 and br-34 specs",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-ab2857a42cef3f3113cee723851228aea753ee32",
-      "timestamp": "2026-11-16T11:47:50+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "ab2857a42cef3f3113cee723851228aea753ee32",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ab2857a42cef3f3113cee723851228aea753ee32",
-      "message": "fix(lettering): surface balloon save errors and limit languages to series editions",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-bfe13e4d54e4d91b177f263365198d43f3c4807c",
-      "timestamp": "2026-11-17T12:34:35+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "bfe13e4d54e4d91b177f263365198d43f3c4807c",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/bfe13e4d54e4d91b177f263365198d43f3c4807c",
-      "message": "feat(lettering): add 1-click dialogue translation in script panel",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
-      "timestamp": "2026-11-14T13:42:48+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7ca38dfe14b362c75dbd89d134ce38d64db8eed0",
-      "message": "docs: add THBMinh branch & multi-agent worktree rules for Claude and Antigravity",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-6506e1af18afa21597db40655220db21cbdb5798",
-      "timestamp": "2026-11-17T12:34:23+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "6506e1af18afa21597db40655220db21cbdb5798",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/6506e1af18afa21597db40655220db21cbdb5798",
-      "message": "feat(translation): add libretranslate dialogue translation api",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c41ee879317e4d8767034423a0956ed4b75ed6ae",
-      "timestamp": "2026-11-13T11:50:06+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "c41ee879317e4d8767034423a0956ed4b75ed6ae",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c41ee879317e4d8767034423a0956ed4b75ed6ae",
-      "message": "feat(writer): writesolo speaker slot and grammar flow",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-30b975a488828e582cf9e777d4ef1272f3bc17db",
-      "timestamp": "2026-11-13T12:15:44+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "30b975a488828e582cf9e777d4ef1272f3bc17db",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/30b975a488828e582cf9e777d4ef1272f3bc17db",
-      "message": "feat(writer): rebuild graphic novel script editor on writersolo rules",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
-      "timestamp": "2026-11-13T12:33:25+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b59b0ed2f9ca09862cf49a86f81cb7df7da41f8f",
-      "message": "fix(writer): translate script labels and restore page/panel lines",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-0f6ea085eefc7cca832ee077817d48fbafc1ad53",
-      "timestamp": "2026-11-13T12:38:08+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "0f6ea085eefc7cca832ee077817d48fbafc1ad53",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0f6ea085eefc7cca832ee077817d48fbafc1ad53",
-      "message": "feat(writer): colon after character name jumps to dialogue",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
-      "timestamp": "2026-11-13T12:45:57+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0eb9aee1b4fed8fe2f5bec4c4e7d362b1e53e8e7",
-      "message": "feat(writer): quick chapter switching side tab",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-f96bbf53629c367005358edc3eea97d830fa79a6",
-      "timestamp": "2026-11-13T12:46:55+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "f96bbf53629c367005358edc3eea97d830fa79a6",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f96bbf53629c367005358edc3eea97d830fa79a6",
-      "message": "feat(bible): shared Writer/Artist workbench with category spec schema",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-71abf79fc6010273974987c98eda2c2f2eac038f",
-      "timestamp": "2026-11-13T12:58:44+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "71abf79fc6010273974987c98eda2c2f2eac038f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/71abf79fc6010273974987c98eda2c2f2eac038f",
-      "message": "feat(writer): element menu on empty enter and colon after character",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4323e689d222ccbdb70e8f2570463cc492828338",
-      "timestamp": "2026-11-13T13:04:32+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "4323e689d222ccbdb70e8f2570463cc492828338",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4323e689d222ccbdb70e8f2570463cc492828338",
-      "message": "fix(writer): set warm desk workspace background to contrast paper sheet",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-fb546ffe601b9c24cd069658524d345e8e205d83",
-      "timestamp": "2026-11-13T13:10:15+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "fb546ffe601b9c24cd069658524d345e8e205d83",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/fb546ffe601b9c24cd069658524d345e8e205d83",
-      "message": "feat(writer): drop unlisted-page warning after script save",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-cb93f3b7edc46eb40555c1db7106b9e4f22a3011",
-      "timestamp": "2026-11-13T13:11:55+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "cb93f3b7edc46eb40555c1db7106b9e4f22a3011",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/cb93f3b7edc46eb40555c1db7106b9e4f22a3011",
-      "message": "feat(writer): set continuous long manuscript page as default format",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-e98d8adcb894e2e545d6ea746248d83822bab3be",
-      "timestamp": "2026-11-13T13:38:26+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "e98d8adcb894e2e545d6ea746248d83822bab3be",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e98d8adcb894e2e545d6ea746248d83822bab3be",
-      "message": "feat(script): writer submit, editor comments, producer start flow",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-67d25654fcb817bd15a8b7e3a2e1754b124a7f1f",
-      "timestamp": "2026-11-13T13:41:03+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "67d25654fcb817bd15a8b7e3a2e1754b124a7f1f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/67d25654fcb817bd15a8b7e3a2e1754b124a7f1f",
-      "message": "fix(script): handle PreProduction chapters in labels and restore",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-dc178f213290bc726719bc6949743e956e7a73b3",
-      "timestamp": "2026-11-13T14:13:09+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "dc178f213290bc726719bc6949743e956e7a73b3",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/dc178f213290bc726719bc6949743e956e7a73b3",
-      "message": "feat(publisher): revenue, series dashboard and chapter preview page grid",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-0ca3e5aab2048f86bbb8dac60792391d43942153",
-      "timestamp": "2026-11-13T14:24:08+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "0ca3e5aab2048f86bbb8dac60792391d43942153",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0ca3e5aab2048f86bbb8dac60792391d43942153",
-      "message": "chore(merge): sync trungkien into feature/publisher-monetization",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b91206b0df998a1942c703f965195ce8b1d255fc",
-      "timestamp": "2026-11-13T14:24:19+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "b91206b0df998a1942c703f965195ce8b1d255fc",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b91206b0df998a1942c703f965195ce8b1d255fc",
-      "message": "docs(agents): add git workflow rules for AI agents",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d78f1a39c2be098d9c4122b9a2ed2d297cfa9062",
-      "timestamp": "2026-11-13T14:28:06+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "d78f1a39c2be098d9c4122b9a2ed2d297cfa9062",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d78f1a39c2be098d9c4122b9a2ed2d297cfa9062",
-      "message": "docs(agents): require hub tracker update after code changes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-826b7ff5865ee3deb422cacacd218499fe91cf0f",
-      "timestamp": "2026-11-13T14:35:34+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "826b7ff5865ee3deb422cacacd218499fe91cf0f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/826b7ff5865ee3deb422cacacd218499fe91cf0f",
-      "message": "chore(merge): sync trungkien into feature/series-bible-spec-v26",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7c47df3ffb9bc0cd5585c1202e1db89739ddbf8d",
-      "timestamp": "2026-11-13T14:37:38+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "7c47df3ffb9bc0cd5585c1202e1db89739ddbf8d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7c47df3ffb9bc0cd5585c1202e1db89739ddbf8d",
-      "message": "style(bible): use warm stone palette and fix design queue typing",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-726fd812936d0caedb46629165d6a0523a592204",
-      "timestamp": "2026-11-13T16:34:36+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "726fd812936d0caedb46629165d6a0523a592204",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/726fd812936d0caedb46629165d6a0523a592204",
-      "message": "fix(writer): require manual colon to finish character and open dialogue",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-1ed7ff39fe7522537127a326fbb36e7ada9eeb5c",
-      "timestamp": "2026-11-13T16:46:59+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "1ed7ff39fe7522537127a326fbb36e7ada9eeb5c",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1ed7ff39fe7522537127a326fbb36e7ada9eeb5c",
-      "message": "fix(writer): preserve character when reconstructing script from server",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-fc99a0e7d1417ba5a04dfc7d76684713039099ab",
-      "timestamp": "2026-11-13T16:52:48+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "fc99a0e7d1417ba5a04dfc7d76684713039099ab",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/fc99a0e7d1417ba5a04dfc7d76684713039099ab",
-      "message": "fix(writer): append colon on character autocomplete and enter",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
-      "timestamp": "2026-11-13T16:57:06+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/788ce515d76e64c1901d5e756e14ed1c9a9ef1e6",
-      "message": "style(writer): emphasize page and panel headers with bold styling",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
-      "timestamp": "2026-11-13T17:17:31+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/55cd2c180ffd9f186cf8da0f2ced00f816b8ce94",
-      "message": "feat(review): modern script comment cards for editor and writer views",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c66386aa23efd13f994d5524eda85d412660888d",
-      "timestamp": "2026-11-13T17:20:24+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "c66386aa23efd13f994d5524eda85d412660888d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c66386aa23efd13f994d5524eda85d412660888d",
-      "message": "refactor(writer): remove top comments details panel in favor of sidebar",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-ea5670d16b81f480ad5df754684e5b2808ee846a",
-      "timestamp": "2026-11-13T17:30:02+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "ea5670d16b81f480ad5df754684e5b2808ee846a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ea5670d16b81f480ad5df754684e5b2808ee846a",
-      "message": "feat(writer): add right-side review panel matching editor view",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-710bccb4a3a78301b0b08203805f6eb51e77cf41",
-      "timestamp": "2026-11-13T23:14:39+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "710bccb4a3a78301b0b08203805f6eb51e77cf41",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/710bccb4a3a78301b0b08203805f6eb51e77cf41",
-      "message": "chore(merge): sync feature/series-bible-spec-v26 into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-07dc97ed99658e765488064875718d070a1fb6f2",
-      "timestamp": "2026-11-13T23:14:42+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "07dc97ed99658e765488064875718d070a1fb6f2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/07dc97ed99658e765488064875718d070a1fb6f2",
-      "message": "chore(merge): sync feature/publisher-monetization into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-802e40ff914580c04c19c740170e2fe7fbb68d56",
-      "timestamp": "2026-11-14T00:40:45+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "802e40ff914580c04c19c740170e2fe7fbb68d56",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/802e40ff914580c04c19c740170e2fe7fbb68d56",
-      "message": "docs: remove stale docs, point business docs to panelforge-hub",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
-      "timestamp": "2026-11-13T13:10:12+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8c74c8c826e162b6fd277f82ece66f3096d0b0ea",
-      "message": "feat(pages): script sync removes pages and panels it no longer lists",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d13605748a7ffa401fff384a55b0078558a631f1",
-      "timestamp": "2026-11-13T13:25:10+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d13605748a7ffa401fff384a55b0078558a631f1",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d13605748a7ffa401fff384a55b0078558a631f1",
-      "message": "feat(script): writer submit, recall and start production lifecycle (D12)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-9059e5a8bb3cb0ee05b1416b3bccbb05a032391f",
-      "timestamp": "2026-11-13T13:31:42+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "9059e5a8bb3cb0ee05b1416b3bccbb05a032391f",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/9059e5a8bb3cb0ee05b1416b3bccbb05a032391f",
-      "message": "feat(script): add line comments on chapter scripts",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-a3b9a292382b5d357482b6ef97b048c89869cc4e",
-      "timestamp": "2026-11-13T13:51:37+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "a3b9a292382b5d357482b6ef97b048c89869cc4e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/a3b9a292382b5d357482b6ef97b048c89869cc4e",
-      "message": "feat(script): chapter script versions, save commits, submit pushes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-5e55c97d456699b00a1dacc8a7a3efaa832cb405",
-      "timestamp": "2026-11-13T14:00:23+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "5e55c97d456699b00a1dacc8a7a3efaa832cb405",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5e55c97d456699b00a1dacc8a7a3efaa832cb405",
-      "message": "feat(script): edit while in review, re-push, drop script stage",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d7621396a888abf66a04636be50c994da5200143",
-      "timestamp": "2026-11-13T14:13:01+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "d7621396a888abf66a04636be50c994da5200143",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d7621396a888abf66a04636be50c994da5200143",
-      "message": "feat(auth): add check-email endpoint for email-first mobile login",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-ddfd406ab5fb9c8685c874e5b293504914797fa9",
-      "timestamp": "2026-11-13T14:13:02+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "ddfd406ab5fb9c8685c874e5b293504914797fa9",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ddfd406ab5fb9c8685c874e5b293504914797fa9",
-      "message": "feat(monetization): publisher dashboard, language editions and preview pages",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-aadec737896ff998db5fd23b72b1906ee78b66f5",
-      "timestamp": "2026-11-13T14:19:29+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "aadec737896ff998db5fd23b72b1906ee78b66f5",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/aadec737896ff998db5fd23b72b1906ee78b66f5",
-      "message": "Merge remote-tracking branch 'origin/trungkien' into feature/publisher-monetization",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-aeebf6596aa2aa605461416226f07202fa17252c",
-      "timestamp": "2026-11-13T14:19:39+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "aeebf6596aa2aa605461416226f07202fa17252c",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/aeebf6596aa2aa605461416226f07202fa17252c",
-      "message": "test: align unit tests with script lifecycle (SCR-38)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
-      "timestamp": "2026-11-13T14:24:11+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b6be4bc0692307c25f38e8a04572eeb3c7ed9929",
-      "message": "chore(merge): sync trungkien into feature/publisher-monetization",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-5495ec2f192a06da1520801d7148167dc1cc8508",
-      "timestamp": "2026-11-13T14:24:25+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "5495ec2f192a06da1520801d7148167dc1cc8508",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5495ec2f192a06da1520801d7148167dc1cc8508",
-      "message": "docs(agents): add git workflow rules for AI agents",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-7dcd991d71bfe97610a977d323122db1bb08f6cc",
-      "timestamp": "2026-11-13T14:28:11+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "7dcd991d71bfe97610a977d323122db1bb08f6cc",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7dcd991d71bfe97610a977d323122db1bb08f6cc",
-      "message": "docs(agents): require hub tracker update after code changes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-50fb4a0716f148115bb48cb4bab075d69e4e84f6",
-      "timestamp": "2026-11-13T16:47:14+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "50fb4a0716f148115bb48cb4bab075d69e4e84f6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/50fb4a0716f148115bb48cb4bab075d69e4e84f6",
-      "message": "fix(script): return Kind and SpeakerLabel in SceneScriptLineSummaryDto",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-89abf264760f954346cd384eef01ac413084e04b",
-      "timestamp": "2026-11-13T23:14:35+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "89abf264760f954346cd384eef01ac413084e04b",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/89abf264760f954346cd384eef01ac413084e04b",
-      "message": "chore(merge): sync feature/series-bible-spec-v26 into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-00239a943f0bd2a83388774a3e67bbccb27640da",
-      "timestamp": "2026-11-13T23:14:38+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "00239a943f0bd2a83388774a3e67bbccb27640da",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/00239a943f0bd2a83388774a3e67bbccb27640da",
-      "message": "chore(merge): sync feature/publisher-monetization into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-18f2e923fda591ecc16df160a1017be1146a8aec",
-      "timestamp": "2026-11-14T00:40:48+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "18f2e923fda591ecc16df160a1017be1146a8aec",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/18f2e923fda591ecc16df160a1017be1146a8aec",
-      "message": "docs: remove stale business docs, keep operational docs only",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-88c275a24a649635e613b6043b9bbddae222f53c",
-      "timestamp": "2026-11-14T00:40:58+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "88c275a24a649635e613b6043b9bbddae222f53c",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/88c275a24a649635e613b6043b9bbddae222f53c",
-      "message": "docs: rewrite README and docs index to point to panelforge-hub",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/83fa8e6c40330dd6b3a59b075db344a7977ea1be",
-      "message": "docs(writer): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-a78d79d70597dd9110cc91f640780da363474150",
-      "timestamp": "2026-11-12T13:39:17+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "a78d79d70597dd9110cc91f640780da363474150",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a78d79d70597dd9110cc91f640780da363474150",
-      "message": "chore(config): normalize gitignore and drop unused prisma and metadata",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
-      "timestamp": "2026-11-12T13:41:38+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3c5f74d241e432df7e5e5c465b272d54ca8c55b1",
-      "message": "docs(notes): merge spec v2.6, team workboard and gitignore cleanup",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9d28f7279a5a657a0abfa327bf64c02cb1059906",
-      "timestamp": "2026-11-12T14:08:04+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "9d28f7279a5a657a0abfa327bf64c02cb1059906",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9d28f7279a5a657a0abfa327bf64c02cb1059906",
-      "message": "refactor(bible): split series bible screen and align roles with spec V2.6",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-0c5c1d26fd2b198b6fb9b22a68b7d24604630e5a",
-      "timestamp": "2026-11-12T17:40:52+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "0c5c1d26fd2b198b6fb9b22a68b7d24604630e5a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0c5c1d26fd2b198b6fb9b22a68b7d24604630e5a",
-      "message": "docs(notes): extend business rules skill to BR-34 for spec v2.6",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7a83f6dd12d1d0bdac5b0503b112f3710fc62ade",
-      "timestamp": "2026-11-12T17:40:53+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "7a83f6dd12d1d0bdac5b0503b112f3710fc62ade",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7a83f6dd12d1d0bdac5b0503b112f3710fc62ade",
-      "message": "chore(config): ignore local page-diff service folder",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-1efa393c086c612b2a0fefe622da2dfc36913bc8",
-      "timestamp": "2026-11-12T17:40:55+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "1efa393c086c612b2a0fefe622da2dfc36913bc8",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1efa393c086c612b2a0fefe622da2dfc36913bc8",
-      "message": "docs(notes): move spec, workboard and design rules to panelforge-hub",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-93659eb6f462476cd8e9a4df4f70c0291612acaa",
-      "timestamp": "2026-11-12T17:57:40+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "93659eb6f462476cd8e9a4df4f70c0291612acaa",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/93659eb6f462476cd8e9a4df4f70c0291612acaa",
-      "message": "style(ui): format frontend sources with prettier",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b252442a203f99e9da19363880b99e82b19359d0",
-      "timestamp": "2026-11-12T18:19:14+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "b252442a203f99e9da19363880b99e82b19359d0",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b252442a203f99e9da19363880b99e82b19359d0",
-      "message": "fix(ui): clear remaining eslint errors blocking frontend ci",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-501ba46dbcbd61a6b691308ff2c090e34620a23e",
-      "timestamp": "2026-11-13T08:42:37+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "501ba46dbcbd61a6b691308ff2c090e34620a23e",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/501ba46dbcbd61a6b691308ff2c090e34620a23e",
-      "message": "feat(ui): merge diagonal panel split and i18n from origin tam",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-ca0a222fd1ba34afdd16fb3e0f8bba7f8b719800",
-      "timestamp": "2026-11-13T09:40:35+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "ca0a222fd1ba34afdd16fb3e0f8bba7f8b719800",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ca0a222fd1ba34afdd16fb3e0f8bba7f8b719800",
-      "message": "feat(script): update script writing",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b97f97f601a913473542b9884e789bbefc50056a",
-      "timestamp": "2026-11-13T09:53:40+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "b97f97f601a913473542b9884e789bbefc50056a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b97f97f601a913473542b9884e789bbefc50056a",
-      "message": "feat(script): implement SCR-25 pure grammar rules for typing",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
-      "timestamp": "2026-11-13T10:23:50+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/970c0529e3aadec10b9e69f5e09d1dc3f2dfd52d",
-      "message": "feat(script): implement writesolo element menu and schema adapter",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-6f4a129f26adf34218d3b2629ef783fee3aaf036",
-      "timestamp": "2026-11-13T10:41:01+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "6f4a129f26adf34218d3b2629ef783fee3aaf036",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6f4a129f26adf34218d3b2629ef783fee3aaf036",
-      "message": "fix(test): mock getChangeRequests in ScriptEditorView tests",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c8600e75b76db646ece840f38ff581095dafbc3e",
-      "timestamp": "2026-11-13T10:48:33+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "c8600e75b76db646ece840f38ff581095dafbc3e",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c8600e75b76db646ece840f38ff581095dafbc3e",
-      "message": "style(bible): align series bible screen with studio design system",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-360e1350cc4d09c82268e45e5c2697eb69fef55b",
-      "timestamp": "2026-11-13T11:06:09+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "360e1350cc4d09c82268e45e5c2697eb69fef55b",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/360e1350cc4d09c82268e45e5c2697eb69fef55b",
-      "message": "style(bible): render entity workbench inside AppShell with studio styling",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-8bd3d540014883268824c2a567d151733869e11e",
-      "timestamp": "2026-11-13T11:15:59+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "8bd3d540014883268824c2a567d151733869e11e",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8bd3d540014883268824c2a567d151733869e11e",
-      "message": "feat(writer): pure WriteSolo keyboard flow (SCR-26, SCR-27)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9f8e438b2999afc98de6d79a02b02612edf8d2d3",
-      "timestamp": "2026-11-13T11:24:40+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "9f8e438b2999afc98de6d79a02b02612edf8d2d3",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9f8e438b2999afc98de6d79a02b02612edf8d2d3",
-      "message": "style(bible): open entity workbench as a full-page light view",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-37c7df84bc29589f753cefcf457923e95561f34a",
-      "timestamp": "2026-11-16T11:32:30+07:00",
-      "repo": "FE",
-      "author": "MinhTHB",
-      "commitHash": "37c7df84bc29589f753cefcf457923e95561f34a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/37c7df84bc29589f753cefcf457923e95561f34a",
-      "message": "feat(lettering): redesign letter desk and add language editions ui",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-97bf35c85146d9230f956e0b304112043bf015ac",
-      "timestamp": "2026-11-11T17:49:43+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "97bf35c85146d9230f956e0b304112043bf015ac",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/97bf35c85146d9230f956e0b304112043bf015ac",
-      "message": "feat(script): merge writer page and panel creation from script",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-eb4cfeb93c77ddaa53f6d165af69e90ddb4bdd02",
-      "timestamp": "2026-11-11T18:17:28+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "eb4cfeb93c77ddaa53f6d165af69e90ddb4bdd02",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/eb4cfeb93c77ddaa53f6d165af69e90ddb4bdd02",
-      "message": "feat(script): save page, panel and line structure in one transaction",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-67c73c225b07e5f2d763b0753db8827fcdd485af",
-      "timestamp": "2026-11-11T18:17:29+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "67c73c225b07e5f2d763b0753db8827fcdd485af",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/67c73c225b07e5f2d763b0753db8827fcdd485af",
-      "message": "fix(chapter): drop unmapped User.IsDeleted filter when approving",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f95369e86c5a60021a27f28b13398eb284403a75",
-      "timestamp": "2026-11-11T18:33:26+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f95369e86c5a60021a27f28b13398eb284403a75",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f95369e86c5a60021a27f28b13398eb284403a75",
-      "message": "feat(script): merge one-transaction script structure save",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1cb44edb96d31e9d0edc89ef7b770384c66bebcb",
-      "timestamp": "2026-11-12T00:07:20+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1cb44edb96d31e9d0edc89ef7b770384c66bebcb",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1cb44edb96d31e9d0edc89ef7b770384c66bebcb",
-      "message": "fix(bible): enforce review transitions and per-stage concept queue",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-e63d565e16557ecb160687e4b6fcd6aa3fcefd61",
-      "timestamp": "2026-11-12T07:25:15+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "e63d565e16557ecb160687e4b6fcd6aa3fcefd61",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e63d565e16557ecb160687e4b6fcd6aa3fcefd61",
-      "message": "feat(payments): add wallet, workspace payments and paid chapter access",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-a092b0f43ab13620b67ed5f090e95d4719b10915",
-      "timestamp": "2026-11-12T07:33:29+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "a092b0f43ab13620b67ed5f090e95d4719b10915",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/a092b0f43ab13620b67ed5f090e95d4719b10915",
-      "message": "fix(bible): merge review transition and per-stage queue fixes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-79b5077da464f22b104824bd702a6e621c39ab6f",
-      "timestamp": "2026-11-12T07:54:54+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "79b5077da464f22b104824bd702a6e621c39ab6f",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/79b5077da464f22b104824bd702a6e621c39ab6f",
-      "message": "fix(bible): lock locations and props, editor endorses, producer locks",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-df10ee3092406dc354e9e9e85cf7956d999b3bad",
-      "timestamp": "2026-11-12T07:57:04+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "df10ee3092406dc354e9e9e85cf7956d999b3bad",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/df10ee3092406dc354e9e9e85cf7956d999b3bad",
-      "message": "fix(bible): merge visual design lock and editor-only endorse",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-7dc2c4f32e3b8f5cbff497ddcbcf12445ba381a0",
-      "timestamp": "2026-11-12T11:29:52+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "7dc2c4f32e3b8f5cbff497ddcbcf12445ba381a0",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7dc2c4f32e3b8f5cbff497ddcbcf12445ba381a0",
-      "message": "fix(api): allow artist to edit balloon text, style and reading order",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-01f5f9f6d8f861aba8b6da3e31c57cadf5535b9f",
-      "timestamp": "2026-11-12T11:29:53+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "01f5f9f6d8f861aba8b6da3e31c57cadf5535b9f",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/01f5f9f6d8f861aba8b6da3e31c57cadf5535b9f",
-      "message": "fix(chapter): block chapter approval on unresolved impact flags",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-c8dc9c2ac62fdac359729d3c9af66a89cde0c855",
-      "timestamp": "2026-11-12T11:29:55+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "c8dc9c2ac62fdac359729d3c9af66a89cde0c855",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c8dc9c2ac62fdac359729d3c9af66a89cde0c855",
-      "message": "fix(script): require reason when unfreezing chapter script",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-916eda2ca657ad60f404b97fba7c7122951979d9",
-      "timestamp": "2026-11-12T11:29:56+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "916eda2ca657ad60f404b97fba7c7122951979d9",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/916eda2ca657ad60f404b97fba7c7122951979d9",
-      "message": "fix(review): enforce four-eyes rule when returning work to rework",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f0ebc7c90049f86ff3951b5d17359046faf58003",
-      "timestamp": "2026-11-12T11:35:20+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f0ebc7c90049f86ff3951b5d17359046faf58003",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f0ebc7c90049f86ff3951b5d17359046faf58003",
-      "message": "fix(api): merge spec v2.6 p0 business rule fixes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-b9b04a7ea3c4681b4a56a76c654109789993666e",
-      "timestamp": "2026-11-12T12:06:00+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "b9b04a7ea3c4681b4a56a76c654109789993666e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b9b04a7ea3c4681b4a56a76c654109789993666e",
-      "message": "feat(catalog): track chapter views, series completion and preview reviewer name",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-c74649d0f4a37183ec733edebeaeea0ea225d38c",
-      "timestamp": "2026-11-12T12:39:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "c74649d0f4a37183ec733edebeaeea0ea225d38c",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c74649d0f4a37183ec733edebeaeea0ea225d38c",
-      "message": "docs(notes): remove panel splitter plan merged into module plans",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f6535e0d615cbe2ecc70cf2a436a196c9fda9038",
-      "timestamp": "2026-11-12T12:40:56+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f6535e0d615cbe2ecc70cf2a436a196c9fda9038",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f6535e0d615cbe2ecc70cf2a436a196c9fda9038",
-      "message": "docs(notes): merge removal of panel splitter plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-051182eb3c2b6fadf553d4443cab6037fe3735f0",
-      "timestamp": "2026-11-12T13:10:41+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "051182eb3c2b6fadf553d4443cab6037fe3735f0",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/051182eb3c2b6fadf553d4443cab6037fe3735f0",
-      "message": "docs(notes): archive merged cf change logs and link shared plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-4b7d18ed30b8731d64bfa8d674cbb9656661fc05",
-      "timestamp": "2026-11-12T13:11:32+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "4b7d18ed30b8731d64bfa8d674cbb9656661fc05",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/4b7d18ed30b8731d64bfa8d674cbb9656661fc05",
-      "message": "docs(notes): archive registration form v1.2 scope and project plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-fb2c3a7390e9c5a85b32b426285cc1b9ab08f6b5",
-      "timestamp": "2026-11-12T13:12:30+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "fb2c3a7390e9c5a85b32b426285cc1b9ab08f6b5",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/fb2c3a7390e9c5a85b32b426285cc1b9ab08f6b5",
-      "message": "docs(notes): merge archive of v1.2 scope and shared plan links",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "timestamp": "2026-11-12T13:39:18+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/57aed3d311a2f9a19aa790978d68e08d2ad8aaf6",
-      "message": "docs(notes): point backend docs to shared spec and team workboard",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "timestamp": "2026-11-12T13:39:19+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1c5cb89db4e8cec38bfd1ce2c315621558f1e27b",
-      "message": "docs(script): align chapter script spec with hidden default scene",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-2609b9d209aad7f3b874a695287999a2cc2520f6",
-      "timestamp": "2026-11-12T13:39:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "2609b9d209aad7f3b874a695287999a2cc2520f6",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2609b9d209aad7f3b874a695287999a2cc2520f6",
-      "message": "chore(config): ignore local worktrees and drop unused prisma schema",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d6d27d22c8cd68a360e17b4589707c1df91a3821",
-      "timestamp": "2026-11-12T13:41:35+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d6d27d22c8cd68a360e17b4589707c1df91a3821",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d6d27d22c8cd68a360e17b4589707c1df91a3821",
-      "message": "docs(notes): merge shared spec links and backend gitignore cleanup",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-c310e7c337cb4090a0cc53ce8b5e979740b8225e",
-      "timestamp": "2026-11-12T14:07:51+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "c310e7c337cb4090a0cc53ce8b5e979740b8225e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c310e7c337cb4090a0cc53ce8b5e979740b8225e",
-      "message": "fix(bible): writer and editor endorse per spec V2.6 §5.1",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-de318537da5a460d16521dd87751033d8825478b",
-      "timestamp": "2026-11-12T17:40:50+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "de318537da5a460d16521dd87751033d8825478b",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/de318537da5a460d16521dd87751033d8825478b",
-      "message": "docs(notes): extend business rules skill to BR-34 for spec v2.6",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-8b66b5c219edec5c1c9c08395e09a4b03037dd0e",
-      "timestamp": "2026-11-12T17:40:51+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "8b66b5c219edec5c1c9c08395e09a4b03037dd0e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8b66b5c219edec5c1c9c08395e09a4b03037dd0e",
-      "message": "docs(notes): point backend docs to panelforge-hub as single source",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-47882d808cce7c51a19392b443ebdd3eaef5aad7",
-      "timestamp": "2026-11-13T08:34:01+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "47882d808cce7c51a19392b443ebdd3eaef5aad7",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/47882d808cce7c51a19392b443ebdd3eaef5aad7",
-      "message": "feat(api): merge diagonal split and fixes from test-feature",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-8c8cd76cf8f9c7f5e1497783f65153b568785373",
-      "timestamp": "2026-11-13T10:15:36+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "8c8cd76cf8f9c7f5e1497783f65153b568785373",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8c8cd76cf8f9c7f5e1497783f65153b568785373",
-      "message": "fix(bible): open series bible when a series has no bible row",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-09716d5353cac53cf10d376f5b67dc06e935ee1d",
-      "timestamp": "2026-11-13T10:24:26+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "09716d5353cac53cf10d376f5b67dc06e935ee1d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/09716d5353cac53cf10d376f5b67dc06e935ee1d",
-      "message": "feat(script): add ScriptLineKind and Panel direction schema",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-6ca7f11da9619e1f685fe4121cd30166c815029e",
-      "timestamp": "2026-11-13T11:41:07+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "6ca7f11da9619e1f685fe4121cd30166c815029e",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/6ca7f11da9619e1f685fe4121cd30166c815029e",
-      "message": "feat(bible): list the chapters where a bible entry is used",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-08bff07a7f58fe0ea8590bdebf0120a9b68c28ae",
-      "timestamp": "2026-11-16T11:32:10+07:00",
-      "repo": "BE",
-      "author": "MinhTHB",
-      "commitHash": "08bff07a7f58fe0ea8590bdebf0120a9b68c28ae",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/08bff07a7f58fe0ea8590bdebf0120a9b68c28ae",
-      "message": "feat(editions): add in-system balloon translation and language editions",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-5c9e90fd745f01a7cc5fc6a22b8c89754cd06b54",
-      "timestamp": "2026-11-12T07:41:36+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "5c9e90fd745f01a7cc5fc6a22b8c89754cd06b54",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/5c9e90fd745f01a7cc5fc6a22b8c89754cd06b54",
-      "message": "feat(monetization): add VietQR payment panel and limited-view chapter unlocks",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-07a3f70f8cafad4d24038905e5b927ba53690a36",
-      "timestamp": "2026-11-12T12:19:02+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "07a3f70f8cafad4d24038905e5b927ba53690a36",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/07a3f70f8cafad4d24038905e5b927ba53690a36",
-      "message": "feat(mobile): add browse, series grid, profile and VIP purchase screens (v1.4.0)",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-df4c7b1add4409d731ac4a08cf7a9ced9982795e",
-      "timestamp": "2026-11-12T13:10:39+07:00",
-      "repo": "MOBILE",
-      "author": "trung kien",
-      "commitHash": "df4c7b1add4409d731ac4a08cf7a9ced9982795e",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/df4c7b1add4409d731ac4a08cf7a9ced9982795e",
-      "message": "docs(notes): link mobile docs to shared implement plan",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-a5f6c0dd4736143378b1882bd406202bff3a0415",
-      "timestamp": "2026-11-12T13:12:27+07:00",
-      "repo": "MOBILE",
-      "author": "trung kien",
-      "commitHash": "a5f6c0dd4736143378b1882bd406202bff3a0415",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/a5f6c0dd4736143378b1882bd406202bff3a0415",
-      "message": "docs(notes): merge shared implement plan link",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c83a789d369f5881147f33c50a17a2b53fafc9eb",
-      "timestamp": "2026-11-14T11:49:39+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "c83a789d369f5881147f33c50a17a2b53fafc9eb",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c83a789d369f5881147f33c50a17a2b53fafc9eb",
-      "message": "style(workspace): align studio list with the studio design system",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9d3e46ef66947152dd108edf7d1e54ff0ec51526",
-      "timestamp": "2026-11-14T12:08:43+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "9d3e46ef66947152dd108edf7d1e54ff0ec51526",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9d3e46ef66947152dd108edf7d1e54ff0ec51526",
-      "message": "feat(workspace): invitations, your work, series and storage on studio list",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-99835ef71135a5d145a03991e434dd3c6363e753",
-      "timestamp": "2026-11-14T14:02:47+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "99835ef71135a5d145a03991e434dd3c6363e753",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/99835ef71135a5d145a03991e434dd3c6363e753",
-      "message": "fix(nav): highlight Quy trình sản xuất on the production page",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c5ef03661baba19b7851ccaaf588588f2d16ec42",
-      "timestamp": "2026-11-14T14:39:53+07:00",
-      "repo": "FE",
-      "author": "DontPassAway",
-      "commitHash": "c5ef03661baba19b7851ccaaf588588f2d16ec42",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c5ef03661baba19b7851ccaaf588588f2d16ec42",
-      "message": "feat(ui): page × stage board for production, series shelf for studios",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-46a31c50637bcdf8165e77886ebf768bfddd26c8",
-      "timestamp": "2026-11-14T22:19:22+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "46a31c50637bcdf8165e77886ebf768bfddd26c8",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/46a31c50637bcdf8165e77886ebf768bfddd26c8",
-      "message": "chore(merge): sync origin/THBMinh into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-ea3732660589269e659e46e7eb59eefa6b845642",
-      "timestamp": "2026-11-14T22:37:35+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "ea3732660589269e659e46e7eb59eefa6b845642",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ea3732660589269e659e46e7eb59eefa6b845642",
-      "message": "chore(merge): sync origin/feature/workspace-list-redesign into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-1f6809d0feb2c371eac6de92e4bbd44dc86e3acf",
-      "timestamp": "2026-11-14T22:39:52+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "1f6809d0feb2c371eac6de92e4bbd44dc86e3acf",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1f6809d0feb2c371eac6de92e4bbd44dc86e3acf",
-      "message": "feat(bible): move series bible view and detail modal strings to i18n",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d75ee22e643cbce3711acd23a9ee5ab7aecf7b8d",
-      "timestamp": "2026-11-14T23:31:34+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "d75ee22e643cbce3711acd23a9ee5ab7aecf7b8d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d75ee22e643cbce3711acd23a9ee5ab7aecf7b8d",
-      "message": "refactor(bible): replace era ui with variant label",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-8c43b10c060c39cf4d31388f9e4f50c0a4051021",
-      "timestamp": "2026-11-14T23:34:45+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "8c43b10c060c39cf4d31388f9e4f50c0a4051021",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8c43b10c060c39cf4d31388f9e4f50c0a4051021",
-      "message": "chore(merge): sync feature/series-bible-i18n-2 into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-209bef88134f40da87d290383c28e80474d3cbbd",
-      "timestamp": "2026-11-14T23:49:14+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "209bef88134f40da87d290383c28e80474d3cbbd",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/209bef88134f40da87d290383c28e80474d3cbbd",
-      "message": "feat(bible): canon entry info, draft badge and no aliases in ui",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-3a76596895baa2cf57fa707bbefee173decca79b",
-      "timestamp": "2026-11-14T23:52:46+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "3a76596895baa2cf57fa707bbefee173decca79b",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3a76596895baa2cf57fa707bbefee173decca79b",
-      "message": "chore(merge): sync feature/bib-01-no-alias-fe into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d13f91019df9609d0a71a4a888e91fbcf7ce8a82",
-      "timestamp": "2026-11-15T00:02:33+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "d13f91019df9609d0a71a4a888e91fbcf7ce8a82",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d13f91019df9609d0a71a4a888e91fbcf7ce8a82",
-      "message": "feat(ui): add shared modal, drawer, alert, toast and sidebar primitives",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-0576fb47282bc0c589923bf04907c32bdc18ad4a",
-      "timestamp": "2026-11-15T00:13:30+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "0576fb47282bc0c589923bf04907c32bdc18ad4a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0576fb47282bc0c589923bf04907c32bdc18ad4a",
-      "message": "refactor(lettering): move balloon and text style helpers to shared",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-889b6211f4eadb4029eabfe2475e9852765ae9b2",
-      "timestamp": "2026-11-15T00:13:30+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "889b6211f4eadb4029eabfe2475e9852765ae9b2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/889b6211f4eadb4029eabfe2475e9852765ae9b2",
-      "message": "fix(ui): restore toast test ids and keep render pure",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-02df9e02a9ea0cfbb9e6c4bc9d0f2683951633fe",
-      "timestamp": "2026-11-15T00:13:32+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "02df9e02a9ea0cfbb9e6c4bc9d0f2683951633fe",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/02df9e02a9ea0cfbb9e6c4bc9d0f2683951633fe",
-      "message": "chore(merge): sync team branches into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-f4d77732a5afc341e90cf5170bb4471687756b3d",
-      "timestamp": "2026-11-15T00:35:07+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "f4d77732a5afc341e90cf5170bb4471687756b3d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f4d77732a5afc341e90cf5170bb4471687756b3d",
-      "message": "chore(merge): sync feature/ui-foundation into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-ff4136e5a225e2c703157442ea68cb98da096c46",
-      "timestamp": "2026-11-15T00:55:12+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "ff4136e5a225e2c703157442ea68cb98da096c46",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ff4136e5a225e2c703157442ea68cb98da096c46",
-      "message": "refactor(ui): use shared dialogs in ui-2b-producer",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-552a35b874dc08834727dbfc89a7b821b205340d",
-      "timestamp": "2026-11-15T01:00:38+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "552a35b874dc08834727dbfc89a7b821b205340d",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/552a35b874dc08834727dbfc89a7b821b205340d",
-      "message": "chore(merge): sync feature/ui-2b-producer into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-18793720f20e979f9a8f3ea2c97c0725dbc21092",
-      "timestamp": "2026-11-14T12:00:02+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "18793720f20e979f9a8f3ea2c97c0725dbc21092",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/18793720f20e979f9a8f3ea2c97c0725dbc21092",
-      "message": "feat(workspace): summarise series and latest activity per studio",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f8be5a6ea967362e1f1cf7a57edfc64c0afdedf1",
-      "timestamp": "2026-11-14T22:19:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f8be5a6ea967362e1f1cf7a57edfc64c0afdedf1",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f8be5a6ea967362e1f1cf7a57edfc64c0afdedf1",
-      "message": "chore(merge): sync origin/THBMinh into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-00ab13ffc2dedc0a5634a83c98af774998df6560",
-      "timestamp": "2026-11-14T22:19:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "00ab13ffc2dedc0a5634a83c98af774998df6560",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/00ab13ffc2dedc0a5634a83c98af774998df6560",
-      "message": "chore(merge): sync origin/feature/workspace-list-redesign into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-23221ae555f45d7c0d97ba0dd40c0a2a34419689",
-      "timestamp": "2026-11-14T23:27:13+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "23221ae555f45d7c0d97ba0dd40c0a2a34419689",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/23221ae555f45d7c0d97ba0dd40c0a2a34419689",
-      "message": "fix(bible): define existing stub when creating an entry with its name",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-b90bde590b12aea3344d84a3e4f3b8d28dde5a66",
-      "timestamp": "2026-11-14T23:28:20+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "b90bde590b12aea3344d84a3e4f3b8d28dde5a66",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b90bde590b12aea3344d84a3e4f3b8d28dde5a66",
-      "message": "chore(merge): sync feature/bib-no-alias into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-94d61ceece706bee180bd9736c4b82c8023d8edf",
-      "timestamp": "2026-11-14T23:28:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "94d61ceece706bee180bd9736c4b82c8023d8edf",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/94d61ceece706bee180bd9736c4b82c8023d8edf",
-      "message": "chore(merge): sync team branches into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-38c943cfa7384feeaa451c47d220f3b8af899050",
-      "timestamp": "2026-11-15T01:13:17+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "38c943cfa7384feeaa451c47d220f3b8af899050",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/38c943cfa7384feeaa451c47d220f3b8af899050",
-      "message": "fix(bible): backfill normalized_name before unique index in migration",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
-      "timestamp": "2026-11-14T22:58:46+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
-      "message": "chore(merge): sync feature/bib-01-canon-display into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
-      "timestamp": "2026-11-14T23:16:35+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
-      "message": "refactor(bible): remove entry aliases and match speakers by name only",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-4e8fd57c267380bad800861a0be6fd00159e3e35",
-      "timestamp": "2026-11-14T21:32:47+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "4e8fd57c267380bad800861a0be6fd00159e3e35",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/4e8fd57c267380bad800861a0be6fd00159e3e35",
-      "message": "chore(merge): sync feature/bib-02-variant-validate into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-665cd15f7fae733e507df844cc097b685c0a09ec",
-      "timestamp": "2026-11-14T22:58:45+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "665cd15f7fae733e507df844cc097b685c0a09ec",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/665cd15f7fae733e507df844cc097b685c0a09ec",
-      "message": "feat(bible): show canon revision on entries and keep entry name fixed",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-d070689c9cacf2f467946bb6d14687b2c776810c",
-      "timestamp": "2026-11-14T21:31:21+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "d070689c9cacf2f467946bb6d14687b2c776810c",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d070689c9cacf2f467946bb6d14687b2c776810c",
-      "message": "feat(bible): require variant_label and block duplicate active variant",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
     {
       "id": "sync-MOBILE-49b61b2ab2e88026a2f5f7964703280129492ee7",
       "timestamp": "2026-10-27T14:11:16+07:00",
@@ -2192,195 +156,1282 @@
       "message": "fix(review): raise review and reader touch targets to 44dp",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
-    }
-  ],
-  "featureAudits": [
-    {
-      "id": "AUDIT-01",
-      "module": "Series Bible",
-      "featureName": "3-Party Collaborative Series Bible & CAS SHA-256 Storage",
-      "v2_0_Legacy": "Bản ghi đơn lẻ do Producer nhập, ảnh đính kèm URL tĩnh không có hash kiểm tra toàn vẹn.",
-      "v2_6_Current": "Quy trình 3 bên: Writer tạo Lore -> Queue -> Artist tải Concept Art CAS SHA-256 -> Writer Endorse -> Producer Canon Lock. Tự động chặn chương bằng Bible Gate.",
-      "architecturalRationale": "Chống mâu thuẫn tạo hình (visual drift) giữa nhiều họa sĩ, bảo đảm bản quyền và toàn vẹn file ảnh bằng content hashing.",
-      "implementationStatus": {
-        "be": "Done",
-        "fe": "Done",
-        "mobile": "Done"
-      },
-      "provenanceCommits": [
-        {
-          "repo": "BE",
-          "hash": "c310e7c",
-          "url": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c310e7c",
-          "author": "DontPassAway",
-          "message": "fix(bible): writer and editor endorse per spec V2.6 §5.1"
-        },
-        {
-          "repo": "BE",
-          "hash": "0cbdffb",
-          "url": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0cbdffb",
-          "author": "trung kien",
-          "message": "feat(be): CAS SHA-256 storage & Artist upload endpoint"
-        },
-        {
-          "repo": "FE",
-          "hash": "9d28f72",
-          "url": "https://github.com/tkiennt/panelforge-fe/commit/9d28f72",
-          "author": "DontPassAway",
-          "message": "refactor(bible): split series bible screen and align roles with spec V2.6"
-        }
-      ],
-      "specRef": "Spec V2.6 §5.1 & BR-BIB-01..03"
     },
     {
-      "id": "AUDIT-02",
-      "module": "Scripting",
-      "featureName": "Independent Chapter Script Authoring & Implicit Default Scene",
-      "v2_0_Legacy": "Kịch bản bị ép buộc tạo khung tranh (forced panels), Writer phải chờ Producer gán Scene.",
-      "v2_6_Current": "Writer tự do sáng tác kịch bản, tự động sinh Default Scene ẩn ở tầng Domain, hỗ trợ auto-save và phân đoạn bóng thoại.",
-      "architecturalRationale": "Phân tách hoàn toàn trách nhiệm viết lách khỏi việc chia khung kỹ thuật, tối đa hóa năng suất sáng tác.",
-      "implementationStatus": {
-        "be": "Done",
-        "fe": "Done",
-        "mobile": "Done"
-      },
-      "provenanceCommits": [
-        {
-          "repo": "BE",
-          "hash": "1c5cb89",
-          "url": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1c5cb89",
-          "author": "trung kien",
-          "message": "docs(script): align chapter script spec with hidden default scene"
-        },
-        {
-          "repo": "FE",
-          "hash": "83fa8e6",
-          "url": "https://github.com/tkiennt/panelforge-fe/commit/83fa8e6",
-          "author": "trung kien",
-          "message": "docs(writer): align chapter script spec with hidden default scene"
-        }
-      ],
-      "specRef": "Spec V2.6 §5.2 & BR-SCR-01..02"
+      "id": "sync-MOBILE-03e15e35cdfc1026f39a1ddd1280086524499328",
+      "timestamp": "2026-11-11T12:52:35+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "03e15e35cdfc1026f39a1ddd1280086524499328",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/03e15e35cdfc1026f39a1ddd1280086524499328",
+      "message": "fix(review): merge mobile touch target and type size fixes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
     },
     {
-      "id": "AUDIT-03",
-      "module": "Assignment",
-      "featureName": "Multi-Assignment per Stage & Parallel Collaboration",
-      "v2_0_Legacy": "Mỗi Stage chỉ gán 1 người duy nhất, gây nghẽn tiến độ khi nhiều họa sĩ cùng làm.",
-      "v2_6_Current": "Một Stage chứa nhiều Assignment độc lập cho nhiều Artist/Letterer, tự động tổng hợp StageProgress.",
-      "architecturalRationale": "Mô hình dây chuyền sản xuất công nghiệp thực tế cho webtoon studio lớn.",
-      "implementationStatus": {
-        "be": "Done",
-        "fe": "Done",
-        "mobile": "Done"
-      },
-      "provenanceCommits": [
-        {
-          "repo": "BE",
-          "hash": "72a5a54",
-          "url": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/72a5a54",
-          "author": "DontPassAway",
-          "message": "feat(be): support multiple assignments per stage"
-        },
-        {
-          "repo": "FE",
-          "hash": "2a0e44b",
-          "url": "https://github.com/tkiennt/panelforge-fe/commit/2a0e44b",
-          "author": "trung kien",
-          "message": "feat(fe): Multi-assignment allocation board"
-        }
-      ],
-      "specRef": "Spec V2.6 §5.3 & BR-ASG-01..02"
+      "id": "sync-MOBILE-5c9e90fd745f01a7cc5fc6a22b8c89754cd06b54",
+      "timestamp": "2026-11-12T07:41:36+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "5c9e90fd745f01a7cc5fc6a22b8c89754cd06b54",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/5c9e90fd745f01a7cc5fc6a22b8c89754cd06b54",
+      "message": "feat(monetization): add VietQR payment panel and limited-view chapter unlocks",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
     },
     {
-      "id": "AUDIT-04",
-      "module": "Artwork & Lettering",
-      "featureName": "Dedicated Artist Desk & Letterer Balloon Workbench",
-      "v2_0_Legacy": "Màn hình vẽ gộp chung nét vẽ và chữ vào 1 canvas tĩnh, gây xung đột và khó chỉnh sửa.",
-      "v2_6_Current": "Tách biệt Artist Workbench (vẽ nét, phân lớp layers, xuất phẳng băm SHA-256) và Letterer Workbench (kéo thả bóng thoại từ kịch bản).",
-      "architecturalRationale": "Giảm tải bộ nhớ Canvas, phân định quyền hạn rõ ràng giữa họa sĩ vẽ và chuyên viên đặt chữ.",
-      "implementationStatus": {
-        "be": "Done",
-        "fe": "Done",
-        "mobile": "Done"
-      },
-      "provenanceCommits": [
-        {
-          "repo": "FE",
-          "hash": "7628859",
-          "url": "https://github.com/tkiennt/panelforge-fe/commit/7628859",
-          "author": "DontPassAway",
-          "message": "feat(fe): letterer canvas balloon engine with live script linking"
-        },
-        {
-          "repo": "FE",
-          "hash": "976378e",
-          "url": "https://github.com/tkiennt/panelforge-fe/commit/976378e",
-          "author": "trung kien",
-          "message": "feat(fe): artist workbench layer stack and SHA-256 export"
-        }
-      ],
-      "specRef": "Spec V2.6 §5.4 & BR-ART/LET-01"
+      "id": "sync-MOBILE-07a3f70f8cafad4d24038905e5b927ba53690a36",
+      "timestamp": "2026-11-12T12:19:02+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "07a3f70f8cafad4d24038905e5b927ba53690a36",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/07a3f70f8cafad4d24038905e5b927ba53690a36",
+      "message": "feat(mobile): add browse, series grid, profile and VIP purchase screens (v1.4.0)",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
     },
     {
-      "id": "AUDIT-05",
-      "module": "Review & Gate",
-      "featureName": "Review Pipeline with Solo Creator Bypass Logic",
-      "v2_0_Legacy": "Quy trình kiểm duyệt cứng nhắc bắt buộc người khác duyệt, tác giả tự làm bị nghẽn (deadlock).",
-      "v2_6_Current": "Tự động kiểm tra SoloCreatorMode, bypass hợp lệ và chuyển thẳng sang Approved kèm ghi nhận nhật ký kiểm toán minh bạch.",
-      "architecturalRationale": "Thích ứng cả 2 bài toán: studio lớn phân cấp nhiều tầng và tác giả cá nhân hoạt động độc lập.",
-      "implementationStatus": {
-        "be": "Done",
-        "fe": "Done",
-        "mobile": "Done"
-      },
-      "provenanceCommits": [
-        {
-          "repo": "BE",
-          "hash": "989cf01",
-          "url": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/989cf01",
-          "author": "DontPassAway",
-          "message": "feat(be): implement SoloCreator review bypass logic and audit trail"
-        },
-        {
-          "repo": "MOBILE",
-          "hash": "03e15e3",
-          "url": "https://github.com/tranbaoming/panelforge-mobile/commit/03e15e3",
-          "author": "trung kien",
-          "message": "fix(review): merge mobile touch target and type size fixes"
-        }
-      ],
-      "specRef": "Spec V2.6 §5.5 & BR-REV-01..02"
+      "id": "sync-MOBILE-df4c7b1add4409d731ac4a08cf7a9ced9982795e",
+      "timestamp": "2026-11-12T13:10:39+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "df4c7b1add4409d731ac4a08cf7a9ced9982795e",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/df4c7b1add4409d731ac4a08cf7a9ced9982795e",
+      "message": "docs(notes): link mobile docs to shared implement plan",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
     },
     {
-      "id": "AUDIT-06",
-      "module": "Release & Delivery",
-      "featureName": "Multi-Language Edition & Publisher-Driven Pricing in VND",
-      "v2_0_Legacy": "Mỗi chương chỉ có 1 ấn bản, tiền tệ cứng không hỗ trợ VNĐ, không có cơ chế đóng gói CBZ/EPUB chuẩn.",
-      "v2_6_Current": "Nhiều ấn bản ngôn ngữ (VI, EN, JA) cho cùng 1 chương, Publisher tự đặt giá theo VNĐ, tự động đóng gói CBZ/EPUB kèm manifest.",
-      "architecturalRationale": "Thương mại hóa linh hoạt theo từng thị trường và kiểm soát toàn vẹn nội dung xuất bản.",
-      "implementationStatus": {
-        "be": "Done",
-        "fe": "Done",
-        "mobile": "Done"
-      },
-      "provenanceCommits": [
-        {
-          "repo": "BE",
-          "hash": "3e7a68c",
-          "url": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/3e7a68c",
-          "author": "DontPassAway",
-          "message": "feat(be): multi-language edition packaging & publisher pricing in VND"
-        },
-        {
-          "repo": "MOBILE",
-          "hash": "be7b1db",
-          "url": "https://github.com/tranbaoming/panelforge-mobile/commit/be7b1db",
-          "author": "trung kien",
-          "message": "docs(notes): merge shared spec and workboard links for reader editions"
-        }
-      ],
-      "specRef": "Spec V2.6 §5.6 & BR-REL-01..03"
+      "id": "sync-MOBILE-a5f6c0dd4736143378b1882bd406202bff3a0415",
+      "timestamp": "2026-11-12T13:12:27+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "a5f6c0dd4736143378b1882bd406202bff3a0415",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/a5f6c0dd4736143378b1882bd406202bff3a0415",
+      "message": "docs(notes): merge shared implement plan link",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-c648cf24f7491b93ad145918fd1a9f9efb23bfa4",
+      "timestamp": "2026-11-12T13:39:22+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "c648cf24f7491b93ad145918fd1a9f9efb23bfa4",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/c648cf24f7491b93ad145918fd1a9f9efb23bfa4",
+      "message": "docs(notes): point mobile docs to shared spec and team workboard",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-be7b1dbbe2666328fdca7b77ee668392ca5fa703",
+      "timestamp": "2026-11-12T13:41:41+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "be7b1dbbe2666328fdca7b77ee668392ca5fa703",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/be7b1dbbe2666328fdca7b77ee668392ca5fa703",
+      "message": "docs(notes): merge shared spec and workboard links",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-d22d2e73c86c203f80944cf9bc0ed55125fbb4e9",
+      "timestamp": "2026-11-12T17:40:56+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "d22d2e73c86c203f80944cf9bc0ed55125fbb4e9",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/d22d2e73c86c203f80944cf9bc0ed55125fbb4e9",
+      "message": "docs(notes): point mobile docs to panelforge-hub as single source",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-39e65e325b5044241e2f6ac232ed779cc602f136",
+      "timestamp": "2026-11-13T08:30:20+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "39e65e325b5044241e2f6ac232ed779cc602f136",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/39e65e325b5044241e2f6ac232ed779cc602f136",
+      "message": "feat(mobile): merge monetization drm and browse screens from origin main",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-7873fd1f94a5e5ce44f60d2ad8918d797ef7ed08",
+      "timestamp": "2026-11-13T14:13:10+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "7873fd1f94a5e5ce44f60d2ad8918d797ef7ed08",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/7873fd1f94a5e5ce44f60d2ad8918d797ef7ed08",
+      "message": "feat(reader): preview paywall, language editions, search and page scrubber",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-084f9374f8dfc753fbdf62c1490940e28cec43b7",
+      "timestamp": "2026-11-13T23:14:45+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "084f9374f8dfc753fbdf62c1490940e28cec43b7",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/084f9374f8dfc753fbdf62c1490940e28cec43b7",
+      "message": "chore(merge): sync feature/reader-preview-paywall into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-775bfdd03e34aa7fec1bbff5464c6300fdc6d120",
+      "timestamp": "2026-11-16T12:01:47+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "775bfdd03e34aa7fec1bbff5464c6300fdc6d120",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/775bfdd03e34aa7fec1bbff5464c6300fdc6d120",
+      "message": "feat(mobile): redesign home, for-you, search, shop and series detail",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-9db062f104bd5028e9e2a67ac309cff634fc7aa5",
+      "timestamp": "2026-11-16T12:26:37+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "9db062f104bd5028e9e2a67ac309cff634fc7aa5",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/9db062f104bd5028e9e2a67ac309cff634fc7aa5",
+      "message": "feat(mobile): trim settings links and add back button to review hub",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-90e525a781df82cfe5e908708d1013ba5fadfb15",
+      "timestamp": "2026-11-16T12:34:44+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "90e525a781df82cfe5e908708d1013ba5fadfb15",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/90e525a781df82cfe5e908708d1013ba5fadfb15",
+      "message": "docs(mobile): add baominh branch and worktree workflow for agents",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-c9069871aaa1a686284beea4b4e7fc8e4dac0b03",
+      "timestamp": "2026-11-16T12:34:49+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "c9069871aaa1a686284beea4b4e7fc8e4dac0b03",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/c9069871aaa1a686284beea4b4e7fc8e4dac0b03",
+      "message": "chore(merge): merge baominh into main",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-27aefd1680804b4cdd94af2af818141f74b8186f",
+      "timestamp": "2026-11-17T12:37:53+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "27aefd1680804b4cdd94af2af818141f74b8186f",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/27aefd1680804b4cdd94af2af818141f74b8186f",
+      "message": "chore(merge): sync origin/main into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2617843a7e5c5208e2820408149b125d466ea5a1",
+      "timestamp": "2026-11-15T12:20:18+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "2617843a7e5c5208e2820408149b125d466ea5a1",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2617843a7e5c5208e2820408149b125d466ea5a1",
+      "message": "chore(merge): sync feature/flow-4-review into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0e8e022f0bd1b0f30198290a66fa47d5a9d8eadd",
+      "timestamp": "2026-11-15T12:22:13+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "0e8e022f0bd1b0f30198290a66fa47d5a9d8eadd",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0e8e022f0bd1b0f30198290a66fa47d5a9d8eadd",
+      "message": "chore(merge): sync feature/flow-2-bible into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-17366b1e07dbe3814cc4460a12bde0ee4de14cd9",
+      "timestamp": "2026-11-15T12:24:04+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "17366b1e07dbe3814cc4460a12bde0ee4de14cd9",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/17366b1e07dbe3814cc4460a12bde0ee4de14cd9",
+      "message": "chore(merge): sync feature/screens-2-links into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-90c027cdc3a72c6226ecdc290f2e672d6b4dc463",
+      "timestamp": "2026-11-15T12:40:12+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "90c027cdc3a72c6226ecdc290f2e672d6b4dc463",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/90c027cdc3a72c6226ecdc290f2e672d6b4dc463",
+      "message": "fix(artist): enforce stage order and frozen script gate",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-25664154490add4ee4fc8d3a44be8078d4630a10",
+      "timestamp": "2026-11-15T12:40:15+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "25664154490add4ee4fc8d3a44be8078d4630a10",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/25664154490add4ee4fc8d3a44be8078d4630a10",
+      "message": "feat(assignment): page range with overlap validation",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-07944a5367c446d48ee55d35b1b1c152a67c0beb",
+      "timestamp": "2026-11-15T12:42:25+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "07944a5367c446d48ee55d35b1b1c152a67c0beb",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/07944a5367c446d48ee55d35b1b1c152a67c0beb",
+      "message": "chore(merge): sync feature/flow-3-artist into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-6ec683e92574a8816ef7090f834939a632677ccc",
+      "timestamp": "2026-11-15T12:47:00+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "6ec683e92574a8816ef7090f834939a632677ccc",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6ec683e92574a8816ef7090f834939a632677ccc",
+      "message": "fix(chapter): use new chapter statuses in export and workspace",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-883ecc578437908bde15c39a6cd3d064e408fa1e",
+      "timestamp": "2026-11-15T13:01:26+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "883ecc578437908bde15c39a6cd3d064e408fa1e",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/883ecc578437908bde15c39a6cd3d064e408fa1e",
+      "message": "chore(merge): sync trungkien into feature/flow-1-producer",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-6db5cf2d1e6c5d2a0d47275747eca2e1ad7b2776",
+      "timestamp": "2026-11-15T13:05:47+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "6db5cf2d1e6c5d2a0d47275747eca2e1ad7b2776",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6db5cf2d1e6c5d2a0d47275747eca2e1ad7b2776",
+      "message": "chore(merge): sync feature/flow-1-producer into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
+      "timestamp": "2026-11-15T13:07:57+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
+      "message": "Merge branch 'trungkien' into feature/flow-5-assignment",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-935aa3cbf45567b5e613a99bbf7934e789f9cf9b",
+      "timestamp": "2026-11-15T13:08:06+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "935aa3cbf45567b5e613a99bbf7934e789f9cf9b",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/935aa3cbf45567b5e613a99bbf7934e789f9cf9b",
+      "message": "refactor(fe): remove orphan and duplicate screens",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-6017c33dbbbfaddc3cd645fdb1202da956583094",
+      "timestamp": "2026-11-15T13:16:06+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "6017c33dbbbfaddc3cd645fdb1202da956583094",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6017c33dbbbfaddc3cd645fdb1202da956583094",
+      "message": "refactor(writer): drop unreachable thumbnail studio",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-5e1e18bc8aa467983aa13cbf74a6cab5e49ac8b4",
+      "timestamp": "2026-11-15T13:19:20+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "5e1e18bc8aa467983aa13cbf74a6cab5e49ac8b4",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5e1e18bc8aa467983aa13cbf74a6cab5e49ac8b4",
+      "message": "chore(merge): sync feature/screens-4-deadcode into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-be7526b3ee2f51ae068161e6fd3eb9cf1896de17",
+      "timestamp": "2026-11-15T13:37:37+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "be7526b3ee2f51ae068161e6fd3eb9cf1896de17",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/be7526b3ee2f51ae068161e6fd3eb9cf1896de17",
+      "message": "feat(assignment): gate 1 dialog calls start-production",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-8db50965e438402c21bf4b91f4d83aae741e4ab2",
+      "timestamp": "2026-11-15T13:41:34+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "8db50965e438402c21bf4b91f4d83aae741e4ab2",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8db50965e438402c21bf4b91f4d83aae741e4ab2",
+      "message": "chore(merge): sync feature/flow-5-assignment into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-9131f89ace03dac3b74ab7a6ba6322929afb54ca",
+      "timestamp": "2026-11-15T13:48:26+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "9131f89ace03dac3b74ab7a6ba6322929afb54ca",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9131f89ace03dac3b74ab7a6ba6322929afb54ca",
+      "message": "feat(release): producer hands off and publisher publishes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-d60b39a31e0da7e55102b82fab8abce3dc8aae31",
+      "timestamp": "2026-11-15T14:46:33+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "d60b39a31e0da7e55102b82fab8abce3dc8aae31",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d60b39a31e0da7e55102b82fab8abce3dc8aae31",
+      "message": "chore(merge): sync feature/screens-3-publisher into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-4b01191e97d3d9965ee03c5426f2f92ee96639c9",
+      "timestamp": "2026-11-15T15:09:26+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "4b01191e97d3d9965ee03c5426f2f92ee96639c9",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4b01191e97d3d9965ee03c5426f2f92ee96639c9",
+      "message": "style(fe): fix remaining eslint errors",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-6663e6b4f197d527e198d389e13820f72b3a24b7",
+      "timestamp": "2026-11-15T15:32:54+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "6663e6b4f197d527e198d389e13820f72b3a24b7",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6663e6b4f197d527e198d389e13820f72b3a24b7",
+      "message": "fix(fe): align service calls with backend routes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-3486d9b7287c05a5b539727f6b1290fb5b0a2f71",
+      "timestamp": "2026-11-15T16:24:54+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "3486d9b7287c05a5b539727f6b1290fb5b0a2f71",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3486d9b7287c05a5b539727f6b1290fb5b0a2f71",
+      "message": "chore(merge): sync origin/minh into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2cddbcdb2ffc75a85109a4ab9ac427944b14d21e",
+      "timestamp": "2026-11-15T20:37:24+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "2cddbcdb2ffc75a85109a4ab9ac427944b14d21e",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2cddbcdb2ffc75a85109a4ab9ac427944b14d21e",
+      "message": "chore(wip): backup local Assignment Grid V3 changes before pulling origin/trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-5902891199fab172db194fe9b8d8c473b082ad07",
+      "timestamp": "2026-11-15T21:25:09+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "5902891199fab172db194fe9b8d8c473b082ad07",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5902891199fab172db194fe9b8d8c473b082ad07",
+      "message": "chore(merge): merge origin/trungkien (3486d9b) with local Assignment Grid V3 WIP",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-61c66f6fa2b957fc799782e50e39e627974c8e1e",
+      "timestamp": "2026-11-16T00:43:23+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "61c66f6fa2b957fc799782e50e39e627974c8e1e",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/61c66f6fa2b957fc799782e50e39e627974c8e1e",
+      "message": "feat(task-grid-v3): matrix lot/cancelled rendering, gate2 grid review, rework comments, and whole-lot submit",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-9667f9a0467c6d70a5b6c52ce57ba400b4ef1f58",
+      "timestamp": "2026-11-16T07:53:59+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "9667f9a0467c6d70a5b6c52ce57ba400b4ef1f58",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9667f9a0467c6d70a5b6c52ce57ba400b4ef1f58",
+      "message": "feat(task-grid): v3 guards and error messages from previous session",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-99d9b62f9e1ecccbb590cf7c258191146819c3bf",
+      "timestamp": "2026-11-16T07:56:14+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "99d9b62f9e1ecccbb590cf7c258191146819c3bf",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/99d9b62f9e1ecccbb590cf7c258191146819c3bf",
+      "message": "chore(merge): merge feature/task-grid-v3-matrix-gate2 into feature/task-grid-v3-review-locks",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-d986ebd005e555e086f90d9b20370b3197f9cb0a",
+      "timestamp": "2026-11-16T08:14:41+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "d986ebd005e555e086f90d9b20370b3197f9cb0a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d986ebd005e555e086f90d9b20370b3197f9cb0a",
+      "message": "feat(task-grid): add v3 withdraw, review lock, reassign, and lot update service contracts",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-a7ab8f3ea87426ed05c6efc5aae09d9d49d36e06",
+      "timestamp": "2026-11-16T08:23:07+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "a7ab8f3ea87426ed05c6efc5aae09d9d49d36e06",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/a7ab8f3ea87426ed05c6efc5aae09d9d49d36e06",
+      "message": "feat(task-grid): add attempt count, withdraw, review locks, reassign, and lot editing on grid and my-work",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-dd5e97be04da90821c800fc140f999c8d88d81e7",
+      "timestamp": "2026-11-16T09:02:27+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "dd5e97be04da90821c800fc140f999c8d88d81e7",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/dd5e97be04da90821c800fc140f999c8d88d81e7",
+      "message": "feat(review): add v3 open-review, release-review on exit, and UnderReview locks",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-585550a075cc8a7646a898ea0b595aff856d7b26",
+      "timestamp": "2026-11-16T09:40:55+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "585550a075cc8a7646a898ea0b595aff856d7b26",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/585550a075cc8a7646a898ea0b595aff856d7b26",
+      "message": "feat(artist-desk): lock layout edits in ink/color stages, add withdraw action, and enforce server-first error handling",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-ad052ec793eef616d3bad5fbb116e0b7a3183d06",
+      "timestamp": "2026-11-16T09:41:57+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "ad052ec793eef616d3bad5fbb116e0b7a3183d06",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ad052ec793eef616d3bad5fbb116e0b7a3183d06",
+      "message": "style(task-grid): format task-grid v3 files with prettier",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-37c7df84bc29589f753cefcf457923e95561f34a",
+      "timestamp": "2026-11-16T11:32:30+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "37c7df84bc29589f753cefcf457923e95561f34a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/37c7df84bc29589f753cefcf457923e95561f34a",
+      "message": "feat(lettering): redesign letter desk and add language editions ui",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-5a0a6200174fce1d8b95bfd8f5b48d075d881870",
+      "timestamp": "2026-11-16T11:32:39+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "5a0a6200174fce1d8b95bfd8f5b48d075d881870",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5a0a6200174fce1d8b95bfd8f5b48d075d881870",
+      "message": "feat(task-grid): use review-queue reviewerName/isInputOutdated and update cells in-place",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-ab2857a42cef3f3113cee723851228aea753ee32",
+      "timestamp": "2026-11-16T11:47:50+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "ab2857a42cef3f3113cee723851228aea753ee32",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ab2857a42cef3f3113cee723851228aea753ee32",
+      "message": "fix(lettering): surface balloon save errors and limit languages to series editions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-21307bfda55c938cc9eec8469e7d308aecb8b695",
+      "timestamp": "2026-11-16T11:51:29+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "21307bfda55c938cc9eec8469e7d308aecb8b695",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/21307bfda55c938cc9eec8469e7d308aecb8b695",
+      "message": "feat(task-grid): support reopenReason on ReworkRequired cells and views",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-775c96dc8bc414c4ba4b47fe959d1b070973759d",
+      "timestamp": "2026-11-16T12:12:16+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "775c96dc8bc414c4ba4b47fe959d1b070973759d",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/775c96dc8bc414c4ba4b47fe959d1b070973759d",
+      "message": "feat(task-grid): render multi-line batch submit errors and preserve 409 error banners",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-881e65fbe244536bbc298bb144535f9c14c19830",
+      "timestamp": "2026-11-16T12:55:23+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "881e65fbe244536bbc298bb144535f9c14c19830",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/881e65fbe244536bbc298bb144535f9c14c19830",
+      "message": "feat(pipeline): tell producer when review gate moves after disabling a stage",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2be3b2efd5aa0d2404161534e8fdc8228976e2fa",
+      "timestamp": "2026-11-16T13:15:04+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "2be3b2efd5aa0d2404161534e8fdc8228976e2fa",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2be3b2efd5aa0d2404161534e8fdc8228976e2fa",
+      "message": "fix(chapters): disable approve button while lock-gate has blocking items",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-28fe9ee50d5a342814de8f4645138ae5af2bbad6",
+      "timestamp": "2026-11-16T15:36:29+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "28fe9ee50d5a342814de8f4645138ae5af2bbad6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/28fe9ee50d5a342814de8f4645138ae5af2bbad6",
+      "message": "fix(styles): move .ux form resets into base layer",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-72090cbf83be7c60b552729e1047ad9c566ba6f1",
+      "timestamp": "2026-11-16T15:41:39+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "72090cbf83be7c60b552729e1047ad9c566ba6f1",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/72090cbf83be7c60b552729e1047ad9c566ba6f1",
+      "message": "feat(workspace): keep only the page x stage grid board",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-d3cdb99bf137e848a8b93ecdf889fbbc2a06026a",
+      "timestamp": "2026-11-16T15:43:21+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "d3cdb99bf137e848a8b93ecdf889fbbc2a06026a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d3cdb99bf137e848a8b93ecdf889fbbc2a06026a",
+      "message": "style(task-grid): drop V3 suffix from grid board title",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-8e0eaadf326f4cfb8ffe241caa58a1c72c928cb3",
+      "timestamp": "2026-11-16T15:45:17+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "8e0eaadf326f4cfb8ffe241caa58a1c72c928cb3",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8e0eaadf326f4cfb8ffe241caa58a1c72c928cb3",
+      "message": "feat(task-grid): remove legacy V2 assignment migration button",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-31e55d6a0ee9567f7bfc46061d9be9e687d4c9e4",
+      "timestamp": "2026-11-16T15:58:31+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "31e55d6a0ee9567f7bfc46061d9be9e687d4c9e4",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/31e55d6a0ee9567f7bfc46061d9be9e687d4c9e4",
+      "message": "fix(task-grid): hide closed lots from the assigned lots list",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-8312a11399d543cc1663073801172b9ea4e3ba82",
+      "timestamp": "2026-11-16T16:09:14+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "8312a11399d543cc1663073801172b9ea4e3ba82",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8312a11399d543cc1663073801172b9ea4e3ba82",
+      "message": "feat(task-grid): explain where pages come from when a chapter has none",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-0fd4b17a2b41920a650e930adbf1781c675531b6",
+      "timestamp": "2026-11-16T16:35:37+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "0fd4b17a2b41920a650e930adbf1781c675531b6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0fd4b17a2b41920a650e930adbf1781c675531b6",
+      "message": "refactor(workspace): remove legacy card production board and side drawer",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-d64d38a4706a37a01de9efb6e0574f43cc813c6c",
+      "timestamp": "2026-11-16T16:56:52+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "d64d38a4706a37a01de9efb6e0574f43cc813c6c",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d64d38a4706a37a01de9efb6e0574f43cc813c6c",
+      "message": "fix(task-grid): hide producer actions on a locked chapter",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-4b043eb096bd64e2742519a6da889d3d47266df7",
+      "timestamp": "2026-11-16T17:54:41+07:00",
+      "repo": "FE",
+      "author": "chinsuhdh",
+      "commitHash": "4b043eb096bd64e2742519a6da889d3d47266df7",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4b043eb096bd64e2742519a6da889d3d47266df7",
+      "message": "refactor(i18n): localize task grid strings and prune legacy board keys",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-c2b14ae4d96b047594e38a90fc42444dbb2a9dad",
+      "timestamp": "2026-11-17T12:36:09+07:00",
+      "repo": "FE",
+      "author": "Trung Kiên",
+      "commitHash": "c2b14ae4d96b047594e38a90fc42444dbb2a9dad",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c2b14ae4d96b047594e38a90fc42444dbb2a9dad",
+      "message": "Merge pull request #5 from tkiennt/tam",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-72dd77738cd023da13a80c24aa6fe7119908d792",
+      "timestamp": "2026-11-17T12:43:34+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "72dd77738cd023da13a80c24aa6fe7119908d792",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/72dd77738cd023da13a80c24aa6fe7119908d792",
+      "message": "chore(merge): sync origin/tam into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-f3ba63eac0e411602ce3e1406d42191853b3742a",
+      "timestamp": "2026-11-17T13:24:46+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "f3ba63eac0e411602ce3e1406d42191853b3742a",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f3ba63eac0e411602ce3e1406d42191853b3742a",
+      "message": "chore(merge): sync origin/THBMinh into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
+      "timestamp": "2026-11-17T13:26:43+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
+      "message": "chore(merge): sync remote origin/trungkien PR #5 into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b71095a9be199fbdb834fbac7f545a2862aa38e1",
+      "timestamp": "2026-11-14T20:33:12+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "b71095a9be199fbdb834fbac7f545a2862aa38e1",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b71095a9be199fbdb834fbac7f545a2862aa38e1",
+      "message": "refactor(script): remove obsolete speaker character id from dtos",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-c65f9cfb0f64d6e5eab7ae9a64b5f249982c5d86",
+      "timestamp": "2026-11-14T20:34:29+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "c65f9cfb0f64d6e5eab7ae9a64b5f249982c5d86",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c65f9cfb0f64d6e5eab7ae9a64b5f249982c5d86",
+      "message": "chore(merge): sync feature/dto-speaker-cleanup into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-d070689c9cacf2f467946bb6d14687b2c776810c",
+      "timestamp": "2026-11-14T21:31:21+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "d070689c9cacf2f467946bb6d14687b2c776810c",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d070689c9cacf2f467946bb6d14687b2c776810c",
+      "message": "feat(bible): require variant_label and block duplicate active variant",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-4e8fd57c267380bad800861a0be6fd00159e3e35",
+      "timestamp": "2026-11-14T21:32:47+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "4e8fd57c267380bad800861a0be6fd00159e3e35",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/4e8fd57c267380bad800861a0be6fd00159e3e35",
+      "message": "chore(merge): sync feature/bib-02-variant-validate into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f8be5a6ea967362e1f1cf7a57edfc64c0afdedf1",
+      "timestamp": "2026-11-14T22:19:21+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "f8be5a6ea967362e1f1cf7a57edfc64c0afdedf1",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f8be5a6ea967362e1f1cf7a57edfc64c0afdedf1",
+      "message": "chore(merge): sync origin/THBMinh into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-00ab13ffc2dedc0a5634a83c98af774998df6560",
+      "timestamp": "2026-11-14T22:19:21+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "00ab13ffc2dedc0a5634a83c98af774998df6560",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/00ab13ffc2dedc0a5634a83c98af774998df6560",
+      "message": "chore(merge): sync origin/feature/workspace-list-redesign into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-149f231955e136397a943350d9503a1b7ec49f3a",
+      "timestamp": "2026-11-14T22:21:42+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "149f231955e136397a943350d9503a1b7ec49f3a",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/149f231955e136397a943350d9503a1b7ec49f3a",
+      "message": "fix(seed): drop stale thumbnail and script stages from default template",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1f7d05a9e74d5504b40c7a71d0911dd3cffb93b2",
+      "timestamp": "2026-11-14T22:35:23+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "1f7d05a9e74d5504b40c7a71d0911dd3cffb93b2",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1f7d05a9e74d5504b40c7a71d0911dd3cffb93b2",
+      "message": "fix(seed): move demo chapters through production before approving",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-665cd15f7fae733e507df844cc097b685c0a09ec",
+      "timestamp": "2026-11-14T22:58:45+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "665cd15f7fae733e507df844cc097b685c0a09ec",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/665cd15f7fae733e507df844cc097b685c0a09ec",
+      "message": "feat(bible): show canon revision on entries and keep entry name fixed",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
+      "timestamp": "2026-11-14T22:58:46+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/66b80be85740b37034c7f7eb0ec0ad74d7d352bc",
+      "message": "chore(merge): sync feature/bib-01-canon-display into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
+      "timestamp": "2026-11-14T23:16:35+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e7707fd7706394f38f93bab3dfd0e182c5b4cf61",
+      "message": "refactor(bible): remove entry aliases and match speakers by name only",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-23221ae555f45d7c0d97ba0dd40c0a2a34419689",
+      "timestamp": "2026-11-14T23:27:13+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "23221ae555f45d7c0d97ba0dd40c0a2a34419689",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/23221ae555f45d7c0d97ba0dd40c0a2a34419689",
+      "message": "fix(bible): define existing stub when creating an entry with its name",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b90bde590b12aea3344d84a3e4f3b8d28dde5a66",
+      "timestamp": "2026-11-14T23:28:20+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "b90bde590b12aea3344d84a3e4f3b8d28dde5a66",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b90bde590b12aea3344d84a3e4f3b8d28dde5a66",
+      "message": "chore(merge): sync feature/bib-no-alias into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-94d61ceece706bee180bd9736c4b82c8023d8edf",
+      "timestamp": "2026-11-14T23:28:21+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "94d61ceece706bee180bd9736c4b82c8023d8edf",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/94d61ceece706bee180bd9736c4b82c8023d8edf",
+      "message": "chore(merge): sync team branches into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-38c943cfa7384feeaa451c47d220f3b8af899050",
+      "timestamp": "2026-11-15T01:13:17+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "38c943cfa7384feeaa451c47d220f3b8af899050",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/38c943cfa7384feeaa451c47d220f3b8af899050",
+      "message": "fix(bible): backfill normalized_name before unique index in migration",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-843d80a5902cc4aea8280f63ec9561e175fec2d6",
+      "timestamp": "2026-11-15T11:33:00+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "843d80a5902cc4aea8280f63ec9561e175fec2d6",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/843d80a5902cc4aea8280f63ec9561e175fec2d6",
+      "message": "feat(panels): replace page layout and relink artwork by order",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1fb033d3ef705645e4999629f6a478f0d503b10a",
+      "timestamp": "2026-11-15T11:34:20+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "1fb033d3ef705645e4999629f6a478f0d503b10a",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1fb033d3ef705645e4999629f6a478f0d503b10a",
+      "message": "chore(merge): sync feature/be-relayout-page into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-8e2892b7b8205b7580111faed29148ce80b5670b",
+      "timestamp": "2026-11-15T12:15:35+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "8e2892b7b8205b7580111faed29148ce80b5670b",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8e2892b7b8205b7580111faed29148ce80b5670b",
+      "message": "feat(review): change request groups and layer routing",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-5da69c1d5ce5cc2d05caa0d44708afcabdd4f998",
+      "timestamp": "2026-11-15T12:17:14+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "5da69c1d5ce5cc2d05caa0d44708afcabdd4f998",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5da69c1d5ce5cc2d05caa0d44708afcabdd4f998",
+      "message": "chore(merge): sync feature/be-rev-01-02 into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-699ce719d15c77a8a87e2863bd038eae4c653bf2",
+      "timestamp": "2026-11-15T12:59:27+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "699ce719d15c77a8a87e2863bd038eae4c653bf2",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/699ce719d15c77a8a87e2863bd038eae4c653bf2",
+      "message": "feat(assignment): gate 1 start production with page ranges",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1efc8e14c113f687cbe70cf85c2aee83584339dd",
+      "timestamp": "2026-11-15T13:01:17+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "1efc8e14c113f687cbe70cf85c2aee83584339dd",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1efc8e14c113f687cbe70cf85c2aee83584339dd",
+      "message": "chore(merge): sync feature/be-asg-01 into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f9d42d59926124751e01387e2309bab1010ab3bf",
+      "timestamp": "2026-11-15T14:30:59+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "f9d42d59926124751e01387e2309bab1010ab3bf",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f9d42d59926124751e01387e2309bab1010ab3bf",
+      "message": "feat(release): producer hand-off and publisher edition publish",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-48401980c79b9127d90d484cba252a9ef52acc41",
+      "timestamp": "2026-11-15T14:44:56+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "48401980c79b9127d90d484cba252a9ef52acc41",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/48401980c79b9127d90d484cba252a9ef52acc41",
+      "message": "fix(release): keep reopen impact flags and update stale asserts",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-0e91b8986483e3c839438e53b47811765e3b4237",
+      "timestamp": "2026-11-15T14:46:32+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "0e91b8986483e3c839438e53b47811765e3b4237",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0e91b8986483e3c839438e53b47811765e3b4237",
+      "message": "chore(merge): sync feature/be-rel-handoff into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f9b6a1a5a7cb90e254ac2453754a1f30f5873be0",
+      "timestamp": "2026-11-15T20:36:01+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "f9b6a1a5a7cb90e254ac2453754a1f30f5873be0",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f9b6a1a5a7cb90e254ac2453754a1f30f5873be0",
+      "message": "chore(merge): sync trungkien into feature/assignment-grid-v3",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f230418f4095e0ba47cad2d83ce4802069721e7e",
+      "timestamp": "2026-11-15T20:44:43+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "f230418f4095e0ba47cad2d83ce4802069721e7e",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f230418f4095e0ba47cad2d83ce4802069721e7e",
+      "message": "fix(assignment): auto-start ink only for same assignee with deps approved",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-fc3383c063fad2626936a976da2db9779fe79f52",
+      "timestamp": "2026-11-15T20:53:26+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "fc3383c063fad2626936a976da2db9779fe79f52",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/fc3383c063fad2626936a976da2db9779fe79f52",
+      "message": "fix(task-grid): make gate 1, lock gate and delete guard see the grid",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-91711ddaeb3ed6b3b60499450e53627f46a4208c",
+      "timestamp": "2026-11-15T23:20:22+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "91711ddaeb3ed6b3b60499450e53627f46a4208c",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/91711ddaeb3ed6b3b60499450e53627f46a4208c",
+      "message": "feat(task-grid): make gate 1 freeze the script and assign grid lots",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-2a4be75883c93e2c2faba4ebf4f49cf6fa9b13ef",
+      "timestamp": "2026-11-15T23:32:59+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "2a4be75883c93e2c2faba4ebf4f49cf6fa9b13ef",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2a4be75883c93e2c2faba4ebf4f49cf6fa9b13ef",
+      "message": "fix(task-grid): close write and submit gaps on grid chapters",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-12e6eaf6ab3705a30572b8ab071449c8878152ea",
+      "timestamp": "2026-11-15T23:40:06+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "12e6eaf6ab3705a30572b8ab071449c8878152ea",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/12e6eaf6ab3705a30572b8ab071449c8878152ea",
+      "message": "fix(pipeline): keep color off for manga and let it be disabled safely",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-0b8e659f15f2bc33ad58610e483c40dee0571a9f",
+      "timestamp": "2026-11-16T01:22:53+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "0b8e659f15f2bc33ad58610e483c40dee0571a9f",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0b8e659f15f2bc33ad58610e483c40dee0571a9f",
+      "message": "fix(task-grid): make chapter lock real and guard layout, pages, reviews",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-75bbc9f2e1c165ffdd1901b775fe95708267b137",
+      "timestamp": "2026-11-16T01:28:31+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "75bbc9f2e1c165ffdd1901b775fe95708267b137",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/75bbc9f2e1c165ffdd1901b775fe95708267b137",
+      "message": "fix(task-grid): cover script edits and member changes on grid chapters",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-885c6ecdbf4f5f408790388706640408c53a3c94",
+      "timestamp": "2026-11-16T01:32:47+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "885c6ecdbf4f5f408790388706640408c53a3c94",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/885c6ecdbf4f5f408790388706640408c53a3c94",
+      "message": "feat(task-grid): add withdraw, review claim and last decision comment",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-9d07a9e8bb8798b3bd9b431f1dc09c7e5eb3fd11",
+      "timestamp": "2026-11-16T01:39:01+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "9d07a9e8bb8798b3bd9b431f1dc09c7e5eb3fd11",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/9d07a9e8bb8798b3bd9b431f1dc09c7e5eb3fd11",
+      "message": "feat(task-grid): reassign cells, edit lots, remind due lots",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f26b5e3472c7a586185f8cbe7e3cff0459c245c2",
+      "timestamp": "2026-11-16T10:51:54+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "f26b5e3472c7a586185f8cbe7e3cff0459c245c2",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f26b5e3472c7a586185f8cbe7e3cff0459c245c2",
+      "message": "fix(task-grid): return attempt summary from mutations, enrich review queue",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f50fcbddb584c618b3dc58c0f3a375955ac28c92",
+      "timestamp": "2026-11-16T11:30:28+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "f50fcbddb584c618b3dc58c0f3a375955ac28c92",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f50fcbddb584c618b3dc58c0f3a375955ac28c92",
+      "message": "feat(task-grid): keep reopen reason on reopened cell",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-08bff07a7f58fe0ea8590bdebf0120a9b68c28ae",
+      "timestamp": "2026-11-16T11:32:10+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "08bff07a7f58fe0ea8590bdebf0120a9b68c28ae",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/08bff07a7f58fe0ea8590bdebf0120a9b68c28ae",
+      "message": "feat(editions): add in-system balloon translation and language editions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-c32abc1a77d00a349e7708c5f1f516c2de0bb80d",
+      "timestamp": "2026-11-16T11:40:39+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "c32abc1a77d00a349e7708c5f1f516c2de0bb80d",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c32abc1a77d00a349e7708c5f1f516c2de0bb80d",
+      "message": "fix(task-grid): list every blocked page when batch submit fails",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b79be4ad597e3423a099dd3854eb050eb45b13c4",
+      "timestamp": "2026-11-16T12:34:55+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "b79be4ad597e3423a099dd3854eb050eb45b13c4",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b79be4ad597e3423a099dd3854eb050eb45b13c4",
+      "message": "fix(chapters): block gate 3 while generated grid cells are unassigned",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-6b55acaf4ab3c2f086dd235e236c5c1388317b91",
+      "timestamp": "2026-11-16T12:45:20+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "6b55acaf4ab3c2f086dd235e236c5c1388317b91",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/6b55acaf4ab3c2f086dd235e236c5c1388317b91",
+      "message": "feat(pipeline): gate color and letter stages by default for page review",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-67d5fe889cd4f6ac4080e58f469ec4fcd02cdefc",
+      "timestamp": "2026-11-16T12:48:45+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "67d5fe889cd4f6ac4080e58f469ec4fcd02cdefc",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/67d5fe889cd4f6ac4080e58f469ec4fcd02cdefc",
+      "message": "feat(pipeline): move page review gate when branch end stage is disabled",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-e27c58998f6d2394d261bd96f519494faa1f7db9",
+      "timestamp": "2026-11-16T15:22:38+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "e27c58998f6d2394d261bd96f519494faa1f7db9",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e27c58998f6d2394d261bd96f519494faa1f7db9",
+      "message": "fix(migrations): default change request layer for existing rows",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-410d35dba019b94db1f0a1d71620ccd1461ca5c6",
+      "timestamp": "2026-11-16T15:26:52+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "410d35dba019b94db1f0a1d71620ccd1461ca5c6",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/410d35dba019b94db1f0a1d71620ccd1461ca5c6",
+      "message": "fix(migrations): convert leftover WriterEndorsed bible revisions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-5d5aac1cfae32dc3e0849b0b50addb2579047026",
+      "timestamp": "2026-11-16T15:29:19+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "5d5aac1cfae32dc3e0849b0b50addb2579047026",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5d5aac1cfae32dc3e0849b0b50addb2579047026",
+      "message": "fix(migrations): convert leftover Endorsed bible revision events",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-599575b27b50f510bf803042570579a2a55df1b0",
+      "timestamp": "2026-11-16T15:48:31+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "599575b27b50f510bf803042570579a2a55df1b0",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/599575b27b50f510bf803042570579a2a55df1b0",
+      "message": "fix(migrations): convert leftover Published chapters to HandedOffAndPublished",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-ee612307f7e3a4cc4ef33257ed1c0c11bc691756",
+      "timestamp": "2026-11-16T16:07:59+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "ee612307f7e3a4cc4ef33257ed1c0c11bc691756",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ee612307f7e3a4cc4ef33257ed1c0c11bc691756",
+      "message": "feat(task-grid): sync grid cells when script save adds or drops pages",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-770b8a81469637c79f336b009fd366674d9fe909",
+      "timestamp": "2026-11-16T16:47:18+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "770b8a81469637c79f336b009fd366674d9fe909",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/770b8a81469637c79f336b009fd366674d9fe909",
+      "message": "fix(migrations): align legacy series pipelines with the task grid",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-f9dfe325e88c068f0f96a0deb7c724d65f421dfa",
+      "timestamp": "2026-11-16T16:54:44+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "f9dfe325e88c068f0f96a0deb7c724d65f421dfa",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f9dfe325e88c068f0f96a0deb7c724d65f421dfa",
+      "message": "fix(chapters): add workspace publishers to the series on hand-off",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1b4592eae57cdbfa9761b7fecae108fae0beb1c3",
+      "timestamp": "2026-11-17T12:38:23+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "1b4592eae57cdbfa9761b7fecae108fae0beb1c3",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1b4592eae57cdbfa9761b7fecae108fae0beb1c3",
+      "message": "chore(merge): sync origin/test-feature into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-053f865d574f8a43386ed2ac9851dfd251248a62",
+      "timestamp": "2026-11-17T12:43:20+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "053f865d574f8a43386ed2ac9851dfd251248a62",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/053f865d574f8a43386ed2ac9851dfd251248a62",
+      "message": "chore(merge): sync origin/THBMinh into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
     }
   ]
 }
