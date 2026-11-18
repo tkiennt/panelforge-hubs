@@ -199,4 +199,4 @@ Sau khi cấu hình, mỗi lần gõ lệnh `git commit` (không kèm cờ `-m`)
 2. **Chỉ Push lên Remote GitHub khi:**
    - Hoàn thành trọn vẹn **1 module lớn** (toàn bộ task của module đã được kiểm tra, build xanh và gộp vào nhánh chính).
    - **HOẶC khi Người dùng (User) yêu cầu trực tiếp** (ví dụ: *"push code"*, *"push lên github"*).
-3. Trong các phiên làm việc thông thường: Chỉ commit cục bộ (`git commit`) và gộp cục bộ vào nhánh `trungkien` để lưu vết lịch sử.
+3. Trong các phiên làm việc thông thường: Chỉ commit cục bộ (`git commit`) và gộp cục bộ vào nhánh `{work-branch}` để lưu vết lịch sử.

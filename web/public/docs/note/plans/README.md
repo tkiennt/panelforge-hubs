@@ -18,6 +18,7 @@
 | 6 | [06_RELEASE_PLAN.md](06_RELEASE_PLAN.md) | `REL` | Vòng đời Chương & ấn bản ngôn ngữ (Editor duyệt bản dịch, Producer cho phép phát hành), Gate 3, Snapshot theo ấn bản, PreviewLink, Export, Publisher Portal (một Publisher duy nhất) | Module 5 · §5.2 · BR-09/12/16/17/32/34 | Gate 3 xong một phần (P0) |
 | 7 | [07_READER_PLAN.md](07_READER_PLAN.md) | `RDR` | Độc giả: thống kê đọc & doanh thu VNĐ (Producer xem), đánh giá, kiếm tiền theo ấn bản (Publisher đặt giá VNĐ, mua ngôn ngữ nào đọc ngôn ngữ đó), chọn ngôn ngữ đọc | Module 5 · BR-32/33/34 · §6.1 | Chưa làm |
 | 8 | [08_UI_QUALITY_PLAN.md](08_UI_QUALITY_PLAN.md) | `UIQ` | Chống AI-slop, token thiết kế, i18n, mobile, chốt chặn, thuật ngữ | AGENTS.md §7 · DESIGN_RULES | Đợt 1 xong; GĐ5–GĐ12 chưa làm |
+| 9 | [09_MODERN_WEB_PLAN.md](09_MODERN_WEB_PLAN.md) | `MWG` | Chuẩn nền tảng web: bộ gõ IME, focus bàn phím, overlay `<dialog>`/Popover API, tooltip, định dạng `Intl`, INP/ảnh, CSP | Modern Web Guidance (skill FE) · AGENTS.md §3.8 | Chưa làm; mốc đo 2026-11-17 |
 
 Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, audit transactional, CAS, optimistic concurrency, event store): xem bảng M0/M1 trong plan tổng, không có plan riêng.
 
@@ -45,9 +46,9 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 
 ### 2.3. Thứ tự làm và merge
 
-1. **[DB] → [BE]:** migration + domain + handler + endpoint + test, build xanh, merge cục bộ vào `trungkien` của BE, ghi Hợp đồng API vào task. (Chỉ push lên remote khi hoàn thành module lớn hoặc khi user yêu cầu).
-2. **[FE] và [MO] song song** sau khi BE đã có trên `trungkien` (hoặc làm phần UI không gọi API trước, nối API sau).
-3. Mỗi repo merge vào `trungkien` **của chính repo đó**; không đẩy nhánh feature lên remote (`.agents/AGENTS.md` §6).
+1. **[DB] → [BE]:** migration + domain + handler + endpoint + test, build xanh, merge cục bộ vào `{work-branch}` của BE, ghi Hợp đồng API vào task. (Chỉ push lên remote khi hoàn thành module lớn hoặc khi user yêu cầu).
+2. **[FE] và [MO] song song** sau khi BE đã có trên `{work-branch}` (hoặc làm phần UI không gọi API trước, nối API sau).
+3. Mỗi repo merge vào `{work-branch}` **của chính repo đó**; không đẩy nhánh feature lên remote (`.agents/AGENTS.md` §6).
 4. Đổi hợp đồng API sau khi FE/MO đã dùng: BE ghi rõ thay đổi vào task, đánh `[ ]` lại các sub-task FE/MO bị ảnh hưởng.
 
 ### 2.4. Nhận task để không đụng nhau
@@ -55,9 +56,9 @@ Hạng mục đã xong và không còn việc (Workspace, Series, thành viên, 
 1. **Trước khi code**, thêm một dòng vào §2 "Đang làm" của [`TEAM_WORKBOARD.md`](../../tracking/TEAM_WORKBOARD.md) (người/phiên, repo, ID task, nhánh, file chính dự kiến), đổi trạng thái task sang 🔄, rồi commit cục bộ `docs(tracker): start …`. Workboard là bảng nhận task duy nhất (§5 dưới đây chỉ trỏ về đó). Một phần repo của một task chỉ có **một** người nhận; BE và FE của cùng task có thể do hai người khác nhau.
 2. **Không nhận** task mà cột "File chính" đụng file đang có ở §2 workboard của task khác; chờ hoặc phối hợp với người đang giữ.
 3. **Worktree / Sandbox theo số lượng Agent:**
-   - **Khi 1 Agent làm việc đơn lẻ:** **KHÔNG tạo sandbox**, làm việc và commit trực tiếp trong repository chính ở nhánh `trungkien`.
+   - **Khi 1 Agent làm việc đơn lẻ:** **KHÔNG tạo sandbox**, làm việc và commit trực tiếp trong repository chính ở nhánh `{work-branch}`.
    - **Khi có từ 2 Agent trở lên chạy song song:** Tạo sandbox riêng cho từng agent qua lệnh: `powershell -ExecutionPolicy Bypass -File .agents\scripts\worktree_manager.ps1 -Action create -AgentRole <task-id viết thường> -Module <task-id viết thường> -Target <backend|frontend|mobile|all>`. Dùng ID task làm `AgentRole` để mỗi task có sandbox riêng (`panelforge-agent-<task-id>`). Sau khi tạo, kiểm tra `git branch --show-current` đúng `feature/<task-id>-be|fe|mobile`.
-4. **Xong sub-task:** Nếu làm trên sandbox worktree thì merge cục bộ vào `trungkien` và dọn worktree; nếu làm trực tiếp 1 agent thì commit rõ ràng vào `trungkien`. Đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …`. **KHÔNG push sau mỗi lần làm; chỉ push remote khi hoàn thành trọn vẹn 1 module lớn hoặc khi user yêu cầu.**
+4. **Xong sub-task:** Nếu làm trên sandbox worktree thì merge cục bộ vào `{work-branch}` và dọn worktree; nếu làm trực tiếp 1 agent thì commit rõ ràng vào `{work-branch}`. Đổi trạng thái task, ghi Changelog (mục 2.5); chuyển dòng trong `TEAM_WORKBOARD.md` sang "Đã xong" kèm thay đổi API/DB, commit `docs(tracker): finish …`. **KHÔNG push sau mỗi lần làm; chỉ push remote khi hoàn thành trọn vẹn 1 module lớn hoặc khi user yêu cầu.**
 
 ### 2.5. Sửa file plan an toàn (`docs/` của `panelforge-hub`, chia sẻ qua GitHub)
 
