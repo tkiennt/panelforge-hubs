@@ -1,8 +1,107 @@
 {
-  "lastSyncedAt": "2026-11-19T04:35:42.080Z",
+  "lastSyncedAt": "2026-11-19T05:57:46.935Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-4accfa3bbe331735edf08c87f1685d6db293fce5",
+      "timestamp": "2026-11-19T12:44:00+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "4accfa3bbe331735edf08c87f1685d6db293fce5",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4accfa3bbe331735edf08c87f1685d6db293fce5",
+      "message": "feat(letterer): add edition submit, fallback warning and drop japanese",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-05533bcdc64bb636bb78fc4b077203588d339a94",
+      "timestamp": "2026-11-19T12:50:05+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "05533bcdc64bb636bb78fc4b077203588d339a94",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/05533bcdc64bb636bb78fc4b077203588d339a94",
+      "message": "feat(publisher): read chapter pricing from language editions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-b4eb1561cb393c13ccea6bfcdcbb4318bfc207f2",
+      "timestamp": "2026-11-19T12:56:54+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "b4eb1561cb393c13ccea6bfcdcbb4318bfc207f2",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b4eb1561cb393c13ccea6bfcdcbb4318bfc207f2",
+      "message": "chore(merge): sync THBMinh into THBMinh-letterer-fixes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-892c9825f8c82b43bd742261ae68ac0c5a56e49c",
+      "timestamp": "2026-11-19T12:56:54+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "892c9825f8c82b43bd742261ae68ac0c5a56e49c",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/892c9825f8c82b43bd742261ae68ac0c5a56e49c",
+      "message": "feat(letterer): merge edition submit, translation fixes and drop japanese",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-5f9bf3a24331453a305ce8e766f2419395ec02f7",
+      "timestamp": "2026-11-19T12:43:59+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "5f9bf3a24331453a305ce8e766f2419395ec02f7",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5f9bf3a24331453a305ce8e766f2419395ec02f7",
+      "message": "feat(chapter): unlock edition translation edits and drop japanese",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1e5381131852af2022b2e281e51ee0e6d3b803c0",
+      "timestamp": "2026-11-19T12:50:04+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "1e5381131852af2022b2e281e51ee0e6d3b803c0",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1e5381131852af2022b2e281e51ee0e6d3b803c0",
+      "message": "feat(publisher): move chapter monetization onto chapter editions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-29f721be4507833f47f56b5c80f5f573c37963f1",
+      "timestamp": "2026-11-19T12:51:19+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "29f721be4507833f47f56b5c80f5f573c37963f1",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/29f721be4507833f47f56b5c80f5f573c37963f1",
+      "message": "chore(chapter): drop ja migration before rebasing onto monetization",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-ad2824c53651ced5ba0dfdf8944d316f25e1c5ec",
+      "timestamp": "2026-11-19T12:53:10+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "ad2824c53651ced5ba0dfdf8944d316f25e1c5ec",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ad2824c53651ced5ba0dfdf8944d316f25e1c5ec",
+      "message": "chore(merge): sync THBMinh into THBMinh-letterer-fixes",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-c3eaade65d8183485619447c74afadb6ab1e506e",
+      "timestamp": "2026-11-19T12:53:10+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "c3eaade65d8183485619447c74afadb6ab1e506e",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c3eaade65d8183485619447c74afadb6ab1e506e",
+      "message": "feat(letterer): merge edition translation fixes and drop japanese",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-0fd4b17a2b41920a650e930adbf1781c675531b6",
       "timestamp": "2026-11-16T16:35:37+07:00",
@@ -1551,105 +1650,6 @@
       "commitHash": "7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
       "message": "Merge branch 'trungkien' into feature/flow-5-assignment",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-935aa3cbf45567b5e613a99bbf7934e789f9cf9b",
-      "timestamp": "2026-11-15T13:08:06+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "935aa3cbf45567b5e613a99bbf7934e789f9cf9b",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/935aa3cbf45567b5e613a99bbf7934e789f9cf9b",
-      "message": "refactor(fe): remove orphan and duplicate screens",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-6017c33dbbbfaddc3cd645fdb1202da956583094",
-      "timestamp": "2026-11-15T13:16:06+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "6017c33dbbbfaddc3cd645fdb1202da956583094",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6017c33dbbbfaddc3cd645fdb1202da956583094",
-      "message": "refactor(writer): drop unreachable thumbnail studio",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-5e1e18bc8aa467983aa13cbf74a6cab5e49ac8b4",
-      "timestamp": "2026-11-15T13:19:20+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "5e1e18bc8aa467983aa13cbf74a6cab5e49ac8b4",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5e1e18bc8aa467983aa13cbf74a6cab5e49ac8b4",
-      "message": "chore(merge): sync feature/screens-4-deadcode into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-be7526b3ee2f51ae068161e6fd3eb9cf1896de17",
-      "timestamp": "2026-11-15T13:37:37+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "be7526b3ee2f51ae068161e6fd3eb9cf1896de17",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/be7526b3ee2f51ae068161e6fd3eb9cf1896de17",
-      "message": "feat(assignment): gate 1 dialog calls start-production",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-8db50965e438402c21bf4b91f4d83aae741e4ab2",
-      "timestamp": "2026-11-15T13:41:34+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "8db50965e438402c21bf4b91f4d83aae741e4ab2",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8db50965e438402c21bf4b91f4d83aae741e4ab2",
-      "message": "chore(merge): sync feature/flow-5-assignment into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9131f89ace03dac3b74ab7a6ba6322929afb54ca",
-      "timestamp": "2026-11-15T13:48:26+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "9131f89ace03dac3b74ab7a6ba6322929afb54ca",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9131f89ace03dac3b74ab7a6ba6322929afb54ca",
-      "message": "feat(release): producer hands off and publisher publishes",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d60b39a31e0da7e55102b82fab8abce3dc8aae31",
-      "timestamp": "2026-11-15T14:46:33+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "d60b39a31e0da7e55102b82fab8abce3dc8aae31",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d60b39a31e0da7e55102b82fab8abce3dc8aae31",
-      "message": "chore(merge): sync feature/screens-3-publisher into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4b01191e97d3d9965ee03c5426f2f92ee96639c9",
-      "timestamp": "2026-11-15T15:09:26+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "4b01191e97d3d9965ee03c5426f2f92ee96639c9",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4b01191e97d3d9965ee03c5426f2f92ee96639c9",
-      "message": "style(fe): fix remaining eslint errors",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-6663e6b4f197d527e198d389e13820f72b3a24b7",
-      "timestamp": "2026-11-15T15:32:54+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "6663e6b4f197d527e198d389e13820f72b3a24b7",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6663e6b4f197d527e198d389e13820f72b3a24b7",
-      "message": "fix(fe): align service calls with backend routes",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
