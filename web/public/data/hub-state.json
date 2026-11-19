@@ -1,8 +1,19 @@
 {
-  "lastSyncedAt": "2026-11-19T05:57:46.935Z",
+  "lastSyncedAt": "2026-11-19T06:19:48.067Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-6eafce41f2480ce5f7009022bfdbe1abbda02ca6",
+      "timestamp": "2026-11-19T13:19:29+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "6eafce41f2480ce5f7009022bfdbe1abbda02ca6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6eafce41f2480ce5f7009022bfdbe1abbda02ca6",
+      "message": "fix(letterer): clarify edition submit and translate fallback messages",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-4accfa3bbe331735edf08c87f1685d6db293fce5",
       "timestamp": "2026-11-19T12:44:00+07:00",
@@ -1639,17 +1650,6 @@
       "commitHash": "6db5cf2d1e6c5d2a0d47275747eca2e1ad7b2776",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/6db5cf2d1e6c5d2a0d47275747eca2e1ad7b2776",
       "message": "chore(merge): sync feature/flow-1-producer into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
-      "timestamp": "2026-11-15T13:07:57+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7a4dcc5b6b7b2d8cf163138c72a55744747a4db9",
-      "message": "Merge branch 'trungkien' into feature/flow-5-assignment",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
