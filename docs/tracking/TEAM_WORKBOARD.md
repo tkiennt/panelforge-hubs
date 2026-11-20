@@ -25,6 +25,7 @@
 
 | Người | Repo | Việc | Spec (BR / Module / Q) | Nhánh | File chính | Bắt đầu |
 |---|---|---|---|---|---|---|
+| THBMinh (AI agent agy) | MO | Đồng bộ Mobile V2.6: mở khóa & chọn ấn bản theo ngôn ngữ (`vi`/`en`, bỏ `ja`), số chương decimal, metadata Series (`ageRating`, `logline`, `teaser`), nhớ trang đọc dở & thanh chuyển chương cuối trang | Module 5, BR-33, BR-34, D9a, RDR-07, RDR-10, RDR-11 | `baominh` | `lib/models/*`, `lib/services/*`, `lib/screens/explore/series_detail_page.dart`, `lib/screens/reader/comic_reader_page.dart`, `lib/widgets/*` | 2026-11-20 |
 | DontPassAway | BE + FE | Series Bible: refactor màn hình, quyền thẩm định theo §5.1 (Writer/Editor endorse, Producer khoá, Admin không khoá), khoá Canon cho Nhân vật/Bối cảnh/Đạo cụ | Module 1, §5.1, §5.2, BR-01, BR-15 | `feature/series-bible-spec-v26` | `src/shared/features/series-bible/*`, `roles/editor/views/BibleReviewView.tsx`; BE `BibleController.cs` | 2026-11-12 |
 
 ---
