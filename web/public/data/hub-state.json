@@ -1,8 +1,30 @@
 {
-  "lastSyncedAt": "2026-11-20T05:15:44.099Z",
+  "lastSyncedAt": "2026-11-20T05:24:10.148Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-BE-f461cfdb16d10e70d64df019817c4e3b36317fdc",
+      "timestamp": "2026-11-17T13:59:49+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "f461cfdb16d10e70d64df019817c4e3b36317fdc",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f461cfdb16d10e70d64df019817c4e3b36317fdc",
+      "message": "docs(config): switch agent git workflow to trungkien branch",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-602fcc1e05280ec874819308ef2653c48c103541",
+      "timestamp": "2026-11-17T14:06:04+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "602fcc1e05280ec874819308ef2653c48c103541",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/602fcc1e05280ec874819308ef2653c48c103541",
+      "message": "docs(config): let each developer choose a per-machine work branch",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-de37a125938eaa62dd8fff13e01d040f91e04776",
       "timestamp": "2026-11-18T13:35:57+07:00",
@@ -1628,28 +1650,6 @@
       "commitHash": "31d65ced1fe974d9a252175bbef8ca1acac92f33",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/31d65ced1fe974d9a252175bbef8ca1acac92f33",
       "message": "style(writer): apply warm editorial studio design rules to script editor",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-e0b093cab5894e77ac9dfcfc84403cc7ffde7988",
-      "timestamp": "2026-11-17T14:43:02+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "e0b093cab5894e77ac9dfcfc84403cc7ffde7988",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/e0b093cab5894e77ac9dfcfc84403cc7ffde7988",
-      "message": "refactor(writer): unify right sidebar state across all panels and ai",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7181c068f2b8b06109a29f4f7245d85ac10ab9be",
-      "timestamp": "2026-11-17T14:49:12+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "7181c068f2b8b06109a29f4f7245d85ac10ab9be",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7181c068f2b8b06109a29f4f7245d85ac10ab9be",
-      "message": "refactor(writer): make consistency rail button toggle panel only",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
