@@ -1,8 +1,19 @@
 {
-  "lastSyncedAt": "2026-11-20T05:24:10.148Z",
+  "lastSyncedAt": "2026-11-20T06:41:57.390Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-BE-694614b000e1d7308bc484b9e6c1b81b9155bc71",
+      "timestamp": "2026-11-20T13:36:23+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "694614b000e1d7308bc484b9e6c1b81b9155bc71",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/694614b000e1d7308bc484b9e6c1b81b9155bc71",
+      "message": "feat(reader): sync reader library across devices",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-f461cfdb16d10e70d64df019817c4e3b36317fdc",
       "timestamp": "2026-11-17T13:59:49+07:00",
@@ -1639,17 +1650,6 @@
       "commitHash": "b02685f48e52b45b0fe8cc2b75263fc4aa2f9e8a",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b02685f48e52b45b0fe8cc2b75263fc4aa2f9e8a",
       "message": "refactor(writer): align rail tab order and purpose",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-31d65ced1fe974d9a252175bbef8ca1acac92f33",
-      "timestamp": "2026-11-17T14:40:33+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "31d65ced1fe974d9a252175bbef8ca1acac92f33",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/31d65ced1fe974d9a252175bbef8ca1acac92f33",
-      "message": "style(writer): apply warm editorial studio design rules to script editor",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
