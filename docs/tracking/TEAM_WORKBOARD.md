@@ -1,6 +1,7 @@
 # BẢNG THEO DÕI CÔNG VIỆC NHÓM (TEAM WORKBOARD)
 
-> Một file duy nhất cho cả 4 repo (`PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`, `panelforge-hub`). Ai pull `panelforge-hub` về cũng biết người khác đang làm gì, đã xong gì, có đổi API hay DB không.
+> Một file duy nhất cho cả 4 repo (`PanelForge_FA26SE251`, `p| 2026-11-21 | chinsuhdh (AI agent Claude + agy) | BE + FE | Backlog TASK-5..10 (FE→BE): vùng cấm chữ Lettering lưu theo trang; dòng kịch bản trả trang/khung; việc trong chương trả `pageId`; burndown thêm đếm trong ngày; FE nối Define stub + AI soạn nháp Bible, keep-out zones qua API, Kịch bản liền mạch lưu 1 lần qua `PUT /script`, sidebar Artist lọc theo trang. Kèm sync `origin/trungkien` + `origin/THBMinh` vào cả hai repo | BE `65d362e` (`feature/ai-rule-parity`, `test-feature`), FE `963018a` (`tam`) | **API mới:** `GET/PUT /api/pages/{pageId}/keep-out-zones` (PUT: Producer/Artist/Letterer, `expectedVersion` lệch → 409). **DTO thêm field (không breaking):** `SceneScriptLineSummaryDto.pageId/pageNumber/panelNumber`, `AssignmentDto.pageId`, `BurndownPointDto.createdToday/approvedToday`. **DB:** migration `AddPageKeepOutZones` (bảng `page_keep_out_zones`) — chạy `dotnet ef database update`. Không đổi enum. |
+anelforge-fe`, `panelforge-mobile`, `panelforge-hub`). Ai pull `panelforge-hub` về cũng biết người khác đang làm gì, đã xong gì, có đổi API hay DB không.
 > Nghiệp vụ tham chiếu: [`PANELFORGE_MASTER_SPECIFICATION_V2_6.md`](../V2.6/PANELFORGE_MASTER_SPECIFICATION_V2_6.md) (ghi mã BR-xx, Module hoặc quyết định Q-n khi khai báo việc).
 
 ---
