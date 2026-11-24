@@ -1,8 +1,41 @@
 {
-  "lastSyncedAt": "2026-11-24T06:35:50.012Z",
+  "lastSyncedAt": "2026-11-24T06:39:20.577Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-167abab3afc3e8f31851d8afc818226a4da0eff5",
+      "timestamp": "2026-11-24T13:39:03+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "167abab3afc3e8f31851d8afc818226a4da0eff5",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/167abab3afc3e8f31851d8afc818226a4da0eff5",
+      "message": "fix(letterer): use dot namespace separator in edition translation keys",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-e6dc7f1e2eb3467a321e58f2c46c77c13c3f06fe",
+      "timestamp": "2026-11-18T14:16:24+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "e6dc7f1e2eb3467a321e58f2c46c77c13c3f06fe",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e6dc7f1e2eb3467a321e58f2c46c77c13c3f06fe",
+      "message": "fix(bible): accept variantLabel alias for stageName in bible dtos",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-d15b1fffc16d7c223e7445f594c083af12c54df9",
+      "timestamp": "2026-11-18T14:16:26+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "d15b1fffc16d7c223e7445f594c083af12c54df9",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/d15b1fffc16d7c223e7445f594c083af12c54df9",
+      "message": "feat(publisher): expand monetization pricing, edition publish and payment approval",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-2f8a1add8d4b3aa812769c124dbf215d74aafa61",
       "timestamp": "2026-11-24T09:59:46+07:00",
@@ -1617,39 +1650,6 @@
       "commitHash": "1efc8e14c113f687cbe70cf85c2aee83584339dd",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1efc8e14c113f687cbe70cf85c2aee83584339dd",
       "message": "chore(merge): sync feature/be-asg-01 into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f9d42d59926124751e01387e2309bab1010ab3bf",
-      "timestamp": "2026-11-15T14:30:59+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f9d42d59926124751e01387e2309bab1010ab3bf",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f9d42d59926124751e01387e2309bab1010ab3bf",
-      "message": "feat(release): producer hand-off and publisher edition publish",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-48401980c79b9127d90d484cba252a9ef52acc41",
-      "timestamp": "2026-11-15T14:44:56+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "48401980c79b9127d90d484cba252a9ef52acc41",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/48401980c79b9127d90d484cba252a9ef52acc41",
-      "message": "fix(release): keep reopen impact flags and update stale asserts",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-0e91b8986483e3c839438e53b47811765e3b4237",
-      "timestamp": "2026-11-15T14:46:32+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "0e91b8986483e3c839438e53b47811765e3b4237",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/0e91b8986483e3c839438e53b47811765e3b4237",
-      "message": "chore(merge): sync feature/be-rel-handoff into trungkien",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
