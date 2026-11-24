@@ -1,8 +1,74 @@
 {
-  "lastSyncedAt": "2026-11-24T15:44:20.675Z",
+  "lastSyncedAt": "2026-11-24T15:55:10.184Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-1201df3bf96d3e51da2748328edace532adfca62",
+      "timestamp": "2026-11-24T22:49:27+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "1201df3bf96d3e51da2748328edace532adfca62",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1201df3bf96d3e51da2748328edace532adfca62",
+      "message": "feat(ui): translate strings left hardcoded after tam merge",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1eba387aa623213270d85775344fd3d495311e76",
+      "timestamp": "2026-11-18T11:42:15+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "1eba387aa623213270d85775344fd3d495311e76",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1eba387aa623213270d85775344fd3d495311e76",
+      "message": "feat(task-grid): grant Editor role management permissions on grid",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b4e573c7898e5ff23b85cdad585b9c91beaddec2",
+      "timestamp": "2026-11-18T12:42:42+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "b4e573c7898e5ff23b85cdad585b9c91beaddec2",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b4e573c7898e5ff23b85cdad585b9c91beaddec2",
+      "message": "fix(auth): grant active workspace members access to series resources",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-e1cb8373ee009addd95dd981453290a8c05a36bb",
+      "timestamp": "2026-11-18T13:02:54+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "e1cb8373ee009addd95dd981453290a8c05a36bb",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/e1cb8373ee009addd95dd981453290a8c05a36bb",
+      "message": "feat(script): allow submitting chapter script before bible completed",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-76e8b375a966218d39988780d1e2170b019952b4",
+      "timestamp": "2026-11-18T13:16:37+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "76e8b375a966218d39988780d1e2170b019952b4",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/76e8b375a966218d39988780d1e2170b019952b4",
+      "message": "feat(bible): allow writer producer editor to set crowd flag",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b08a5b280d57ca37e635b368e2ea414e8c16114d",
+      "timestamp": "2026-11-19T11:16:17+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "b08a5b280d57ca37e635b368e2ea414e8c16114d",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b08a5b280d57ca37e635b368e2ea414e8c16114d",
+      "message": "chore(merge): merge origin/trungkien into THBMinh",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-3fb843fb4a708f942b037b21da8b59a16b5c35cb",
       "timestamp": "2026-11-24T01:44:08+07:00",
@@ -1584,72 +1650,6 @@
       "commitHash": "8b9f8d557cb3a432f31b983d2326b2ba734f5596",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8b9f8d557cb3a432f31b983d2326b2ba734f5596",
       "message": "fix(fe): refine character cast badges and remove top note banner",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-63677606088ae8add6fb8b0a7e03e4148ec2ffe4",
-      "timestamp": "2026-11-18T11:23:02+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "63677606088ae8add6fb8b0a7e03e4148ec2ffe4",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/63677606088ae8add6fb8b0a7e03e4148ec2ffe4",
-      "message": "fix(fe): prioritize in-chapter tab and streamline series bible link",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-96a6b6a40f03b468f4778b6de3a7fce1ee265aba",
-      "timestamp": "2026-11-18T11:41:59+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "96a6b6a40f03b468f4778b6de3a7fce1ee265aba",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/96a6b6a40f03b468f4778b6de3a7fce1ee265aba",
-      "message": "feat(editor): add sidetabs for review, progress, and task board",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d424316c743d851858c55c8bf9fd9b4cdf8694fb",
-      "timestamp": "2026-11-18T11:51:47+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "d424316c743d851858c55c8bf9fd9b4cdf8694fb",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d424316c743d851858c55c8bf9fd9b4cdf8694fb",
-      "message": "fix(auth): fix route role guards, series index redirect and multi-roles",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-ecf03b28a9bc351bb4f766fb7d2df96de79b2d19",
-      "timestamp": "2026-11-18T12:40:44+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "ecf03b28a9bc351bb4f766fb7d2df96de79b2d19",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/ecf03b28a9bc351bb4f766fb7d2df96de79b2d19",
-      "message": "feat(writer): update character tabs and scene notes panel range",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-534b56e6a346f16bf214ec7597bbab16fe106808",
-      "timestamp": "2026-11-18T12:42:49+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "534b56e6a346f16bf214ec7597bbab16fe106808",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/534b56e6a346f16bf214ec7597bbab16fe106808",
-      "message": "fix(editor): streamline Editor flow, sidetab retention and script load",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7f1a90e8b8abd9b3b2a8cc5b1676a6062c63b208",
-      "timestamp": "2026-11-18T13:03:14+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "7f1a90e8b8abd9b3b2a8cc5b1676a6062c63b208",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7f1a90e8b8abd9b3b2a8cc5b1676a6062c63b208",
-      "message": "feat(writer): allow script submit without bible and fix scene deletion",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
