@@ -1,8 +1,19 @@
 {
-  "lastSyncedAt": "2026-11-24T06:39:20.577Z",
+  "lastSyncedAt": "2026-11-24T07:48:48.378Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-BE-cd9a96c81ada30d48ea0db63fc4f49b740297bdf",
+      "timestamp": "2026-11-24T14:48:36+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "cd9a96c81ada30d48ea0db63fc4f49b740297bdf",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/cd9a96c81ada30d48ea0db63fc4f49b740297bdf",
+      "message": "fix(payments): show only approved wallet movements with real balance",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-167abab3afc3e8f31851d8afc818226a4da0eff5",
       "timestamp": "2026-11-24T13:39:03+07:00",
@@ -1639,17 +1650,6 @@
       "commitHash": "699ce719d15c77a8a87e2863bd038eae4c653bf2",
       "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/699ce719d15c77a8a87e2863bd038eae4c653bf2",
       "message": "feat(assignment): gate 1 start production with page ranges",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1efc8e14c113f687cbe70cf85c2aee83584339dd",
-      "timestamp": "2026-11-15T13:01:17+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1efc8e14c113f687cbe70cf85c2aee83584339dd",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1efc8e14c113f687cbe70cf85c2aee83584339dd",
-      "message": "chore(merge): sync feature/be-asg-01 into trungkien",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
