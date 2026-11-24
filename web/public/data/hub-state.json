@@ -1,8 +1,96 @@
 {
-  "lastSyncedAt": "2026-11-23T12:35:25.628Z",
+  "lastSyncedAt": "2026-11-24T02:03:31.023Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-311bbb57670fc68926cd3d96bf8e6a665b295bcf",
+      "timestamp": "2026-11-24T09:01:14+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "311bbb57670fc68926cd3d96bf8e6a665b295bcf",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/311bbb57670fc68926cd3d96bf8e6a665b295bcf",
+      "message": "fix(admin): list gemini 3 models in ai config",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-6506e1af18afa21597db40655220db21cbdb5798",
+      "timestamp": "2026-11-17T12:34:23+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "6506e1af18afa21597db40655220db21cbdb5798",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/6506e1af18afa21597db40655220db21cbdb5798",
+      "message": "feat(translation): add libretranslate dialogue translation api",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-bbcf3f56109380ac2460e5de3f6324c9b9cd7e43",
+      "timestamp": "2026-11-17T21:35:05+07:00",
+      "repo": "BE",
+      "author": "chinsuhdh",
+      "commitHash": "bbcf3f56109380ac2460e5de3f6324c9b9cd7e43",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/bbcf3f56109380ac2460e5de3f6324c9b9cd7e43",
+      "message": "chore(merge): sync origin/trungkien into feature/assignment-grid-v3",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1924468a33772a49312ec5d916ea7d7918cdf445",
+      "timestamp": "2026-11-18T10:27:16+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "1924468a33772a49312ec5d916ea7d7918cdf445",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1924468a33772a49312ec5d916ea7d7918cdf445",
+      "message": "chore(merge): merge origin/THBMinh into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-7c15bd3fa6a85184cf51db56dfefb109e033a6c1",
+      "timestamp": "2026-11-18T10:29:31+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "7c15bd3fa6a85184cf51db56dfefb109e033a6c1",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/7c15bd3fa6a85184cf51db56dfefb109e033a6c1",
+      "message": "chore(merge): merge origin/test-feature into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-5391a859a450b3d5c763f710e32442385462fee1",
+      "timestamp": "2026-11-23T19:42:10+07:00",
+      "repo": "BE",
+      "author": "DontPassAway",
+      "commitHash": "5391a859a450b3d5c763f710e32442385462fee1",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5391a859a450b3d5c763f710e32442385462fee1",
+      "message": "feat(payments): auto-approve vietqr orders via sepay webhook",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-c43d5dd0aac9f9bc512a6cc1716f686edd7ecccb",
+      "timestamp": "2026-11-23T21:01:07+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "c43d5dd0aac9f9bc512a6cc1716f686edd7ecccb",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c43d5dd0aac9f9bc512a6cc1716f686edd7ecccb",
+      "message": "chore(merge): sync origin/Danh into THBMinh",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-1137ef09267c5ebce08ba37c12d21c8abc7374b2",
+      "timestamp": "2026-11-24T09:01:14+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "1137ef09267c5ebce08ba37c12d21c8abc7374b2",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1137ef09267c5ebce08ba37c12d21c8abc7374b2",
+      "message": "fix(ai): default to gemini-3.8-flash for new google keys",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-e938231af47059e27e2579b53d3c640a62dc756f",
       "timestamp": "2026-11-19T18:08:45+07:00",
@@ -1562,94 +1650,6 @@
       "commitHash": "2ebad2778e75bca264915e81c2091270683f3308",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2ebad2778e75bca264915e81c2091270683f3308",
       "message": "chore(merge): merge origin/THBMinh into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-5d5aac1cfae32dc3e0849b0b50addb2579047026",
-      "timestamp": "2026-11-16T15:29:19+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "5d5aac1cfae32dc3e0849b0b50addb2579047026",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/5d5aac1cfae32dc3e0849b0b50addb2579047026",
-      "message": "fix(migrations): convert leftover Endorsed bible revision events",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-599575b27b50f510bf803042570579a2a55df1b0",
-      "timestamp": "2026-11-16T15:48:31+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "599575b27b50f510bf803042570579a2a55df1b0",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/599575b27b50f510bf803042570579a2a55df1b0",
-      "message": "fix(migrations): convert leftover Published chapters to HandedOffAndPublished",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-ee612307f7e3a4cc4ef33257ed1c0c11bc691756",
-      "timestamp": "2026-11-16T16:07:59+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "ee612307f7e3a4cc4ef33257ed1c0c11bc691756",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/ee612307f7e3a4cc4ef33257ed1c0c11bc691756",
-      "message": "feat(task-grid): sync grid cells when script save adds or drops pages",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-770b8a81469637c79f336b009fd366674d9fe909",
-      "timestamp": "2026-11-16T16:47:18+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "770b8a81469637c79f336b009fd366674d9fe909",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/770b8a81469637c79f336b009fd366674d9fe909",
-      "message": "fix(migrations): align legacy series pipelines with the task grid",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f9dfe325e88c068f0f96a0deb7c724d65f421dfa",
-      "timestamp": "2026-11-16T16:54:44+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "f9dfe325e88c068f0f96a0deb7c724d65f421dfa",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f9dfe325e88c068f0f96a0deb7c724d65f421dfa",
-      "message": "fix(chapters): add workspace publishers to the series on hand-off",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1b4592eae57cdbfa9761b7fecae108fae0beb1c3",
-      "timestamp": "2026-11-17T12:38:23+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1b4592eae57cdbfa9761b7fecae108fae0beb1c3",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1b4592eae57cdbfa9761b7fecae108fae0beb1c3",
-      "message": "chore(merge): sync origin/test-feature into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-053f865d574f8a43386ed2ac9851dfd251248a62",
-      "timestamp": "2026-11-17T12:43:20+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "053f865d574f8a43386ed2ac9851dfd251248a62",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/053f865d574f8a43386ed2ac9851dfd251248a62",
-      "message": "chore(merge): sync origin/THBMinh into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f3a6005a62527edbc1edc1ef89ab03ae60e2eed0",
-      "timestamp": "2026-11-17T21:27:46+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "f3a6005a62527edbc1edc1ef89ab03ae60e2eed0",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f3a6005a62527edbc1edc1ef89ab03ae60e2eed0",
-      "message": "fix(versioning): render approved snapshot and guard concurrent writes",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
