@@ -1,8 +1,63 @@
 {
-  "lastSyncedAt": "2026-11-25T02:18:52.422Z",
+  "lastSyncedAt": "2026-11-25T04:26:24.517Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-5ffe8f11a892a021745315671436a8399acaad55",
+      "timestamp": "2026-11-25T11:18:45+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "5ffe8f11a892a021745315671436a8399acaad55",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5ffe8f11a892a021745315671436a8399acaad55",
+      "message": "docs: update git rules to THBMinh -> dev -> stg -> main flow",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-90647ad8dff1077926c05e2695db3dde080ad5d6",
+      "timestamp": "2026-11-25T11:22:39+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "90647ad8dff1077926c05e2695db3dde080ad5d6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/90647ad8dff1077926c05e2695db3dde080ad5d6",
+      "message": "fix(bible): send raw stage name when submitting existing variant",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-5e921b04cebbcce5ca986db613967558d59962bb",
+      "timestamp": "2026-11-25T11:22:40+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "5e921b04cebbcce5ca986db613967558d59962bb",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/5e921b04cebbcce5ca986db613967558d59962bb",
+      "message": "feat(handoff): add producer hand-off to publisher button",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-2eaf7e4f8001b63637000486b5175dd8f2795754",
+      "timestamp": "2026-11-25T11:18:36+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "2eaf7e4f8001b63637000486b5175dd8f2795754",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2eaf7e4f8001b63637000486b5175dd8f2795754",
+      "message": "docs: update git rules to THBMinh -> dev -> stg -> main flow",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-b200fd88516fee5e6d9e1f8b243c099c2d96c968",
+      "timestamp": "2026-11-25T11:22:46+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "b200fd88516fee5e6d9e1f8b243c099c2d96c968",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/b200fd88516fee5e6d9e1f8b243c099c2d96c968",
+      "message": "fix(bible): save new revision before recording concept submission",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-45490e7ec7ee121d2672256a9a6afc6152d38c97",
       "timestamp": "2026-11-25T09:18:42+07:00",
@@ -1595,61 +1650,6 @@
       "commitHash": "0fd4b17a2b41920a650e930adbf1781c675531b6",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/0fd4b17a2b41920a650e930adbf1781c675531b6",
       "message": "refactor(workspace): remove legacy card production board and side drawer",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-d64d38a4706a37a01de9efb6e0574f43cc813c6c",
-      "timestamp": "2026-11-16T16:56:52+07:00",
-      "repo": "FE",
-      "author": "chinsuhdh",
-      "commitHash": "d64d38a4706a37a01de9efb6e0574f43cc813c6c",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/d64d38a4706a37a01de9efb6e0574f43cc813c6c",
-      "message": "fix(task-grid): hide producer actions on a locked chapter",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-4b043eb096bd64e2742519a6da889d3d47266df7",
-      "timestamp": "2026-11-16T17:54:41+07:00",
-      "repo": "FE",
-      "author": "chinsuhdh",
-      "commitHash": "4b043eb096bd64e2742519a6da889d3d47266df7",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/4b043eb096bd64e2742519a6da889d3d47266df7",
-      "message": "refactor(i18n): localize task grid strings and prune legacy board keys",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-c2b14ae4d96b047594e38a90fc42444dbb2a9dad",
-      "timestamp": "2026-11-17T12:36:09+07:00",
-      "repo": "FE",
-      "author": "Trung Kiên",
-      "commitHash": "c2b14ae4d96b047594e38a90fc42444dbb2a9dad",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/c2b14ae4d96b047594e38a90fc42444dbb2a9dad",
-      "message": "Merge pull request #5 from tkiennt/tam",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-72dd77738cd023da13a80c24aa6fe7119908d792",
-      "timestamp": "2026-11-17T12:43:34+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "72dd77738cd023da13a80c24aa6fe7119908d792",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/72dd77738cd023da13a80c24aa6fe7119908d792",
-      "message": "chore(merge): sync origin/tam into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-f3ba63eac0e411602ce3e1406d42191853b3742a",
-      "timestamp": "2026-11-17T13:24:46+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "f3ba63eac0e411602ce3e1406d42191853b3742a",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f3ba63eac0e411602ce3e1406d42191853b3742a",
-      "message": "chore(merge): sync origin/THBMinh into trungkien",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
