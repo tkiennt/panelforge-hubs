@@ -1,8 +1,19 @@
 {
-  "lastSyncedAt": "2026-11-24T15:55:10.184Z",
+  "lastSyncedAt": "2026-11-25T02:11:51.747Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-BE-c7fd5ceb47bdaf34a7aaec92eb077f1e3cbf929a",
+      "timestamp": "2026-11-25T09:11:23+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "c7fd5ceb47bdaf34a7aaec92eb077f1e3cbf929a",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c7fd5ceb47bdaf34a7aaec92eb077f1e3cbf929a",
+      "message": "fix(payments): prevent double credit on concurrent sepay webhooks",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-1201df3bf96d3e51da2748328edace532adfca62",
       "timestamp": "2026-11-24T22:49:27+07:00",
@@ -1639,17 +1650,6 @@
       "commitHash": "9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
       "message": "chore(merge): sync remote origin/trungkien PR #5 into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-8b9f8d557cb3a432f31b983d2326b2ba734f5596",
-      "timestamp": "2026-11-18T11:07:21+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "8b9f8d557cb3a432f31b983d2326b2ba734f5596",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8b9f8d557cb3a432f31b983d2326b2ba734f5596",
-      "message": "fix(fe): refine character cast badges and remove top note banner",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
