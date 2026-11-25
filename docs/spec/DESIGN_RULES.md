@@ -308,3 +308,16 @@ PanelForge must look and feel like an authentic, high-end editorial manga workst
    - ✅ Use concrete manga publishing terminology: "Chapter Script", "Frame Template", "Lettering Canvas", "Stage Gate Review", "Character Bible".
 3. **Skill Verification:**
    - Always run the Purpose Test (`@skill:antislop` & `@skill:antislop-ui`): If a visual technique cannot state its exact usability or hierarchy purpose, remove it.
+
+
+---
+
+## 9. CONCISE UX MICROCOPY & ZERO-FLUFF UI (`@skill:ux-microcopy`)
+
+Apply the strict copywriting ceilings from `@skill:ux-microcopy`:
+1. **Buttons / CTAs:** Max 2–3 words ($\le 18$ chars), `[Action Verb] + [Noun]` (e.g. *"Lưu kịch bản"*, *"Tải ảnh"*, *"Khóa chuẩn"* — never *"Xác nhận lưu thay đổi"*).
+2. **Zero Filler Words:** Remove all polite fluff: *"Vui lòng"*, *"Xin hãy"*, *"Bạn có thể"*, *"Click here"*.
+3. **Labels & Placeholders:** Labels max 1–3 words. Placeholders show format examples only (`vd: Chương 1`), never repeat the label.
+4. **Empty States:** 1 short title (2–4 words) + 1 action button. Never multi-line tutorial text.
+5. **No Internal Jargon:** Hide rule codes (`BR-11`, `SCR-12`) from user-facing UI.
+6. **Progressive Disclosure:** Move explanatory hints into hover `<Tooltip>` with a `?` icon.

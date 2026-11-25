@@ -21,7 +21,10 @@
 
 ### 3. Kiến trúc Kỹ thuật & Sơ đồ (`docs/architecture/`)
 - **[clean-architecture-structure.md](./architecture/clean-architecture-structure.md)**: Kiến trúc Clean Architecture, CQRS, MediatR, Repository Pattern của Backend .NET 9.
+- **[core-flows-sequence-diagrams.md](./architecture/core-flows-sequence-diagrams.md)**: Sơ đồ tuần tự chuẩn hóa theo kiến trúc Clean Architecture cho 5 Core Flows cốt lõi (CF1 – CF5).
+- **[workflow-sequence-diagrams.md](./architecture/workflow-sequence-diagrams.md)**: Sơ đồ tuần tự (Sequence Diagrams) mô tả chi tiết tương tác đa thành phần cho 9 Workflow cốt lõi của nền tảng V2.6.
 - **[storage-architecture.md](./architecture/storage-architecture.md)** & **[storage-strategy.md](./architecture/storage-strategy.md)**: Kiến trúc lưu trữ ảnh (Cloudflare R2, CAS SHA-256, biến thể ảnh) và chiến lược lưu trữ theo loại dữ liệu; `storage-strategy.md` ghi các điểm chỉnh so với `storage-architecture.md`.
+- **[deployment-architecture.md](./architecture/deployment-architecture.md)**: Kiến trúc triển khai hạ tầng đám mây (Cloudflare Pages, Cloudflare Tunnel, Cloudflare R2, Oracle Cloud VM) và quy trình vận hành CI/CD cho môi trường Staging & Production.
 - Máy trạng thái chuẩn nằm trong Master Spec §5.2 (Mermaid); không giữ sơ đồ PlantUML riêng.
 
 ### 4. Kế hoạch & Điều phối Triển khai (`docs/note/` & `docs/tracking/`)
