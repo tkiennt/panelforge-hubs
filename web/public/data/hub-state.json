@@ -1,8 +1,19 @@
 {
-  "lastSyncedAt": "2026-11-25T02:11:51.747Z",
+  "lastSyncedAt": "2026-11-25T02:18:52.422Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-BE-45490e7ec7ee121d2672256a9a6afc6152d38c97",
+      "timestamp": "2026-11-25T09:18:42+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "45490e7ec7ee121d2672256a9a6afc6152d38c97",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/45490e7ec7ee121d2672256a9a6afc6152d38c97",
+      "message": "feat(payments): move default vietqr bank account to sepay config",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-BE-c7fd5ceb47bdaf34a7aaec92eb077f1e3cbf929a",
       "timestamp": "2026-11-25T09:11:23+07:00",
@@ -1639,17 +1650,6 @@
       "commitHash": "f3ba63eac0e411602ce3e1406d42191853b3742a",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f3ba63eac0e411602ce3e1406d42191853b3742a",
       "message": "chore(merge): sync origin/THBMinh into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
-      "timestamp": "2026-11-17T13:26:43+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/9c5e30157ceab7ee5e65c8f925bb63e5d507046f",
-      "message": "chore(merge): sync remote origin/trungkien PR #5 into trungkien",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
