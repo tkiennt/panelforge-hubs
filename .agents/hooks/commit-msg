@@ -1,7 +1,8 @@
 #!/bin/sh
 # ----------------------------------------------------------------------
-# PanelForge Conventional Commits v1.0.0 Git Hook (commit-msg)
-# Enforces strictly formatted commit messages across all repositories & worktrees.
+# PanelForge Conventional Commits & Protected Branch Git Hook (commit-msg)
+# Enforces strictly formatted commit messages across all repositories & worktrees
+# and blocks direct commits on protected branches (dev, stg, main).
 # ----------------------------------------------------------------------
 
 COMMIT_MSG_FILE="$1"
@@ -11,6 +12,29 @@ if [ ! -f "$COMMIT_MSG_FILE" ]; then
     exit 1
 fi
 
+# 1. Check Protected Branches (dev, stg, staging, main, master)
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+case "$CURRENT_BRANCH" in
+    main|master|stg|staging|dev)
+        GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+        # Allow merge commits (MERGE_HEAD exists) or explicit authorization
+        if [ -f "$GIT_DIR/MERGE_HEAD" ] || [ "$PANELFORGE_ALLOW_PROTECTED_COMMIT" = "1" ]; then
+            : # Authorized merge commit on protected branch
+        else
+            echo "" >&2
+            echo "❌ [PanelForge Git Guard] CẢNH BÁO: TUYỆT ĐỐI CẤM COMMIT TRỰC TIẾP TRÊN NHÁNH PROTECTED '$CURRENT_BRANCH'!" >&2
+            echo "==========================================================================================" >&2
+            echo "   Các nhánh 'dev', 'stg', 'main' là nhánh tích hợp và phát hành dùng chung." >&2
+            echo "   Mọi công việc phát triển phải thực hiện trên nhánh cá nhân {work-branch} hoặc feature branch." >&2
+            echo "   Nhánh '$CURRENT_BRANCH' chỉ được cập nhật qua Merge / Promotion có kiểm định." >&2
+            echo "   Vui lòng checkout về nhánh làm việc: git checkout <work-branch>" >&2
+            echo "==========================================================================================" >&2
+            echo "" >&2
+            exit 1
+        fi
+        ;;
+esac
+
 # Read first line that is not a comment or empty, stripping BOM and Windows CRLF (\r)
 FIRST_LINE=$(sed -e 's/^\xEF\xBB\xBF//' -e 's/\r$//' "$COMMIT_MSG_FILE" | grep -v '^[[:space:]]*#' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | sed '/^$/d' | head -n 1)
 
@@ -18,6 +42,13 @@ if [ -z "$FIRST_LINE" ]; then
     echo "❌ [PanelForge Git Hook] ERROR: Commit message cannot be empty." >&2
     exit 1
 fi
+
+# Allow standard merge commits
+case "$FIRST_LINE" in
+    Merge\ branch\ *|Merge\ pull\ request\ *|Merge\ remote-tracking\ branch\ *)
+        exit 0
+        ;;
+esac
 
 # Check maximum header length of 72 characters
 MSG_LEN=$(printf "%s" "$FIRST_LINE" | wc -m)

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     PanelForge Automated Git Worktree & Commit Orchestrator for AI Agents & Developers.
 .DESCRIPTION
@@ -466,8 +466,9 @@ function Finish-Worktree {
         if (-not (Test-Path $t.Sandbox)) { continue }
 
         $featureBranch = (git -C $t.Sandbox branch --show-current).Trim()
-        if ([string]::IsNullOrWhiteSpace($featureBranch) -or $featureBranch -eq (Get-WorkBranch -RepoPath $t.Root) -or $featureBranch -eq "main") {
-            Write-Host "[-] $($t.Name): Sandbox dang o nhanh '$featureBranch', khong phai feature branch. Bo qua merge." -ForegroundColor Yellow
+        $protected = @("main", "master", "stg", "staging", "dev")
+        if ([string]::IsNullOrWhiteSpace($featureBranch) -or $featureBranch -eq (Get-WorkBranch -RepoPath $t.Root) -or ($protected -contains $featureBranch.ToLower())) {
+            Write-Host "[-] $($t.Name): Sandbox dang o nhanh '$featureBranch', khong phai feature branch hop le. Bo qua merge." -ForegroundColor Yellow
             continue
         }
 

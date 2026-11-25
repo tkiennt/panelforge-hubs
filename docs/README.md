@@ -16,6 +16,7 @@
 ### 2. Thuật ngữ & Trạng thái Chuẩn (`docs/standards/`)
 - **[PanelForge_Ubiquitous_Language_and_State_Glossary.md](./standards/PanelForge_Ubiquitous_Language_and_State_Glossary.md)**: Từ điển thuật ngữ thống nhất (Ubiquitous Language) giữa Backend, Frontend, Mobile và Báo cáo theo V2.6.
 - **[PanelForge_State_Machine_Naming_Standards.md](./standards/PanelForge_State_Machine_Naming_Standards.md)**: Chuẩn đặt tên và định nghĩa trạng thái của 5 State Machines chuẩn V2.6 (`.NET 9`).
+- **[GIT_BRANCHING_AND_PROMOTION_MODEL.md](./standards/GIT_BRANCHING_AND_PROMOTION_MODEL.md)**: Quy chuẩn phân nhánh 4 cấp độ và quy trình thăng cấp an toàn (`work-branch -> dev -> stg -> main`), bảo vệ nhánh và hướng dẫn AI Agent.
 
 *(Tài liệu cũ trước V2.6 đã xoá; xem lịch sử git nếu cần. Không giữ bản sao tài liệu nghiệp vụ ở repo code.)*
 

@@ -13,6 +13,7 @@ const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const WORKSPACE_ROOT = path.resolve(HUB_ROOT, '..');
 const SYNC_SCRIPT = path.join(HUB_ROOT, 'scripts', 'sync-hub.mjs').replace(/\\/g, '/');
 const COMMIT_MSG_SOURCE = path.join(HUB_ROOT, '.agents', 'hooks', 'commit-msg');
+const PRE_PUSH_SOURCE = path.join(HUB_ROOT, '.agents', 'hooks', 'pre-push');
 
 const REPOS = ['PanelForge_FA26SE251', 'panelforge-fe', 'panelforge-mobile'];
 
@@ -38,6 +39,7 @@ exit 0
 `;
 
 const commitMsgHook = fs.readFileSync(COMMIT_MSG_SOURCE, 'utf8');
+const prePushHook = fs.readFileSync(PRE_PUSH_SOURCE, 'utf8');
 let failed = 0;
 
 for (const repoName of REPOS) {
@@ -56,7 +58,7 @@ for (const repoName of REPOS) {
     hooksDir = path.dirname(hooksDir);
     const excludeFile = path.join(repoDir, '.git', 'info', 'exclude');
     const excluded = fs.existsSync(excludeFile) ? fs.readFileSync(excludeFile, 'utf8') : '';
-    const missing = ['/.husky/post-commit', '/.husky/commit-msg'].filter((p) => !excluded.split(/\r?\n/).includes(p));
+    const missing = ['/.husky/post-commit', '/.husky/commit-msg', '/.husky/pre-push'].filter((p) => !excluded.split(/\r?\n/).includes(p));
     if (missing.length) {
       fs.mkdirSync(path.dirname(excludeFile), { recursive: true });
       fs.appendFileSync(excludeFile, `${excluded.endsWith('\n') || !excluded ? '' : '\n'}${missing.join('\n')}\n`);
@@ -65,7 +67,8 @@ for (const repoName of REPOS) {
   fs.mkdirSync(hooksDir, { recursive: true });
   fs.writeFileSync(path.join(hooksDir, 'post-commit'), postCommitHook(repoName), { mode: 0o755 });
   fs.writeFileSync(path.join(hooksDir, 'commit-msg'), commitMsgHook, { mode: 0o755 });
-  console.log(`🔗 ${repoName}: đã cài post-commit + commit-msg vào ${hooksDir}${isHusky ? ' (husky)' : ''}`);
+  fs.writeFileSync(path.join(hooksDir, 'pre-push'), prePushHook, { mode: 0o755 });
+  console.log(`🔗 ${repoName}: đã cài post-commit + commit-msg + pre-push vào ${hooksDir}${isHusky ? ' (husky)' : ''}`);
 }
 
 if (failed) process.exitCode = 1;

@@ -67,15 +67,49 @@ Mỗi thành viên push lên một nhánh riêng, nên nhánh làm việc **do n
   ```powershell
   powershell -File panelforge-hub/.agents/scripts/work_branch.ps1 -Action get
   ```
-  - Có giá trị → dùng nhánh đó, **không hỏi lại**.
-  - `(chua chon)` → hỏi người dùng tên nhánh (gợi ý nhánh repo đang đứng), rồi lưu:
+  - Có giá trị và `Status = OK` → dùng nhánh đó, **không hỏi lại**.
+  - `(chua chon)` → hỏi người dùng tên nhánh cá nhân (gợi ý nhánh repo đang đứng), rồi lưu:
     `powershell -File panelforge-hub/.agents/scripts/work_branch.ps1 -Action set -Branch <tên>`
     (thêm `-Repos panelforge-fe` … nếu mỗi repo dùng nhánh khác).
-  - `Match = KHAC` (repo đang ở nhánh khác) → báo người dùng và hỏi trước khi `git checkout {work-branch}`; không tự chuyển nhánh khi working tree còn thay đổi.
+  - `Status = ⚠️ PROTECTED!` (repo đang ở `dev`, `stg`, `main`) → **DỪNG LẠI NGAY! CẤM SỬA HAY COMMIT CODE TẠI ĐÂY**. Chuyển về nhánh làm việc: `git -C <repo> checkout {work-branch}`.
+  - `Status = KHAC` (repo đang ở nhánh khác) → báo người dùng và hỏi trước khi `git checkout {work-branch}`; không tự chuyển nhánh khi working tree còn thay đổi.
 - **Đổi nhánh:** chỉ khi người dùng yêu cầu, bằng `-Action set`. Agent không tự sửa giá trị đã lưu.
-- **Cấm:** commit/push lên `main`; push lên nhánh của người khác; thay `{work-branch}` bằng tên nhánh lấy từ tài liệu, lịch sử commit hay brief cũ.
+- **Cấm:** commit/push trực tiếp lên `main`, `stg`, `dev`; push lên nhánh của người khác; thay `{work-branch}` bằng tên nhánh lấy từ tài liệu, lịch sử commit hay brief cũ; chọn `main`, `master`, `stg`, `staging`, `dev` làm `{work-branch}`.
 - **Multi-agent:** worktree tách từ `{work-branch}` và merge về `{work-branch}`. `worktree_manager.ps1` tự đọc `panelforge.workBranch`; `-BaseBranch` chỉ để ghi đè một lần.
 - **Agent ngoài Claude Code** (Antigravity `agy`, Codex…): brief giao việc phải ghi rõ tên nhánh lấy từ `work_branch.ps1 -Action get`.
+
+---
+
+## 2C. MÔ HÌNH PHÂN NHÁNH VÀ BẢO VỆ CÁC NHÁNH PROTECTED (`dev`, `stg`, `main`)
+
+Dự án áp dụng mô hình thăng cấp 4 cấp độ nhánh nghiêm ngặt (chi tiết tại [docs/standards/GIT_BRANCHING_AND_PROMOTION_MODEL.md](../docs/standards/GIT_BRANCHING_AND_PROMOTION_MODEL.md)):
+
+```mermaid
+flowchart LR
+    WB["Cấp 1: {work-branch}<br/>(Cá nhân / Feature)"]
+    DEV["Cấp 2: dev<br/>(Tích hợp chung)"]
+    STG["Cấp 3: stg<br/>(Staging / Pre-prod)"]
+    MAIN["Cấp 4: main<br/>(Production Release)"]
+
+    WB -->|PR hoặc promote_branch.ps1<br/>Gate 1: Fast Build / Typecheck| DEV
+    DEV -->|Đóng Sprint / Lead duyệt<br/>Gate 2: Staging Gate| STG
+    STG -->|Nghiệm thu UAT 100%<br/>Gate 3: Release Tag vX.Y.Z| MAIN
+```
+
+### 4 Quy tắc Bất Di Bất Dịch cho AI Agent (Zero-Tolerance Guardrails):
+1. 🛡️ **TUYỆT ĐỐI CẤM code hoặc commit trực tiếp trên `dev`, `stg`, `main`:**
+   - Được bảo vệ vật lý qua Git hook `commit-msg`. Mọi lệnh `git commit` trực tiếp trên các nhánh này sẽ bị hook từ chối trừ khi là merge commit hợp lệ.
+2. 🛡️ **TUYỆT ĐỐI CẤM tự ý push lên `dev`, `stg`, `main`:**
+   - Được bảo vệ vật lý qua Git hook `pre-push`. Mọi lệnh `git push` trực tiếp lên `dev`, `stg`, `main` sẽ bị chặn ngay lập tức.
+3. 🛡️ **TUYỆT ĐỐI CẤM force push (`--force`, `-f`):**
+   - Không được phép dùng force push trên bất kỳ nhánh chia sẻ nào.
+4. 🚀 **KHI NGƯỜI DÙNG YÊU CẦU MERGE / PROMOTE:**
+   - Nếu User yêu cầu gộp `{work-branch}` vào `dev`, hoặc promote `dev -> stg`, hoặc promote `stg -> main`, Agent **phải sử dụng script tự động hóa**:
+     ```powershell
+     powershell -File panelforge-hub/.agents/scripts/promote_branch.ps1 -From <Nguon> -To <Dich> -Push
+     ```
+     Script sẽ tự động chạy pre-flight verification (`dotnet build`, `npm run typecheck`, `flutter analyze`), kiểm tra conflict, và tự động bật cờ an toàn khi push.
+
 
 ---
 
