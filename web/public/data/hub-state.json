@@ -1,8 +1,107 @@
 {
-  "lastSyncedAt": "2026-11-25T08:24:51.716Z",
+  "lastSyncedAt": "2026-11-25T08:35:17.144Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-MOBILE-f422a104fc209164852226493bb5cab5f5e972c9",
+      "timestamp": "2026-11-20T14:04:50+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "f422a104fc209164852226493bb5cab5f5e972c9",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/f422a104fc209164852226493bb5cab5f5e972c9",
+      "message": "merge(mobile): fixes from Windows app testing from baominh",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-9b1df9fc06d61ffe9867257575a95b37f4c4d100",
+      "timestamp": "2026-11-20T14:18:40+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "9b1df9fc06d61ffe9867257575a95b37f4c4d100",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/9b1df9fc06d61ffe9867257575a95b37f4c4d100",
+      "message": "fix(mobile): show the auto-next countdown above reader controls",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-8f07df52a2243a517b6e7c63817fb3ec108a5209",
+      "timestamp": "2026-11-20T14:18:46+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "8f07df52a2243a517b6e7c63817fb3ec108a5209",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/8f07df52a2243a517b6e7c63817fb3ec108a5209",
+      "message": "merge(mobile): auto-next countdown fix from baominh",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-5c7ef1f52e0fca5ecaad45a9fac55631e9003936",
+      "timestamp": "2026-11-23T18:31:19+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "5c7ef1f52e0fca5ecaad45a9fac55631e9003936",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/5c7ef1f52e0fca5ecaad45a9fac55631e9003936",
+      "message": "chore(mobile): remove external review module and unused camera/mic permissions for Reader-only app",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-e0a149ac48a45713d100808664d927d539189c2a",
+      "timestamp": "2026-11-23T18:32:48+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "e0a149ac48a45713d100808664d927d539189c2a",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/e0a149ac48a45713d100808664d927d539189c2a",
+      "message": "feat(mobile): add native FLAG_SECURE DRM, iOS capture shield, reader watermark, and com.panelforge.reader app ID",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-4146aaac66745f5eabbc7d3efe34782fd6b04bca",
+      "timestamp": "2026-11-23T18:34:30+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "4146aaac66745f5eabbc7d3efe34782fd6b04bca",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/4146aaac66745f5eabbc7d3efe34782fd6b04bca",
+      "message": "feat(mobile): clear offline packages on logout and add offline banner to /downloads",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-bd1943050e96c0c454152de74da23e5601273eec",
+      "timestamp": "2026-11-23T18:37:28+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "bd1943050e96c0c454152de74da23e5601273eec",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/bd1943050e96c0c454152de74da23e5601273eec",
+      "message": "feat(mobile): add active devices management screen with remote logout",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-236c5d5df67ae4ceafdef5d66808e366dacab068",
+      "timestamp": "2026-11-23T18:39:02+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "236c5d5df67ae4ceafdef5d66808e366dacab068",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/236c5d5df67ae4ceafdef5d66808e366dacab068",
+      "message": "feat(mobile): add maintenance mode and force update gate overlay",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-8778ef3686fb666cb76628a0e22829c9ac2e30dd",
+      "timestamp": "2026-11-25T15:35:14+07:00",
+      "repo": "FE",
+      "author": "trung kien",
+      "commitHash": "8778ef3686fb666cb76628a0e22829c9ac2e30dd",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/8778ef3686fb666cb76628a0e22829c9ac2e30dd",
+      "message": "feat(writer): update script editor dirty banners and assertions",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-MOBILE-54e2ab90424814e4e906ab29ad728e61cde4d747",
       "timestamp": "2026-11-23T18:42:00+07:00",
@@ -1551,105 +1650,6 @@
       "commitHash": "9136fa24ad8bd85ea9e4fdd54f771e8949e4d159",
       "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/9136fa24ad8bd85ea9e4fdd54f771e8949e4d159",
       "message": "feat(mobile): search filters, sort options and search history",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-b345d0d6163fc0fd2aa464b3fe43df9d1d7f64ff",
-      "timestamp": "2026-11-20T13:24:03+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "b345d0d6163fc0fd2aa464b3fe43df9d1d7f64ff",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/b345d0d6163fc0fd2aa464b3fe43df9d1d7f64ff",
-      "message": "feat(mobile): offline catalog, deep links, crash log and text size",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-5d6a0e2007d8e56e4c9591450fba3175009c4e08",
-      "timestamp": "2026-11-20T13:26:08+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "5d6a0e2007d8e56e4c9591450fba3175009c4e08",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/5d6a0e2007d8e56e4c9591450fba3175009c4e08",
-      "message": "feat(mobile): wallet history by month with receipts",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-287f1cb9d6ade0fb342751b6cb2458597d351f7a",
-      "timestamp": "2026-11-20T13:26:18+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "287f1cb9d6ade0fb342751b6cb2458597d351f7a",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/287f1cb9d6ade0fb342751b6cb2458597d351f7a",
-      "message": "docs(mobile): map downloads, wallet history, crash log and deep link",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-f4b81a98438cc5664ac58476d34265da3b2c2306",
-      "timestamp": "2026-11-20T13:26:52+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "f4b81a98438cc5664ac58476d34265da3b2c2306",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/f4b81a98438cc5664ac58476d34265da3b2c2306",
-      "message": "merge(mobile): follow alerts, downloads, reader settings, search filters, offline catalog, wallet receipts from baominh",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-921608302712ef3ae7bff9398521c757cd527cca",
-      "timestamp": "2026-11-20T13:40:40+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "921608302712ef3ae7bff9398521c757cd527cca",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/921608302712ef3ae7bff9398521c757cd527cca",
-      "message": "feat(mobile): sync read later, follows, favorites and history",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-699592f76fb659045d9c7206d2d430b2f04374d8",
-      "timestamp": "2026-11-20T13:40:46+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "699592f76fb659045d9c7206d2d430b2f04374d8",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/699592f76fb659045d9c7206d2d430b2f04374d8",
-      "message": "merge(mobile): reader library sync from baominh",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-9dccfb2ad7a8207c8c4d50f1eecd71ece014722a",
-      "timestamp": "2026-11-20T14:04:40+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "9dccfb2ad7a8207c8c4d50f1eecd71ece014722a",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/9dccfb2ad7a8207c8c4d50f1eecd71ece014722a",
-      "message": "fix(mobile): search without diacritics and list only real genres",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-f56958a5f631fca445e9badf71dc9652b045128f",
-      "timestamp": "2026-11-20T14:04:40+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "f56958a5f631fca445e9badf71dc9652b045128f",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/f56958a5f631fca445e9badf71dc9652b045128f",
-      "message": "fix(mobile): keep cards and reader controls intact at large text",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-2fa8c707f403d34744f777d841d0a6ba468b39e7",
-      "timestamp": "2026-11-20T14:04:40+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "2fa8c707f403d34744f777d841d0a6ba468b39e7",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/2fa8c707f403d34744f777d841d0a6ba468b39e7",
-      "message": "fix(mobile): refresh expired token for wallet, tidy bell and downloads",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
