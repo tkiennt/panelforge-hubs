@@ -457,11 +457,23 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [ ] [FE] Màn Gate 1 / `ScriptReviewView`: gửi `expectedSubmittedVersionId`; nhận 409 → hộp "Có phiên bản mới vX" + diff + nút "Chốt vX"; khi đang mở màn mà có lần gửi mới (thông báo hoặc nạp lại định kỳ) thì hiện dải cảnh báo.
 - [ ] Test: Producer xem v1, Writer gửi v2 → chốt v1 bị 409 kèm v2; chốt v2 thành công, `frozen_script_version_id = v2`.
 
-#### SCR-42 · Autosave working copy vs Save immutable ScriptVersion (D9c) — DB + BE + FE · ❌
-- [ ] [DB + BE] Bảng `chapter_script_working_copies` lưu working copy khả biến của Writer cho autosave (debounce). Autosave cập nhật bản working copy này, tuyệt đối không tạo bản ghi mới trong `script_versions` (Quyết định 2026-11-15 (D9c)).
-- [ ] [BE] Nút "Save" (Lưu phiên bản thủ công): tạo một bản ghi `ScriptVersion` bất biến (commit snapshot bất biến kèm mã băm SHA-256).
-- [ ] [BE] Nút "Submit Script" tại Gate 1: trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (D2).
-- [ ] [FE] Tích hợp debounce autosave (3-5s) gọi endpoint `/working-copy`; nút "Lưu phiên bản" (Save) gọi `POST /script-versions`; nút "Nộp kịch bản" (Submit) kiểm tra working copy đã lưu thành version rồi gọi submit.
+#### SCR-42 · Autosave working copy vs Save immutable ScriptVersion (D9c) — DB + BE + FE · ✅ (commit `ae2bd99`)
+- [x] [DB + BE] Bảng `chapter_script_working_copies` lưu working copy khả biến của Writer cho autosave (debounce). Autosave cập nhật bản working copy này, tuyệt đối không tạo bản ghi mới trong `script_versions` (Quyết định 2026-11-15 (D9c)). Migration `20261126044204_AddRefreezeScriptAndWorkingCopies`.
+- [x] [BE] Nút "Save" (Lưu phiên bản thủ công): tạo một bản ghi `ScriptVersion` bất biến (commit snapshot bất biến kèm mã băm SHA-256).
+- [x] [BE] Nút "Submit Script" tại Gate 1: trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (D2).
+- [x] [FE] Tích hợp debounce autosave (3-5s) gọi endpoint `/working-copy`; nút "Lưu phiên bản" (Save) gọi `POST /script-versions`; nút "Nộp kịch bản" (Submit) kiểm tra working copy đã lưu thành version rồi gọi submit.
+
+#### SCR-44 · Script Refreeze & Phân tách tác động kịch bản (Visual vs Lettering) — BE + FE · ✅ (BE `ae2bd99`, `78707f6`, `ff109fe`, `efb8d27`; FE `7c832daa`, `aa21e679`)
+- [x] [BE] Chặn `StartChapterProduction` chỉ được gọi khi chương ở `PreProduction` (ném 409 nếu chương đã `InProduction`).
+- [x] [BE] API xem trước tác động `GET /api/chapters/{chapterId}/refreeze-preview`: Producer đối chiếu diff giữa bản chốt trước và bản sửa mới.
+- [x] [BE] Phân tách tác động `ScriptSnapshotDiffer` & `ScriptImpactClassifier`:
+  - `Visual Impact` (thay đổi hành động `Action`, thêm/bớt khung) $\rightarrow$ Đánh cờ Rework cho công đoạn vẽ (`Storyboard`, `Pencil`, `Ink`).
+  - `Lettering Impact` (thay đổi thoại `Dialogue`, suy nghĩ `Thought`, lời dẫn `Narration`, `SFX`) $\rightarrow$ Gắn cờ bóng thoại lỗi thời (`isStale = true`) và nhiệm vụ `Lettering`, bảo vệ nét vẽ của Artist.
+- [x] [BE] API chốt lại kịch bản `POST /api/chapters/{chapterId}/refreeze-script`: Producer refreeze trong 1 ACID transaction (kiểm tra `ExpectedScriptHash`, Bible gate `ChapterCastGate`, giao trang mới `NewPageAssignments`).
+- [x] [BE] Lá chắn chống xóa trang/khung đang sản xuất: `ChapterScriptSaver` trả lỗi `409 Conflict` nếu Writer xóa trang/khung đang có tiến độ hoạt động.
+- [x] [BE] Ràng buộc bất biến dòng Suy nghĩ: `Thought` bắt buộc phải có `SpeakerLabel`.
+- [x] [BE] Bảo toàn danh tính khung (`Panel Identity Preservation`): `ChapterScriptSaver` & `ScriptStructureRules` giữ nguyên `PanelId` cũ qua các lần lưu kịch bản (`efb8d27`).
+- [x] [FE] Modal `ScriptRefreezeReviewModal` cho Producer xem trước diff và xác nhận refreeze. Hiển thị cờ cảnh báo tác động phân tách trên bàn làm việc của Artist và Letterer.
 
 #### SCR-43 · ChapterNumber decimal & khóa cứng khi InProduction (D9a) — DB + BE + FE · ❌
 - [ ] [DB] Đổi kiểu dữ liệu cột `chapters.chapter_number` từ `int` sang `decimal(5,1)` (hỗ trợ số chương lẻ/ngoại truyện như `12.5`, Quyết định 2026-11-15 (D9a)).
@@ -495,6 +507,7 @@ Phase H: `SCR-25` (làm ngay, mock) ─► `SCR-26` (cần SCR-19) ─► `SCR-2
 
 | Ngày      | Task                                   | Trạng thái                 | Nhánh / Commit                                                       | Ghi chú                                                                                                                                                                                                                                                                                                 |
 | ---------- | -------------------------------------- | ---------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-11-26 | SCR-42, SCR-44                         | ✅ Hoàn thành              | BE `ae2bd99`, `78707f6`, `ff109fe`, `efb8d27`; FE `7c832daa`, `aa21e679` | Triển khai Autosave working copy (`chapter_script_working_copies`), Script Refreeze khi chương đang `InProduction`, phân tách tác động kịch bản (Visual vs Lettering), chặn xóa trang/khung đang sản xuất (409), bảo toàn `PanelId` khi lưu kịch bản, và ràng buộc dòng `Thought` có `SpeakerLabel`. |
 | 2026-11-14 | SCR-11, SCR-14                         | ✅ Hoàn thành              | BE `fa90712`, `0571fa7`, `5a0f9a2`, `c65f9cf`; FE `0740a2a` | SCR-11: Producer chỉ đọc khi sửa kịch bản (403), quyền Writer chuẩn hoá. SCR-14: Whole-tree save & submit kịch bản trong một transaction (`PUT /script`, `POST /script/submit`), gỡ bỏ hoàn toàn legacy endpoints và DTO SpeakerCharacterId                                         |
 | 2026-11-14 | D3, SCR-39 (Docs)                      | ✅ Chốt                     | — (chỉ tài liệu)                                                  | User chốt D3: Gate 1 yêu cầu InReview, góp ý không chặn (xoá "chặn khi còn CR kịch bản mở"), cảnh báo UI non-blocking "Còn X góp ý". SCR-39 hoàn tất phần docs: vẽ lại máy trạng thái ScriptStatus Draft ↔ InReview → Frozen, bảng endpoint, gỡ ChangesRequested/Amending  |
 | 2026-11-14 | SCR-15, SCR-23, SCR-39, SCR-40, SCR-41 | Lập kế hoạch              | — (chỉ tài liệu)                                                  | Q25/Q26 từ VERSION_REVIEW: `ScriptVersion` nguồn duy nhất, đề xuất AI là `AiProposal`, khôi phục = commit mới, báo phiên bản mới khi chốt, `frozen_script_version_id`                                                                                                               |

@@ -59,12 +59,12 @@
 | M1-03 | Thành viên Series | ✅ | `Features/SeriesMembers/*`, FE `roles/producer/views/ProjectMembersView.tsx` |
 | M1-04 | Writer độc quyền soạn kịch bản (BR-07/23) | ✅ 🔍 | `Features/ScriptLines/*` (Batch save, Restore revision), FE `roles/writer/views/ScriptEditorView.tsx`. Cần xác minh 403 khi Producer sửa thoại |
 | M1-05 | Nội dung Panel: ACTION_DIRECTION / DIALOGUE / THOUGHT / NARRATION / SFX | ✅ 🔍 | `ScriptLine` có `DialogueText`, `StageDirection`, `NarrationMode`, `SpeakerCharacterId` nullable (quần chúng) |
-| M1-06 | ~~Gõ `@Tên` liên kết Bible, tự tạo `@Stub`~~ → người nói tự khớp/tự tạo nháp, lời dẫn bôi đen tham chiếu (Q16) | ❌ thay bằng BIB-09, BIB-11..BIB-16 | `BibleEntry.CreateStub/IsStub/PromoteFromStub`, `LinkBibleEntriesCommand`, FE `@tiptap/extension-mention` |
-| M1-07 | Bible `Draft → ConceptSubmitted → CanonLocked` (Q20: Editor xác nhận = khoá, bỏ `WriterEndorsed`; phiên bản concept + góp ý có trả lời) | 🟡 → BIB-10 | `BibleEntryRevision.SubmitConcept/Endorse/Lock/RequestRework`; enum `BibleRevisionStatus` (có thêm `ReworkRequired` thay cho "quay về Draft" — chấp nhận được) |
+| M1-06 | ~~Gõ `@Tên` liên kết Bible, tự tạo `@Stub`~~ → người nói tự khớp/tự tạo nháp, lời dẫn bôi đen tham chiếu (Q16) | ✅ | BIB-09..BIB-16: `BibleNameNormalizer`, `chapter_bible_bindings`, `refs[]` |
+| M1-07 | Bible `Draft → ConceptSubmitted → CanonLocked` (Q20: Editor xác nhận = khoá; Writer soft endorsement; cancel replacement; AllowSoloCreatorReview; schema tinh giản) | ✅ | BIB-10, BIB-18, BIB-19: `ConfirmBibleEntryRevisionCommand`, `EndorseBibleRevisionCommand`, `CancelReplacementRevisionCommand`, `BibleDetailsParser` |
 | M1-08 | Cấm `/unlock`, chỉ `/supersede` (BR-01) | ✅ | Không có endpoint unlock trong `BibleController`; `MarkSuperseded`, `AddBibleEntryRevisionCommand` |
-| M1-09 | ~~Era versioning `EffectiveRevisionAt(N)`~~ → biến thể tạo hình + bản theo binding của chương (BR-15 mới, Q16) | ❌ thay bằng BIB-09, BIB-15, gỡ ở BIB-17 | `BibleEntry.EffectiveRevisionAt(int, canonOnly)`, `GetBibleEntriesAtChapterQuery` |
-| M1-10 | Gate 1 chốt Bible theo Danh sách thực thể chương (BR-21/30/35, Q16) | ❌ | Rà soát 2026-11-13: `CheckChapterBibleGateQuery` luôn qua và **không** được `FreezeChapterScriptCommand` gọi → BIB-14 |
-| M1-11 | **Gate 1 "1 nút": Approve Script & Start Production + xác nhận giao Page** | 🟡 | Freeze (`FreezeChapterScriptCommand`) và giao việc (`CreateAssignmentPlanCommand`, `CreateBulkAssignmentCommand`) là 2 thao tác rời; chương không chuyển `PreProduction → InProduction` |
+| M1-09 | ~~Era versioning `EffectiveRevisionAt(N)`~~ → biến thể tạo hình + bản theo binding của chương (BR-15 mới, Q16, Q23) | ✅ | BIB-09, BIB-11, BIB-15, gỡ era ở BIB-17: `panel_bible_variants`, `chapter_bible_bindings` |
+| M1-10 | Gate 1 chốt Bible theo Danh sách thực thể chương (BR-21/30/35, Q16) | ✅ | BIB-14: `ChapterCastGate` kiểm tra toàn bộ binding và variant của chương phải `CanonLocked` (trừ cờ Quần chúng) |
+| M1-11 | **Gate 1 "1 nút": Approve Script & Start Production + xác nhận giao Page** | ✅ | `StartChapterProduction` chuyển `PreProduction → InProduction`, đóng băng kịch bản `Frozen`, tạo batch assignment |
 | M1-12 | Màn `ChapterReleaseModal.tsx` (Gate 1 / Gate 3 / Transfer / Revenue) | ❌ | Không tồn tại; chức năng rải ở `ProducerWorkspaceView`, `CreateAssignmentModal`, `PublishingView` |
 
 ### M2 — Bàn vẽ Layout/Pencil/Ink & Lettering (CF2)
@@ -114,7 +114,7 @@
 | M4-01 | Append-only event + CAS | ✅ | xem M0-02, M0-04 |
 | M4-02 | Restore tạo Version n+1 (BR-08) | ✅ | `RestorePageVersionCommand`, `Page.RestoreTo`, `RestoreScriptRevisionCommand` |
 | M4-03 | Unfreeze/Reopen Script **bắt buộc lý do** vào Audit | ✅ | P0-03: endpoint nhận body `{ reason }` (bắt buộc, ≤500 ký tự), ghi audit `UNFREEZE_SCRIPT`; FE `ScriptEditorView` dùng `ReasonForm` |
-| M4-04 | Thông báo Artist/Letterer khi refreeze | ✅ 🔍 | Freeze có nhánh flag impact (`FreezeScriptCommands.cs:80-110`); xác minh Notification |
+| M4-04 | Chốt lại kịch bản (`Script Refreeze`) & phân tách tác động Visual vs Lettering | ✅ | `RefreezeScriptCommand`, `GetRefreezeScriptPreviewQuery`, `ScriptImpactClassifier`, `ChapterScriptSaver` deletion guard (409), bảo toàn `PanelId` (`efb8d27`) |
 | M4-05 | `FlagImpactReview` ⚑ lên Panel/Assignment khi sửa dòng đã gắn | ✅ | `Assignment.FlagScriptImpact`, `StageProgress.FlagScriptImpact`, `StageProgressRules.cs:291` |
 | M4-06 | Bóng thoại `isStale` | ✅ | `GetPageSnapshotQueryHandler.cs:57` |
 | M4-07 | Quyết định `Keep` / `Rework` | ✅ | `ResolveImpactReviewCommand` (`ImpactReviewDecision.Keep/Rework`) |

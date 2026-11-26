@@ -257,6 +257,7 @@ stateDiagram-v2
     InReview --> Draft: script.recall [isWriter]
     InReview --> Frozen: chapter.start_production [isProducer && isLiveEqualSubmitted && isCastCanonLocked] / lockScriptAndBindings()
     Frozen --> Draft: script.reopen [isProducer && hasValidReason] / unlockScriptEditor()
+    Draft --> Frozen: script.refreeze [isProducer && isCastCanonLocked && isHashParity && !hasActiveProductionDeletion] / lockScriptAndFlagSplitImpact()
 ```
 
 #### Bảng chi tiết phần tử:
@@ -264,9 +265,9 @@ stateDiagram-v2
   - `Draft`: Writer viết; mỗi lần lưu tạo `ScriptVersion` (băm SHA-256).
   - `InReview`: Đã gửi; Editor đọc bản đã gửi và góp ý theo dòng; Writer vẫn sửa và gửi lại.
   - `Frozen`: Chỉ đọc; Bản đồ thực thể chương khoá cùng lúc (BR-35).
-- **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`, `script.reopen`.
-- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21/Q22: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể — mặc định hoặc Writer đã đổi), `isCastCanonLocked`, `hasValidReason`.
-- **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`, `unlockScriptEditor`.
+- **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`, `script.reopen`, `script.refreeze`.
+- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21/Q22: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể — mặc định hoặc Writer đã đổi), `isCastCanonLocked`, `hasValidReason`, `isHashParity` (mã băm kịch bản trùng khớp bản nộp), `hasActiveProductionDeletion` (chặn xóa trang/khung đang sản xuất, 409).
+- **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`, `unlockScriptEditor`, `lockScriptAndFlagSplitImpact` (phân tách tác động Nét vẽ vs Lời thoại, giao trang mới).
 
 ---
 
@@ -279,9 +280,10 @@ stateDiagram-v2
     [*] --> Draft: bible.draft_spec
     Draft --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset && isDefined] / calculateSha256()
     ConceptSubmitted --> ConceptSubmitted: bible.comment [isWriterOrEditorOrArtist] / recordComment()
+    ConceptSubmitted --> ConceptSubmitted: bible.endorse [isWriter] / recordSoftEndorsement()
     ConceptSubmitted --> ReworkRequired: bible.request_rework [isWriterOrEditorOrProducer && hasNote] / attachReviewNotes()
     ReworkRequired --> ConceptSubmitted: bible.submit_concept_version [hasCasAsset]
-    ConceptSubmitted --> CanonLocked: bible.confirm_canon [isEditor && isNotSubmitter && isCurrentVersion] / freezeAsCanon()
+    ConceptSubmitted --> CanonLocked: bible.confirm_canon [isEditor && (isNotSubmitter || isSoloCreatorAllowed) && isCurrentVersion] / freezeAsCanon()
     CanonLocked --> Superseded: bible.replacement_locked (chương gắn bản cũ giữ nguyên, Q23)
 ```
 
@@ -289,13 +291,13 @@ stateDiagram-v2
 - **States:**
   - `Draft`: Bản nháp đặc tả bằng lời của Writer; mục tự tạo từ người nói / bôi đen mang cờ `IsStub` cho tới khi Writer viết định nghĩa (Q16).
   - `ConceptSubmitted`: Artist đã nộp một phiên bản concept (bất biến, số tăng dần, CAS SHA-256).
-  - `ReworkRequired`: Thiết kế chưa đạt, Writer hoặc Editor yêu cầu Artist nộp phiên bản mới.
+  - `ReworkRequired`: Thiết kế chưa đạt, Writer hoặc Editor yêu cầu Artist nộp phiên bản mới (ưu tiên trong hàng đợi).
   - `CanonLocked`: Editor xác nhận đúng phiên bản đang nộp và khoá thành Canon (Bất biến, Q20). Không còn `WriterEndorsed`.
   - `Superseded`: Bản thay thế cùng biến thể (Writer tạo qua `/supersede`) đã được khoá; không chọn tay được nữa, chương đang gắn bản này vẫn dùng (không tự chuyển, Q23).
 - **Events:**
-  - `bible.submit_concept_version`, `bible.comment` (có `parentCommentId` để trả lời), `bible.request_rework`, `bible.confirm_canon`, `bible.supersede` (Writer tạo bản thay thế), `bible.replacement_locked`.
-- **Guards:** `hasCasAsset`, `isDefined` (`!IsStub`), `isWriterOrEditor`, `isWriterOrEditorOrArtist`, `isWriterOrEditorOrProducer`, `isEditor`, `isNotSubmitter`, `isCurrentVersion`, `hasNote`.
-- **Actions:** `calculateSha256`, `recordComment`, `attachReviewNotes`, `freezeAsCanon`.
+  - `bible.submit_concept_version`, `bible.comment` (có `parentCommentId` để trả lời), `bible.endorse` (Writer đồng thuận mềm), `bible.request_rework`, `bible.confirm_canon`, `bible.supersede` (Writer tạo bản thay thế), `bible.cancel_replacement` (Writer hủy bản thay thế đang chờ), `bible.replacement_locked`.
+- **Guards:** `hasCasAsset`, `isDefined` (`!IsStub`), `isWriterOrEditor`, `isWriterOrEditorOrArtist`, `isWriterOrEditorOrProducer`, `isEditor`, `isNotSubmitter` (hoặc `isSoloCreatorAllowed` khi series bật `AllowSoloCreatorReview`), `isCurrentVersion`, `hasNote`.
+- **Actions:** `calculateSha256`, `recordComment`, `recordSoftEndorsement`, `attachReviewNotes`, `freezeAsCanon`.
 
 ---
 

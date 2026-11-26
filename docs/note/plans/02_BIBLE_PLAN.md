@@ -52,6 +52,8 @@
 | **BIB-15: Đọc Model Sheet theo Panel & binding (`GetPanelBible`); Model Sheet block bàn vẽ Artist Desk** | BE merge `a5a6d55` (`e1c2c9a`), FE merge `db5a007` (`4dae604`) |
 | **BIB-16: Giao diện kịch bản nối Series Bible: mark `bibleRef`, bôi đen tham chiếu, Chapter Cast drawer, blockers list** | FE merge `215c516` (`4e68972`), `0740a2a` (`80ea7a6`), `016b307` (`b3025ba`) |
 | **BIB-17: Gỡ bỏ cơ chế cũ không tương thích ngược (xoá `@mention`, era, link-bible-entries, `SpeakerCharacterId`, `/endorse`, `/lock`); test QA** | BE merge `95c98b9` (`2051754`), `50c2eb5` (`c9e4b4c`), `5a0f9a2` (`ec2c5e1`), `c65f9cf` (`b71095a`); FE merge `2b335f7` (`a55a012`), migration `20261114115859_RemoveLegacyBibleMechanisms` |
+| **BIB-18: Tinh giản Schema `BibleEntry` & chuẩn hóa `BibleDetails` (Age & ArtistNotes)** | BE `SimplifyBibleEntrySchema`: bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; gộp `subtitle` vào `description`; chuẩn hóa `DetailsJson` qua `BibleDetailsParser`; bỏ lệnh `UpdateBibleEntryAliasesCommand`. Migration `20261126095525_SimplifyBibleEntrySchema` |
+| **BIB-19: Cơ chế bảo vệ & quy trình duyệt Series Bible nâng cao** | BE commit `fe942cc`, FE commit `808dd3f9`: Soft endorsement cho Writer (`POST .../revisions/{revisionId}/endorse`), Cancel replacement (`POST .../revisions/{revisionId}/cancel-replacement`), ưu tiên `ReworkRequired` trong design queue, cấu hình `AllowSoloCreatorReview` trên Series cho studio 1 người. Migration `20261126035101_AddBibleWorkflowSafeguards` |
 
 ## 2. Hiện trạng frontend (đo 2026-11-12)
 
@@ -365,6 +367,7 @@ BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) vẫn mở v
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-26 | BIB-18, BIB-19 | ✅ Hoàn thành | BE `fe942cc`, migration `SimplifyBibleEntrySchema`; FE `808dd3f9` | Tinh giản toàn diện schema `BibleEntry`: loại bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; chuẩn hóa `DetailsJson` (Age & ArtistNotes) qua `BibleDetailsParser`; thêm đồng thuận mềm (`Soft Endorsement`), hủy bản thay thế (`cancel-replacement`), ưu tiên `ReworkRequired` trong design queue và cấu hình `AllowSoloCreatorReview` trên Series |
 | 2026-11-14 | BIB-01, BIB-02, bỏ bí danh và era UI | ✅ Hoàn thành | BE `4e8fd57`, `66b80be`, `b90bde5`; FE `8c43b10`, `3a76596` | Cache mô tả/ảnh theo Canon của biến thể mặc định, draft không ghi đè và FE báo `Có bản nháp vN`; tên bất biến, unique `normalized_name`, không bí danh; migration `20261114161005_RemoveBibleEntryAliases`; gỡ era UI |
 | 2026-11-14 | BIB-03, BIB-09..BIB-17 | ✅ Hoàn thành | BE `ed02171`, `e78858b`, `37abe0f`, `f979fa9`, `9c24b93`, `a5a6d55`, `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `2b335f7`, `016b307`, `a6cb774` | Toàn bộ luồng Series Bible kết nối Script & Gate 1 đã hoàn thành và gộp vào `trungkien`. Xoá bỏ hoàn toàn các cơ chế legacy (bible-gate, endorse/lock, era, mention) theo quy tắc không tương thích ngược |
 | 2026-11-12 | cũ B1, B3, B5, B6 (một phần) | ✅ | BE `1cb44ed`, merge `a092b0f` | Guard trạng thái, hàng đợi theo giai đoạn |

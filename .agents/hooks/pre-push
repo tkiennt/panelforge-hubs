@@ -14,9 +14,9 @@ do
     # Extract branch name from refs/heads/<branch>
     BRANCH_NAME="${REMOTE_REF#refs/heads/}"
 
-    # Protect dev, stg, staging, main, master
+    # Protect dev, main, master
     case "$BRANCH_NAME" in
-        main|master|stg|staging|dev)
+        main|master|dev)
             # 1. Prevent branch deletion
             if [ "$LOCAL_SHA" = "$ZERO_SHA" ]; then
                 echo "❌ [PanelForge Git Guard] CẢNH BÁO: TUYỆT ĐỐI CẤM XOÁ NHÁNH PROTECTED '$BRANCH_NAME'!" >&2
@@ -36,8 +36,7 @@ do
             echo "==========================================================================================" >&2
             echo "  Dự án PanelForge áp dụng quy chuẩn bảo vệ nhánh nghiêm ngặt (Protected Branch Policy):" >&2
             echo "    - 'dev'  : Tích hợp chung từ {work-branch} qua PR hoặc script promote sau Fast Build." >&2
-            echo "    - 'stg'  : Staging môi trường, chỉ nhận promote từ 'dev' sau khi QA/Lead nghiệm thu." >&2
-            echo "    - 'main' : Production chính thức, chỉ nhận promote từ 'stg' sau khi pass 100% Staging." >&2
+            echo "    - 'main' : Production chính thức, chỉ nhận promote từ 'dev' sau nghiệm thu." >&2
             echo "" >&2
             echo "  👉 NẾU BẠN LÀ AI AGENT:" >&2
             echo "     Tuyệt đối KHÔNG tự ý push lên nhánh này. Hãy commit trên {work-branch} và thông báo User." >&2

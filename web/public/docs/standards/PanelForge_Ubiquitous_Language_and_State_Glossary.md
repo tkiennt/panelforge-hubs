@@ -46,14 +46,18 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | **StudioWorkspace** | Toàn cục | Không gian làm việc khép kín của một Studio, độc lập về dữ liệu, thành viên và quota. |
 | **Series** | Workspace | Một bộ truyện tranh, có cấu trúc pipeline công đoạn, hướng đọc (RTL/LTR), Bible riêng. |
 | **SeriesBible** | Series | Hồ sơ kinh thánh bối cảnh của Series; lưu trữ thiết kế nhân vật, sự kiện, địa điểm, luật thế giới. |
-| **BibleEntry** | SeriesBible | Một nhân vật / địa điểm / đạo cụ (hoặc thuật ngữ, quy tắc, sự kiện); có tên bất biến, unique theo `normalized_name`, không có bí danh; riêng stub được Writer đặt lại tên đúng một lần khi định nghĩa. Có cờ **Quần chúng** (`is_crowd`) và cờ nháp chờ định nghĩa (`IsStub`) (Q16). |
-| **BibleEntryRevision** | BibleEntry | Một bản tạo hình của mục, gắn **nhãn biến thể** (`variant_label`, ví dụ "Lúc nhỏ"), ảnh concept CAS SHA-256; không gắn số chương (Q16, BR-15). |
+| **BibleEntry** | SeriesBible | Một nhân vật / địa điểm / đạo cụ (hoặc thuật ngữ, quy tắc, sự kiện); có tên bất biến, unique theo `normalized_name`, không có bí danh hay code rườm rà. Phụ đề gộp vào mô tả. Có cờ **Quần chúng** (`is_crowd`) và cờ nháp chờ định nghĩa (`IsStub`) (Q16). |
+| **BibleDetails** | BibleEntry | Đặc tả chi tiết tinh giản trong `DetailsJson`, chuẩn hóa gồm `Age` (độ tuổi/giai đoạn) và `ArtistNotes` (ghi chú vẽ có cấu trúc) qua `BibleDetailsParser`. |
+| **BibleEntryRevision** | BibleEntry | Một bản tạo hình của mục, gắn **nhãn biến thể** (`variant_label`, ví dụ "Lúc nhỏ"), ảnh concept CAS SHA-256; không gắn số chương (Q16, BR-15). Hỗ trợ đồng thuận mềm (`Soft Endorsement`) của Writer. |
 | **Danh sách thực thể chương** (`chapter_bible_bindings`) | Chapter | Các mục Bible có trong kịch bản chương (người nói tự khớp/tự tạo, đoạn Writer bôi đen) và bản tạo hình chương dùng; khoá cùng kịch bản ở Gate 1 (BR-35). |
 | **Chapter** | Series | Một chương truyện (gồm `ChapterStatus`: `PreProduction`, `InProduction`, `ChapterApproved`, `Archived`; kết thúc tại `ChapterApproved`, D1, D3). |
 | **SubmittedScriptManifest** | Chapter | Bản ghi đóng băng kịch bản & danh mục thực thể Bible tại thời điểm nộp (Gate 1 submit): lưu SHA-256 kịch bản + danh mục thực thể Bible và SHA-256 từng mục; phát hiện xung đột trả 409 Conflict (Quyết định 2026-11-15 (D2)). |
 | **ChapterHandedOff** | Chapter | Sự kiện miền / bản ghi kiểm toán ghi nhận Producer bàn giao chương đã đạt Gate 3 cho Publisher (lưu `handed_off_at`, `handed_off_by`, D1). |
 | **ChapterEdition** | Chapter | Ấn bản ngôn ngữ của chương (`Draft`, `InReview`, `Reviewed`, `Approved`, `Published`); lưu con trỏ `current_published_snapshot_id` (D1, D5). |
 | **ScriptVersion** | Chapter | Phiên bản kịch bản bất biến tạo mỗi lần Writer lưu (mã băm SHA-256); chương giữ con trỏ bản đã gửi duyệt (Q15, D9c). |
+| **Script Refreeze** | Chapter | Quy trình Producer chốt lại kịch bản khi chương đang `InProduction`: kiểm tra mã băm, Bible gate, chặn xóa trang/khung đang sản xuất (409) và phân tách tác động (Visual vs Lettering). |
+| **Split Script Impact** | Script / Assignment | Cơ chế phân loại tác động sửa kịch bản: `Visual Impact` (thay đổi hành động/khung $\rightarrow$ yêu cầu vẽ lại) vs `Lettering Impact` (thay đổi câu thoại/suy nghĩ $\rightarrow$ chỉ gắn cờ bóng thoại lỗi thời, không vẽ lại). |
+| **AllowSoloCreatorReview** | Series | Cấu hình cho phép tác giả độc lập (solo creator) tự duyệt concept/kịch bản của chính mình, ngoại lệ cho nguyên tắc 4 mắt. |
 | **PageReviewStatus** / **PanelStageProgress** | Page / Panel | Tách bạch trạng thái duyệt cấp Trang (`Draft`, `Reviewing`, `Approved`, `ChangesRequested`) và tiến độ kỹ thuật cấp Khung ảnh (`InProgress`, `Submitted`, `InReview`, `ChangesRequested`, `Approved`). Trang đạt Approved ⇔ 100% Panel Approved (D6). |
 | **ChapterEdition** | Chapter × Lang | Ấn bản theo từng ngôn ngữ (`original_language` / `release_languages`) với trạng thái xuất bản và giá VNĐ riêng (Q9, Q10). |
 | **Scene (Ẩn dưới DB)** | Chapter | Một Scene mặc định ẩn do hệ thống tạo cho mỗi Chapter (`scene_id` NOT NULL dưới DB theo D2); không hiển thị trên UI kịch bản và đã bỏ `ChapterScript` (D5). |
@@ -136,15 +140,16 @@ stateDiagram-v2
     Draft --> InReview: Writer Gửi duyệt (push bản mới nhất; Danh sách thực thể chương đã chốt: mục nháp đã định nghĩa hoặc Quần chúng — Q21, Q22)
     InReview --> InReview: Writer lưu tiếp / Gửi duyệt lại; Editor góp ý theo dòng
     InReview --> Draft: Writer Hủy gửi duyệt
-    InReview --> Frozen: Producer Bắt đầu sản xuất (Gate 1; bản hiện tại = bản đã gửi; Bible đã khoá Canon)
+    InReview --> Frozen: Producer Bắt đầu sản xuất (Gate 1; PreProduction -> InProduction; Bible đã khoá Canon)
     Frozen --> Draft: Producer Mở lại kèm lý do (Audit Log)
+    Draft --> Frozen: Producer Chốt lại kịch bản (Script Refreeze; kiểm tra mã băm, Bible gate, cờ tác động kép)
 ```
 
 | Trạng thái | Ý nghĩa |
 |---|---|
-| `Draft` | Writer viết và lưu tự do; chưa gửi Editor. |
+| `Draft` | Writer viết và lưu tự do; chưa gửi Editor. Khi mở lại từ `Frozen`, Writer chỉnh sửa tiếp tại đây. |
 | `InReview` | Đã gửi; Editor đọc đúng bản đã gửi và góp ý theo dòng (không đổi trạng thái, không bắt buộc). Writer vẫn sửa, lưu và gửi lại. |
-| `Frozen` | Kịch bản chỉ đọc (sửa trả **409**), chương `InProduction`. Chỉ Producer mở lại; không có luồng Writer xin mở lại (đã bỏ `ScriptReopenStatus`, quyết định câu 25). |
+| `Frozen` | Kịch bản chỉ đọc (sửa trả **409**), chương `InProduction`. Chỉ Producer mở lại; khi chốt lại áp dụng quy trình `Script Refreeze` với phân loại tác động phân tách (`Visual vs Lettering`). |
 
 `IsScriptFrozen` là cột phụ bằng `ScriptStatus == Frozen`, giữ cho truy vấn cũ. Producer chỉ đọc nội dung kịch bản (BR-07).
 
@@ -167,9 +172,9 @@ stateDiagram-v2
 | Tên trạng thái | Ý nghĩa chuẩn | Actor thực hiện |
 |---|---|---|
 | `Draft` | Bản mô tả của Writer (chờ Artist vẽ concept). Mục tự tạo từ người nói / bôi đen bắt đầu ở đây với cờ `IsStub` (chờ Writer viết định nghĩa; Artist chưa nộp concept được, `409`). | Writer / hệ thống |
-| `ConceptSubmitted` | Artist đã nộp một **phiên bản concept** (bất biến, `v1, v2…`, ảnh CAS SHA-256). Góp ý và trả lời gắn theo phiên bản, không đổi trạng thái. | Artist |
-| `ReworkRequired` | Bản vẽ bị trả về kèm nhận xét; Artist nộp phiên bản mới. | Writer, Editor hoặc Producer |
-| `CanonLocked` | Editor xác nhận phiên bản đang nộp và khoá vĩnh viễn làm bản mẫu chính thức của Series (khác Artist đã nộp, BR-06). Không thể unlock; sửa thiết kế cùng biến thể qua `/supersede`, tạo hình khác thì thêm biến thể mới. | Editor |
+| `ConceptSubmitted` | Artist đã nộp một **phiên bản concept** (bất biến, `v1, v2…`, ảnh CAS SHA-256). Góp ý và trả lời gắn theo phiên bản, không đổi trạng thái. Writer có thể bấm **Đồng thuận mềm (`Soft Endorsement`)**; cờ này tự động xóa nếu bị yêu cầu vẽ lại. | Artist (nộp), Writer (đồng thuận mềm) |
+| `ReworkRequired` | Bản vẽ bị trả về kèm nhận xét; Artist nộp phiên bản mới. Hàng đợi thiết kế ưu tiên mục này lên đầu. | Writer, Editor hoặc Producer |
+| `CanonLocked` | Editor xác nhận phiên bản đang nộp và khoá vĩnh viễn làm bản mẫu chính thức của Series (khác Artist đã nộp, BR-06). Với Studio độc lập có bật `AllowSoloCreatorReview`, tác giả được phép tự xác nhận. Không thể unlock; sửa thiết kế cùng biến thể qua `/supersede`, huỷ qua `/cancel-replacement`, tạo hình khác thì thêm biến thể mới. | Editor (hoặc Solo Creator) |
 | `Superseded` | Bản thay thế cùng biến thể đã được khoá; không chọn tay được nữa, chương đang gắn bản này vẫn dùng — không tự chuyển (Q23) (suy ra từ sự kiện, không phải giá trị enum). | Hệ thống (khi Editor khoá bản thay thế) |
 
 > `WriterEndorsed` bị bỏ theo Q20 (Editor xác nhận là khoá luôn). Dữ liệu cũ đang `WriterEndorsed` chuyển về `ConceptSubmitted` để Editor xác nhận lại.

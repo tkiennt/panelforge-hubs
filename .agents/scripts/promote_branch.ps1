@@ -39,7 +39,7 @@ param (
     [switch]$DryRun
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $HubRoot = (Resolve-Path "$ScriptDir\..\..").Path
@@ -71,11 +71,11 @@ if ($toClean -eq "dev") {
         throw "VI PHAM QUY TAC PROMOTION: Nhánh 'stg' CHỈ nhận promote từ 'dev' (hoặc 'hotfix/*')! Không được merge trực tiếp từ '$From' vào 'stg'."
     }
 } elseif ($toClean -eq "main") {
-    # Chi chap nhan stg (hoac hotfix) vao main
-    if ($fromClean -eq "stg" -or $fromClean -like "hotfix/*") {
+    # Chap nhan dev (quy trinh dev -> main), stg hoac hotfix vao main
+    if ($fromClean -eq "dev" -or $fromClean -eq "stg" -or $fromClean -like "hotfix/*") {
         $isValidFlow = $true
     } else {
-        throw "VI PHAM QUY TAC PROMOTION: Nhánh 'main' CHỈ nhận promote từ 'stg' (hoặc 'hotfix/*')! Không được merge trực tiếp từ '$From' vào 'main'. Hãy promote $From -> dev -> stg -> main."
+        throw "VI PHAM QUY TAC PROMOTION: Nhánh 'main' CHỈ nhận promote từ 'dev' (hoặc 'hotfix/*')! Không được merge trực tiếp từ '$From' vào 'main'. Hãy promote $From -> dev -> main."
     }
 }
 
