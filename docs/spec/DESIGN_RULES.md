@@ -313,6 +313,34 @@ All shared primitives below live in `src/shared/ui/`, consume only the token con
 - ❌ Thêm thẻ nổi bật thứ hai trong cùng khung nhìn; dùng `amber` hay `violet` chỉ để trang trí.
 - ❌ Màn hình tự dựng header thẻ bằng `div` khi `CardHeader` đáp ứng được.
 
+### 4.9. Bản đồ UI dùng chung (một mẫu = một primitive)
+
+> **Mục tiêu:** sửa giao diện một chỗ, mọi màn đổi theo. Màn hình chỉ *ghép* primitive; class màu, viền, bo góc, cỡ chữ của mẫu chỉ được viết trong primitive.
+>
+> **Hiện trạng (quét 2026-11-27, 228 file `.tsx`):** badge trạng thái tự viết ở 66 file, nút cam tự viết ở 92 file (chỉ 4 file dùng `.btn-cta-*`), khung trống `border-dashed` ở 57 file, ô tìm kiếm ở 29 file, tab ở 11 file, skeleton ở 17 file. Bảng màu trạng thái tự định nghĩa ở 11 chỗ (`renderStatusBadge`, `getStatusBadge`, `STATUS_STYLE`, `statusTone`…). Có ba nơi chứa UI chung: `src/shared/ui/` (đang dùng), `src/shared/components/ui/` (`Badge`, `Button`, `Card`, `Input`… **không file nào import**), `src/shared/components/lucian/` (một phần trùng `ConfirmDialog`, `Alert`). Ba màn chọn chương của Writer/Artist/Letterer (862 + 713 + 537 dòng) gần như chép nhau.
+
+**Nơi duy nhất:** `src/shared/ui/` (primitive) và `src/shared/lib/statusTone.ts` (ánh xạ trạng thái nghiệp vụ → tông + khoá i18n). Không tạo thêm thư mục UI chung khác.
+
+| Nhóm | Primitive (`src/shared/ui/`) | Thay cho | Ghi chú hợp đồng |
+| :--- | :--- | :--- | :--- |
+| Bề mặt & header | `PageHeader`, `SectionHeader`, `Card`, `CardHeader`, `CardBody` | header/thẻ tự dựng | §4.8 |
+| Hành động | `Button` (`primary` · `secondary` · `ai` · `success` · `warning` · `danger` · `ghost`; `sm` · `md`; `loading`), `IconButton` (bắt buộc `aria-label`) | `bg-orange-600`/`bg-[#EA580C]` rời, `.btn-cta-*` | `.btn-cta-*` trở thành chi tiết bên trong `Button` |
+| Trạng thái | `Badge` (`tone` như §1.5, icon tuỳ chọn), `StatusBadge` (`kind` + `status`, đọc `statusTone.ts`) | 11 hàm/bảng màu trạng thái riêng | Một trạng thái nghiệp vụ có đúng một màu và một nhãn trên toàn hệ thống |
+| Nhập liệu | `Field` (nhãn, gợi ý, lỗi, `aria-describedby`), `Input`, `Textarea`, `Select`, `SearchInput` | input/select tự style | Lỗi hiển thị bằng chữ + màu rose |
+| Điều hướng trong trang | `Tabs` (`role="tablist"`, phím mũi tên, `aria-selected`) | 11 bộ tab tự viết | |
+| Trống & đang tải | `EmptyState` (§4), `Skeleton` | `border-dashed` rời, `animate-pulse` rời; `lucian/EmptyFolderState` | |
+| Dữ liệu | `ProgressBar` (chặn chia cho 0, §3.3), `Metric` (nhãn + số `font-mono`), `Avatar` (ảnh hoặc chữ cái đầu), `CountChip` (kraft, §4.8) | thanh tiến độ, thẻ KPI, avatar tự dựng | |
+| Overlay | `Modal`, `Drawer`, `ConfirmDialog`, `Alert`, `Toast` (đã có) | `lucian/LucianConfirmModal`, `lucian/TypeToConfirmModal`, `lucian/LucianInlineAlert`, `fixed inset-0` tự dựng | |
+
+**Cụm tính năng dùng chung** (`src/shared/features/`): màn chọn chương của Writer/Artist/Letterer gộp thành `chapter-selection/` nhận cấu hình theo vai trò (nhãn CTA §5.1, cột trạng thái, đích điều hướng); ba file trong `src/roles/*` chỉ còn khai báo cấu hình.
+
+**Quy tắc:**
+1. Có primitive thì dùng primitive; thiếu biến thể thì thêm biến thể vào primitive, không vá class ở màn.
+2. `className` truyền vào primitive chỉ dùng cho bố cục (margin, width, grid), không đổi màu/viền/cỡ chữ.
+3. Trạng thái nghiệp vụ mới (enum BE mới) phải được thêm vào `statusTone.ts` cùng lượt với khoá i18n vi/en.
+4. Mỗi primitive có test trong `src/shared/ui/ui.test.tsx` và một dòng trong `src/shared/README.md`.
+5. Thư mục `src/shared/components/ui/` bị xoá; `src/shared/components/lucian/` chỉ giữ thành phần chưa có bản tương đương (minimap, ruler, layer order…).
+
 ---
 
 ## 5. ROLE-AWARE UI & NAVIGATION FLOW RULES
