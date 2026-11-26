@@ -36,7 +36,7 @@
   - **Marten event store** cho aggregate `Page`: `PageCreated`, `PageCanvasUpdated`, `PageReordered`, `ElementAdded`, `ElementMoved`, `ElementRemoved`, `PageDeleted`. Xóa là xóa mềm, event được giữ lại.
 - **Lịch sử bất biến đã có ở hai nơi:**
   - `ContentRevision` (script, layout, image prompt): `VersionNumber` tăng dần, `PayloadJson`, `ContentHash`, `PreviousRevisionId`, `SourceSuggestionId`. Append-only.
-  - `BibleEntryRevision`: `SnapshotJson`, `ContentHash`, `AuthorId`, `variant_label` (cột `StageName`) — biến thể tạo hình, không theo mốc chương (Q16).
+  - `BibleEntryRevision`: `SnapshotJson`, `DetailsJson` (chứa `age`, `artistNotes`), `ContentHash`, `AuthorId`, `StageName` (nhãn biến thể, ví dụ "Mặc định", "Lúc nhỏ"), `IsLocked` (computed) — biến thể tạo hình, không theo mốc chương (Q16). Đã loại bỏ `SPEC_DELIVERABLES`.
 - **`AuditLog`:** người làm, thời điểm, hành động, thực thể, thay đổi, IP.
 - **Firebase** hiện được dùng để xác minh danh tính (`FirebaseIdentityVerifier`), không dùng để lưu file.
 
@@ -159,8 +159,8 @@ Chi tiết task ở [02_BIBLE_PLAN.md](../note/plans/02_BIBLE_PLAN.md) (BIB-09..
 
 | Bảng | Khoá / ràng buộc | Vai trò |
 |---|---|---|
-| `bible_entries` (+ `normalized_name VARCHAR(200)`, `is_crowd BOOLEAN`, `is_stub`) | PK `id`; unique `(series_bible_id, normalized_name)` | Mục Bible không có bí danh; tên bất biến sau khi tạo, riêng stub được Writer đặt lại đúng một lần khi định nghĩa. `normalized_name` dùng trim, gộp khoảng trắng, NFC, lower để chống trùng tên và race khi tự tạo mục nháp (`23505` → dùng lại mục vừa tạo); `is_stub` = chờ Writer viết định nghĩa; `is_crowd` = Quần chúng (chỉ Writer bật/tắt) |
-| `bible_entry_revisions` (+ `current_concept_event_id`) | PK `id` | Bản theo biến thể (`StageName` = `variant_label`); trạng thái `Draft → ConceptSubmitted ↺ ReworkRequired → CanonLocked` (Q20, không còn `WriterEndorsed`) |
+| `bible_entries` (+ `normalized_name VARCHAR(200)`, `is_crowd BOOLEAN`, `is_stub`) | PK `id`; unique `(series_bible_id, normalized_name)` | Mục Bible tinh giản: đã loại bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; tên bất biến sau khi tạo, riêng stub được Writer đặt lại đúng một lần khi định nghĩa. `normalized_name` dùng trim, gộp khoảng trắng, NFC, lower để chống trùng tên và race khi tự tạo mục nháp (`23505` → dùng lại mục vừa tạo); `is_stub` = chờ Writer viết định nghĩa; `is_crowd` = Quần chúng (chỉ Writer bật/tắt) |
+| `bible_entry_revisions` (+ `current_concept_event_id`) | PK `id` | Bản theo biến thể (`StageName` chuẩn hóa); `DetailsJson` tinh giản thành `age` và `artistNotes` (bỏ `SPEC_DELIVERABLES`); trạng thái `Draft → ConceptSubmitted ↺ ReworkRequired → CanonLocked` (Q20, không còn `WriterEndorsed`) |
 | `bible_revision_events` (+ `concept_version_number`, `asset_sha256`) | PK `id` | Sự kiện bất biến; sự kiện `ConceptSubmitted` là **phiên bản concept** `v1, v2…` |
 | `bible_concept_comments` | PK `id`, FK `revision_id`, `concept_event_id`, `parent_comment_id` (trả lời) | Góp ý theo phiên bản concept, có khoanh vùng `region` và trả lời |
 | `panel_bible_variants` | PK `(panel_id, bible_entry_id)`, FK `revision_id` | Bản đặt riêng cho thực thể trong một Panel (giai đoạn khác trong cùng chương, ví dụ hồi tưởng); ghi lại từ payload `syncScriptStructure` mỗi lần lưu (đi theo nội dung Panel, Q24); thuộc mã băm `ScriptVersion`; không kế thừa sang chương sau; khoá cùng kịch bản ở Gate 1 (Q23) |
