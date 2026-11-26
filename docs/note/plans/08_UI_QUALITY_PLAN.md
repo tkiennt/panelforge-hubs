@@ -86,6 +86,14 @@ Nợ còn lại: `StudioOverviewView` 1023 dòng, `LandingPageView` 3619 dòng (
 - [ ] `typecheck`, `eslint --max-warnings 0`, `npm run build` sạch (test khi user yêu cầu).
 - [ ] Đi tay luồng: Login → Workspaces → Series → Chương/Việc → Bàn làm việc theo vai trò.
 
+#### UIQ-09 · Điểm nhấn header & header thẻ — FE · 🟡 giao agy · DESIGN_RULES §4.8
+Vấn đề: màn nhiều thẻ trắng, header trang/thẻ không có điểm nhấn, mỗi màn một kiểu header thẻ (`bg-stone-50`, `bg-[#FCFBF8]`, không có). Quy ước "Mực Cam & Giấy Kraft" ở `DESIGN_RULES.md` §4.8.
+- [ ] **UIQ-09a [FE] Token:** thêm `--studio-head-wash`, `--studio-head-line`, `--studio-kraft`, `--studio-kraft-ink`, `--studio-sienna` (light + dark) vào `studio-tokens.css`; alias `@theme` (`head-wash`, `head-line`, `kraft`, `kraft-ink`, `sienna`, `accent`, `accent-soft`, `accent-dark`) cuối khối `@theme` của `index.css`.
+- [ ] **UIQ-09b [FE] Primitive:** `src/shared/ui/Surface.tsx` gồm `PageHeader` (`variant: page | toolbar`), `SectionHeader`, `Card` (`featured`, `tone`), `CardHeader`, `CardBody`; export ở `index.ts`; test ở `ui.test.tsx`; ghi vào `src/shared/README.md`. `Modal`/`Drawer` đổi dải header sang `head-wash`.
+- [ ] **UIQ-09c [FE] Lô thí điểm:** `ProducerChapterManagementView`, `production-workspace/WorkspaceView`, `WorkspaceListView`, `writer/.../ChapterSelectionView`, `ArtistChapterSelectionView`, `LettererChapterSelectionView`, `SeriesBibleView`, `editor/ChapterReviewView`. Giữ nguyên `data-testid`, hành vi, dữ liệu; chỉ đổi phần header.
+- [ ] **UIQ-09d [FE] Lô còn lại:** các màn trong bảng xếp hạng mật độ thẻ trắng (sau khi lô thí điểm được duyệt bằng mắt).
+- Không đụng sidebar (`AppShell*`, `Sidebar.tsx`, `sidebar-theme*`) — đang có thay đổi chưa commit của nhánh khác.
+
 ## 4. Rủi ro
 
 | Rủi ro | Cách giảm |
@@ -137,5 +145,6 @@ Cấm: "Delve", "Seamless experience", "Elevate your workflow", "Unlock the powe
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-27 | UIQ-09 | 🟡 Giao agy (09a–09c) | `trungkien-uiq-09` | Quy ước header & header thẻ ở DESIGN_RULES §4.8 |
 | 2026-11-11 | Đợt 1 (GĐ1–GĐ4) | ✅ | xem mục 1 | |
 | 2026-11-12 | — | Chuyển sang bộ plan module | — | Từ `ANTI_SLOP_REFACTOR_PLAN.md` + checklist/Lucian/glossary cũ |
