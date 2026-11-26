@@ -52,7 +52,7 @@
 | **BIB-15: Đọc Model Sheet theo Panel & binding (`GetPanelBible`); Model Sheet block bàn vẽ Artist Desk** | BE merge `a5a6d55` (`e1c2c9a`), FE merge `db5a007` (`4dae604`) |
 | **BIB-16: Giao diện kịch bản nối Series Bible: mark `bibleRef`, bôi đen tham chiếu, Chapter Cast drawer, blockers list** | FE merge `215c516` (`4e68972`), `0740a2a` (`80ea7a6`), `016b307` (`b3025ba`) |
 | **BIB-17: Gỡ bỏ cơ chế cũ không tương thích ngược (xoá `@mention`, era, link-bible-entries, `SpeakerCharacterId`, `/endorse`, `/lock`); test QA** | BE merge `95c98b9` (`2051754`), `50c2eb5` (`c9e4b4c`), `5a0f9a2` (`ec2c5e1`), `c65f9cf` (`b71095a`); FE merge `2b335f7` (`a55a012`), migration `20261114115859_RemoveLegacyBibleMechanisms` |
-| **BIB-18: Tinh giản Schema `BibleEntry` & chuẩn hóa `BibleDetails` (Age & ArtistNotes)** | BE `SimplifyBibleEntrySchema`: bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; gộp `subtitle` vào `description`; chuẩn hóa `DetailsJson` qua `BibleDetailsParser`; bỏ lệnh `UpdateBibleEntryAliasesCommand`. Migration `20261126095525_SimplifyBibleEntrySchema` |
+| **BIB-18: Tinh giản Schema `BibleEntry` & chuẩn hóa `BibleDetails` (Age & ArtistNotes)** | BE `945c1118` (`SimplifyBibleEntrySchema`): bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; gộp `subtitle` vào `description`; chuẩn hóa `DetailsJson` (Age & ArtistNotes) qua `BibleDetailsParser`; bỏ lệnh `UpdateBibleEntryAliasesCommand`. FE `c22f57b9`: Đơn giản hóa form `AddEntityModal`, `AddRevisionModal`, `BibleEntityDetailModal`, `SeriesBibleView` sang 2 trường (`age` & `artistNotes`), loại bỏ hoàn toàn `SPEC_DELIVERABLES` (`charTurnaround`, `charExpressions`), chuẩn hóa `stageName`, tự động ẩn trường/nhóm rỗng ở chế độ read-only, cập nhật Model Sheet ở Artist Desk và xóa UI Aliases. Migration `20261126095525_SimplifyBibleEntrySchema` |
 | **BIB-19: Cơ chế bảo vệ & quy trình duyệt Series Bible nâng cao** | BE commit `fe942cc`, FE commit `808dd3f9`: Soft endorsement cho Writer (`POST .../revisions/{revisionId}/endorse`), Cancel replacement (`POST .../revisions/{revisionId}/cancel-replacement`), ưu tiên `ReworkRequired` trong design queue, cấu hình `AllowSoloCreatorReview` trên Series cho studio 1 người. Migration `20261126035101_AddBibleWorkflowSafeguards` |
 
 ## 2. Hiện trạng frontend (đo 2026-11-12)
@@ -193,9 +193,9 @@ series-bible/
 >
 > **Luồng lưu kịch bản hiện tại (FE `ScriptEditorView.handleSaveScript`)** gồm 4 request rời: `batchSave` (dòng) → `syncScriptStructure` (Trang/Panel, ghép Panel theo **số thứ tự**, xoá mềm Panel thừa) → `updatePanelDirection` × N → `commitScriptVersion`. Vì vậy tham chiếu đi cùng `batchSave` (2A), giai đoạn theo Panel đi cùng `syncScriptStructure` (Q24), và **tính lại Danh sách thực thể chương trong `ScriptSnapshotBuilder.CommitAsync`** — hàm dùng chung cho Lưu (`CommitScriptVersionCommand`) và Gửi duyệt (`SubmitScriptCommand`) — khi đã đủ dòng, Trang, Panel (3A).
 
-#### BIB-09 · Tên bất biến, unique tên chuẩn hoá & biến thể tạo hình — DB + BE · 🟡 · Q16, Q23, 9A (phần cũ merge `ed02171`, quyết định không bí danh đang triển khai)
-- [ ] [DB] Xoá `bible_entries.aliases` và bảng `bible_entry_names`; thêm `bible_entries.normalized_name VARCHAR(200) NOT NULL` cùng unique `(series_bible_id, normalized_name)`.
-- [ ] [DB] Mô hình đích (9A):
+#### BIB-09 · Tên bất biến, unique tên chuẩn hoá & biến thể tạo hình — DB + BE · ✅ · Q16, Q23, 9A (hoàn thành trong `SimplifyBibleEntrySchema`)
+- [x] [DB] Xoá `bible_entries.aliases` và bảng `bible_entry_names`; thêm `bible_entries.normalized_name VARCHAR(200) NOT NULL` cùng unique `(series_bible_id, normalized_name)`.
+- [x] [DB] Mô hình đích (9A):
   ```sql
   ALTER TABLE bible_entries
     ADD COLUMN normalized_name VARCHAR(200) NOT NULL,
@@ -204,11 +204,11 @@ series-bible/
   ```
   `normalized_name` được ghi cùng transaction khi tạo mục hoặc khi Writer đặt tên stub lúc định nghĩa. Không giữ dữ liệu hay hợp đồng bí danh cũ.
 - [x] [BE] `BibleNameNormalizer.Normalize(s)`: trim → gộp khoảng trắng → Unicode NFC → `ToLowerInvariant()`. Dùng chung cho `bible_entries.normalized_name` và `SpeakerResolver` (BIB-12).
-- [ ] [BE] Tên mục bất biến sau khi tạo. Ngoại lệ duy nhất: Writer được đặt lại tên stub đúng một lần trong `DefineBibleEntryCommand`; sau đó tên bất biến. Create/Update/Define không nhận `aliases`.
-- [ ] [BE] Tạo mục trùng `normalized_name` trong cùng Series → 409 kèm tên mục bị trùng. Tự tạo mục nháp khi lưu (BIB-12) gặp vi phạm unique (`23505`) → nạp lại mục vừa được giao dịch kia tạo và dùng mục đó, không báo lỗi.
+- [x] [BE] Tên mục bất biến sau khi tạo. Ngoại lệ duy nhất: Writer được đặt lại tên stub đúng một lần trong `DefineBibleEntryCommand`; sau đó tên bất biến. Create/Update/Define không nhận `aliases`.
+- [x] [BE] Tạo mục trùng `normalized_name` trong cùng Series → 409 kèm tên mục bị trùng. Tự tạo mục nháp khi lưu (BIB-12) gặp vi phạm unique (`23505`) → nạp lại mục vừa được giao dịch kia tạo và dùng mục đó, không báo lỗi.
 - [x] [BE] Dùng `StageName` hiện có làm `variant_label` (DTO đổi tên trường thành `variantLabel`, giữ tên cột); biến thể mặc định = bản đầu tiên của mục (`IsDefaultVariant` tính toán). `EffectiveFrom/ToChapterNumber` không còn dùng để chọn bản (gỡ cột ở BIB-17).
 - [x] [BE] `/supersede` chỉ thay bản **cùng biến thể** (Q23): **sửa `AddBibleEntryRevisionCommand`** — hiện gọi `MarkSuperseded` ngay khi tạo bản thay thế; đổi thành ghi `supersedes_revision_id` trên bản mới, bản cũ vẫn `CanonLocked` dùng được. Nhận thêm `chapterId` (tuỳ chọn): tạo từ màn kịch bản chương N thì gắn luôn bản mới cho chương N (`chosen_by_writer = true`). Khi bản thay thế được Editor khoá (BIB-10 `ConfirmCanon`) chỉ ghi sự kiện `Superseded` cho bản cũ — **không** chuyển binding của chương nào. Lệnh `CancelReplacementRevision` (Writer): xoá bản thay thế chưa có sự kiện ngoài `Created`; binding đang trỏ bản đó về bản kế thừa. Tạo biến thể mới = `AddBibleEntryRevision` với nhãn khác, không supersede.
-- [ ] Test: trùng tên chuẩn hoá trả 409, hai giao dịch cùng tự tạo "Hắc Long" chỉ ra một mục, tên chỉ đổi được một lần khi định nghĩa stub, tên mục đã định nghĩa không đổi được; giữ các test supersede, huỷ bản thay thế và nhiều biến thể cùng `CanonLocked`.
+- [x] Test: trùng tên chuẩn hoá trả 409, hai giao dịch cùng tự tạo "Hắc Long" chỉ ra một mục, tên chỉ đổi được một lần khi định nghĩa stub, tên mục đã định nghĩa không đổi được; giữ các test supersede, huỷ bản thay thế và nhiều biến thể cùng `CanonLocked`.
 
 #### BIB-11 · Bản đồ thực thể chương, bảng tham chiếu & cờ Quần chúng — DB + BE · ✅ · Q16, 5A, 7A (BE merge `ed02171`, commit `8909e52`, migration `20261114051740_AddSeriesBibleBindingsAndVariants`)
 - [x] [DB] Bản đồ thực thể chương:
@@ -367,7 +367,7 @@ BIB-04..BIB-08 (tách và làm lại giao diện màn Series Bible) vẫn mở v
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-26 | BIB-18, BIB-19 | ✅ Hoàn thành | BE `fe942cc`, migration `SimplifyBibleEntrySchema`; FE `808dd3f9` | Tinh giản toàn diện schema `BibleEntry`: loại bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; chuẩn hóa `DetailsJson` (Age & ArtistNotes) qua `BibleDetailsParser`; thêm đồng thuận mềm (`Soft Endorsement`), hủy bản thay thế (`cancel-replacement`), ưu tiên `ReworkRequired` trong design queue và cấu hình `AllowSoloCreatorReview` trên Series |
+| 2026-11-26 | BIB-18, BIB-19 | ✅ Hoàn thành | BE `945c1118` (migration `SimplifyBibleEntrySchema`), `fe942cc`; FE `c22f57b9`, `808dd3f9` | Tinh giản toàn diện schema `BibleEntry`: loại bỏ `code`, `subtitle`, `priority`, `strict_check`, `is_active`, `aliases`; chuẩn hóa `DetailsJson` (`Age` cho nhân vật, `ArtistNotes` cho mọi loại); loại bỏ `SPEC_DELIVERABLES` (Concept nộp 01 ảnh duy nhất); chuẩn hóa nhãn biến thể sang `stageName`; ẩn trường rỗng trong read-only view; thêm đồng thuận mềm (`Soft Endorsement`), hủy bản thay thế (`cancel-replacement`), ưu tiên `ReworkRequired` trong design queue và cấu hình `AllowSoloCreatorReview` trên Series |
 | 2026-11-14 | BIB-01, BIB-02, bỏ bí danh và era UI | ✅ Hoàn thành | BE `4e8fd57`, `66b80be`, `b90bde5`; FE `8c43b10`, `3a76596` | Cache mô tả/ảnh theo Canon của biến thể mặc định, draft không ghi đè và FE báo `Có bản nháp vN`; tên bất biến, unique `normalized_name`, không bí danh; migration `20261114161005_RemoveBibleEntryAliases`; gỡ era UI |
 | 2026-11-14 | BIB-03, BIB-09..BIB-17 | ✅ Hoàn thành | BE `ed02171`, `e78858b`, `37abe0f`, `f979fa9`, `9c24b93`, `a5a6d55`, `95c98b9`, `50c2eb5`, `5a0f9a2`, `c65f9cf`; FE `cf77e39`, `db5a007`, `215c516`, `0740a2a`, `2b335f7`, `016b307`, `a6cb774` | Toàn bộ luồng Series Bible kết nối Script & Gate 1 đã hoàn thành và gộp vào `trungkien`. Xoá bỏ hoàn toàn các cơ chế legacy (bible-gate, endorse/lock, era, mention) theo quy tắc không tương thích ngược |
 | 2026-11-12 | cũ B1, B3, B5, B6 (một phần) | ✅ | BE `1cb44ed`, merge `a092b0f` | Guard trạng thái, hàng đợi theo giai đoạn |
