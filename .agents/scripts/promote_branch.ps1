@@ -110,6 +110,7 @@ if (-not $SkipVerification -and -not $DryRun) {
                 flutter analyze --no-fatal-infos
             } finally {
                 Pop-Location
+                git -C $r.Path checkout -- linux/ macos/ windows/ 2>$null
             }
             if ($LASTEXITCODE -ne 0) { throw "Flutter Analyze Mobile thất bại! Hủy tiến trình promote." }
         }
