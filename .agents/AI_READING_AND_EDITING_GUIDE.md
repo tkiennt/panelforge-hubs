@@ -68,7 +68,12 @@ Xác định đúng file ở tầng nào cần can thiệp:
   2. Đảm bảo tên trường và kiểu dữ liệu (camelCase cho JSON, DateTime UTC, GUID ID) khớp 100% giữa Backend DTO và Frontend TypeScript interface hoặc Dart model.
   3. **Không tự suy diễn (hallucinate)** tên trường mới nếu chưa được định nghĩa ở Backend.
 
-### Bước 3: Sửa đổi mã nguồn có kiểm soát (Surgical Edits)
+### Bước 3: Sửa đổi mã nguồn có kiểm soát (Surgical Edits & Immutability Protection)
+- **Quy chuẩn Bất biến Component Dùng chung & Định nghĩa Hệ thống:**
+  - Bắt buộc tuân thủ `panelforge-hub/docs/standards/SYSTEM_DEFINITIONS_AND_COMPONENT_IMMUTABILITY.md`.
+  - **Tái sử dụng Primitives:** Mọi giao diện bắt buộc dùng lại `src/shared/ui/` (`Surface.tsx` [PageHeader, SectionHeader, Card], `SidebarItem`, `Button`, `Badge`, `Tone`). Cấm tự viết thẻ `div` với style riêng rẽ làm phá vỡ tính nhất quán.
+  - **Nguyên tắc OCP:** Khi mở rộng component dùng chung, chỉ thêm optional props kèm giá trị mặc định, bảo đảm không gây lỗi cho các màn hình hiện có.
+  - **Bảo toàn Theme:** Tuyệt đối không chèn class cố định (`bg-white`, `border-stone-200`) đè lên các scoped theme container (`.pf-sidebar[data-sb-theme]`).
 - Khi sửa file, trỏ vào file trong Sandbox worktree, thay đúng block code, giữ nguyên khoảng trắng và thụt lề.
 - Tuân thủ quy tắc kiến trúc:
   - **Backend:** Controller chỉ làm nhiệm vụ nhận HTTP Request và gửi MediatR Command/Query. Không inject `ApplicationDbContext` vào Controller.
@@ -81,8 +86,14 @@ Xác định đúng file ở tầng nào cần can thiệp:
     - Không hardcode chuỗi text trực tiếp vào JSX; luôn bổ sung key vào cả 2 file `src/locales/vi/*.json` và `src/locales/en/*.json`, kiểm tra đồng bộ bằng `npm run i18n:check`.
 
 ### Bước 4: Kiểm tra nhanh và Commit chuẩn (Fast Pre-commit & Validated Commit)
-- **Quy tắc quan trọng:** TUYỆT ĐỐI KHÔNG tự ý chạy test runner (`dotnet test`, `vitest`, `flutter test`) sau mỗi prompt hoặc trước commit. Chỉ chạy test khi Người dùng yêu cầu bằng lệnh trực tiếp.
-- Khi cần commit sau mỗi prompt, thực hiện commit qua công cụ tự động (chỉ chạy kiểm tra cú pháp nhanh build/typecheck nếu cần, bỏ qua test runner):
+- **Quy tắc Kiểm thử Theo Module (Targeted Modular Testing):**
+  - **TUYỆT ĐỐI CẤM** tự ý chạy lại toàn bộ test hệ thống (`dotnet test` cả solution, `vitest run` cả frontend, `flutter test` cả mobile).
+  - Khi cần kiểm thử hoặc user yêu cầu test: **CHỈ CHẠY TEST CỦA MODULE VỪA SỬA VÀ CÁC MODULE LIÊN QUAN TRỰC TIẾP** (tra cứu ma trận `panelforge-hub/docs/standards/MODULE_TEST_EXECUTION_MATRIX.md`).
+  - Lệnh chạy test nhanh:
+    ```powershell
+    powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <tên_module>
+    ```
+- Khi commit sau mỗi prompt, thực hiện commit qua công cụ tự động (chỉ chạy kiểm tra cú pháp nhanh build/typecheck nếu cần, bỏ qua test runner):
 ```powershell
 powershell -ExecutionPolicy Bypass -File .agents/scripts/worktree_manager.ps1 -Action commit -AgentRole <task-id> -Target <backend|frontend|mobile> -Message "<type>(<scope>): <mô_tả_dạng_mệnh_lệnh>"
 ```

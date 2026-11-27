@@ -115,18 +115,17 @@ git branch --show-current
 - Mọi thao tác đọc/sửa file trỏ trực tiếp vào đường dẫn Sandbox.
 - Quy chuẩn Bounded Read: Nếu file >300 dòng, chỉ đọc đoạn code liên quan (đọc có giới hạn dòng).
 
-### Bước 5: Kiểm thử tiền commit bên trong Sandbox (Pre-commit Verification Gate)
-> **Quy tắc bắt buộc:** **TUYỆT ĐỐI KHÔNG** chạy test sau mỗi câu trả lời/prompt lẻ. **CHỈ CHẠY TOÀN BỘ TEST** ngay trước khi tiến hành tạo git commit:
-- **Backend:**
-  ```powershell
-  dotnet test "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\PanelForge_FA26SE251\test\PanelForge.UnitTests"
-  ```
-- **Frontend:**
-  ```powershell
-  cd "D:\FPT-STUDY\10_FALL-2026\SEP490\panelforge-agent-[role]\panelforge-fe"
-  npm run typecheck
-  npx vitest run
-  ```
+### Bước 5: Kiểm tra nhanh tiền commit & Kiểm thử theo Module (Pre-commit & Modular Testing Gate)
+> 🚨 **Quy tắc kiểm thử theo module (Targeted Modular Testing):**
+> - **TUYỆT ĐỐI CẤM CHẠY TOÀN BỘ TEST HỆ THỐNG:** Không bao giờ chạy `dotnet test` cả solution/test project, `vitest run` cả repo frontend hay `flutter test` cả ứng dụng mobile.
+> - **Tiền commit thông thường:** Chỉ chạy **Fast Syntax Check** (biên dịch tĩnh nhanh, không chạy test runner):
+>   - Backend: `dotnet build <sandbox>/PanelForge_FA26SE251/PanelForge.slnx -v q --nologo`
+>   - Frontend: `npm --prefix <sandbox>/panelforge-fe run typecheck`
+>   - Mobile: `flutter --prefix <sandbox>/panelforge-mobile analyze`
+> - **Khi User yêu cầu kiểm thử hoặc nghiệm thu tính năng:** CHỈ CHẠY TEST CỦA MODULE ĐANG SỬA VÀ THÀNH PHẦN LIÊN QUAN TRỰC TIẾP theo [docs/standards/MODULE_TEST_EXECUTION_MATRIX.md](../docs/standards/MODULE_TEST_EXECUTION_MATRIX.md):
+>   ```powershell
+>   powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <script|bible|assignment|artwork|review|release|reader|auth|collaboration>
+>   ```
 
 ### Bước 6: Commit rõ ràng bên trong Sandbox Worktree
 Tuân thủ nghiêm ngặt [Conventional Commits v1.0.0](../docs/note/GIT_COMMIT_CONVENTION.md):
@@ -219,5 +218,5 @@ powershell -ExecutionPolicy Bypass -File ".agents\scripts\worktree_manager.ps1" 
 4. ❌ **CẤM** push bất kỳ nhánh phụ nào (`feature/*`, `fix/*`, `temp/*`) lên remote GitHub. Chỉ được phép push duy nhất nhánh `{work-branch}` (hoặc `main` khi có yêu cầu).
 5. ❌ **CẤM** commit thông điệp mơ hồ, tối nghĩa như `fix bugs`, `update code`, `wip`, `temp`.
 6. ❌ **CẤM** chuyển sang nhánh `main` hoặc `{work-branch}` bên trong thư mục worktree sandbox của Agent khi đang chạy Multi-Agent.
-7. ❌ **CẤM** tự ý chạy `dotnet test` hoặc `npm run test` sau mỗi prompt nhỏ lẻ.
+7. ❌ **CẤM** chạy lại toàn bộ test hệ thống (`dotnet test` cả solution, `npx vitest run` toàn repo FE, `flutter test` toàn bộ mobile). Khi cần test, CHỈ CHẠY TEST THEO MODULE VỪA SỬA VÀ THÀNH PHẦN LIÊN QUAN bằng `run_module_tests.ps1 -Module <module>`.
 8. ❌ **CẤM** dùng `git push --force` hoặc sửa commit history đã đẩy lên remote.

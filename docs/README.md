@@ -17,6 +17,8 @@
 - **[PanelForge_Ubiquitous_Language_and_State_Glossary.md](./standards/PanelForge_Ubiquitous_Language_and_State_Glossary.md)**: Từ điển thuật ngữ thống nhất (Ubiquitous Language) giữa Backend, Frontend, Mobile và Báo cáo theo V2.6.
 - **[PanelForge_State_Machine_Naming_Standards.md](./standards/PanelForge_State_Machine_Naming_Standards.md)**: Chuẩn đặt tên và định nghĩa trạng thái của 5 State Machines chuẩn V2.6 (`.NET 9`).
 - **[GIT_BRANCHING_AND_PROMOTION_MODEL.md](./standards/GIT_BRANCHING_AND_PROMOTION_MODEL.md)**: Quy chuẩn phân nhánh 4 cấp độ và quy trình thăng cấp an toàn (`work-branch -> dev -> stg -> main`), bảo vệ nhánh và hướng dẫn AI Agent.
+- **[MODULE_TEST_EXECUTION_MATRIX.md](./standards/MODULE_TEST_EXECUTION_MATRIX.md)**: Ma trận chia nhỏ và điều phối kiểm thử theo module cho AI Agent; cấm chạy lại toàn bộ test hệ thống, chỉ chạy test module được sửa và các phần liên quan.
+- **[SYSTEM_DEFINITIONS_AND_COMPONENT_IMMUTABILITY.md](./standards/SYSTEM_DEFINITIONS_AND_COMPONENT_IMMUTABILITY.md)**: **Quy chuẩn bất biến tuyệt đối đối với định nghĩa hệ thống và component dùng chung cho AI Agent**; cấm tự ý xóa/sửa/định nghĩa lại primitives (`Surface.tsx`, `SidebarItem`, `Button`, `Badge`), cấm hardcode class đè theme sidebar, bắt buộc mở rộng tương thích ngược (OCP).
 
 *(Tài liệu cũ trước V2.6 đã xoá; xem lịch sử git nếu cần. Không giữ bản sao tài liệu nghiệp vụ ở repo code.)*
 

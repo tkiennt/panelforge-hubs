@@ -47,13 +47,13 @@ flowchart TD
 
 ## 2. BẢNG PHÂN VAI & PHẠM VI TRÁCH NHIỆM
 
-| Tên Sub-Agent | Phạm vi thư mục | Trọng tâm công nghệ | Tiêu chuẩn chất lượng / Lệnh kiểm tra (Pre-commit) |
+| Tên Sub-Agent | Phạm vi thư mục | Trọng tâm công nghệ | Tiêu chuẩn chất lượng / Lệnh kiểm tra (Pre-commit & Test) |
 |---|---|---|---|
-| **`backend-expert`** | `PanelForge_FA26SE251/src/PanelForge.*` | C# 13, .NET 9, Clean Architecture, MediatR CQRS, Domain Rules, CAS SHA-256 | `dotnet build PanelForge_FA26SE251/PanelForge.slnx`<br/>`dotnet test PanelForge_FA26SE251/PanelForge.slnx` |
-| **`frontend-expert`** | `panelforge-fe/src/*` | React 19, TypeScript, Vite, Tailwind CSS, Lucian UX/UI, Fabric/Canvas, Zustand, `panelforge-hub/docs/spec/DESIGN_RULES.md` | `cd panelforge-fe && npm run typecheck`<br/>`cd panelforge-fe && npm run i18n:check`<br/>`cd panelforge-fe && npx vitest run` |
-| **`mobile-expert`** | `panelforge-mobile/lib/*` | Flutter 3.44, Dart 3.12, Riverpod, GoRouter, Dio, CachedNetworkImage, Mobile Reader & Review Canvas, `lib/theme/app_theme.dart` | `cd panelforge-mobile && flutter analyze`<br/>`cd panelforge-mobile && flutter test` |
+| **`backend-expert`** | `PanelForge_FA26SE251/src/PanelForge.*` | C# 13, .NET 9, Clean Architecture, MediatR CQRS, Domain Rules, CAS SHA-256 | `dotnet build PanelForge_FA26SE251/PanelForge.slnx`<br/>*(Test khi yêu cầu)*: `powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <name> -Target backend` |
+| **`frontend-expert`** | `panelforge-fe/src/*` | React 19, TypeScript, Vite, Tailwind CSS, Lucian UX/UI, Fabric/Canvas, Zustand, `panelforge-hub/docs/spec/DESIGN_RULES.md` | `cd panelforge-fe && npm run typecheck`<br/>`cd panelforge-fe && npm run i18n:check`<br/>*(Test khi yêu cầu)*: `powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <name> -Target frontend` |
+| **`mobile-expert`** | `panelforge-mobile/lib/*` | Flutter 3.44, Dart 3.12, Riverpod, GoRouter, Dio, CachedNetworkImage, Mobile Reader & Review Canvas, `lib/theme/app_theme.dart` | `cd panelforge-mobile && flutter analyze`<br/>*(Test khi yêu cầu)*: `powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <name> -Target mobile` |
 | **`db-architect`** | `db/*`, `PanelForge_FA26SE251/src/PanelForge.Infrastructure/Persistence/Migrations/*` | PostgreSQL 16, EF Core Migrations, snake_case mapping, Data Safety | `dotnet ef migrations add`<br/>`powershell -File db/check_db_sync.ps1` |
-| **`qa-tester`** | `PanelForge_FA26SE251/test/*`, `panelforge-fe/src/**/*.test.*`, `panelforge-mobile/test/*` | xUnit, Moq, FluentAssertions, Vitest, Edge cases, Role gate assertions | Viết/cập nhật test cho mọi đổi luật nghiệp vụ; chỉ chạy test runner khi user yêu cầu |
+| **`qa-tester`** | `PanelForge_FA26SE251/test/*`, `panelforge-fe/src/**/*.test.*`, `panelforge-mobile/test/*` | xUnit, Moq, FluentAssertions, Vitest, Edge cases, Role gate assertions | Viết/cập nhật test theo module; CHỈ chạy test module đang sửa + module liên quan theo `MODULE_TEST_EXECUTION_MATRIX.md`; CẤM chạy full test hệ thống |
 | **`architect-reviewer`** | Toàn bộ dự án & PRs | Clean Architecture boundaries, RBAC zero-trust, API contracts, Commit conventions | Tuân thủ `note/GIT_COMMIT_CONVENTION.md` |
 
 ---
@@ -135,10 +135,21 @@ flowchart LR
    - Định dạng: `<type>(<scope>): <description>` (tối đa 72 ký tự, không chấm cuối câu, động từ mệnh lệnh thì hiện tại).
    - Ví dụ: `feat(script): add chapter bible gate validation logic`
 
-6. **Quy tắc Kiểm thử: CHỈ CHẠY TEST KHI USER YÊU CẦU (Explicit On-Demand Testing Only):**
-   - **TUYỆT ĐỐI CẤM tự ý chạy test** (`dotnet test`, `vitest run`, `npm test`, `flutter test`) sau mỗi prompt, sau mỗi bước code hay trước mỗi lần commit.
-   - Việc tự ý chạy test sinh ra hàng nghìn dòng log, làm phình to ngữ cảnh và tiêu hao hàng chục nghìn token vô ích.
-   - **CHỈ ĐƯỢC CHẠY TEST KHI NGƯỜI DÙNG YÊU CẦU TRỰC TIẾP** (Ví dụ bằng văn bản rõ ràng: *"chạy test"*, *"test cho tôi"*, *"kiểm thử tính năng này"*). Bình thường tuyệt đối không được tự ý gọi bất kỳ test runner nào.
+6. **Quy tắc Kiểm thử: CHIA NHỎ THEO MODULE & CHỈ CHẠY TEST LIÊN QUAN (Targeted Modular Testing Invariant):**
+   - ❌ **TUYỆT ĐỐI CẤM CHẠY LẠI TOÀN BỘ TEST HỆ THỐNG:** Không bao giờ chạy `dotnet test` cả solution, `npx vitest run` toàn bộ frontend hay `flutter test` toàn bộ mobile. Việc chạy full-system test tiêu tốn hàng nghìn token ngữ cảnh, gây chậm trễ từ 2-5 phút và có nguy cơ timeout/file-lock vô ích.
+   - 🎯 **CHỈ CHẠY TEST CỦA MODULE ĐANG SỬA VÀ CÁC THÀNH PHẦN LIÊN QUAN TRỰC TIẾP (IMPACT RADIUS):**
+     - Khi sửa module nào, chỉ thực thi test suites của chính module đó và các module phụ thuộc trực tiếp theo ma trận tại [docs/standards/MODULE_TEST_EXECUTION_MATRIX.md](../docs/standards/MODULE_TEST_EXECUTION_MATRIX.md).
+     - **Cách chạy chuẩn:** Sử dụng runner tự động:
+       ```powershell
+       powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <script|bible|assignment|artwork|review|release|reader|auth|collaboration>
+       ```
+     - Hoặc tự động phát hiện module theo git diff:
+       ```powershell
+       powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -AutoDetect
+       ```
+   - ⏱️ **KHI NÀO ĐƯỢC CHẠY TEST RUNNER:**
+     - **TUYỆT ĐỐI CẤM tự ý chạy test** sau mỗi prompt hay trước mỗi commit nhỏ thường ngày.
+     - **CHỈ CHẠY TEST RUNNER KHI:** (1) Người dùng yêu cầu trực tiếp (*"chạy test"*, *"test tính năng này"*), HOẶC (2) Sau khi hoàn thành một bug-fix/tính năng phức tạp cần nghiệm thu chất lượng trong phạm vi module đó. Bình thường chỉ kiểm tra Fast Build / Typecheck tĩnh.
 
 7. **Quy tắc Git Push: KHÔNG PUSH SAU MỖI LẦN LÀM (Push on Large Module Completion or User Demand Only):**
    - ❌ **TUYỆT ĐỐI CẤM tự ý push sau mỗi lần làm, sau mỗi prompt hay mỗi sub-task nhỏ.**
@@ -237,13 +248,13 @@ Nhằm tối ưu hóa tài nguyên máy và tốc độ xử lý mà vẫn đả
      - ❌ `fix bugs`
      - ❌ `update frontend`
 
-3. **Quy tắc Kiểm tra Tiền Commit (Fast Syntax Check Only - KHÔNG TỰ CHẠY TEST):**
-   - **TUYỆT ĐỐI CẤM chạy test runner** (`dotnet test`, `vitest`, `flutter test`) khi commit sau mỗi prompt.
+3. **Quy tắc Kiểm tra Tiền Commit (Fast Syntax Check Only - KHÔNG TỰ CHẠY FULL TEST):**
+   - **TUYỆT ĐỐI CẤM chạy test runner toàn hệ thống** (`dotnet test` cả slnx, `vitest` toàn bộ FE, `flutter test` toàn bộ mobile) khi commit sau mỗi prompt.
    - Nếu cần kiểm tra an toàn cú pháp trước khi commit, chỉ chạy biên dịch tĩnh nhanh:
      - Backend: `dotnet build <sandbox>/PanelForge_FA26SE251/PanelForge.slnx`
      - Frontend: `npm --prefix <sandbox>/panelforge-fe run typecheck`
      - Mobile: `flutter --prefix <sandbox>/panelforge-mobile analyze`
-   - Chỉ chạy test khi Người dùng đưa ra chỉ thị rõ ràng.
+   - **Khi cần chạy test:** Chỉ chạy test theo module được phân công và các thành phần liên quan bằng `powershell -File panelforge-hub/.agents/scripts/run_module_tests.ps1 -Module <module>` khi người dùng yêu cầu hoặc sau khi nghiệm thu xong module.
 
 4. **BẮT BUỘC GỘP VÀO `{work-branch}` TRƯỚC KHI PUSH & QUY TẮC PUSH THEO MODULE (Zero Remote Extra Branches & Batch Push Invariant):**
    - ❌ **TUYỆT ĐỐI CẤM PUSH SAU MỖI LẦN LÀM:** Không tự ý chạy `git push` sau mỗi task nhỏ, sau mỗi lượt làm việc hay sau mỗi prompt. Mọi thay đổi bình thường chỉ dừng lại ở commit cục bộ và gộp cục bộ vào nhánh `{work-branch}`.
@@ -341,5 +352,26 @@ Nhằm tối ưu hóa tài nguyên máy và tốc độ xử lý mà vẫn đả
      - `@skill:antislop-code`: Giữ code logic ngắn gọn, sạch sẽ, không thừa thãi.
      - `@skill:antislop-copywriting`: Đảm bảo từ ngữ tự nhiên, giàu tính ngữ cảnh biên kịch/họa sĩ.
      - `@skill:antislop-layoutmobile`: Đảm bảo touch targets ≥ 44x44px, không tràn ngang và thích ứng tự nhiên trên màn hình nhỏ.
+
+---
+
+## 8. QUY CHUẨN BẤT BIẾN ĐỊNH NGHĨA HỆ THỐNG & COMPONENT DÙNG CHUNG (SYSTEM IMMUTABILITY INVARIANT)
+
+> 🚨 **QUY TẮC CỐT LÕI:** Chi tiết đầy đủ tại `panelforge-hub/docs/standards/SYSTEM_DEFINITIONS_AND_COMPONENT_IMMUTABILITY.md`.  
+> Mọi AI Agent khi thực thi công việc trên bất kỳ repository nào (`PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`) **BẮT BUỘC** tuân thủ 4 điều khoản bất biến:
+
+1. **Bất biến Định nghĩa Hệ thống:**
+   - Tuyệt đối KHÔNG tự chế vai trò mới ngoài 6 core roles (`PRODUCER`, `WRITER`, `ARTIST`, `LETTERER`, `EDITOR`, `PUBLISHER`) + `ADMIN` / `READER`.
+   - Tuyệt đối KHÔNG thay đổi các máy trạng thái (State Machines), điều kiện cổng duyệt (Approval Gates) và hợp đồng DTO dùng chung.
+2. **Bất biến UI Primitives & Component Dùng chung:**
+   - Mọi view, modal, form trong Frontend BẮT BUỘC tái sử dụng các primitive chuẩn tại `src/shared/ui/` (`Surface.tsx` [PageHeader, SectionHeader, Card, CardHeader, CardBody], `SidebarItem`, `Button`, `Badge`, `Tone`).
+   - Tuyệt đối KHÔNG tự code thẻ `div` với style riêng rẽ thay thế component có sẵn.
+   - Khi cần mở rộng component dùng chung: BẮT BUỘC tuân thủ nguyên tắc Open-Closed (OCP) bằng cách thêm optional props kèm default value; KHÔNG được tạo breaking changes cho consumers cũ.
+3. **Bảo toàn Giao diện Theme & Biến Scoped (No Style Trampling):**
+   - Theme Sidebar (`paper`, `ink`, `ocean`, `plum`) được điều khiển qua scoped CSS tokens `--sb-*` và các class `pf-sb-*`.
+   - Tuyệt đối KHÔNG đặt các class cố định (`bg-white`, `border-[#E7E5E4]`, `!important`) đè lên `.pf-sidebar` và các thẻ con bên trong.
+   - Khi merge code, bảo đảm giữ nguyên bộ chuyển theme `SIDEBAR_THEMES`, `onChangeTheme` và menu người dùng dạng popover.
+4. **Quy trình 5 Bước Trước khi Commit:**
+   - Tra cứu SSOT $\rightarrow$ Quét component sẵn có $\rightarrow$ Mở rộng không phá vỡ $\rightarrow$ Chạy Targeted Tests (`run_module_tests.ps1`) & i18n check (`npm run i18n:check`) $\rightarrow$ Build Verification & Commit cục bộ.
 
 
