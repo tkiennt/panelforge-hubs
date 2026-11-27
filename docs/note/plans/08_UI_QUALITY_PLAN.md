@@ -94,10 +94,10 @@ Vấn đề: màn nhiều thẻ trắng, header trang/thẻ không có điểm n
 - [ ] **UIQ-09d [FE] Lô còn lại:** các màn trong bảng xếp hạng mật độ thẻ trắng (sau khi lô thí điểm được duyệt bằng mắt).
 - Không đụng sidebar (`AppShell*`, `Sidebar.tsx`, `sidebar-theme*`) — đang có thay đổi chưa commit của nhánh khác.
 
-#### UIQ-10 · Gom UI dùng chung về `src/shared/ui` — FE · ❌ · DESIGN_RULES §4.9 · chạy sau khi UIQ-09 gộp
+#### UIQ-10 · Gom UI dùng chung về `src/shared/ui` — FE · 📋 sẵn sàng giao (UIQ-09 đã gộp FE `fe499e03`) · DESIGN_RULES §4.9
 Mục tiêu: sửa một primitive là mọi màn đổi theo. Số liệu và danh mục primitive ở §4.9.
-- [ ] **UIQ-10a [FE] Primitive còn thiếu:** `Button`/`IconButton`, `Badge`/`StatusBadge` + `src/shared/lib/statusTone.ts`, `Field`/`Input`/`Textarea`/`Select`/`SearchInput`, `Tabs`, `EmptyState`, `Skeleton`, `ProgressBar`, `Metric`, `Avatar`, `CountChip`. Test + README. Xoá `src/shared/components/ui/` (0 import). Thay 3 chỗ import Lucian trùng (`TypeToConfirmModal` → `ConfirmDialog type-to-confirm`, `LucianInlineAlert` → `Alert`, `EmptyFolderState` → `EmptyState`) rồi xoá các file Lucian đó.
-- [ ] **UIQ-10b [FE] Gộp bảng màu trạng thái:** thay 11 chỗ (`renderStatusBadge`, `getStatusBadge`, `STATUS_STYLE`, `statusTone`, `getAuditStatusBadgeClass`, `statusBadgeColor`…) bằng `StatusBadge`.
+- [ ] **UIQ-10a [FE] Primitive còn thiếu:** `Button`/`IconButton`, `Badge`/`StatusBadge` + `src/shared/lib/statusTone.ts`, `Field`/`Input`/`Textarea`/`Select`/`SearchInput`, `Tabs`, `EmptyState`, `Skeleton`, `ProgressBar`, `Metric`, `Avatar`, `CountChip`. Test + README. Xoá `src/shared/components/ui/` (0 import). Thay 3 chỗ import Lucian trùng (`TypeToConfirmModal` → `ConfirmDialog type-to-confirm`, `LucianInlineAlert` → `Alert`, `EmptyFolderState` → `EmptyState`) rồi xoá các file Lucian đó. Brief: [briefs/UIQ-10a.md](briefs/UIQ-10a.md).
+- [ ] **UIQ-10b [FE] Gộp bảng màu trạng thái:** thay 11 chỗ (`renderStatusBadge`, `getStatusBadge`, `STATUS_STYLE`, `statusTone`, `getAuditStatusBadgeClass`, `statusBadgeColor`…) bằng `StatusBadge`. Chạy sau commit badge/status tone của 10a (song song được với phần còn lại của 10a). Brief: [briefs/UIQ-10b.md](briefs/UIQ-10b.md).
 - [ ] **UIQ-10c [FE] Chuyển màn theo lô vai trò:** producer → writer → artist/letterer → editor/publisher → shared/admin. Mỗi lô một commit; thay nút, badge, input, tab, empty, skeleton, progress tự dựng.
 - [ ] **UIQ-10d [FE] Gộp màn chọn chương:** `shared/features/chapter-selection/` + cấu hình theo vai trò; ba view trong `roles/*` chỉ còn cấu hình. Giữ `data-testid` và route.
 - [ ] **UIQ-10e [FE] Chốt chặn:** đưa vào UIQ-07 luật ESLint cấm `bg-orange-6xx`/`bg-[#EA580C]` và `border-dashed` ngoài `src/shared/ui/`.
@@ -154,6 +154,6 @@ Cấm: "Delve", "Seamless experience", "Elevate your workflow", "Unlock the powe
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
 | 2026-11-27 | UIQ-09 | ✅ 09a–09c đã gộp | FE `fe499e03` | Quy ước header & header thẻ ở DESIGN_RULES §4.8 |
-| 2026-11-27 | UIQ-10 | 📝 Lên kế hoạch | — | Bản đồ UI dùng chung DESIGN_RULES §4.9; brief 10a sẵn ở `.agy-runs/tasks/uiq-10a.md`, chạy sau khi UIQ-09 gộp |
+| 2026-11-27 | UIQ-10 | 📋 Sẵn sàng giao | — | Bản đồ UI dùng chung DESIGN_RULES §4.9; brief 10a, 10b ở `briefs/`. Lần chạy 10a đầu tiên đã dừng trước khi có commit |
 | 2026-11-11 | Đợt 1 (GĐ1–GĐ4) | ✅ | xem mục 1 | |
 | 2026-11-12 | — | Chuyển sang bộ plan module | — | Từ `ANTI_SLOP_REFACTOR_PLAN.md` + checklist/Lucian/glossary cũ |
