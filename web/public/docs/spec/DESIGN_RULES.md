@@ -89,6 +89,7 @@ The admin area uses its own `--color-admin-*` tokens so production-role screens 
 | Ink | `--studio-ink`, `--studio-ink-muted`, `--studio-ink-subtle`, `--studio-ink-faint` |
 | Structure | `--studio-line`, `--studio-line-soft`, `--studio-line-strong` |
 | Accent | `--studio-accent`, `--studio-accent-hover`, `--studio-accent-soft`, `--studio-accent-border`, `--studio-accent-ink: #fff` |
+| Header accents | `--studio-head-wash`, `--studio-head-line`, `--studio-kraft`, `--studio-kraft-ink`, `--studio-sienna` (quy ước dùng ở §4.8) |
 | Status | `--studio-status-success`, `--studio-status-success-soft`, `--studio-status-success-line`; the same three-part set for `warning`, `danger`, and `info`; neutral uses the surface, ink, and line tokens above |
 | Focus | `--studio-focus-ring`, with a `2px` outline and `2px` offset |
 | Radius | `--studio-radius-sm` (`6px`), `--studio-radius-md` (`12px`), `--studio-radius-lg` (`16px`) |
@@ -256,6 +257,89 @@ All shared primitives below live in `src/shared/ui/`, consume only the token con
 - All new dialogs use `Modal`, `Drawer`, or `ConfirmDialog`; feature code owns content, not focus, scroll-lock, portal, or dismissal mechanics.
 - Preserve every existing `data-testid` exactly during migration. Shared primitives accept test IDs needed by current tests.
 - Migrate one product area at a time in later tasks. This contract does not authorize a broad component rewrite.
+
+### 4.8. Header & Card Header Accents ("Mực Cam & Giấy Kraft")
+
+> **Vấn đề (rà soát 2026-11-27):** các màn nhiều thẻ trắng nằm cạnh nhau, header trang và header thẻ không có điểm nhấn nên khó quét mắt. Mỗi màn tự chế một kiểu: header thẻ lúc `bg-stone-50`, lúc `bg-[#FCFBF8]`, lúc không có; tiêu đề lúc `text-stone-900`, lúc `#1C1917`, lúc `#44403C`; header bảng `bg-stone-50/70`. Quy ước này thay thế toàn bộ các biến thể đó.
+
+**Ý tưởng màu:** giữ thân thẻ trắng; đưa điểm nhấn vào *đầu* mỗi khối bằng họ màu cùng nhiệt độ với cam `#F97316` — kem giấy, giấy kraft, nâu sienna — thay vì thêm màu mới. Cam đặc chỉ xuất hiện ở các nét mảnh (thanh mực) và CTA.
+
+#### 4.8.1. Bảng màu nhấn (token mới trong `studio-tokens.css`, alias Tailwind trong `@theme`)
+
+| Token | Light | Dark | Tailwind | Dùng cho | Tương phản |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `--studio-head-wash` | `#FBF5EC` kem giấy | `#1F1A15` | `bg-head-wash` | Dải header thẻ, header bảng, header modal/drawer | nền |
+| `--studio-head-line` | `#EFE3D1` | `rgba(251,146,60,0.18)` | `border-head-line` | Viền dưới dải header | trang trí |
+| `--studio-kraft` | `#F6E7D3` giấy kraft | `rgba(251,146,60,0.14)` | `bg-kraft` | Chip đếm số, nhãn phân nhóm | nền |
+| `--studio-kraft-ink` | `#5B4636` | `#E9D5BC` | `text-kraft-ink` | Chữ trên kraft, chữ header bảng | 7.3:1 |
+| `--studio-sienna` | `#9A3412` | `#FDBA74` | `text-sienna` | Eyebrow (nhãn nhỏ trên tiêu đề), nhãn nhấn | 6.7:1 trên wash |
+| `--studio-accent-soft` (có sẵn) | `#FFF2E6` | có sẵn | `bg-accent-soft` | Ô icon (icon tile) | nền |
+| `--studio-accent-dark` (có sẵn) | `#C2410C` | có sẵn | `text-accent-dark` | Icon trong ô icon | 4.9:1 |
+| `--studio-accent` (có sẵn) | `#F97316` | có sẵn | `bg-accent` | Thanh mực 3px, dải đầu thẻ nổi bật | trang trí |
+
+- Không dùng `amber-*` để trang trí: hổ phách đã mang nghĩa Cảnh báo/Chờ duyệt (§1.5).
+- Không gradient, không tô đặc cam cả dải header.
+
+#### 4.8.2. Bốn cấp header
+
+| Cấp | Primitive | Công thức |
+| :--- | :--- | :--- |
+| **Header trang** | `PageHeader` | Nằm trên nền giấy, không bọc thẻ. Trái: ô icon 40px (`bg-accent-soft text-accent-dark rounded-xl`), eyebrow `text-xs font-semibold uppercase tracking-wider text-sienna`, H1 `text-2xl font-serif font-bold text-stone-900`, mô tả `text-sm text-stone-600`. Phải: nút hành động. Đáy: `border-b border-head-line` kèm **thanh mực** cam 48×3px nằm đè lên viền ở mép trái — dấu nhận diện của mọi header trang. |
+| **Header thanh công cụ dính** (bàn làm việc) | `PageHeader variant="toolbar"` | `bg-white/95 border-b border-stone-200` + vạch cam 2px ở mép trên (`shadow-[inset_0_2px_0_var(--studio-accent)]`). Không thanh mực ở đáy. |
+| **Header mục** (trên nền giấy) | `SectionHeader` | Eyebrow sienna (tuỳ chọn) + H2 `text-lg font-bold text-stone-900` + chip đếm `bg-kraft text-kraft-ink text-xs font-semibold rounded-full px-2` + hành động bên phải. Không viền trái (viền trái cam là trạng thái *đang chọn*, §1.2). |
+| **Header thẻ** | `CardHeader` trong `Card` | Dải `bg-head-wash border-b border-head-line px-4 py-3`. Trái: ô icon 28px (`bg-accent-soft text-accent-dark rounded-lg`, icon `w-4`), tiêu đề `text-sm font-bold text-stone-900` (`text-base font-serif` cho thẻ chính), phụ đề `text-xs text-stone-600`. Phải: badge trạng thái, nút phụ. Thân thẻ giữ `bg-white`. |
+
+#### 4.8.3. Tông theo ngữ nghĩa (`tone`)
+
+`Card`/`CardHeader` nhận `tone`: `brand` (mặc định) · `ai` · `success` · `warning` · `danger` · `info` · `neutral`. Tông **chỉ đổi màu ô icon** (theo bảng §1.5: violet/emerald/amber/rose/blue/stone); dải `head-wash` giữ nguyên cho mọi tông để cả màn hài hoà. Ngoại lệ: `tone="ai"` được dùng `bg-violet-50/60 border-violet-100` cho dải header để giữ quy tắc "AI phải nhận ra được" (§1.1).
+
+#### 4.8.4. Thẻ nổi bật & ngân sách cam
+
+- `Card featured`: thêm dải đầu 3px `border-t-[3px] border-t-accent`. Tối đa **1 thẻ nổi bật mỗi khung nhìn** (vd: thẻ "Việc của tôi", thẻ chương đang làm).
+- Thẻ đại diện một trạng thái (bản nộp bị trả về, finding chặn) dùng dải đầu theo màu trạng thái thay cho cam.
+- Ngân sách cam đặc trên một khung nhìn: 1 CTA chính + 1 thẻ nổi bật + thanh mực của header trang. Ô icon, eyebrow, chip kraft là "cam mềm", không tính vào ngân sách.
+
+#### 4.8.5. Bảng, modal, drawer, khối lồng
+
+- **Header bảng:** `bg-head-wash text-kraft-ink text-xs font-semibold uppercase tracking-wide border-b border-head-line` (thay `bg-stone-50`).
+- **Header Modal/Drawer:** dùng cùng dải `head-wash` như header thẻ; primitive `Modal`/`Drawer` áp sẵn, màn hình không tự viết lại.
+- **Khối lồng trong thẻ trắng:** không đặt thẻ trắng có viền trong thẻ trắng. Khối con dùng `bg-head-wash` hoặc `bg-[#FAF9F5]` + `border-stone-200/80` (§3.1).
+- **Tiêu đề:** chỉ `text-stone-900`; bỏ các mã màu rời `#1C1917`, `#44403C` (ngoại lệ: khu `/admin` theo §1.6).
+
+#### 4.8.6. Cấm
+
+- ❌ `bg-stone-50`, `bg-[#FCFBF8]`, `bg-gray-*` cho dải header thẻ.
+- ❌ Tô cam đặc cả header, gradient cam, chữ cam nhạt (`text-orange-400/500`) làm chữ đọc.
+- ❌ Thêm thẻ nổi bật thứ hai trong cùng khung nhìn; dùng `amber` hay `violet` chỉ để trang trí.
+- ❌ Màn hình tự dựng header thẻ bằng `div` khi `CardHeader` đáp ứng được.
+
+### 4.9. Bản đồ UI dùng chung (một mẫu = một primitive)
+
+> **Mục tiêu:** sửa giao diện một chỗ, mọi màn đổi theo. Màn hình chỉ *ghép* primitive; class màu, viền, bo góc, cỡ chữ của mẫu chỉ được viết trong primitive.
+>
+> **Hiện trạng (quét 2026-11-27, 228 file `.tsx`):** badge trạng thái tự viết ở 66 file, nút cam tự viết ở 92 file (chỉ 4 file dùng `.btn-cta-*`), khung trống `border-dashed` ở 57 file, ô tìm kiếm ở 29 file, tab ở 11 file, skeleton ở 17 file. Bảng màu trạng thái tự định nghĩa ở 11 chỗ (`renderStatusBadge`, `getStatusBadge`, `STATUS_STYLE`, `statusTone`…). Có ba nơi chứa UI chung: `src/shared/ui/` (đang dùng), `src/shared/components/ui/` (`Badge`, `Button`, `Card`, `Input`… **không file nào import**), `src/shared/components/lucian/` (một phần trùng `ConfirmDialog`, `Alert`). Ba màn chọn chương của Writer/Artist/Letterer (862 + 713 + 537 dòng) gần như chép nhau.
+
+**Nơi duy nhất:** `src/shared/ui/` (primitive) và `src/shared/lib/statusTone.ts` (ánh xạ trạng thái nghiệp vụ → tông + khoá i18n). Không tạo thêm thư mục UI chung khác.
+
+| Nhóm | Primitive (`src/shared/ui/`) | Thay cho | Ghi chú hợp đồng |
+| :--- | :--- | :--- | :--- |
+| Bề mặt & header | `PageHeader`, `SectionHeader`, `Card`, `CardHeader`, `CardBody` | header/thẻ tự dựng | §4.8 |
+| Hành động | `Button` (`primary` · `secondary` · `ai` · `success` · `warning` · `danger` · `ghost`; `sm` · `md`; `loading`), `IconButton` (bắt buộc `aria-label`) | `bg-orange-600`/`bg-[#EA580C]` rời, `.btn-cta-*` | `.btn-cta-*` trở thành chi tiết bên trong `Button` |
+| Trạng thái | `Badge` (`tone` như §1.5, icon tuỳ chọn), `StatusBadge` (`kind` + `status`, đọc `statusTone.ts`) | 11 hàm/bảng màu trạng thái riêng | Một trạng thái nghiệp vụ có đúng một màu và một nhãn trên toàn hệ thống |
+| Nhập liệu | `Field` (nhãn, gợi ý, lỗi, `aria-describedby`), `Input`, `Textarea`, `Select`, `SearchInput` | input/select tự style | Lỗi hiển thị bằng chữ + màu rose |
+| Điều hướng trong trang | `Tabs` (`role="tablist"`, phím mũi tên, `aria-selected`) | 11 bộ tab tự viết | |
+| Trống & đang tải | `EmptyState` (§4), `Skeleton` | `border-dashed` rời, `animate-pulse` rời; `lucian/EmptyFolderState` | |
+| Dữ liệu | `ProgressBar` (chặn chia cho 0, §3.3), `Metric` (nhãn + số `font-mono`), `Avatar` (ảnh hoặc chữ cái đầu), `CountChip` (kraft, §4.8) | thanh tiến độ, thẻ KPI, avatar tự dựng | |
+| Overlay | `Modal`, `Drawer`, `ConfirmDialog`, `Alert`, `Toast` (đã có) | `lucian/LucianConfirmModal`, `lucian/TypeToConfirmModal`, `lucian/LucianInlineAlert`, `fixed inset-0` tự dựng | |
+
+**Cụm tính năng dùng chung** (`src/shared/features/`): màn chọn chương của Writer/Artist/Letterer gộp thành `chapter-selection/` nhận cấu hình theo vai trò (nhãn CTA §5.1, cột trạng thái, đích điều hướng); ba file trong `src/roles/*` chỉ còn khai báo cấu hình.
+
+**Quy tắc:**
+1. Có primitive thì dùng primitive; thiếu biến thể thì thêm biến thể vào primitive, không vá class ở màn.
+2. `className` truyền vào primitive chỉ dùng cho bố cục (margin, width, grid), không đổi màu/viền/cỡ chữ.
+3. Trạng thái nghiệp vụ mới (enum BE mới) phải được thêm vào `statusTone.ts` cùng lượt với khoá i18n vi/en.
+4. Mỗi primitive có test trong `src/shared/ui/ui.test.tsx` và một dòng trong `src/shared/README.md`.
+5. Thư mục `src/shared/components/ui/` bị xoá; `src/shared/components/lucian/` chỉ giữ thành phần chưa có bản tương đương (minimap, ruler, layer order…).
 
 ---
 
