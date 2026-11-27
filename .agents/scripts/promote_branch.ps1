@@ -105,7 +105,12 @@ if (-not $SkipVerification -and -not $DryRun) {
             npm --prefix $r.Path run typecheck
             if ($LASTEXITCODE -ne 0) { throw "TypeScript Typecheck Frontend thất bại! Hủy tiến trình promote." }
         } elseif ($r.Name -eq "Mobile") {
-            flutter --prefix $r.Path analyze
+            Push-Location $r.Path
+            try {
+                flutter analyze
+            } finally {
+                Pop-Location
+            }
             if ($LASTEXITCODE -ne 0) { throw "Flutter Analyze Mobile thất bại! Hủy tiến trình promote." }
         }
     }
