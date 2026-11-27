@@ -513,25 +513,35 @@ Toàn bộ các vai trò nội bộ trong Studio đều đi theo trục điều 
    │
    ▼
 [Bước 2: Chọn Studio Workspace (/workspaces ➔ WorkspaceListView)]
-   │  • Lưu activeWorkspaceId & lấy đúng WorkspaceRole của người dùng tại Studio đó.
+   │  • Luôn hiển thị danh sách Studio sau đăng nhập (không tự ý nhảy vào studio gần nhất, Spec §5.3 Bước 2).
+   │  • Tích hợp Dải nhiệm vụ cá nhân gọi GET /api/me/work và liên kết đến Trung tâm việc làm xuyên Studio (/my-work, UIQ-11q).
+   │  • Lưu activeWorkspaceId & WorkspaceRole tại Studio đó (Producer hoặc Member theo Spec D10).
    ▼
 [Bước 3: Tổng quan Studio & Chọn Bộ Truyện (/workspace/:wId/series ➔ Series Hub)]
-   │  • Header Breadcrumb: Workspaces / <Tên Studio>
+   │  • Header Breadcrumb: Workspaces / <Tên Studio>. Click BrandMark Studio chuyển về /workspaces.
    │  • Hiển thị danh sách Series của Studio kèm tiến độ; Producer thấy thêm tổng lượt đọc & doanh thu (VNĐ) mỗi Series.
+   │  • Tạo Series mới mặc định chuẩn hướng đọc Manga (RightToLeft = 0; Webtoon/Western = 1; Vertical = 2, UIQ-11l).
    ▼
 [Bước 4: Không Gian Dự Án Của Series (/workspace/:wId/series/:sId)]
-   │  • Left Sidebar cố định gồm:
-   │      1. 📊 Dashboard, Readership & Revenue (Tiến độ Chương & ấn bản; riêng Producer & Publisher: Lượt xem, Tỷ lệ đọc hết, Phân bố ngôn ngữ, Doanh thu VNĐ theo ấn bản)
-   │      2. 📋 Production Pipeline (Bảng Kanban chia Page cho các Artist & Letterer phụ việc)
-   │      3. 📖 Series Bible (Kho Nhân vật chính, Bối cảnh, Model Sheet & Khóa Canon)
-   │      4. 👥 Members & Roles (Quản lý nhân sự tham gia Series)
-   │      5. 📜 Audit Log & Provenance (Lịch sử sự kiện & Truy vết AI)
+   │  • Phân vai chuyên môn độc lập theo Series (Spec D10): Writer, Artist, Letterer, Editor, Producer qua SeriesMembersModal.
+   │  • Quyền thực thi nghiệp vụ trong Series lấy từ series.currentUserRole thay vì vai trò Studio.
+   │  • Producer vào Series mặc định mở tab Tổng quan chương (/chapters), không nhảy vào tab Sản xuất (/workspace).
+   │  • Màn hình chương rỗng (chapters = 0) hiển thị trực tiếp modal tạo chương mới kèm nút tạo chương.
+   │  • Left Sidebar gồm:
+   │      1. 📖 Read Series (/series/:sId/read): Đọc liên tục toàn bộ các chương của bộ truyện (Producer/Editor)
+   │         + Pinned Page Comments: Ghim bình luận theo tọa độ {pinX, pinY} trên trang tranh
+   │         + Rework Conversion: Producer chuyển trực tiếp bình luận thành yêu cầu làm lại cho công đoạn tương ứng.
+   │      2. 📊 Dashboard, Readership & Revenue (Tiến độ Chương & ấn bản; Lượt xem, Tỷ lệ đọc hết, Doanh thu VNĐ)
+   │      3. 📋 Production Pipeline (Bảng Kanban/TaskGrid chia Page cho các Artist & Letterer phụ việc)
+   │      4. 📖 Series Bible (Kho Nhân vật chính, Bối cảnh, Model Sheet, Quản lý biến thể & Khóa Canon)
+   │      5. 👥 Members & Roles (Quản lý nhân sự và phân vai chuyên môn cho từng thành viên trong Series)
+   │      6. 📜 Audit Log & Provenance (Lịch sử sự kiện & Truy vết AI)
    ▼
 [Bước 5: Bàn Làm Việc Chuyên Môn Khi Chọn 1 Chương / Trang (/workspace/:wId/chapters/:cId/...)]
    ├── WRITER   ➔ ScriptEditorView.tsx     (Soạn Trang ➔ Panel ➔ Mô tả/Thoại/Dẫn truyện/SFX bằng chữ thuần; bôi đen để tham chiếu nhân vật trong lời dẫn; ngăn phải: Danh sách thực thể chương — người nói tự khớp/tự tạo, đoạn bôi đen, cờ Quần chúng)
-   ├── ARTIST   ➔ ArtistDeskView.tsx       (Mở Page được assign: Chọn Frame Template, vẽ Pencil/Ink, Self-Rollback VÀ có sẵn công cụ đặt Bóng thoại Vector)
+   ├── ARTIST   ➔ ArtistDeskView.tsx       (Mở Page được assign: Bàn vẽ tự động kích hoạt cell sang InProgress, chọn Frame Template, vẽ Pencil/Ink, Self-Rollback VÀ có sẵn công cụ đặt Bóng thoại Vector; nộp bài Lettering được miễn kiểm tra ảnh artwork)
    ├── LETTERER ➔ LetteringWorkspace.tsx   (Role phụ việc - Mở Page được assign: Chỉ hiển thị duy nhất công cụ đặt Bóng thoại Vector, khóa lớp vẽ của Artist)
-   ├── EDITOR   ➔ ReviewView.tsx           (So sánh Side-by-side/Swipe/Pixel Diff, khoanh Box lỗi cô lập Panel, Verify CR; duyệt bản dịch từng ấn bản ngôn ngữ)
+   ├── EDITOR   ➔ ReviewView.tsx           (So sánh Side-by-side/Swipe/Pixel Diff, khoanh Box lỗi cô lập Panel, Verify CR; duyệt bản dịch từng ấn bản ngôn ngữ; hỗ trợ Comic Reader Preview khi duyệt)
    └── PRODUCER ➔ ChapterReleaseModal.tsx  (Chốt Gate 1 & Giao Page, Carve-out/Transfer trang giữa các Artist, Chốt Gate 3 Snapshot, Nghiệm thu & Bàn giao ChapterHandedOff sang Publisher (Quyết định 2026-11-15 (D1)), Xem cấu hình giá do Publisher đặt, Xuất gói chuyển giao theo ấn bản & Nhập số liệu Doanh thu [giai đoạn sau])
    (ARTIST / LETTERER có bộ chọn "ngôn ngữ đang soạn" trên bàn vẽ để nhập bản dịch bóng thoại)
 

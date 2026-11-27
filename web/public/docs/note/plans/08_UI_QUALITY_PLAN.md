@@ -102,6 +102,17 @@ Mục tiêu: sửa một primitive là mọi màn đổi theo. Số liệu và d
 - [ ] **UIQ-10d [FE] Gộp màn chọn chương:** `shared/features/chapter-selection/` + cấu hình theo vai trò; ba view trong `roles/*` chỉ còn cấu hình. Giữ `data-testid` và route.
 - [ ] **UIQ-10e [FE] Chốt chặn:** đưa vào UIQ-07 luật ESLint cấm `bg-orange-6xx`/`bg-[#EA580C]` và `border-dashed` ngoài `src/shared/ui/`.
 
+#### UIQ-11 · Điều hướng Studio, phân vai Series & trải nghiệm đọc duyệt — BE + FE · ✅ Đã hoàn thành & gộp vào trungkien (FE `3b7b3f1`, BE `8219bfc`)
+Mục tiêu: Thực hiện luồng điều hướng chuẩn Spec §5.3, tách bạch vai trò Studio vs Series theo Spec D10, bổ sung cổng việc làm xuyên studio và chế độ đọc duyệt tranh liên tục.
+- [x] **UIQ-11 batch 1 [FE] Chuẩn hóa điều hướng Spec §5.3:** Sau đăng nhập luôn chuyển hướng vào danh sách Studio (`/workspaces`); click brandmark ở Studio Home quay về `/workspaces`; bỏ `truncate` gây cắt dropdown StudioSwitcher; màn chương rỗng (`chapters = 0`) hiển thị trực tiếp modal tạo chương; bàn vẽ Artist tự động chuyển cell sang `InProgress` khi mở (bỏ nút Bắt đầu làm thủ công); route mặc định của Producer vào Series là `chapters`.
+- [x] **UIQ-11i [BE + FE] Phân vai chuyên môn theo Series (Spec D10):** Studio membership chỉ gồm `Producer` hoặc `Member` (thêm `WorkspaceRole.Member`). Vai trò chuyên gia (`Writer`, `Artist`, `Letterer`, `Editor`, `Producer`) chọn theo từng bộ truyện (`SeriesRole` trong `series_members`). Quyền thao tác và truy cập công cụ trong Series lấy từ `series.currentUserRole`. Cập nhật `GetSeriesMemberRoleAsync` trên toàn bộ endpoint kịch bản, khung tranh, Bible, AI.
+- [x] **UIQ-11j [BE] Miễn gate ảnh cho Artist Lettering (BR-19, BR-31):** Khi Artist kiêm nhiệm công đoạn Lettering, submission nộp bài được miễn kiểm tra tải ảnh artwork mới, chuyển sang kiểm tra bóng thoại vector như Letterer.
+- [x] **UIQ-11l [BE + FE] Chuẩn hóa Enum chiều đọc truyện:** Đồng bộ enum giữa BE và FE: `0 = RightToLeft (Manga, mặc định)`, `1 = LeftToRight (Webtoon/Western)`, `2 = Vertical`.
+- [x] **UIQ-11o [FE] Comic Reader Review Mode:** Tích hợp chế độ đọc truyện trực quan trong bàn kiểm duyệt kịch bản của Editor (`ScriptReviewView.tsx`).
+- [x] **UIQ-11q [BE + FE] Cross-Studio My Work Hub:** Endpoint `GET /api/me/work` gom toàn bộ việc được giao của người dùng trên mọi Studio; trang mới `/my-work` (`MyWorkHubView.tsx`) gom việc theo trạng thái (In Progress, Needs Fixes, To Review) và lọc theo Studio / Role; dải việc cần làm ở `/workspaces` gọi endpoint tập trung.
+- [x] **UIQ-11r [BE + FE] Series Continuous Reader & Pinned Page Comments:** Route `/series/:seriesId/read` cho Producer và Editor đọc liên tục các trang của mọi chương trong bộ truyện; ghim bình luận theo tọa độ `{pinX, pinY}` trên trang tranh; Producer có thể chuyển trực tiếp bình luận thành yêu cầu làm lại (`ConvertCommentToRework`).
+- [x] **UIQ-11s [FE] Sửa lỗi Producer Workspace P1:** Series Bible thêm `min-w-0` và popover menu chống tràn ở 1024-1440px; Action Center tổng hợp việc quá hạn/cần sửa/chưa giao từ `readiness.production`; Review & Handoff nhận `chapterId` từ URL và thông báo lý do chặn đóng gói.
+
 ## 4. Rủi ro
 
 | Rủi ro | Cách giảm |
