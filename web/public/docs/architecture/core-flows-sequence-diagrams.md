@@ -22,21 +22,31 @@
 
 ## CF1: Studio, Series, Bible Setup & Script Pre-Production (Gate 1)
 
-Luồng nghiệp vụ tiền kỳ: Writer soạn kịch bản chữ thuần độc lập theo cấu trúc `Trang -> Panel -> Dòng`. Hệ thống tự động nhận diện tên người nói để tạo mục Series Bible nháp (`IsStub = true`). Artist nộp phiên bản concept Model Sheet (`ConceptSubmitted`), Editor xác nhận khóa bất biến `CanonLocked`. Writer gửi duyệt kịch bản (`SubmittedScriptManifest`), và Producer chốt Gate 1 để chuyển sang sản xuất.
+Luồng nghiệp vụ tiền kỳ: Producer tạo Studio Workspace, phân tầng vai trò 2 cấp (Spec D10). Writer soạn kịch bản chữ thuần độc lập theo cấu trúc `Trang -> Panel -> Dòng`. Hệ thống tự động nhận diện tên người nói để tạo mục Series Bible nháp (`IsStub = true`). Artist nộp phiên bản concept Model Sheet (`ConceptSubmitted`), Editor xác nhận khóa bất biến `CanonLocked`. Writer gửi duyệt kịch bản (`SubmittedScriptManifest`), và Producer chốt Gate 1 để chuyển sang sản xuất.
 
 ```mermaid
 sequenceDiagram
     autonumber
+    actor Producer as 🎬 Producer
     actor Writer as ✍️ Writer
     actor Artist as 🎨 Artist
     actor Editor as 🧐 Editor
-    actor Producer as 🎬 Producer
     participant FE as 🖥️ Web Studio (React 19)
     participant API as ⚙️ Controllers (.NET 9)
     participant MediatR as 📬 Application (MediatR CQRS)
     participant Domain as 🏛️ Domain Entities & Invariants
     participant DB as 🗄️ PostgreSQL / EF Core
     participant R2 as ☁️ Cloudflare R2 (CAS)
+
+    %% 0. Phân tầng thành viên & Gán vai trò Series (Spec D10)
+    Note over Producer,DB: 0. Phân tầng Thành viên Studio & Thiết lập Ê-kíp Series (Spec D10)
+    Producer->>FE: Mời thành viên vào Studio (Role: Producer hoặc Member)
+    FE->>API: POST /api/workspaces/{wId}/invitations { email, role: "Member" }
+    API->>DB: Lưu workspace_members (WorkspaceRole: Producer / Member)
+    Producer->>FE: Tạo Series (cấu hình ReadingDirection: RTL=0 Manga, LTR=1 Comic, Vertical=2)
+    Producer->>FE: Mở SeriesMembersModal -> Phân vai chuyên môn sản xuất
+    FE->>API: POST /api/series/{sId}/members { userId, role: "Writer"|"Artist"|"Letterer"|"Editor" }
+    API->>DB: Lưu bảng series_members (Quyền hạn Series-Scoped ABAC)
 
     %% 1. Soạn kịch bản & Commit ScriptVersion
     Note over Writer,FE: 1. Soạn thảo kịch bản chữ thuần (Page -> Panel -> Content)
@@ -294,6 +304,25 @@ sequenceDiagram
         API-->>FE: HTTP 200 { pageStatus: "Approved" }
         API-)Producer: SignalR: Trang đã đạt kiểm định Gate 2
     end
+
+    %% 6. Chế độ Đọc Duyệt Liên Tục & Ghim Bình Luận Trang (UIQ-11r)
+    Note over Editor,DB: 6. Đọc duyệt truyện liên tục & Ghim nhận xét toạ độ (Pinned Comments -> Rework)
+    Editor->>FE: Mở /workspaces/:wId/series/:sId/read (Series Continuous Reader)
+    FE->>API: GET /api/series/{sId}/reading-stream (Lấy chuỗi trang liên tục theo ReadingDirection)
+    Editor->>FE: Click trực tiếp lên toạ độ {pinX, pinY} trên trang để ghim phản hồi
+    FE->>API: POST /api/chapters/{chId}/pages/{pageId}/comments { pinX, pinY, commentText }
+    API->>MediatR: Send(new AddPinnedPageCommentCommand(pageId, pinX, pinY, commentText))
+    MediatR->>DB: Lưu PinnedComment với toạ độ tương đối chuẩn hoá [0..1]
+    API-->>FE: HTTP 200 { commentId, pinX, pinY, createdAt }
+    
+    opt Chuyển bình luận thành yêu cầu vẽ lại (Convert to Rework)
+        Editor->>FE: Bấm [Chuyển thành Rework] trên popup bình luận
+        FE->>API: POST /api/chapters/{chId}/pages/{pageId}/comments/{commentId}/convert-to-rework
+        API->>MediatR: Send(new ConvertCommentToReworkCommand(commentId))
+        MediatR->>DB: Tạo ChangeRequest mới gắn với Panel bao toạ độ {pinX, pinY}
+        MediatR->>DB: Panel.StageProgress -> ReworkRequired; Comment.isConverted = true
+        API-)Artist: SignalR: Thông báo yêu cầu vẽ lại kèm toạ độ ghim cụ thể
+    end
 ```
 
 ---
@@ -477,6 +506,38 @@ sequenceDiagram
     Mobile->>API: POST /api/telemetry/reading-progress { isCompleted: true, dwellSeconds: 240 }
     API->>DB: Ghi nhận Completion Rate & Doanh thu
     Producer->>FE: Mở Owner 360° Dashboard xem Lượt đọc, Tỷ lệ đọc hết (88%) & Doanh thu VNĐ
+```
+
+---
+
+## CF6: Không Gian Làm Việc Xuyên Studio (Cross-Studio My Work Hub - UIQ-11q)
+
+Luồng tập hợp công việc cá nhân đa studio: Thành viên tham gia sản xuất tại nhiều Studio/Series có thể theo dõi và truy cập trực tiếp các nhiệm vụ được giao trên một giao diện thống nhất `/my-work` hoặc dải My Work Bar tại `/workspaces` mà không cần lần lượt vào từng Studio.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 👤 Thành viên (Artist / Editor / Writer)
+    participant FE as 🖥️ Web App (/workspaces & /my-work)
+    participant API as ⚙️ MeController (.NET 9)
+    participant MediatR as 📬 Application (CQRS)
+    participant DB as 🗄️ PostgreSQL
+
+    %% 1. Truy cập Hub việc cá nhân
+    Note over User,FE: 1. Đăng nhập & xem danh sách việc cần làm xuyên Studio
+    User->>FE: Điều hướng đến /workspaces hoặc /my-work
+    FE->>API: GET /api/me/work
+    API->>MediatR: Send(new GetMyWorkQuery(currentUserId))
+    MediatR->>DB: Truy vấn assignments đang Assigned / InProgress thuộc mọi Studio
+    MediatR->>DB: Lấy kèm metadata Series, Chapter, Stage và tiến độ
+    MediatR-->>API: Danh sách MyWorkTaskDto[] (nhóm theo Studio & Series)
+    API-->>FE: HTTP 200 [ { workspaceId, seriesId, chapterId, stage, role, targetUrl } ]
+
+    %% 2. Điều hướng thẳng vào bàn làm việc
+    Note over User,FE: 2. Nhấp chọn thẻ việc -> Mở thẳng bàn làm việc chuyên môn
+    User->>FE: Bấm [Làm tiếp] trên thẻ nhiệm vụ (ví dụ: Vẽ Ink Trang 3)
+    FE->>FE: Điều hướng thẳng đến bàn làm việc chuyên môn (ArtistDeskView, ReviewView...)
+    FE->>API: Tự động kích hoạt trạng thái Assignment -> InProgress (nếu đang Assigned)
 ```
 
 ---

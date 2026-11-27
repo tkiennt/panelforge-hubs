@@ -45,8 +45,11 @@ flowchart TD
 ## 2. BỐN ĐIỀU KHOẢN BẤT BIẾN TUYỆT ĐỐI (THE 4 ABSOLUTE INVARIANTS)
 
 ### 🔹 Điều 1: Bất biến Định nghĩa Hệ thống & Nghiệp vụ (System Definitions & Ubiquitous Language)
-1. **Vai trò Hệ thống (Roles):**
-   - Chỉ có đúng **6 vai trò Studio cốt lõi**: `PRODUCER`, `WRITER`, `ARTIST`, `LETTERER`, `EDITOR`, `PUBLISHER` cùng `ADMIN` hệ thống và `READER` độc giả.
+1. **Vai trò Hệ thống (Roles - Phân tầng Spec D10):**
+   - Phân tầng 2 cấp rõ rệt theo Spec D10:
+     - **Cấp Studio (`WorkspaceRole`):** Chỉ gồm `PRODUCER` (Owner/Quản trị Studio) và `MEMBER` (Thành viên chung). Khi mời thành viên vào Studio qua `InviteMemberModal`, chỉ chọn giữa Producer và Member.
+     - **Cấp Series (`series_members` / `SeriesRole`):** Phân vai chuyên môn sản xuất độc lập cho từng bộ truyện: `PRODUCER`, `WRITER`, `ARTIST`, `LETTERER`, `EDITOR`. Một người dùng có thể là Artist ở Series A nhưng là Writer hoặc Editor ở Series B.
+     - **Toàn hệ thống:** `ADMIN` (quản trị nền tảng), `PUBLISHER` (quản lý xuất bản/phát hành) và `READER` (độc giả trên Web/Mobile).
    - ❌ **CẤM** tự chế ra các vai trò mới, đổi tên vai trò hoặc thay đổi đường dẫn mặc định (`getRoleDefaultPath`) mà không có yêu cầu từ Master Spec V2.6.
 2. **Quy trình & Máy trạng thái (State Machines & Gates):**
    - Vòng đời sản xuất chương (`PreProduction` $\rightarrow$ `InProduction` $\rightarrow$ `ChapterApproved` $\rightarrow$ `ChapterPublished` / `ChapterHandedOff`).
@@ -138,7 +141,7 @@ Trước khi thực hiện `git commit`, AI Agent **BẮT BUỘC** tự trả l�
 - [ ] **1. Tái sử dụng:** Tôi đã sử dụng các component có sẵn tại `src/shared/ui/` thay vì tự tạo thẻ HTML/style riêng lẻ chưa?
 - [ ] **2. Không phá vỡ:** Props của các component dùng chung mà tôi sửa có giữ nguyên kiểu dữ liệu và tính tương thích ngược (optional props + default values) không?
 - [ ] **3. Bảo toàn Theme:** Tôi có tránh việc hardcode `bg-white`, `border-stone-200` làm đè lên các scoped theme (`data-sb-theme`) của Sidebar và Shell không?
-- [ ] **4. Vai trò chuẩn:** Các logic phân quyền có dựa trên đúng 6 vai trò Studio chuẩn trong Master Spec V2.6 không?
+- [ ] **4. Vai trò chuẩn:** Các logic phân quyền có dựa trên đúng phân tầng vai trò 2 cấp (Studio Scope: Producer/Member; Series Scope: Producer/Writer/Artist/Letterer/Editor) theo Master Spec V2.6 và Spec D10 không?
 - [ ] **5. Kiểm thử module:** Tôi đã chạy và vượt qua các test suite liên quan trực tiếp đến module đang sửa chưa?
 - [ ] **6. i18n Parity:** Nếu có bổ sung text giao diện, tôi đã thêm đầy đủ cả hai file `vi` và `en` với key khớp 100% chưa?
 - [ ] **7. Quy tắc Push:** Tôi có ghi nhớ chỉ commit cục bộ trên `{work-branch}` và KHÔNG tự ý push trừ khi có yêu cầu trực tiếp từ Người dùng?

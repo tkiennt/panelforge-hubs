@@ -345,16 +345,22 @@ All shared primitives below live in `src/shared/ui/`, consume only the token con
 
 ## 5. ROLE-AWARE UI & NAVIGATION FLOW RULES
 
-### 5.1. Dynamic Role Copywriting (Never Hardcode Producer Copy for Other Roles)
-Shared screens (such as the Studio Overview / Series Selection screen) must inspect the user's active `WorkspaceRole` and render appropriate descriptions and primary CTA labels:
+### 5.1. Dynamic Role Copywriting (Spec D10 Role Hierarchy)
+Shared screens (such as the Studio Overview / Series Selection screen) must inspect the user's role hierarchy (cấp Studio là `WorkspaceRole` Producer/Member; cấp Series là `series.currentUserRole` thuộc `series_members` gồm Producer, Editor, Writer, Artist, Letterer) and render appropriate descriptions and primary CTA labels:
 - **PRODUCER:** "Producer Desk: Manage series, production pipelines, assignments, and studio quotas." → Primary Series CTA: "Manage Series" (Quản Lý Bộ Truyện)
 - **EDITOR:** "Editor Desk: Quality control, stage gate reviews, version comparison, and consistency checks." → Primary Series CTA: "Manage Chapters (Review)" (Quản Lý Chương (Duyệt))
 - **WRITER:** "Writer Desk: Author structured scripts, story arcs, chapter outlines, and Series Bible links." → Primary Series CTA: "Open Script Workspace" (Soạn Thảo Kịch Bản)
 - **ARTIST:** "Artist Desk: Design page layouts, frame templates, panel artwork, and canvas layers." → Primary Series CTA: "Open Artist Desk" (Vào Bàn Vẽ)
 - **LETTERER:** "Letterer Desk: Place dialogue balloons, SFX, and synchronize script lines." → Primary Series CTA: "Open Lettering Workspace" (Vào Bàn Chèn Chữ)
 
-### 5.2. Strict 4-Step Hierarchical Navigation Flow
-- **Step 1:** `/workspaces` (Select Studio Workspace) ➔ **Step 2:** `/workspace/:wId` (Studio Overview & Series Selection) ➔ **Step 3:** Select Chapter / Task inside Series ➔ **Step 4:** Role-Specific Workbench.
+### 5.2. Strict Hierarchical Navigation Flow & Cross-Studio Hub (Spec §5.3 & UIQ-11)
+- **Step 0 (Cross-Studio):** `/my-work` (My Work Hub) hoặc dải My Work Bar ngay tại `/workspaces` gọi `GET /api/me/work` gom toàn bộ đầu việc của cá nhân xuyên suốt mọi Studio.
+- **Step 1:** `/workspaces` (Select Studio Workspace). Brandmark Studio Home trong thanh điều hướng luôn liên kết về `/workspaces`.
+- **Step 2:** `/workspaces/:wId` (Studio Overview & Series Selection). StudioSwitcher loại bỏ truncate chống cắt dropdown.
+- **Step 3:** `/workspaces/:wId/series/:sId` (Series Workspace). Với Producer, mặc định mở tab `chapters`; modal tạo chương mới mở được ngay cả khi danh sách đang rỗng (`chapters = 0`).
+- **Step 4:** Role-Specific Workbench / Reader:
+  - Bàn làm việc chuyên môn (`ScriptEditorView`, `ArtistDeskView` — tự động kích hoạt `InProgress` khi mở, `ReviewView`).
+  - Chế độ đọc duyệt liên tục (`/workspaces/:wId/series/:sId/read` — Series Continuous Reader) cho phép duyệt trang liền mạch và ghim nhận xét theo tọa độ `{pinX, pinY}` chuyển sang Rework.
 - **Header Breadcrumbs** must accurately reflect the hierarchy (`Workspaces` / `<Studio Name>` / `<Series Name>` / `<Chapter Name>`) and clicking any segment must navigate directly to that level.
 - **Sidebar Selectors** (Studio switcher & Series dropdown) must stay 100% synchronized with `activeWorkspaceId` and `activeSeriesId`.
 

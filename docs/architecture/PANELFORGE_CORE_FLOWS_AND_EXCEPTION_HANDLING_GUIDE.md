@@ -42,7 +42,7 @@ Hệ thống PanelForge áp dụng mô hình Clean Architecture kết hợp `Res
   ],
   "remediation": {
     "action": "RELOAD_LATEST_DRAFT",
-    "targetUrl": "/studios/{studioId}/projects/{projectId}/chapters/{chapterId}/script"
+    "targetUrl": "/workspaces/{workspaceId}/series/{seriesId}/chapters/{chapterId}/script"
   }
 }
 ```

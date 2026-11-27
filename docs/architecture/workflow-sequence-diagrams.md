@@ -10,7 +10,7 @@
 
 ## 📑 Danh Mục Sơ Đồ Tuần Tự (Sequence Diagrams Index)
 
-Tài liệu này bao quát toàn diện **9 luồng tương tác tuần tự** đại diện cho toàn bộ vòng đời sản xuất, kiểm định, xuất bản và tiêu thụ truyện tranh trên nền tảng PanelForge:
+Tài liệu này bao quát toàn diện **11 luồng tương tác tuần tự** đại diện cho toàn bộ vòng đời sản xuất, kiểm định, xuất bản và tiêu thụ truyện tranh trên nền tảng PanelForge:
 
 1. [Workflow 1: Tiền kỳ & Kịch bản — Soạn Thảo Chữ Thuần, Đồng Bộ Series Bible & Chốt Gate 1 (CF1 & Gate 1)](#workflow-1-tiền-kỳ--kịch-bản--soạn-thảo-chữ-thuần-đồng-bộ-series-bible--chốt-gate-1-cf1--gate-1)
 2. [Workflow 2: Phân Công & Sản Xuất Bàn Vẽ — Dựng Khung (Layout), Phác Thảo (Pencil) & Phân Nhánh Ink + Lettering (CF2)](#workflow-2-phân-công--sản-xuất-bàn-vẽ--dựng-khung-layout-phác-thảo-pencil--phân-nhánh-ink--lettering-cf2)
@@ -21,6 +21,8 @@ Tài liệu này bao quát toàn diện **9 luồng tương tác tuần tự** �
 7. [Workflow 7: Đề Xuất Kịch Bản AI Đa Tác Nhân (Multi-Agent AI Scripting & Brainstorming Workflow)](#workflow-7-đề-xuất-kịch-bản-ai-đa-tác-nhân-multi-agent-ai-scripting--brainstorming-workflow)
 8. [Workflow 8: Xử Lý Sửa Kịch Bản Muộn & Phân Tích Tác Động (Late Script Revision & Impact Review Flow - CF4)](#workflow-8-xử-lý-sửa-kịch-bản-muộn--phân-tích-tác-động-late-script-revision--impact-review-flow---cf4)
 9. [Workflow 9: Tải Lên Tài Nguyên Trực Tiếp CAS SHA-256 (Direct Upload & Pre-signed URL Flow)](#workflow-9-tải-lên-tài-nguyên-trực-tiếp-cas-sha-256-direct-upload--pre-signed-url-flow)
+10. [Workflow 10: Phân Vai Series Độc Lập (Spec D10) & Không Gian Làm Việc Xuyên Studio (Cross-Studio My Work Hub - UIQ-11q)](#workflow-10-phân-vai-series-độc-lập-spec-d10--không-gian-làm-việc-xuyên-studio-cross-studio-my-work-hub---uiq-11q)
+11. [Workflow 11: Đọc Duyệt Truyện Liên Tục & Bình Luận Ghim Toạ Độ Kèm Chuyển Đổi Vẽ Lại (Series Continuous Reader & Pinned Comments - UIQ-11r)](#workflow-11-đọc-duyệt-truyện-liên-tục--bình-luận-ghim-toạ-độ-kèm-chuyển-đổi-vẽ-lại-series-continuous-reader--pinned-comments---uiq-11r)
 
 ---
 
@@ -674,12 +676,103 @@ sequenceDiagram
 
 ---
 
+## Workflow 10: Phân Vai Series Độc Lập (Spec D10) & Không Gian Làm Việc Xuyên Studio (Cross-Studio My Work Hub - UIQ-11q)
+
+> **Mục tiêu:** Mô tả luồng phân tầng vai trò 2 cấp chuẩn hóa: Cấp Studio chỉ có `Producer` và `Member` (mời qua `InviteMemberModal`). Cấp Series phân quyền độc lập theo bảng `series_members` (`SeriesMembersModal`). Đồng thời cung cấp luồng tập hợp công việc đa studio (`/my-work`, `GET /api/me/work`) cho nghệ sĩ và biên tập viên.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Producer as 🎬 Producer (Studio Owner)
+    actor Member as 🎨 Member / Specialist (Artist/Editor)
+    participant FE as 🖥️ Studio Frontend (React 19)
+    participant API as ⚙️ Controllers (.NET 9)
+    participant MediatR as 📬 Application (CQRS)
+    participant DB as 🗄️ PostgreSQL
+
+    %% 1. Mời thành viên cấp Studio (Chỉ Producer hoặc Member)
+    Note over Producer,DB: 1. Mời thành viên vào Studio (Spec D10: Producer / Member)
+    Producer->>FE: Mở InviteMemberModal tại Studio Workspace
+    Producer->>FE: Nhập email, chọn vai trò Studio (Producer / Member)
+    FE->>API: POST /api/workspaces/{wId}/invitations { email, role: "Member" }
+    API->>DB: Lưu bản ghi workspace_members với WorkspaceRole = Member
+
+    %% 2. Thiết lập Ê-kíp chuyên môn theo từng Series
+    Note over Producer,DB: 2. Thiết lập ê-kíp chuyên môn độc lập cho Series
+    Producer->>FE: Mở SeriesMembersModal tại Series A
+    Producer->>FE: Chọn Member và gán vai trò chuyên môn (Writer, Artist, Letterer, Editor)
+    FE->>API: POST /api/series/{sId}/members { userId, role: "Artist" }
+    API->>MediatR: Send(new AssignSeriesMemberCommand(seriesId, userId, "Artist"))
+    MediatR->>DB: Lưu bản ghi series_members (Series-scoped ABAC)
+    MediatR-->>API: Result.Success()
+    API-->>FE: HTTP 200 { userId, seriesRole: "Artist" }
+
+    %% 3. Thành viên kiểm tra việc xuyên Studio (Cross-Studio My Work Hub)
+    Note over Member,FE: 3. Thành viên xem danh sách nhiệm vụ trên toàn bộ Studio
+    Member->>FE: Đăng nhập vào hệ thống -> Mở dải việc tại /workspaces hoặc vào /my-work
+    FE->>API: GET /api/me/work
+    API->>MediatR: Send(new GetMyWorkQuery(currentUserId))
+    MediatR->>DB: Truy vấn assignments đang Assigned / InProgress thuộc mọi Studio & Series
+    MediatR-->>API: Danh sách MyWorkTaskDto[] (nhóm theo Studio & Series)
+    API-->>FE: HTTP 200 [ { workspaceId, seriesId, chapterId, stage, role, targetUrl } ]
+    Member->>FE: Bấm chọn thẻ nhiệm vụ -> Điều hướng thẳng vào bàn vẽ / bàn duyệt
+```
+
+---
+
+## Workflow 11: Đọc Duyệt Truyện Liên Tục & Bình Luận Ghim Toạ Độ Kèm Chuyển Đổi Vẽ Lại (Series Continuous Reader & Pinned Comments - UIQ-11r)
+
+> **Mục tiêu:** Mô tả chế độ đọc duyệt truyện liên tục nhiều chương (`/workspaces/:wId/series/:sId/read`) dành cho Editor và Producer; ghim bình luận trực tiếp trên tọa độ `{pinX, pinY}` của từng trang và chuyển đổi bình luận thành lệnh vẽ lại (`ConvertCommentToReworkCommand`).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Reviewer as 🧐 Reviewer (Editor / Producer)
+    actor Artist as 🎨 Artist
+    participant FE as 🖥️ SeriesReaderView (Web)
+    participant API as ⚙️ Controllers (.NET 9)
+    participant MediatR as 📬 Application (CQRS)
+    participant DB as 🗄️ PostgreSQL
+    participant Hub as 📡 SignalR Hub
+
+    %% 1. Mở Continuous Reader
+    Note over Reviewer,FE: 1. Mở chế độ đọc liên tục theo ReadingDirection của Series
+    Reviewer->>FE: Điều hướng đến /workspaces/:wId/series/:sId/read
+    FE->>API: GET /api/series/{sId}/reading-stream (Chuỗi trang theo RTL=0 Manga / LTR=1 / Vertical=2)
+    API-->>FE: HTTP 200 { pages: [...], readingDirection: 0 }
+    FE->>FE: Khởi tạo Reader cuộn liên tục nhiều chương
+
+    %% 2. Ghim bình luận trên trang
+    Note over Reviewer,DB: 2. Nhấp chuột lên trang để ghim phản hồi theo tọa độ tương đối
+    Reviewer->>FE: Click lên tọa độ {pinX, pinY} trên ảnh trang -> Nhập nội dung nhận xét
+    FE->>API: POST /api/chapters/{chId}/pages/{pageId}/comments { pinX, pinY, commentText }
+    API->>MediatR: Send(new AddPinnedPageCommentCommand(pageId, pinX, pinY, commentText))
+    MediatR->>DB: Lưu bản ghi PinnedComment { page_id, pin_x, pin_y, text, author_id }
+    API-->>FE: HTTP 200 { commentId, pinX, pinY, createdAt }
+    FE->>FE: Hiển thị chấm tròn ghim cam trên bề mặt trang
+
+    %% 3. Chuyển đổi bình luận thành lệnh Rework
+    Note over Reviewer,Artist: 3. Chuyển đổi phản hồi thành ChangeRequest vẽ lại
+    Reviewer->>FE: Mở popup bình luận -> Bấm [Chuyển thành Rework]
+    FE->>API: POST /api/chapters/{chId}/pages/{pageId}/comments/{commentId}/convert-to-rework
+    API->>MediatR: Send(new ConvertCommentToReworkCommand(commentId))
+    MediatR->>DB: Xác định Panel bao tọa độ {pinX, pinY}
+    MediatR->>DB: Tạo ChangeRequest mới (Status: Open, Description = CommentText)
+    MediatR->>DB: Đánh dấu PinnedComment.is_converted = true
+    MediatR->>DB: Chuyển Panel.StageProgress -> ReworkRequired
+    MediatR->>Hub: Phát tín hiệu cảnh báo vẽ lại đến Artist
+    Hub-)Artist: SignalR: Yêu cầu vẽ lại mới gắn với tọa độ ghim trên trang
+    API-->>FE: HTTP 200 { changeRequestId, status: "Open" }
+```
+
+---
+
 ## 📌 Bảng Đối Chiếu Ma Trận Nghiệp Vụ & Quy Tắc Cốt Lõi
 
 | Quy trình (Workflow) | Tác tử chính (Actors) | Cổng chất lượng (Gate) | Mã băm / Định danh bất biến | Quy tắc nghiệp vụ (BR) liên đới |
 |---|---|---|---|---|
 | **Workflow 1: Tiền kỳ & Kịch bản** | Writer, Artist, Editor, Producer | **Gate 1** (Pre-Production Gate) | `ScriptVersion` (SHA-256), `SubmittedScriptManifest`, `CanonLocked` | BR-01, BR-06, BR-07, BR-15, BR-21, BR-35 |
-| **Workflow 2: Sản xuất Bàn vẽ** | Producer, Artist, Letterer | — | `PositionRecord {x,y,w,h}`, `GraphicAssetHash` | BR-05, BR-19, BR-20, BR-31, BR-34 |
+| **Workflow 2: Sản xuất Bàn vẽ** | Producer, Artist, Letterer | — | `PositionRecord {x,y,w,h}`, `GraphicAssetHash` | BR-05, BR-19, BR-20, BR-31 (Letterer miễn gate ảnh), BR-34 |
 | **Workflow 3: Kiểm định Gate 2** | Editor, Artist, Letterer | **Gate 2** (Quality & Composite) | Bounding Box $0..1$, `ChangeRequest` (group_id) | BR-06, BR-19, BR-26, OverlapRatio $\ge 15\%$ |
 | **Workflow 4: Nghiệm thu Gate 3** | Producer, Reviewer, Publisher | **Gate 3** (Release Gate) | `ChapterSnapshot` (SHA-256), `ChapterHandedOff` | BR-12, BR-18, BR-30, Watermark SVG |
 | **Workflow 5: Ấn bản Ngôn ngữ** | Letterer, Editor, Producer, Publisher | Gate Edition (Reviewed/Approved) | `EditionSnapshot` (current_published_snapshot_id) | BR-06, BR-12, BR-33, BR-34, Quyết định D1, D4, D5 |
@@ -687,6 +780,8 @@ sequenceDiagram
 | **Workflow 7: Kịch bản AI** | Writer, AI Orchestrator | Human-in-the-loop (Commit) | `ScriptVersion` (AiProposal), `AiWorkflowRun` | BR-02, BR-07, Quyết định Q25 |
 | **Workflow 8: Sửa Kịch bản Muộn** | Producer, Writer, Artist, Letterer | Gate 1 Re-approval | `FlagImpactReview` (⚑), `isStale` | BR-07, BR-12, Audit Log append-only |
 | **Workflow 9: Direct Upload CAS** | Artist, Client, Storage Worker | Hash Check Deduplication | Content-Addressed Storage (`SHA-256`) | Pre-signed URL, SixLabors Image Processing |
+| **Workflow 10: Phân vai & My Work Hub** | Producer, Member, Artist, Editor | Phân quyền Series-Scoped ABAC | `series_members`, `workspace_members` | Spec D10, UIQ-11q, `/my-work`, `GET /api/me/work` |
+| **Workflow 11: Continuous Reader & Pinned Comments** | Editor, Producer, Artist | Review Gate / Pin Coordinates | `{pinX, pinY}`, `ChangeRequest` | UIQ-11r, `ConvertCommentToRework`, `/series/:id/read` |
 
 ---
 *(Hết tài liệu Sơ đồ tuần tự các luồng nghiệp vụ cốt lõi PanelForge V2.6)*

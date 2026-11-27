@@ -28,10 +28,15 @@ SEP490-PanelForge/                     <-- Mở IDE / AI Agent tại cấp thư 
 ├── panelforge-hub/                    <-- [Git Repo 4] SSOT Docs, Agent Skills & Web Hub
 │   ├── .agents/                       # AI Agent Skills, Rules, Worktree Scripts dùng chung
 │   ├── .vscode/ & CLAUDE.md           # Cấu hình workspace và prompt rules trung tâm
-│   ├── docs/                          # Hệ thống tài liệu tập trung:
+│   ├── docs/                          # Hệ thống tài liệu tập trung (SSOT):
+│   │   ├── README.md                  # Bản đồ tri thức hệ thống chi tiết (System Knowledge Map)
 │   │   ├── STRUCTURE_GUIDE.md         # Quy chuẩn tổ chức thư mục & SSOT
-│   │   ├── note/                      # Kế hoạch triển khai (Implementation Plan, plans/ theo module)
-│   │   └── V2.6/                      # Bản sao đặc tả V2.6, file Excel Requirements Specification
+│   │   ├── V2.6/                      # Master Spec V2.6 Final (Bản đặc tả tối cao)
+│   │   ├── spec/                      # Quy chuẩn kịch bản, UI/UX Design Rules, Screen Inventory
+│   │   ├── standards/                 # Ubiquitous Language, State Machines, Branching, Testing Matrix, Component Immutability
+│   │   ├── architecture/              # Clean Architecture, Sequence Diagrams, Flows & Exception Handling, Storage, Deployment
+│   │   ├── note/                      # Kế hoạch triển khai (Implementation Plan, plans/ 01-09, Sidebar Convention, Proposals)
+│   │   └── tracking/                  # Bảng theo dõi nhóm (TEAM_WORKBOARD.md), Audit Logs, Báo cáo tiến độ
 │   ├── scripts/                       # sync-hub.mjs, install-hooks.mjs (tự động đồng bộ commit)
 │   └── web/                           # Source code web viewer PanelForge Hub (React 19 + Vite)
 │

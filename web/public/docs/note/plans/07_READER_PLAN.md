@@ -12,6 +12,8 @@
 |---|---|
 | Catalog công khai, đọc chương đã phát hành (Web + Mobile) | `CatalogController`, `PublicReaderQueries.cs`, FE `PublicCatalogView.tsx`, mobile `comic_reader_page.dart` |
 | Ví, nạp tiền, mở khoá chương trả phí, thanh toán Workspace | `Features/Payments/*`, `WalletController`, `WorkspacePaymentsController`, mobile `monetization_service.dart` (commit `e63d565`) |
+| Chuẩn hoá Enum hướng đọc `ReadingDirection` (UIQ-11l) | `0 = RightToLeft` (Manga, mặc định), `1 = LeftToRight` (Webtoon/Western), `2 = Vertical` (cuộn dọc) |
+| Series Continuous Reader nội bộ Studio (UIQ-11r) | `/workspaces/:workspaceId/series/:seriesId/read`, FE `SeriesReaderView.tsx`, chế độ đọc duyệt cuộn liền mạch nhiều chương |
 
 Chưa có: số liệu đọc chi tiết (hoàn thành, thời gian, nền tảng, ngôn ngữ), đánh giá thật (mobile `comic_model.dart:229` rating cứng 4.9), báo cáo doanh thu từ Publisher, chọn ngôn ngữ đọc.
 

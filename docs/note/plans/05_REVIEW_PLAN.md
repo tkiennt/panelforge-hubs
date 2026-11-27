@@ -19,7 +19,9 @@
 | Bố cục duyệt chung cho mọi cổng Editor (bài nộp ở giữa, tab Notes / Checks, thanh Return / Approve), mảnh dùng chung `review-shared/` (`ReasonForm`, `DecisionBar`, trạng thái CR, nháp theo bài nộp) | FE `roles/editor/views/review-shared/*` |
 | Duyệt artwork Page/Panel: bài nộp hiện tại, so sánh side-by-side với bài đã quyết lần trước, khoanh vùng dạng nháp, verify / reopen / drop, triage nhất quán, impact review | FE `ReviewView.tsx` |
 | Duyệt kịch bản: ghi chú dòng/scene thành CR có neo (`SceneId`, `ScriptLineId`, `QuotedText`) | FE `ScriptReviewView.tsx` |
+| Comic reader review mode cho Editor trong `ScriptReviewView` (UIQ-11o) | FE `ScriptReviewView.tsx` tích hợp chế độ đọc truyện kiểm định |
 | Duyệt thiết kế Bible cho Editor (`editor/bible`) | FE `BibleReviewView.tsx` |
+| Series Continuous Reader & Ghim nhận xét toạ độ (UIQ-11r) | `/workspaces/:wId/series/:sId/read`, `SeriesReaderView.tsx`, `POST /api/chapters/{chId}/pages/{pageId}/comments`, `ConvertCommentToReworkCommand` |
 
 ## 2. Task
 

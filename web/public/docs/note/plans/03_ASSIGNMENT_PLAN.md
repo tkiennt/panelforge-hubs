@@ -16,6 +16,9 @@
 | Ghi theo phạm vi việc (403 ngoài phạm vi) | `Assignments/Common/WorkScopeGuard.cs`, dùng trong mọi handler CanvasElements |
 | Chuyển phạm vi giữa chừng + chuyển CR (BR-30) | `TransferAssignmentScopeCommand`, `ChangeRequest.TransferTo`, FE `CreateAssignmentModal.tsx:900` |
 | Cờ ảnh hưởng ⚑ + Keep/Rework | `StageProgressRules.FlagImpactedWorkAsync`, `ResolveImpactReviewCommand` |
+| Phân tầng thành viên 2 cấp & Gán vai trò theo Series (Spec D10) | Studio chỉ mời `Producer`/`Member` (`InviteMemberModal`); Series phân vai độc lập (`series_members`, `SeriesMembersModal`, `GetSeriesMemberRoleAsync`) |
+| Cross-Studio My Work Hub (UIQ-11q) | `GET /api/me/work`, view `/my-work` (`MyWorkHubView.tsx`), dải nhiệm vụ cá nhân tại `/workspaces` |
+| Miễn gate ảnh cho công đoạn Lettering của Artist (BR-31) | `f433c00` skip artwork gate, chỉ kiểm soát balloon/dialogue |
 
 ## 2. Task
 

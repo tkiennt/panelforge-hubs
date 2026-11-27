@@ -191,7 +191,10 @@ Hệ thống giải quyết bài toán từ 1 đến $N$ họa sĩ thông qua c�
 
 * **Actor:** Administrator, Producer, Writer, Artist.
 * **Luồng chi tiết:**
-  1. **Thiết lập Studio & Series:** Producer tạo Workspace, tạo Series (cấu hình hướng đọc RTL, LTR hoặc Vertical), mời các thành viên vào Workspace theo 5 vai trò nội bộ (Producer, Writer, Artist, Letterer, Editor).
+  1. **Thiết lập Studio & Series (Phân tầng vai trò Spec D10):**
+     - Producer tạo Workspace, mời thành viên vào Studio với vai trò quản trị `Producer` hoặc thành viên chung `Member` (`InviteMemberModal`).
+     - Tiếp đó tạo Series (cấu hình hướng đọc `RightToLeft=0` Manga, `LeftToRight=1` Comic/Webtoon, hoặc `Vertical=2`).
+     - Thiết lập ê-kíp sản xuất cho Series theo các vai trò chuyên môn (`Producer`, `Writer`, `Artist`, `Letterer`, `Editor` qua `SeriesMembersModal`). Quyền tác vụ trong Series được xác thực theo `series_members` (`GetSeriesMemberRoleAsync`).
   2. **Soạn Kịch bản Độc lập & Phân biệt Nhân vật Chính / Quần chúng:**
      - Writer chủ động tạo và viết kịch bản chương theo cấu trúc `Trang dự kiến -> Panel -> Nội dung` mà không cần chờ Producer giao thẻ việc.
      - Kịch bản là **chữ thuần** (Q16): không có cú pháp `@`, không chọn người nói từ Bible. Tên nhân vật viết bình thường; người nói ghi ở trường người nói của dòng thoại (`speaker_label`).
