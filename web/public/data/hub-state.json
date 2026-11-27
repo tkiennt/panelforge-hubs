@@ -1,8 +1,107 @@
 {
-  "lastSyncedAt": "2026-11-27T12:51:53.738Z",
+  "lastSyncedAt": "2026-11-27T12:52:05.576Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-FE-b4f35aa8fb0837b4cfb419cd76282d96b555b999",
+      "timestamp": "2026-11-27T14:25:37+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "b4f35aa8fb0837b4cfb419cd76282d96b555b999",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b4f35aa8fb0837b4cfb419cd76282d96b555b999",
+      "message": "style(collaboration): unify artist and writer my-work theme",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-abe67521eb4127d7e008be6e4aa033362021f827",
+      "timestamp": "2026-11-27T14:31:32+07:00",
+      "repo": "FE",
+      "author": "Bùi ngọc Tâm",
+      "commitHash": "abe67521eb4127d7e008be6e4aa033362021f827",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/abe67521eb4127d7e008be6e4aa033362021f827",
+      "message": "Merge pull request #18 from tkiennt/feature/assign-automation",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-f25f52f859ead07bb89527eeade8715b8e259d05",
+      "timestamp": "2026-11-27T15:19:23+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "f25f52f859ead07bb89527eeade8715b8e259d05",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f25f52f859ead07bb89527eeade8715b8e259d05",
+      "message": "refactor(producer): redesign producer workspace layout and task grid",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-691a1e8ee8655fb5bc3bea6117156f0a80f33ce6",
+      "timestamp": "2026-11-27T15:19:30+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "691a1e8ee8655fb5bc3bea6117156f0a80f33ce6",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/691a1e8ee8655fb5bc3bea6117156f0a80f33ce6",
+      "message": "refactor(producer): merge producer workspace redesign into THBMinh",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-2d38f479e490ffc8c33a182b55a9734068545b21",
+      "timestamp": "2026-11-27T15:28:49+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "2d38f479e490ffc8c33a182b55a9734068545b21",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/2d38f479e490ffc8c33a182b55a9734068545b21",
+      "message": "fix(producer): fix export tabs props and format redesigned views",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-26ab44a9859c3949b35a5d50754c98de999626b0",
+      "timestamp": "2026-11-27T15:34:51+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "26ab44a9859c3949b35a5d50754c98de999626b0",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/26ab44a9859c3949b35a5d50754c98de999626b0",
+      "message": "fix(publisher): resolve edition status narrowing and stale i18n test",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-1c0035dba8d8cfa9871be404c88e315c274e43af",
+      "timestamp": "2026-11-27T15:39:59+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "1c0035dba8d8cfa9871be404c88e315c274e43af",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1c0035dba8d8cfa9871be404c88e315c274e43af",
+      "message": "test(publisher): match edition language tab by code in manage view",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-FE-f26115122a4567963dad9626f9a5ca8a2701d958",
+      "timestamp": "2026-11-27T15:46:00+07:00",
+      "repo": "FE",
+      "author": "MinhTHB",
+      "commitHash": "f26115122a4567963dad9626f9a5ca8a2701d958",
+      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/f26115122a4567963dad9626f9a5ca8a2701d958",
+      "message": "chore(merge): sync origin/dev into THBMinh",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-a58b5d271d15290e25ce2f29ef5211b8083b324b",
+      "timestamp": "2026-11-27T16:58:41+07:00",
+      "repo": "BE",
+      "author": "MinhTHB",
+      "commitHash": "a58b5d271d15290e25ce2f29ef5211b8083b324b",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/a58b5d271d15290e25ce2f29ef5211b8083b324b",
+      "message": "feat(review): add page comments with rework conversion for producers",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-91b5aafe427d960c67b1ef14ce3c96ebb2c3f031",
       "timestamp": "2026-11-27T09:46:17+07:00",
@@ -1551,105 +1650,6 @@
       "commitHash": "1361b3705a2472429dfa061e034faace1d9a4fac",
       "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/1361b3705a2472429dfa061e034faace1d9a4fac",
       "message": "Merge remote-tracking branch 'origin/THBMinh' into feature/assign-automation",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-3b7b3f1b63527a551b0bd5e28eb9fbcf929b44c6",
-      "timestamp": "2026-11-27T17:50:23+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "3b7b3f1b63527a551b0bd5e28eb9fbcf929b44c6",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/3b7b3f1b63527a551b0bd5e28eb9fbcf929b44c6",
-      "message": "chore(merge): merge origin/feature/assign-automation into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-8deecc3cb8db89fdb577b36045a025a57958f60a",
-      "timestamp": "2026-11-26T19:59:49+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "8deecc3cb8db89fdb577b36045a025a57958f60a",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/8deecc3cb8db89fdb577b36045a025a57958f60a",
-      "message": "Merge remote-tracking branch 'origin/trungkien' into feature/ai-rule-parity",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-eb9eac7ca98eed40c03be6b144f0ecb0fa7cd330",
-      "timestamp": "2026-11-26T20:19:15+07:00",
-      "repo": "BE",
-      "author": "chinsuhdh",
-      "commitHash": "eb9eac7ca98eed40c03be6b144f0ecb0fa7cd330",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/eb9eac7ca98eed40c03be6b144f0ecb0fa7cd330",
-      "message": "fix(migration): drop old bible revision index before renumbering",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-82facc0a74a0f261866b351be420275b41feb50d",
-      "timestamp": "2026-11-27T10:27:57+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "82facc0a74a0f261866b351be420275b41feb50d",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/82facc0a74a0f261866b351be420275b41feb50d",
-      "message": "chore(deploy): let bootstrap.sh run on azure ubuntu vms",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-c336e4cab26df2e0683c1d6811fc78fc4619785f",
-      "timestamp": "2026-11-27T10:30:32+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "c336e4cab26df2e0683c1d6811fc78fc4619785f",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/c336e4cab26df2e0683c1d6811fc78fc4619785f",
-      "message": "chore(deploy): deploy the main branch now that stg is gone",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-2947146c2828ece2cca24bd703185c7865b4d27c",
-      "timestamp": "2026-11-27T10:44:16+07:00",
-      "repo": "BE",
-      "author": "DontPassAway",
-      "commitHash": "2947146c2828ece2cca24bd703185c7865b4d27c",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2947146c2828ece2cca24bd703185c7865b4d27c",
-      "message": "chore(deploy): run test (dev) and production (main) side by side",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-2a24f746d30a5de386ba64d88fde22b296c95111",
-      "timestamp": "2026-11-27T11:09:40+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "2a24f746d30a5de386ba64d88fde22b296c95111",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/2a24f746d30a5de386ba64d88fde22b296c95111",
-      "message": "Merge remote-tracking branch 'origin/Danh' into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-f0ca44f65ea7c42019dd5bc4a16c4c4cd851cee7",
-      "timestamp": "2026-11-27T11:10:24+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "f0ca44f65ea7c42019dd5bc4a16c4c4cd851cee7",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/f0ca44f65ea7c42019dd5bc4a16c4c4cd851cee7",
-      "message": "Merge remote-tracking branch 'origin/feature/ai-rule-parity' into trungkien",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-b0cd597b1f81155eec64b8eee86c3e6f20431b89",
-      "timestamp": "2026-11-27T14:21:07+07:00",
-      "repo": "FE",
-      "author": "chinsuhdh",
-      "commitHash": "b0cd597b1f81155eec64b8eee86c3e6f20431b89",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/b0cd597b1f81155eec64b8eee86c3e6f20431b89",
-      "message": "feat(ui): move studio hub tabs out of header and restyle overview",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }
