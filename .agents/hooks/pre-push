@@ -14,9 +14,19 @@ do
     # Extract branch name from refs/heads/<branch>
     BRANCH_NAME="${REMOTE_REF#refs/heads/}"
 
-    # Protect dev, main, master
+    # Process branch rules
     case "$BRANCH_NAME" in
-        main|master|dev)
+        dev)
+            # 1. Prevent branch deletion
+            if [ "$LOCAL_SHA" = "$ZERO_SHA" ]; then
+                echo "❌ [PanelForge Git Guard] CẢNH BÁO: TUYỆT ĐỐI CẤM XOÁ NHÁNH TÍCH HỢP 'dev'!" >&2
+                exit 1
+            fi
+            # 2. Allow direct push to dev without Pull Request
+            echo "ℹ️  [PanelForge Git Guard] Cho phép thành viên merge & push trực tiếp vào nhánh 'dev' (không bắt buộc Pull Request)." >&2
+            continue
+            ;;
+        main|master|stg)
             # 1. Prevent branch deletion
             if [ "$LOCAL_SHA" = "$ZERO_SHA" ]; then
                 echo "❌ [PanelForge Git Guard] CẢNH BÁO: TUYỆT ĐỐI CẤM XOÁ NHÁNH PROTECTED '$BRANCH_NAME'!" >&2
@@ -35,11 +45,11 @@ do
             echo "❌ [PanelForge Git Guard] LỆNH PUSH BỊ CHẶN: KHÔNG THỂ PUSH TRỰC TIẾP LÊN '$BRANCH_NAME'!" >&2
             echo "==========================================================================================" >&2
             echo "  Dự án PanelForge áp dụng quy chuẩn bảo vệ nhánh nghiêm ngặt (Protected Branch Policy):" >&2
-            echo "    - 'dev'  : Tích hợp chung từ {work-branch} qua PR hoặc script promote sau Fast Build." >&2
-            echo "    - 'main' : Production chính thức, chỉ nhận promote từ 'dev' sau nghiệm thu." >&2
+            echo "    - 'stg'  : Staging môi trường kiểm thử, chỉ nhận promote từ 'dev' sau khi đóng Sprint." >&2
+            echo "    - 'main' : Production chính thức, chỉ nhận promote từ 'stg' sau nghiệm thu UAT." >&2
             echo "" >&2
-            echo "  👉 NẾU BẠN LÀ AI AGENT:" >&2
-            echo "     Tuyệt đối KHÔNG tự ý push lên nhánh này. Hãy commit trên {work-branch} và thông báo User." >&2
+            echo "  👉 NẾU BẠN LÀ AI AGENT HOẶC DEV:" >&2
+            echo "     Hãy merge vào 'dev' trước. Chỉ promote sang 'stg'/'main' khi có yêu cầu chính thức." >&2
             echo "" >&2
             echo "  👉 NẾU BẠN LÀ LEAD / DEV CẦN PROMOTE HỢP LỆ:" >&2
             echo "     1. Sử dụng script tự động có kiểm định:" >&2

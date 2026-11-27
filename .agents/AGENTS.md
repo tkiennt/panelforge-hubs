@@ -91,20 +91,22 @@ flowchart LR
     STG["Cấp 3: stg<br/>(Staging / Pre-prod)"]
     MAIN["Cấp 4: main<br/>(Production Release)"]
 
-    WB -->|PR hoặc promote_branch.ps1<br/>Gate 1: Fast Build / Typecheck| DEV
+    WB -->|Merge trực tiếp / promote_branch.ps1<br/>Gate 1: Fast Build / Typecheck (Không cần PR)| DEV
     DEV -->|Đóng Sprint / Lead duyệt<br/>Gate 2: Staging Gate| STG
     STG -->|Nghiệm thu UAT 100%<br/>Gate 3: Release Tag vX.Y.Z| MAIN
 ```
 
 ### 4 Quy tắc Bất Di Bất Dịch cho AI Agent (Zero-Tolerance Guardrails):
-1. 🛡️ **TUYỆT ĐỐI CẤM code hoặc commit trực tiếp trên `dev`, `stg`, `main`:**
+1. 🛡️ **TUYỆT ĐỐI CẤM code hoặc commit trực tiếp trên `stg`, `main`:**
    - Được bảo vệ vật lý qua Git hook `commit-msg`. Mọi lệnh `git commit` trực tiếp trên các nhánh này sẽ bị hook từ chối trừ khi là merge commit hợp lệ.
-2. 🛡️ **TUYỆT ĐỐI CẤM tự ý push lên `dev`, `stg`, `main`:**
-   - Được bảo vệ vật lý qua Git hook `pre-push`. Mọi lệnh `git push` trực tiếp lên `dev`, `stg`, `main` sẽ bị chặn ngay lập tức.
+2. 🛡️ **Quy tắc đẩy mã nguồn lên `dev`, `stg`, `main`:**
+   - **Nhánh `dev`:** Cho phép các thành viên và AI Agent merge trực tiếp từ `{work-branch}` vào `dev` và push lên `origin/dev` mà **KHÔNG CẦN mở Pull Request** (yêu cầu bắt buộc phải pass Fast Build Gate trước khi merge).
+   - **Nhánh `stg`, `main`:** Được bảo vệ vật lý qua Git hook `pre-push`. Tuyệt đối không tự ý push trực tiếp lên `stg`, `main` mà phải qua quy trình promote nghiệm thu.
 3. 🛡️ **TUYỆT ĐỐI CẤM force push (`--force`, `-f`):**
    - Không được phép dùng force push trên bất kỳ nhánh chia sẻ nào.
 4. 🚀 **KHI NGƯỜI DÙNG YÊU CẦU MERGE / PROMOTE:**
-   - Nếu User yêu cầu gộp `{work-branch}` vào `dev`, hoặc promote `dev -> stg`, hoặc promote `stg -> main`, Agent **phải sử dụng script tự động hóa**:
+   - **Gộp vào `dev`:** Cho phép merge trực tiếp từ `{work-branch}` vào `dev` (qua `promote_branch.ps1 -From <Nguon> -To dev -Push` hoặc Git CLI thủ công) mà không cần mở PR.
+   - **Promote `dev -> stg` hoặc `stg -> main`:** Phải sử dụng script tự động hóa có thẩm định:
      ```powershell
      powershell -File panelforge-hub/.agents/scripts/promote_branch.ps1 -From <Nguon> -To <Dich> -Push
      ```

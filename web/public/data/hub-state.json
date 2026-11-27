@@ -1,8 +1,63 @@
 {
-  "lastSyncedAt": "2026-11-27T11:29:32.630Z",
+  "lastSyncedAt": "2026-11-27T11:33:23.351Z",
   "diagrams": [],
   "tasks": [],
   "syncLogs": [
+    {
+      "id": "sync-MOBILE-bfc3e3c6861936efb2382e916b609ab0ccf9284a",
+      "timestamp": "2026-11-24T16:07:06+07:00",
+      "repo": "MOBILE",
+      "author": "MinhTHB",
+      "commitHash": "bfc3e3c6861936efb2382e916b609ab0ccf9284a",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/bfc3e3c6861936efb2382e916b609ab0ccf9284a",
+      "message": "Merge branch 'baominh'",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-MOBILE-c4eb08f86dbd754458d7d89a3404158ce52f3758",
+      "timestamp": "2026-11-25T10:06:39+07:00",
+      "repo": "MOBILE",
+      "author": "trung kien",
+      "commitHash": "c4eb08f86dbd754458d7d89a3404158ce52f3758",
+      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/c4eb08f86dbd754458d7d89a3404158ce52f3758",
+      "message": "chore(merge): sync origin/main into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-bd1cee16c481cc206540b6573bbd90a26f9f3626",
+      "timestamp": "2026-11-26T22:30:53+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "bd1cee16c481cc206540b6573bbd90a26f9f3626",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/bd1cee16c481cc206540b6573bbd90a26f9f3626",
+      "message": "fix(bible): drop legacy version index before renumbering",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-a354917ac6f104e670b432b36f66fd5599e18222",
+      "timestamp": "2026-11-27T11:08:53+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "a354917ac6f104e670b432b36f66fd5599e18222",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/a354917ac6f104e670b432b36f66fd5599e18222",
+      "message": "Merge remote-tracking branch 'origin/main' into trungkien",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
+    {
+      "id": "sync-BE-3ca770bc2c30b3b14be20fd6653f78833db21a73",
+      "timestamp": "2026-11-27T11:42:34+07:00",
+      "repo": "BE",
+      "author": "trung kien",
+      "commitHash": "3ca770bc2c30b3b14be20fd6653f78833db21a73",
+      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/3ca770bc2c30b3b14be20fd6653f78833db21a73",
+      "message": "fix(panels): guard panel creation during PreProduction",
+      "affectedTaskIds": [],
+      "affectedDiagramIds": []
+    },
     {
       "id": "sync-FE-5295b779be1e17cdab60de1867d8a276261bcbc3",
       "timestamp": "2026-11-27T13:55:07+07:00",
@@ -1595,61 +1650,6 @@
       "commitHash": "39dc48ab54f1078970a7f12835cab3faa92df376",
       "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/39dc48ab54f1078970a7f12835cab3faa92df376",
       "message": "fix(mobile): prepare android release for google play",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-bf8cd80e05083cac938bb23666d862e6c233ffea",
-      "timestamp": "2026-11-24T15:12:44+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "bf8cd80e05083cac938bb23666d862e6c233ffea",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/bf8cd80e05083cac938bb23666d862e6c233ffea",
-      "message": "Merge branch 'baominh'",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-MOBILE-f6b1bffeb054c14c4c22a49533919c9b31777581",
-      "timestamp": "2026-11-24T16:07:02+07:00",
-      "repo": "MOBILE",
-      "author": "MinhTHB",
-      "commitHash": "f6b1bffeb054c14c4c22a49533919c9b31777581",
-      "commitUrl": "https://github.com/tranbaoming/panelforge-mobile/commit/f6b1bffeb054c14c4c22a49533919c9b31777581",
-      "message": "fix(mobile): drop VietQR wording on android for google play policy",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-7ce0311c6d69dbadc852a617e63290c429970d7b",
-      "timestamp": "2026-11-27T11:09:26+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "7ce0311c6d69dbadc852a617e63290c429970d7b",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/7ce0311c6d69dbadc852a617e63290c429970d7b",
-      "message": "feat(ui): add sidebar theme support and package test scripts",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-FE-286aba9031d5bbcfe43783d98b87cb1c2490bd87",
-      "timestamp": "2026-11-27T12:10:08+07:00",
-      "repo": "FE",
-      "author": "trung kien",
-      "commitHash": "286aba9031d5bbcfe43783d98b87cb1c2490bd87",
-      "commitUrl": "https://github.com/tkiennt/panelforge-fe/commit/286aba9031d5bbcfe43783d98b87cb1c2490bd87",
-      "message": "fix(script): sync panels on load and add save button on sheet",
-      "affectedTaskIds": [],
-      "affectedDiagramIds": []
-    },
-    {
-      "id": "sync-BE-1471607faebe832855111aab3a4562c0a8e69f35",
-      "timestamp": "2026-11-25T20:24:32+07:00",
-      "repo": "BE",
-      "author": "trung kien",
-      "commitHash": "1471607faebe832855111aab3a4562c0a8e69f35",
-      "commitUrl": "https://github.com/DontPassAway/PanelForge_FA26SE251/commit/1471607faebe832855111aab3a4562c0a8e69f35",
-      "message": "chore(release): promote branch 'dev' into 'main'",
       "affectedTaskIds": [],
       "affectedDiagramIds": []
     }

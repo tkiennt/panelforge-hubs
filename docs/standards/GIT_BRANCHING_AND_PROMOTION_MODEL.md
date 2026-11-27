@@ -32,11 +32,11 @@ flowchart LR
         MAIN["main<br/>(Phiên bản Stable & Release Tags)"]
     end
 
-    WB_Kien -->|PR / Fast Build Gate| DEV
-    WB_Minh -->|PR / Fast Build Gate| DEV
-    WB_Danh -->|PR / Fast Build Gate| DEV
-    WB_Hoa -->|PR / Fast Build Gate| DEV
-    WB_Feature -->|PR / Fast Build Gate| DEV
+    WB_Kien -->|Fast Build Gate (Trực tiếp / PR)| DEV
+    WB_Minh -->|Fast Build Gate (Trực tiếp / PR)| DEV
+    WB_Danh -->|Fast Build Gate (Trực tiếp / PR)| DEV
+    WB_Hoa -->|Fast Build Gate (Trực tiếp / PR)| DEV
+    WB_Feature -->|Fast Build Gate (Trực tiếp / PR)| DEV
 
     DEV -->|Sprint Freeze & Staging Gate| STG
     STG -->|Lead Approval & Tagging| MAIN
@@ -47,7 +47,7 @@ flowchart LR
 | Cấp độ | Tên nhánh | Mục đích sử dụng | Ai có quyền commit/merge? | Điều kiện bảo vệ (Protection) |
 |---|---|---|---|---|
 | **Cấp 1** | `{work-branch}`<br/>(`trungkien`, `THBMinh`, `Danh`, `feature/*`) | Không gian làm việc cá nhân của dev và AI Agent. Mọi dòng code, thử nghiệm, refactor diễn ra tại đây. | Thành viên sở hữu nhánh, AI Agent của máy đó. | Không push lên nhánh của người khác. Commit theo Conventional Commits. |
-| **Cấp 2** | `dev` | Nhánh tích hợp chung (Development / Integration). Nơi các thành viên gộp code sau khi hoàn thành tính năng. | Cả nhóm (qua Pull Request hoặc merge có kiểm định). | **PROTECTED.** Cấm commit code trực tiếp. Cấm push không kiểm định. Phải pass Fast Build Gate. |
+| **Cấp 2** | `dev` | Nhánh tích hợp chung (Development / Integration). Nơi các thành viên gộp code sau khi hoàn thành tính năng. | Cả nhóm. **Cho phép merge trực tiếp từ `{work-branch}` và push lên `dev` mà KHÔNG CẦN mở Pull Request**. | Phải pass Fast Build Gate trước khi merge. Chống xoá nhánh `dev`. |
 | **Cấp 3** | `stg` | Nhánh môi trường Staging (Pre-production). Triển khai kiểm thử E2E, UAT, diễn tập demo đồ án, kiểm tra chéo BE-FE-Mobile. | Tech Lead / Repo Owner. | **PROTECTED.** Cấm commit code trực tiếp. Chỉ nhận promote từ `dev` (hoặc `hotfix/*`). |
 | **Cấp 4** | `main` | Nhánh phát hành chính thức (Production). Chứa code ổn định nhất, phiên bản báo cáo/bảo vệ tốt nghiệp. | Tech Lead duy nhất. | **PROTECTED.** Cấm commit code trực tiếp. Chỉ nhận promote từ `stg`. Gắn thẻ phiên bản `vX.Y.Z`. |
 
@@ -63,12 +63,20 @@ flowchart LR
   3. Mobile: `flutter analyze` không có lỗi nghiêm trọng.
   4. Lịch sử commit tuân thủ `note/GIT_COMMIT_CONVENTION.md`.
   5. Xung đột mã nguồn (Merge conflicts) phải được giải quyết tại nhánh cá nhân trước khi merge.
-- **Thực thi:**
-  - Qua GitHub Pull Request (khuyến nghị cho nhóm).
-  - Hoặc bằng script tự động:
+- **Thực thi (Không bắt buộc mở Pull Request):**
+  - **Cách 1: Sử dụng script tự động có kiểm định Fast Build (Khuyến nghị):**
     ```powershell
     powershell -File panelforge-hub/.agents/scripts/promote_branch.ps1 -From trungkien -To dev -Push
     ```
+  - **Cách 2: Merge trực tiếp bằng Git CLI thủ công (sau khi đã build pass):**
+    ```bash
+    git checkout dev
+    git pull origin dev
+    git merge trungkien --no-ff -m "feat(integration): merge branch 'trungkien' into 'dev'"
+    git push origin dev
+    git checkout trungkien
+    ```
+  - **Cách 3: Qua GitHub Pull Request** (tùy chọn nếu thành viên có nhu cầu review đồng cấp qua web).
 
 ### 🔹 Giai đoạn 2: Từ `dev` vào `stg` (Đóng băng Sprint & Kiểm thử Staging)
 - **Khi nào thực hiện:** Khi toàn bộ các tính năng trong Sprint hoặc Milestone đã được merge vào `dev`, chuẩn bị đưa lên môi trường Staging để kiểm thử chéo và diễn tập.
