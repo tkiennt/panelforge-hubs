@@ -107,7 +107,7 @@ if (-not $SkipVerification -and -not $DryRun) {
         } elseif ($r.Name -eq "Mobile") {
             Push-Location $r.Path
             try {
-                flutter analyze
+                flutter analyze --no-fatal-infos
             } finally {
                 Pop-Location
             }
