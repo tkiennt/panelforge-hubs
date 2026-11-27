@@ -113,6 +113,52 @@ Mục tiêu: Thực hiện luồng điều hướng chuẩn Spec §5.3, tách b�
 - [x] **UIQ-11r [BE + FE] Series Continuous Reader & Pinned Page Comments:** Route `/series/:seriesId/read` cho Producer và Editor đọc liên tục các trang của mọi chương trong bộ truyện; ghim bình luận theo tọa độ `{pinX, pinY}` trên trang tranh; Producer có thể chuyển trực tiếp bình luận thành yêu cầu làm lại (`ConvertCommentToRework`).
 - [x] **UIQ-11s [FE] Sửa lỗi Producer Workspace P1:** Series Bible thêm `min-w-0` và popover menu chống tràn ở 1024-1440px; Action Center tổng hợp việc quá hạn/cần sửa/chưa giao từ `readiness.production`; Review & Handoff nhận `chapterId` từ URL và thông báo lý do chặn đóng gói.
 
+##### UIQ-11 — chi tiết thực hiện trên nhánh `Danh` (phản hồi kiểm thử 2026-11-27)
+
+Nguồn: danh sách lỗi người dùng gửi 2026-11-27 sau khi gộp `trungkien` vào `Danh`. Làm tuần tự theo đợt; đợt sau chỉ bắt đầu khi đợt trước đã typecheck và commit trên `{work-branch}`.
+
+**Đợt 1 — Lỗi chặn thao tác**
+- [x] 11a [FE] Studio Hub: không thoát ra được màn chọn studio. Spec §5.3 Bước 2: đăng nhập xong vào `/workspaces` (WorkspaceListView), không tự vào studio gần nhất; nút "Xem tất cả Studio" phải về được màn này. Đã sửa: login luôn về `/workspaces`, logo màn studio về `/workspaces`.
+- [x] 11b [FE] Studio Hub: dropdown StudioSwitcher không hiện danh sách — `<nav>` trong `AppShell` có `truncate` (overflow hidden) cắt mất dropdown; đổi sang `min-w-0`. Còn kiểm tra trường hợp danh sách rỗng lần mở đầu.
+- [x] 11c [FE] Producer: màn chương trống không mở được modal tạo chương (early return trước khi render modal); đổi nhãn "Tạo chương đầu tiên" → "Tạo chương".
+- [x] 11d [FE] Producer: bấm tên bộ truyện trên header nhảy vào tab Sản xuất — về Dashboard của Series (§5.3 Bước 4). Đã sửa: `defaultRoute` Producer = `chapters`.
+- [x] 11e [FE] Artist: bỏ nút "Bắt đầu làm" (đọc code BE xác nhận nộp bài không phụ thuộc bước start trước khi xoá). BE bắt buộc InProgress trước khi nộp → bàn vẽ tự gọi start khi mở ô đến lượt, bỏ nút. Còn nút "Bắt đầu làm" ở `TaskEditorView` (Production Workspace) chưa đụng.
+
+**Đợt 2 — UI nhỏ Series Bible (Writer)**
+- [x] 11f [FE] Tạo Series Bible từ action trong màn kịch bản bị UI che lấp. Đã sửa: `BibleRefFloatingMenu` render qua portal ra `body`, kẹp vị trí trong màn hình.
+- [x] 11g [FE] Sửa modal tạo biến thể tạo hình (`stageName`, BR-15). Đã sửa: ẩn nút chuyển chế độ khi mở để tạo biến thể mới, bỏ phụ đề "Chưa đặt nhãn", tên mục chỉ đọc (Q16), thêm ô `Age` cho Nhân vật.
+- [x] 11h [FE] Thay hiển thị "Era" bằng biến thể tạo hình + `Age` (BR-15 thay Era Versioning; `BibleDetails` chỉ còn `Age`, `ArtistNotes`). Đã sửa: thẻ hiện nhãn biến thể (mặc định "Mặc định") + tuổi; panel chi tiết đọc `BibleDetails.Age`.
+
+**Đợt 3 — Logic nghiệp vụ**
+- [x] 11i [FE] [BE] Thành viên thêm vào studio bị cố định vai trò khi thêm vào series. Đối chiếu §5.1 và SeriesMember. 🔍 Đã xác minh: `AddSeriesMemberCommand` cố ý bỏ qua `Role` và lấy vai trò Workspace (comment trong code), nhưng `UpdateSeriesMemberRole` lại cho đổi tự do; FE phân quyền theo vai trò Workspace. User chốt 2026-11-27 (spec D10): Studio chỉ có Producer / Thành viên (`WorkspaceRole.Member`), vai trò chuyên môn gán theo Series. Sub-task:
+  - [x] [BE] helper vai trò Series (`SeriesRoles`) + `HasSeriesRoleAsync` đọc `series_members` — BE `aa35fdf`
+  - [x] [BE] chọn người / giao việc tự động / thông báo / quyền chuyên môn đọc vai trò Series — BE `aa35fdf`
+  - [x] [BE] mời Studio chỉ Producer|Member; thêm Series dùng vai trò được chọn; đổi vai trò Studio không ghi đè Series — BE `aa35fdf`
+  - [x] [FE] mời Studio chỉ Thành viên|Producer; thêm Series chọn vai trò; vai trò hiệu lực trong Series lấy từ `GET api/series/{id}` → `currentUserRole` — FE `dee6b3be`, BE `9d1b88e`
+  - Hợp đồng API: `SeriesDetailDto.currentUserRole` (WorkspaceRole?, null = chưa gán); `WorkspaceRole.Member` mới (lưu chuỗi, không cần migration); `POST /workspaces/{id}/members` và đổi vai trò Studio chỉ nhận Producer|Member (khác → 400); `POST /series/{id}/members` dùng `role` gửi lên (Member/Publisher → 400).
+- [x] 11j [BE] Artist: stage Lettering đang bắt upload ảnh. Lettering = lớp chữ vector (Module 2 §2, BR-19, BR-31), không có bước upload artwork. Đã sửa BE `f433c00`: Artist giữ công đoạn Letter (role Letterer hoặc slug letter/lettering) nộp qua cổng bóng thoại thay vì `ArtworkBlockReasonAsync`, cả V2 và Task Grid V3; test `Submit_ArtistLetteringCell_DoesNotRequireArtwork_BR31`.
+- [x] 11k [FE] Writer tạo Series Bible trước khi có chương: spec cho phép ("Luồng tạo Series Bible trước", Module 1). Kiểm tra màn Bible của Writer mở được khi series chưa có chương. Đã xác minh, không cần sửa: BE tạo mục với `associatedChapterId: null`, route `bible` mở cho Writer, sidebar Writer luôn có link Bible.
+- [x] 11l [FE] Rà định nghĩa Format của Series (hướng đọc RTL / LTR / Vertical, Module 1 §1) giữa form tạo series, DTO và enum BE. Đã sửa FE `b2379f26`: form gửi 1 cho Manga và đọc 0 là LTR, trong khi enum BE là RightToLeft=0, LeftToRight=1, Vertical=2 → Manga bị lưu trái sang phải. Dữ liệu cũ tạo sai hướng cần Producer sửa lại.
+
+**Đợt 4 — Đồng bộ hiển thị Series Bible giữa các role**
+- [x] 11m [FE] Thực thể ở "Đang phối hợp với Artist" không hiện trong hồ sơ thiết kế. Đã sửa: `ArtistBibleOverview` không loại mục trong hàng đợi khỏi "Hồ sơ thiết kế".
+- [x] 11n [FE] Kịch bản: nhân vật có biến thể phải ghi rõ biến thể đang dùng (bản gắn với chương, BR-15/Q23) — mọi role. Đã sửa: helper `shared/lib/castVariant.ts` (ưu tiên bản gắn theo Panel); bàn vẽ Artist/Letterer gắn nhãn biến thể cạnh người nói. Writer (ô chọn bản) và Editor/Producer (danh sách thực thể chương ở màn duyệt kịch bản) đã hiện biến thể từ trước.
+- [x] 11o [FE] Màn Series Bible của Editor dùng chung component với Writer/Artist (làm sau 11m, 11n). Đã sửa: Editor dùng `ArtistBibleOverview` (role `editor`, copy `bible.view.editorOverview`), xác nhận & khoá Canon trong Workbench (`detail-confirm-btn`).
+
+**Đợt 5 — Màn mới (đưa phương án cho user duyệt trước khi code)**
+- [x] 11p [FE] Editor: xem chương như truyện thật khi duyệt (đọc liền mạch theo hướng đọc của series, ảnh Composite). Đã làm FE `b802ab70`: nút "Đọc liền mạch" ở `ChapterReaderView` → `ChapterReadingMode` (ghép ảnh mới nhất + chữ bằng `buildPageComposite`; Vertical cuộn dọc, RTL/LTR lật trang, phím mũi tên đảo theo hướng đọc; bấm trang → về duyệt trang đó).
+- [x] 11q [FE] [BE] Màn quản lý công việc đa studio cho Artist/Writer/Editor (gộp Assignment của mọi studio người dùng tham gia). Đã làm BE `6def5bd`, FE `25ea65d7`: route `/my-work` (`MyWorkHubView`), nhóm Đang làm / Cần sửa / Chờ duyệt, lọc Studio & vai trò, mở đúng bàn làm việc; link ở màn chọn Studio và StudioSwitcher.
+  - Hợp đồng API: `GET /api/me/work` → `MyWorkStudioDto[]` = `{ workspaceId, workspaceName, lots: MyTaskLotDto[] (lô chưa Closed/Completed), reviewQueue: TaskGridReviewItemDto[] (Series người gọi làm Editor) }`; Studio không có việc bị bỏ.
+  - [x] "Việc của bạn" ở màn chọn Studio chuyển sang một lần gọi `/api/me/work` (lô Task Grid + hàng chờ duyệt của Editor), bỏ vòng `my-assignments` từng Studio.
+  - Chạy thử E2E 2026-11-27 (series "Thử Nghiệm Phát Hành", GG): tạo → kịch bản → sản xuất → Gate 3 → bàn giao → đặt giá → phát hành → VietQR → mở khoá OK. Lỗi phát hiện:
+    - [x] [BE] D10 sót: ~24 chỗ đọc vai trò chuyên môn bằng `GetMemberRoleAsync(workspace)` (kịch bản, cảnh, panel, comment, AI, cast) → Writer bị 403 khi gửi kịch bản. Sửa BE `2077516` (dùng `GetSeriesMemberRoleAsync`).
+    - [x] [BE] Lỗ hổng trong `9453ea2`: fallback vai trò Series ở `HasWorkspaceRoleAsync` thiếu lọc `UserId` → mọi thành viên Studio qua được API cấp Studio chỉ dành cho Editor. Sửa BE `b796d43` + test.
+    - [x] [BE] `POST api/editions/{editionId}/publish|schedule` truyền editionId vào `PublishChapterCommand` → luôn 404. Sửa: `PublishEditionByIdCommand` tra ấn bản; ấn bản gốc phát hành cùng chương (có hẹn giờ), ấn bản dịch qua `PublishEditionCommand` (hẹn giờ → 400).
+    - [ ] [DB] `publisher@panelforge.com` trong DB local là `User` (seeder khai `Publisher`) → Publisher Portal 403; đã sửa tay DB local.
+  - Sửa kèm (do D10) BE `9453ea2`: API cấp Studio cần Editor/Artist (review-queue, automation-settings/activity, frame-templates) chấp nhận vai trò giữ ở bất kỳ Series nào của Studio.
+
+**Phụ thuộc:** 11o sau 11m, 11n; 11q cần Hợp đồng API nếu BE chưa có truy vấn assignment xuyên studio.
+
 ## 4. Rủi ro
 
 | Rủi ro | Cách giảm |
@@ -164,6 +210,12 @@ Cấm: "Delve", "Seamless experience", "Elevate your workflow", "Unlock the powe
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-27 | UIQ-11 | ✅ Đợt 5 xong (11p, 11q) | FE `b802ab70`, `25ea65d7`; BE `9453ea2`, `6def5bd` | Màn đọc liền mạch, Việc của tôi đa Studio |
+| 2026-11-27 | UIQ-11 | 🟡 Đợt 4 xong (11m–11o) | FE `8b8312d0` | |
+| 2026-11-27 | UIQ-11 | 🟡 Đợt 3 xong (11i theo D10) | FE `dee6b3be`, BE `aa35fdf`, `9d1b88e` | Vai trò chuyên môn gán theo Series |
+| 2026-11-27 | UIQ-11 | 🟡 Đợt 3: 11j–11l xong, 11i chờ quyết định | FE `b2379f26`, BE `f433c00` | |
+| 2026-11-27 | UIQ-11 | 🟡 Đợt 2 xong (11f–11h) | FE `376bc959` | |
+| 2026-11-27 | UIQ-11 | 🟡 Đợt 1 xong (11a–11e) | FE `bb70de0d` | 17 việc từ phản hồi kiểm thử, chia 5 đợt |
 | 2026-11-27 | UIQ-09 | ✅ 09a–09c đã gộp | FE `fe499e03` | Quy ước header & header thẻ ở DESIGN_RULES §4.8 |
 | 2026-11-27 | UIQ-10 | 📋 Sẵn sàng giao | — | Bản đồ UI dùng chung DESIGN_RULES §4.9; brief 10a, 10b ở `briefs/`. Lần chạy 10a đầu tiên đã dừng trước khi có commit |
 | 2026-11-11 | Đợt 1 (GĐ1–GĐ4) | ✅ | xem mục 1 | |
