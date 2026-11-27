@@ -111,10 +111,18 @@
 - [ ] [BE] `ArchiveChapterCommand`: chuyển `Status = Archived`, ẩn khỏi danh sách làm việc thường ngày, giữ nguyên toàn bộ lịch sử revision, audit log và provenance. `RestoreChapterCommand`: khôi phục chương về trạng thái trước khi lưu trữ. Chặn xóa/archive nếu chương đã có ấn bản `Published`.
 - [ ] [FE] Modal Quản lý chương: hiển thị nút Delete (thùng rác gõ DELETE) cho chương rỗng `PreProduction`; hiển thị nút Lưu trữ (Archive) cho chương có dữ liệu; hỗ trợ xem danh sách chương đã lưu trữ và khôi phục.
 
+#### REL-12 · Hoàn thiện Backend/Domain Xuất bản Đa ngôn ngữ (Multilingual Publishing Gaps) — DB + BE · ❌
+- **Tài liệu chi tiết:** [`MULTILINGUAL_PUBLISHING_BACKEND_GAPS.md`](../proposals/MULTILINGUAL_PUBLISHING_BACKEND_GAPS.md).
+- **Trạng thái FE:** Đã hoàn tất Multilingual Publishing Workspace (Publishing Matrix, Edition Cards, Pricing Matrix, Catalog/Reader language switcher, Release Confirmation) trên API hiện có (`panelforge-fe` commit `451b5b8d`).
+- [ ] **Đợt 1 (Ưu tiên cao):** Lên lịch phát hành độc lập cho ấn bản dịch (`GAP-01`), lọc `?lang=` & trả `availableLanguages` trên `GET /api/catalog/series` (`GAP-05`), thêm `isOriginal` trên `ChapterEditionDto` / `ChapterLanguageStatusDto` (`GAP-07`).
+- [ ] **Đợt 2:** Metadata bộ truyện/chương bản địa hóa theo Language Edition (`GAP-03`), lọc ngôn ngữ & `byLanguage` trên `GET /api/publisher/revenue` (`GAP-06`).
+- [ ] **Đợt 3:** Mở rộng ngôn ngữ động ngoài `vi`/`en` (`GAP-02`), đa tiền tệ `currency` & `accessType` (`GAP-04`), phân công người phụ trách theo Language Edition (`GAP-08`).
+
 ## 4. Changelog
 
 | Ngày | Task | Trạng thái | Nhánh / Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-27 | REL-12 | Bổ sung | FE `451b5b8d` (`THBMinh`) | Hoàn tất FE Multilingual Publishing Workspace trên API hiện có; ghi nhận 8 khoảng trống BE/Domain tại `proposals/MULTILINGUAL_PUBLISHING_BACKEND_GAPS.md` |
 | 2026-11-15 | REL-01, REL-03, REL-04, REL-05, REL-09 | Cập nhật | — (chỉ tài liệu) | Quyết định 2026-11-15: Producer duyệt & bàn giao; Publisher phát hành / hẹn giờ theo ấn bản (-> HandedOffAndPublished); không có lệnh trả về bàn giao; mở lại InProduction giữ độc quyền Producer; Publisher cấu hình tài khoản ngân hàng (không duyệt VietQR), giữ định giá & preview |
 | 2026-11-14 | REL-09 | Bổ sung | — (chỉ tài liệu) | Q28: bản dịch trong hệ thống tại Lettering; gỡ luồng Publisher tải ảnh dịch (`PageTranslation`) |
 | 2026-11-14 | REL-02, REL-09 | Bổ sung | — (chỉ tài liệu) | Q26/Q27: ảnh cuối = bản đã duyệt, snapshot ghi bản kịch bản đã chốt; câu hỏi `PageTranslation` |
