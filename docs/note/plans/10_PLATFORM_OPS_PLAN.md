@@ -94,7 +94,7 @@ BR-22.
 
 #### OPS-05 · Rà màn Admin rồi khoá route FE — FE + BE ✅ (28/11, agy, FE)
 BR-07.
-- [ ] [BE] Danh sách endpoint Admin cần đọc (xem Studio, hỗ trợ, audit): chờ team chốt.
+- [x] [BE] Danh sách endpoint Admin được đọc trong Studio: chỉ `GET /api/workspaces/{id}/reader-stats` (BR-32), đánh dấu `[AllowAdminOversight]`; mọi endpoint Workspace khác Admin nhận 403 kèm thông báo BR-07. `UpdateSeriesLanguages` bỏ ngoại lệ Admin. Gộp từ nhánh Danh (28/11), test `RequireWorkspaceRoleAdminTests`, `QuotaEndpointAuthorizationTests`.
 - [x] [FE] `workspaceRoleGuard.ts`: Admin chỉ vào route ghi rõ ADMIN/ADMINISTRATOR; bị từ chối thì về `/admin`. Bỏ ADMINISTRATOR khỏi `allowedRoles` của mọi route sản xuất Studio trong `routes.tsx`.
 - [x] [QA] `RequireWorkspaceRole.test.tsx`.
 - Commit: FE `35a62ed`.
@@ -133,6 +133,7 @@ C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 - [x] [DB] Bảng `quota_policies` (dung lượng, token AI/tháng, ảnh AI/tháng, người sửa), append-only: mỗi lần sửa thêm một dòng, dòng mới nhất là bản đang dùng. Migration `AddQuotaPoliciesAndIncreaseRequests`. Chưa có dòng nào thì dùng `WorkspaceDefaults:{StorageQuotaBytes,MonthlyTokenQuota,MonthlyImageQuota}`.
 - [x] [BE] `CreateWorkspace` lấy cả 3 mức từ chính sách (OPS-01 cũ chỉ lấy dung lượng). Mọi mức trong chính sách phải > 0 (check constraint): "0 = không giới hạn" chỉ đặt riêng từng Studio. Không đổi Studio đã có. BE `80b6a7a`.
 - [x] [FE] Thẻ "Hạn mức cho Studio mới" ở màn Tài nguyên (OPS-23). FE `c344704`.
+- [x] [DB+BE+FE] Thêm "bật AI cho Studio mới" và ngưỡng cảnh báo "Gần hết" (1..99%, mặc định 80) vào chính sách, lấy từ nhánh Danh. Migration `AddQuotaPolicyAiDefaultAndWarning` chỉ thêm 2 cột vào `quota_policies`. Tab "Chính sách mặc định".
 
 #### OPS-21 · Producer xin tăng hạn mức, Admin duyệt — DB + BE + FE ✅
 - [x] [DB] `quota_increase_requests` (loại `Storage|AiTokens|AiImages`, mức đang cấp, mức xin tuyệt đối, lý do, `Pending|Approved|Rejected`, người/lúc duyệt, ghi chú, mức cấp thật, `xmin`). Index unique có lọc: một yêu cầu đang chờ cho mỗi (Studio, loại).
@@ -146,12 +147,12 @@ C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 |---|---|---|
 | `GET /api/workspaces/{id}/quota-requests` | Producer | `QuotaIncreaseRequestDto[]` (50 mới nhất) |
 | `POST /api/workspaces/{id}/quota-requests` | Producer | `{ resourceType, requestedQuota, reason }` → 201 `QuotaIncreaseRequestDto`; 409 trùng |
-| `GET/PUT /api/admin/quota-policy` | Admin | `{ storageQuotaBytes, monthlyTokenQuota, monthlyImageQuota }` → `QuotaPolicyDto` (+ `isFromSettings`, `updatedAt`, `updatedByName`) |
-| `GET /api/admin/quota-requests?status=Pending` | Admin | `QuotaIncreaseRequestDto[]` |
+| `GET/PUT /api/admin/quota-policy` | Admin | `{ storageQuotaBytes, monthlyTokenQuota, monthlyImageQuota, aiEnabledByDefault, warningThresholdPercent }` → `QuotaPolicyDto` (+ `isFromSettings`, `updatedAt`, `updatedByName`) |
+| `GET /api/admin/quota-requests?status=&resourceType=&search=` | Admin | `QuotaIncreaseRequestDto[]` (search: tên Studio hoặc người gửi) |
 | `POST /api/admin/quota-requests/{id}/approve` | Admin | `{ grantedQuota?: number, note?: string }`; 409 nếu đã xử lý |
 | `POST /api/admin/quota-requests/{id}/reject` | Admin | `{ note }` (bắt buộc) |
-| `GET /api/admin/resources` | Admin | `AdminWorkspaceResourceDto[]` (đã dùng/mức cấp 3 loại, `hasAiConfig`, `aiEnabled`, `pendingRequestCount`) |
-| `PUT /api/admin/workspaces/{id}/resources` | Admin | `{ storageQuotaBytes?, monthlyTokenQuota?, monthlyImageQuota? }`; null = giữ, 0 = không giới hạn |
+| `GET /api/admin/resources` | Admin | `AdminResourceOverviewDto`: tổng (`totalStorageUsedBytes`, `totalTokensUsedThisMonth`, `totalImagesThisMonth`, `nearLimitStudios`, `exhaustedStudios`, `pendingRequests`, `warningThresholdPercent`) + `studios[]` (`storage`/`aiTokens`/`aiImages` dạng `UsageMeterDto`, `memberCount`, `seriesCount`, `aiNextResetAt`, `pendingRequestCount`, `health` = `Ok\|NearLimit\|Exhausted`) |
+| `PUT /api/admin/workspaces/{id}/resources` | Admin | `{ storageQuotaBytes?, monthlyTokenQuota?, monthlyImageQuota?, aiEnabled?, reason }`; null = giữ, 0 = không giới hạn; `reason` bắt buộc, audit `RESOURCE_ALLOCATION_UPDATED` ghi cũ/mới/lý do. Trả `AdminWorkspaceResourceDto` |
 | `POST /api/admin/storage/reconcile?apply=false` | Admin | `StorageReconcileReportDto`: từng Studio `recordedBytes`, `computedBytes`, `orphanFiles/Bytes`, `derivedBytes`, `missingFiles`; file không thuộc Studio nào; tối đa 200 khoá mồ côi mẫu. `apply=true` ghi `UsedStorageBytes = computedBytes`; 409 nếu Studio vừa upload trong lúc quét. Không xoá file |
 | `POST /api/admin/storage/orphans/delete` | Admin | `DeleteOrphanFilesResultDto` (`deletedFiles/Bytes`, `skippedRecentFiles`, `skippedUnattributedFiles`, `skippedReferencedFiles`, `failedFiles`, `minAgeDays` = 7). Không khôi phục được |
 
@@ -163,9 +164,10 @@ C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 
 #### OPS-23 · Màn Admin Resources — FE ✅
 - [x] [FE] Tab `?tab=storage` của Admin thành "Tài nguyên & hạn mức" (`AdminResourcesView`, thay `StorageBackupSettings`): hàng chờ yêu cầu, chính sách cho Studio mới, bảng Studio với dung lượng/token/ảnh đã dùng so với mức cấp, số yêu cầu chờ, sửa nhanh 3 mức. FE `c344704`.
+- [x] [BE+FE] Thay bằng màn của nhánh Danh (28/11): `?tab=resources` (`?tab=storage` tự chuyển), `modules/resources/ResourcesView.tsx` 4 tab Cấp phát theo Studio / Chính sách mặc định / Yêu cầu tăng / Đối soát dung lượng. Trạng thái Bình thường / Gần hết / Đã hết, tìm kiếm, lọc "Cần chú ý", hộp thoại cấu hình bắt lý do và cảnh báo khi thấp hơn mức đang dùng, bật/tắt AI từng Studio. Duyệt yêu cầu vẫn cấp được mức thấp hơn mức xin. Overview có 4 chỉ số tài nguyên và danh sách "Cần xử lý". Xem §6.
 
 ### GĐ3 · Để sau
-Tách dung lượng sản xuất và phát hành; giới hạn request/phút theo Studio; link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
+Tách dung lượng sản xuất và phát hành; giới hạn request AI mỗi tháng và mỗi phút theo Studio; giới hạn kích thước upload; trang chi tiết User/Studio và System Health cho Admin; bỏ ô sửa token quota trùng trong màn Cấu hình AI (đã có ở Tài nguyên); link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
 
 ---
 
@@ -192,3 +194,25 @@ OPS-22 độc lập sau OPS-02
 | C4 | Danh sách màn/endpoint Admin được đọc trong Studio | OPS-05 | Lập danh sách ở OPS-05 rồi chốt |
 | C6 | Dọn file mồ côi (OPS-22): chỉ tính lại `UsedStorageBytes` và báo cáo, hay xoá luôn file không còn tham chiếu khỏi R2 (không khôi phục được)? | OPS-22 | ✅ Chốt 28/11: tính lại + báo cáo; cùng ngày user yêu cầu làm cả xoá, Admin bấm và xác nhận mới xoá |
 | C5 | Phần quota Admin đang làm dở (gỡ khỏi `e79e061`) có đi theo hướng giữ chỗ ở OPS-02 không? | OPS-01..03 | Đọc OPS-02 trước khi commit tiếp |
+
+## 6. Gộp nhánh `Danh` (28/11/2026)
+
+Nhánh `Danh` (BE `4ad3b7a`, `98584e5`; FE `3082b92`, `ea4301a`) làm song song phần quản lý tài nguyên của Admin, trùng với OPS-01, OPS-05, OPS-20..23. Đã merge vào `feature/admin-b2b` ở BE và FE. Chọn theo từng phần:
+
+| Phần | Nhánh Danh | `feature/admin-b2b` | Giữ |
+|---|---|---|---|
+| Bảng dữ liệu | `resource_policies` (1 dòng, sửa tại chỗ), `resource_requests`, migration `AdminResourceManagement` | `quota_policies` append-only, `quota_increase_requests` có `xmin` và index một yêu cầu chờ mỗi loại | Của mình: giữ lịch sử chính sách, không có 2 bảng trùng nghĩa. **Bỏ migration `AdminResourceManagement`**; thêm `AddQuotaPolicyAiDefaultAndWarning` |
+| Chính sách | Thêm bật AI mặc định, ngưỡng cảnh báo; cho phép 0 | 3 mức > 0 (0 chỉ đặt riêng từng Studio) | Gộp: thêm 2 trường của Danh, giữ ràng buộc > 0 |
+| Duyệt yêu cầu | Cấp đúng mức xin; audit riêng | Cấp đúng mức xin hoặc thấp hơn; thông báo cho Admin và Producer; 409 khi duyệt lần hai | Của mình, thêm ô "Mức cấp" vào hộp thoại của Danh |
+| Admin sửa từng Studio | Bắt lý do, audit cũ/mới, bật/tắt AI, cảnh báo dưới mức dùng | Sửa nhanh, chỉ audit tự động | Của Danh, chạy trên endpoint của mình |
+| Bảng Studio + Overview | Trạng thái Bình thường/Gần hết/Đã hết, tìm kiếm, "Cần chú ý", KPI Overview, "Cần xử lý" | Bảng đơn giản | Của Danh |
+| Producer xin tăng | `RequestResourcesModal` | `QuotaIncreaseRequestModal` (đã nối, có lịch sử) | Của mình |
+| Tạo Studio | Bỏ ô quota, lấy theo chính sách | Giống (OPS-01) | Của mình (đã có token, ảnh) |
+| BR-07 | `[AllowAdminOversight]` cho GET reader-stats, 403 rõ ràng; bỏ ngoại lệ Admin ở `UpdateSeriesLanguages` | Đã gỡ đi tắt (`4f8e39c`) nhưng không có ngoại lệ reader-stats | Của Danh |
+| Màn Thanh toán Admin | Admin sửa tài khoản ngân hàng từng Studio, xem cấu hình SePay | Cột ngân hàng Studio đã bỏ (OPS-10), Publisher cấu hình tài khoản nền tảng (C1) | **Bỏ** màn và `GET /api/admin/payment-config` vì trái C1 |
+| Đối soát dung lượng | Không có | OPS-22 | Của mình, thành tab thứ 4 |
+
+**Ai đã chạy nhánh `Danh` trên DB dev:** DB có thể còn 2 bảng `resource_policies`, `resource_requests` và dòng `20261128033023_AdminResourceManagement` trong `__EFMigrationsHistory`. Không ảnh hưởng chạy app; muốn sạch thì xoá 2 bảng và dòng đó bằng tay rồi `dotnet ef database update`. Chính sách đã lưu ở bảng cũ cần nhập lại ở tab "Chính sách mặc định".
+
+Commit: BE `a41f232` (merge), `a0c2591` (port); FE `1022c6a` (merge).
+
