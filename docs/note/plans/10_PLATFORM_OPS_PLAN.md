@@ -189,12 +189,12 @@ Spec V2.6 không đặc tả riêng các trang này; làm theo UC-01, UC-15, BR-
 
 ### GĐ4 · Gói mở Studio cho độc giả (C0 đổi 28/11, spec D11)
 
-#### OPS-40 · Gói mở Studio — DB + BE + FE
+#### OPS-40 · Gói mở Studio — DB + BE + FE ✅ (28/11, BE `d41bf5d`, FE `7d11a55`)
 Độc giả (User chưa thuộc Studio, chưa có `CanCreateStudio`) mua gói một lần bằng Ví → được `CanCreateStudio` vĩnh viễn → tự tạo Studio làm Producer.
-- [ ] [DB] Bảng append-only `studio_package_prices` (`id`, `price_vnd` int > 0, `changed_by_user_id`, `created_at`, `is_deleted`); giá hiện hành = bản ghi mới nhất. Enum `PaymentTransactionType.StudioPackage = 5`.
-- [ ] [BE] `SetStudioPackagePriceCommand` (Admin): 1.000 ≤ giá ≤ 50.000.000, ghi Audit `STUDIO_PACKAGE_PRICE_CHANGED`.
-- [ ] [BE] `PurchaseStudioPackageCommand`: chỉ `SystemRole.User`; đã có quyền → 409 `ALREADY_OWNED`; chưa đặt giá → 404; `expectedPriceVnd` khác giá hiện hành → 409 `PRICE_CHANGED`; thiếu tiền → 400; trừ Ví, ghi giao dịch `StudioPackage` (Approved, không gắn Workspace), `GrantStudioCreation()`, Audit `STUDIO_PACKAGE_PURCHASED`. Lịch sử Ví hiện "Mua gói mở Studio".
-- [ ] [FE] `/catalog/open-studio`: giá, số dư, nút mua / nạp thêm; mua xong chuyển sang tạo Studio. Admin: ô đặt giá gói.
+- [x] [DB] Bảng append-only `studio_package_prices` (`id`, `price_vnd` int > 0, `changed_by_user_id`, `created_at`, `is_deleted`); giá hiện hành = bản ghi mới nhất. Enum `PaymentTransactionType.StudioPackage = 5`.
+- [x] [BE] `SetStudioPackagePriceCommand` (Admin): 1.000 ≤ giá ≤ 50.000.000, ghi Audit `STUDIO_PACKAGE_PRICE_CHANGED`.
+- [x] [BE] `PurchaseStudioPackageCommand`: chỉ `SystemRole.User`; đã có quyền → 409 `ALREADY_OWNED`; chưa đặt giá → 404; `expectedPriceVnd` khác giá hiện hành → 409 `PRICE_CHANGED`; thiếu tiền → 400; trừ Ví, ghi giao dịch `StudioPackage` (Approved, không gắn Workspace), `GrantStudioCreation()`, Audit `STUDIO_PACKAGE_PURCHASED`. Lịch sử Ví hiện "Mua gói mở Studio".
+- [x] [FE] `/catalog/open-studio`: giá, số dư, nút mua / nạp thêm; mua xong chuyển sang tạo Studio. Admin: ô đặt giá gói ở tab Người dùng & quyền. Migration `AddStudioPackagePrices`.
 
 Hợp đồng API:
 
