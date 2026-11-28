@@ -153,12 +153,13 @@ C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 | `GET /api/admin/resources` | Admin | `AdminWorkspaceResourceDto[]` (đã dùng/mức cấp 3 loại, `hasAiConfig`, `aiEnabled`, `pendingRequestCount`) |
 | `PUT /api/admin/workspaces/{id}/resources` | Admin | `{ storageQuotaBytes?, monthlyTokenQuota?, monthlyImageQuota? }`; null = giữ, 0 = không giới hạn |
 | `POST /api/admin/storage/reconcile?apply=false` | Admin | `StorageReconcileReportDto`: từng Studio `recordedBytes`, `computedBytes`, `orphanFiles/Bytes`, `derivedBytes`, `missingFiles`; file không thuộc Studio nào; tối đa 200 khoá mồ côi mẫu. `apply=true` ghi `UsedStorageBytes = computedBytes`; 409 nếu Studio vừa upload trong lúc quét. Không xoá file |
+| `POST /api/admin/storage/orphans/delete` | Admin | `DeleteOrphanFilesResultDto` (`deletedFiles/Bytes`, `skippedRecentFiles`, `skippedUnattributedFiles`, `skippedReferencedFiles`, `failedFiles`, `minAgeDays` = 7). Không khôi phục được |
 
 #### OPS-22 · Reset AI đầu tháng và đối soát file mồ côi — BE + FE ✅
 - [x] [BE] Reset lười trong `AiUsageService` đủ cho việc chặn quota (mỗi lượt gọi đều kiểm tháng). Thiếu sót chỉ ở màn đọc: tháng mới chưa gọi AI thì còn hiện số tháng trước. Đã sửa: `GetWorkspaceUsage` và `GetAdminResources` coi bộ đếm của tháng cũ là 0 (`WorkspaceAiConfig.IsCountedThisMonth`). Không cần job. BE `687f503`.
 - [x] [BE] Admin bấm chạy (không phải job định kỳ): `ReconcileStorageCommand` quét kho một lần (`IAssetStorage.ListAsync`, R2 + local), gán file cho Studio theo khoá CAS, so với bản ghi còn tham chiếu (asset kể cả xoá mềm, ảnh bìa Studio/Series/avatar/banner/chương hiện tại, ảnh Bible theo SHA trong mọi cột Bible kể cả lịch sử). Ảnh `thumbs/` và `exports/` báo riêng, không tính vào hạn mức. Theo C6: **không xoá file nào**. 3 test `ReconcileStorageTests`. BE `e1110f5`.
 - [x] [FE] Thẻ "Đối soát dung lượng" cuối màn Tài nguyên (`StorageReconcileCard`): quét chỉ đọc, bảng Studio lệch số / có file mồ côi / thiếu file, danh sách khoá mồ côi, "Cập nhật dung lượng" phải xác nhận. FE `9e16ce0`.
-- [ ] Xoá file mồ côi: chỉ làm sau khi Admin xem báo cáo trên dữ liệu thật và chốt lại (C6).
+- [x] [BE+FE] Xoá file mồ côi theo lệnh Admin (user yêu cầu 28/11): `DeleteOrphanFilesCommand` dùng chung `StorageScan`, chỉ xoá file thuộc Studio đang hoạt động, cũ hơn 7 ngày, và đọc lại tham chiếu ngay trước khi xoá. Giữ file không rõ Studio (có thể của môi trường khác dùng chung bucket) và file của Studio đã xoá mềm. Chỉ xoá file, không đụng bản ghi; audit `DELETE_ORPHAN_FILES` mỗi Studio. FE nút "Xoá file mồ côi" xác nhận 2 bước, xoá xong quét lại. BE `ec91d21`, FE `e3d531d`.
 
 #### OPS-23 · Màn Admin Resources — FE ✅
 - [x] [FE] Tab `?tab=storage` của Admin thành "Tài nguyên & hạn mức" (`AdminResourcesView`, thay `StorageBackupSettings`): hàng chờ yêu cầu, chính sách cho Studio mới, bảng Studio với dung lượng/token/ảnh đã dùng so với mức cấp, số yêu cầu chờ, sửa nhanh 3 mức. FE `c344704`.
@@ -189,5 +190,5 @@ OPS-22 độc lập sau OPS-02
 | C2 | Gỡ VIP khỏi Backend, giữ lịch sử giao dịch? | OPS-11 | Gỡ |
 | C3 | Gói export và ảnh `webp` dẫn xuất có tính vào dung lượng Studio không? | OPS-02 | Export: có, vì Studio tạo ra; `webp` cache: không |
 | C4 | Danh sách màn/endpoint Admin được đọc trong Studio | OPS-05 | Lập danh sách ở OPS-05 rồi chốt |
-| C6 | Dọn file mồ côi (OPS-22): chỉ tính lại `UsedStorageBytes` và báo cáo, hay xoá luôn file không còn tham chiếu khỏi R2 (không khôi phục được)? | OPS-22 | ✅ Chốt 28/11: tính lại + báo cáo, chưa xoá. Xoá sẽ hỏi lại sau khi xem báo cáo |
+| C6 | Dọn file mồ côi (OPS-22): chỉ tính lại `UsedStorageBytes` và báo cáo, hay xoá luôn file không còn tham chiếu khỏi R2 (không khôi phục được)? | OPS-22 | ✅ Chốt 28/11: tính lại + báo cáo; cùng ngày user yêu cầu làm cả xoá, Admin bấm và xác nhận mới xoá |
 | C5 | Phần quota Admin đang làm dở (gỡ khỏi `e79e061`) có đi theo hướng giữ chỗ ở OPS-02 không? | OPS-01..03 | Đọc OPS-02 trước khi commit tiếp |
