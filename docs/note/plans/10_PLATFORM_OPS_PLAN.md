@@ -174,8 +174,21 @@ C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 - [x] [BE+FE] Bỏ ô sửa quota token và ảnh trùng ở màn Cấu hình AI: Tài nguyên là nơi duy nhất. `PUT /api/admin/workspaces/{id}/ai-config` không bắt `monthlyTokenQuota` nữa (null = giữ). FE thêm cột "Lượt gọi AI" và 2 ô ở hộp thoại Studio, 2 ô ở Chính sách mặc định. FE `a0358ae`.
 - Chưa làm: Producer chưa xin tăng lượt gọi được (enum `QuotaResourceType` chưa có `AiRequests`); thanh hạn mức của Producer chưa hiện lượt gọi.
 
+#### OPS-30..32 · Trang chi tiết User / Studio và System Health — BE + FE ✅ (28/11)
+Spec V2.6 không đặc tả riêng các trang này; làm theo UC-01, UC-15, BR-07 (chỉ siêu dữ liệu vận hành, không đọc kịch bản/Bible/ảnh), BR-18 (nhật ký). Tất cả chỉ đọc; thay đổi vẫn đi qua các màn đã có.
+- [x] [BE] OPS-30 `GetAdminUserDetailQuery`: hồ sơ, phiên còn hiệu lực (cùng điều kiện `SessionPolicy` với màn Thiết bị đăng nhập), Studio tham gia (vai trò, chủ sở hữu), Ví (số dư, tổng nạp đã duyệt, số ấn bản mở khoá, đơn nạp chờ), token/lượt gọi AI tháng này theo người, 20 dòng nhật ký gần nhất. Không trả mật khẩu, khoá 2FA, token.
+- [x] [BE] OPS-31 `GetAdminWorkspaceDetailQuery`: dòng tài nguyên lấy từ `GetAdminResourcesQueryHandler.LoadAsync` (không lệch với bảng Tài nguyên), nhà cung cấp AI, chính sách phiên, thành viên, Series (tên, số chương, số chương đã phát hành, hoàn thành), 10 yêu cầu tăng hạn mức gần nhất, AI 30 ngày (token, lượt, lượt lỗi, luồng AI lỗi), nhật ký Studio.
+- [x] [BE] OPS-32 `GetSystemHealthQuery` + port `ISystemHealthProbe` (`SystemHealthProbe` ở Infrastructure): gọi thử DB (`CanConnect`), kho file (đọc trang đầu `ListAsync`), AI service (`GET /health/ai`, không retry, timeout 4 giây); mỗi thành phần timeout 5 giây, chậm hơn 1,5 giây là Degraded, AI sống mà Backend thiếu `AiService:ServiceKey` cũng là Degraded. Đếm việc nền từ DB: luồng AI kẹt (Queued/Running im lặng > 15 phút), luồng AI lỗi 24 giờ, lượt gọi AI lỗi 24 giờ (không tính hết hạn mức), export kẹt (> 30 phút), export lỗi 24 giờ, đơn nạp chờ (cảnh báo > 24 giờ), yêu cầu hạn mức chờ (cảnh báo > 3 ngày). DB hỏng thì bỏ phần đếm. Luôn 200. 6 test `AdminDetailPagesTests`.
+- [x] [FE] `?tab=users&user=<id>` thay hộp thoại "Chi tiết" cũ; `?tab=resources&studio=<id>` mở từ tên Studio ở bảng Tài nguyên, nút cấu hình dùng lại `ConfigureStudioModal`; menu Giám sát thêm "Tình trạng hệ thống" (`?tab=system-health`, tự kiểm tra lại mỗi phút, nút mở màn xử lý). Nhật ký nhận `?userEmail=`. Chi tiết Studio hiện cả lượt gọi AI của OPS-24. FE `76e221f`, `79c2215`.
+
+| Endpoint | Vai trò | Kết quả |
+|---|---|---|
+| `GET /api/admin/users/{id}` | Admin | `AdminUserDetailDto` (`activeSessions[]`, `memberships[]`, `wallet` null nếu chưa có, `aiUsageThisMonth`, `recentActivity[]` = `AuditLogDto`); 404 |
+| `GET /api/admin/workspaces/{id}` | Admin | `AdminWorkspaceDetailDto` (`resources` = `AdminWorkspaceResourceDto`, `members[]`, `series[]`, `quotaRequests[]`, `aiLast30Days`, `recentActivity[]`); 404 |
+| `GET /api/admin/system-health` | Admin | `SystemHealthDto`: `status` = mức xấu nhất `Healthy\|Degraded\|Down`, `dependencies[]` (`key` database/storage/ai, `provider`, `latencyMs`, `reason` SLOW/TIMEOUT/UNREACHABLE/SERVICE_KEY_MISSING, `queueDepth`), `signals[]` (`key`, `count`, `warning`, `oldestAt`), `serverStartedAt`, `version` |
+
 ### GĐ3 · Để sau
-Tách dung lượng sản xuất và phát hành; giới hạn kích thước upload; trang chi tiết User/Studio và System Health cho Admin; link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
+Tách dung lượng sản xuất và phát hành; giới hạn kích thước upload; link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
 
 ---
 
