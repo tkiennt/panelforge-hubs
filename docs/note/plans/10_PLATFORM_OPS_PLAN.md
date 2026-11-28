@@ -103,12 +103,13 @@ BR-07, câu Q11 của tài liệu nguồn. BE đã gỡ bypass, FE chưa.
 
 ### GĐ1 · Chuẩn hoá tài chính Q13 (cần trả lời C1, C2)
 
-#### OPS-10 · Tài khoản ngân hàng của nền tảng — DB + BE + FE ❌
-- [ ] [DB] Bảng riêng `platform_bank_accounts` (một bản ghi đang dùng, lịch sử append-only); bỏ dần cột ngân hàng trên `studio_workspaces`.
-- [ ] [BE] Nạp ví không phụ thuộc Studio; cấu hình `SePay:DefaultBank` thành giá trị khởi tạo.
-- [ ] [BE] Đổi số tài khoản bắt nhập mã 2FA (đã có) và ghi audit.
-- [ ] [BE] Quyền cấu hình và duyệt VietQR theo phương án C1 (2A: Publisher cấu hình, chỉ Admin duyệt; 2B: Admin nắm hết).
-- [ ] [FE] Màn cấu hình ngân hàng nền tảng ở đúng vai trò; gỡ màn ngân hàng theo Studio của Producer.
+#### OPS-10 · Tài khoản ngân hàng của nền tảng — DB + BE + FE ✅ (28/11, C1 = Publisher cấu hình và duyệt)
+- [x] [DB] Bảng `platform_bank_accounts` append-only (bản ghi mới nhất là tài khoản đang dùng), migration `AddPlatformBankAccounts`. Cột ngân hàng cũ trên `studio_workspaces` còn giữ (không ghi nữa), bỏ ở migration sau.
+- [x] [BE] Nạp ví không gắn Studio (`workspace_id = null`); mở chương bằng VietQR vẫn gắn Studio của chương. `SePay:DefaultBank` là giá trị dùng khi chưa có bản ghi.
+- [x] [BE] `PUT /api/platform/payments/bank-account` bắt Publisher đã bật 2FA + mã TOTP/mã khôi phục, ghi audit `PLATFORM_BANK_ACCOUNT_CHANGED` (chỉ 4 số cuối).
+- [x] [BE] Quyền theo C1 (giữ đúng V2.6): ghi/duyệt chỉ Publisher; Admin chỉ đọc (`GET /api/platform/payments`, `GET .../bank-account`). Duyệt/từ chối toàn nền tảng: `POST /api/platform/payments/{id}/approve|reject`. Bỏ `GET/PUT /api/workspaces/{id}/payments/bank-settings`.
+- [x] [FE] `/publisher/revenue/payments`: cấu hình tài khoản nền tảng (ô mã 2FA, lịch sử, cảnh báo đang dùng tài khoản mặc định) + giao dịch toàn nền tảng; `/publisher/revenue/workspaces/:id` lọc theo Studio. Producer không còn màn ngân hàng.
+- Commit: BE `6d8544d`, FE `2a97d2d` trên `feature/admin-b2b`.
 
 #### OPS-11 · Gỡ VIP khỏi Backend — BE + FE ❌
 Câu C2 (Q6 nguồn). Flutter đã gỡ 20/11.
@@ -158,7 +159,7 @@ OPS-22 độc lập sau OPS-02
 | # | Câu hỏi | Chặn task | Gợi ý |
 |---|---|---|---|
 | C0 | Nhánh tên "admin-b2b" có nghĩa là muốn làm B2B (bán gói cho Studio) không? | Toàn plan | Không; giữ V2.6, Admin cấp tài nguyên |
-| C1 | Ai nắm tài khoản ngân hàng và duyệt VietQR: 2A (đúng V2.6) hay 2B (Admin nắm hết, sửa spec)? | OPS-10 | 2A ngay, bàn 2B riêng |
+| C1 | Ai nắm tài khoản ngân hàng và duyệt VietQR: 2A (đúng V2.6) hay 2B (Admin nắm hết, sửa spec)? | OPS-10 | ✅ Chốt 28/11: Publisher cấu hình và duyệt (đúng BR-32 V2.6), Admin chỉ đọc |
 | C2 | Gỡ VIP khỏi Backend, giữ lịch sử giao dịch? | OPS-11 | Gỡ |
 | C3 | Gói export và ảnh `webp` dẫn xuất có tính vào dung lượng Studio không? | OPS-02 | Export: có, vì Studio tạo ra; `webp` cache: không |
 | C4 | Danh sách màn/endpoint Admin được đọc trong Studio | OPS-05 | Lập danh sách ở OPS-05 rồi chốt |
