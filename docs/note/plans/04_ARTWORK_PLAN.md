@@ -28,15 +28,15 @@
 - [ ] Endpoint `PUT /panels/{id}/reading-order` cho Artist giữ trang; UI đổi số trên `ArtistDeskView`.
 - [ ] Unit test 3 hướng đọc.
 
-#### ART-02 · Self-Rollback Ink → Pencil (BR-27.1) — BE + FE · ❌ · cũ P1-05
-- [ ] `RollbackToPencilCommand(ChapterId, PageId, UserId, Reason)`: chỉ Artist giữ Page, chỉ khi chưa `UnderReview`; Pencil → `InProgress`, Ink chờ; audit.
-- [ ] Nếu trang đã có bóng thoại → bật cờ Check Balloon (ART-06).
-- [ ] FE nút `[↺ Quay lại sửa Pencil]` + lý do.
-- [ ] Test: trang `UnderReview` → 409.
+#### ART-02 · Self-Rollback Ink → Pencil (BR-27.1) — BE + FE · ✅ · cũ P1-05
+- [x] `RollbackToPencilCommand(ChapterId, TaskId, UserId, Reason)` trên lưới V3, `POST /api/chapters/{chapterId}/task-grid/tasks/{taskId}/rollback-to-pencil`: chỉ Artist giữ ô Pencil, chỉ khi chưa ô nào `UnderReview`/đã duyệt ở cổng; Pencil → `ReworkRequired`, ô nhánh tranh của chính Artist quay về chờ, ô người khác gắn cờ đầu vào lỗi thời; nhánh chữ không bị chặn, Letterer được nhắc.
+- [x] Nếu trang đã có bóng thoại → bật cờ Check Balloon (ART-06).
+- [x] FE nút `[↺ Quay lại sửa Pencil]` + lý do (dùng chỗ nút Rút bài trên header khi không có bài để rút).
+- [x] Test: trang `UnderReview` → 409.
 
 #### ART-03 · Script Coverage Counter trên bàn vẽ — FE · 🟡 🔍 · cũ P1-06
 - [ ] Xác minh `ArtistDeskView` có thanh coverage; nếu chưa, tái dùng logic từ màn Writer.
-- [ ] Chặn `Submit Pencil` khi < 100% dòng thoại của trang được gắn Panel (đồng bộ rule BE nếu có).
+- [x] Chặn `Submit Pencil` khi < 100% dòng thoại được gắn Panel. BE (lưới V3): dòng thoại chưa gắn khung của phân cảnh có mặt trên trang → 409. FE vẫn xét cả chương (chặt hơn).
 
 #### ART-04 · Letterer bị khoá Layout/Graphic (BR-31.2) — BE + FE · 🟡 🔍 · cũ P1-07
 - [ ] Xác minh `PanelsController` (create/update/delete/coordinates), `FrameTemplatesController.Apply`, `AssetsController.UploadArtwork` trả 403 cho Letterer.
@@ -47,10 +47,10 @@
 - [ ] `Page.Rank` (string), migration sinh rank từ `PageNumber`; chèn/sắp xếp chỉ cập nhật 1 dòng; `PageNumber` thành giá trị hiển thị.
 - [ ] Đồng bộ với FE `db/schema.ts` (đã dùng `lexorank`).
 
-#### ART-06 · Cờ ⚠️ Check Balloon Fit — BE + FE · ❌ · cũ P2-03 (dùng chung REV-03)
-- [ ] Bật `IsArtworkUpdatedAlert` trên bóng thoại thuộc Panel X khi: upload Ink mới cho Panel X, Self-Rollback, hoặc CR lớp Artwork cho Panel X.
-- [ ] Endpoint xác nhận "đã kiểm tra" (Artist/Letterer của trang) → gỡ cờ.
-- [ ] FE viền cam trên balloon ở `LetteringWorkspace` + `ArtistDeskView`; i18n.
+#### ART-06 · Cờ ⚠️ Check Balloon Fit — BE + FE · 🟡 · cũ P2-03 (dùng chung REV-03)
+- [x] Cờ đặt trên Panel (`panels.balloon_check_requested_at`, `PanelDto.balloonCheckRequired`) cho khung có bóng thoại khi: upload ở công đoạn vẽ sau Pencil (Ink/Color), Self-Rollback. Còn thiếu: CR lớp Artwork (REV-03). Khi còn cờ: nộp Lettering và duyệt Gate 2 bị 409.
+- [x] `POST /api/chapters/{chapterId}/task-grid/pages/{pageId}/balloon-check/ack` (body `{ panelId? }`; Artist/Letterer giữ ô của trang hoặc Producer) → gỡ cờ.
+- [x] FE: viền cam + biểu tượng trên khung bị cờ, dải thông báo ngắn với nút "Đã kiểm tra" trên `ArtistDeskView` (Letterer dùng chung bàn này); i18n.
 
 #### ART-07 · Upload: hash trong Web Worker + Presigned PUT — FE + BE · ❌ · cũ P5-04
 - [ ] FE `sha256.worker.ts` dùng `crypto.subtle.digest`.

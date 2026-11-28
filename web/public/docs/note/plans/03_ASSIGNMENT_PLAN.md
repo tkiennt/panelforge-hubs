@@ -31,12 +31,13 @@
 - **Rà soát 2026-11-13:** Gate 1 hiện là `FreezeChapterScriptCommand` (D12), **không giao Page** và **không kiểm Bible Gate** (D11). Bước "kết quả Bible gate" ở FE lấy từ `GET /api/chapters/{id}/cast` (`gate.blockers`, [BIB-14](02_BIBLE_PLAN.md)/[BIB-16](02_BIBLE_PLAN.md), Q16); `ApproveScriptCommand` của SCR-10 đã được thay bằng `FreezeChapterScriptCommand`.
 
 #### ASG-02 · Ink ∥ Lettering song song sau Pencil (BR-19) — BE + FE · 🟡 · cũ P1-03
+> 2026-11-28: Lưới giao việc V3 (StageTask) đã chạy song song theo `PipelineStage.Track`: nhánh A = Ink → Color (Color tuỳ chọn, Manga tắt Color thì cổng Editor nằm ở Ink), nhánh B = Lettering. Gate 2 chỉ duyệt được khi bước cuối của mọi nhánh của trang đã nộp (`StageDependencies.SiblingBranchEnds`, 409 nếu chưa; hàng đợi duyệt trả `awaitingStageName`). Đường V2 (Assignment) vẫn tuần tự, coi là cũ. Series mới không còn stage Review cấp chương (Kien chốt).
 - [ ] Đọc `SubmitAssignmentCommand.cs` (~200–320) và `StageProgressRules.cs`: hiện chạy tuần tự Ink → Letter → Review.
 - [ ] Nộp Pencil Page X → mở đồng thời track Ink (Artist trang/Inker) và track Lettering (Letterer nếu được giao, không thì chính Artist).
-- [ ] Gate 2 chỉ mở khi cả 2 track `Submitted`; kích hoạt ghép composite ([ART-08](04_ARTWORK_PLAN.md)).
+- [x] Gate 2 chỉ mở khi cả 2 track `Submitted` (lưới V3); kích hoạt ghép composite ([ART-08](04_ARTWORK_PLAN.md)).
 - [ ] Pipeline template mặc định: thêm cờ "parallel group" nếu cần.
 - [ ] FE Kanban hiển thị 2 track song song mỗi Page.
-- [ ] Test: Ink xong, Letter chưa xong → chưa vào review.
+- [x] Test: Ink xong, Letter chưa xong → chưa vào review (lưới V3).
 
 #### ASG-03 · Xác minh thứ tự ưu tiên Panel > Page > Chapter — BE · ✅ 🔍 · plan tổng M2-06
 - [ ] Đọc `WorkScopeGuard` + `CarvedOutAsync`, viết test: việc Panel của B nằm trong trang của A → A bị 403 ở Panel đó, B ghi được.

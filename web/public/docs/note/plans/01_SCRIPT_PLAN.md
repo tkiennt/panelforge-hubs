@@ -441,7 +441,8 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [ ] [BE] Ghi rõ vai trò của hai hệ phiên bản đang chạy song song: `ContentRevision` (theo Scene, dùng cho AI/khôi phục) và `ScriptVersion` (theo chương, dùng cho gửi duyệt/chốt). Chốt hệ nào là nguồn cho phân tích ảnh hưởng (SCR-01) và lịch sử (SCR-15); hệ còn lại gỡ ở SCR-23.
   - ✅ **Đã chốt Q25 (2026-11-14):** `ScriptVersion` là nguồn duy nhất (lịch sử, gửi duyệt, Gate 1, snapshot, lần nộp, phân tích ảnh hưởng SCR-01); `ContentRevision` loại Script gỡ ở SCR-23. Xem SCR-40, SCR-41.
 
-#### SCR-40 · Đề xuất AI thành phiên bản `AiProposal` (Q25) — DB + BE + FE · ❌
+#### SCR-40 · Đề xuất AI thành phiên bản `AiProposal` (Q25) — DB + BE + FE · ⛔ Bỏ (Q29, 2026-11-28)
+> **Q29 (2026-11-28):** nhóm giữ luồng hiện tại thay mô hình `AiProposal`: chấp nhận `AiSuggestion` → ghi vào kịch bản → tự commit `ScriptVersion` ghi nguồn đề xuất (`ReviewSuggestionCommand`). Không làm các mục dưới đây. Xem DontPassAway/PanelForge_FA26SE251#31.
 
 - [ ] [DB] `script_versions` thêm `kind` (`Commit` | `AiProposal`, mặc định `Commit`), `source_suggestion_id UUID NULL`, `from_proposal_version_id UUID NULL`. Bản `AiProposal` không tính vào chuỗi gửi duyệt, diff giữa hai lần gửi, chống trùng mã băm.
 - [ ] [BE] Luồng AI kịch bản (`ReviewSuggestionCommand` và các lệnh AI Writer) **không ghi thẳng `ScriptLine`/`ContentRevision`** nữa: tạo `ScriptVersion` `AiProposal` (snapshot hàng như bản thường) và trả Id.
@@ -457,11 +458,11 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [ ] [FE] Màn Gate 1 / `ScriptReviewView`: gửi `expectedSubmittedVersionId`; nhận 409 → hộp "Có phiên bản mới vX" + diff + nút "Chốt vX"; khi đang mở màn mà có lần gửi mới (thông báo hoặc nạp lại định kỳ) thì hiện dải cảnh báo.
 - [ ] Test: Producer xem v1, Writer gửi v2 → chốt v1 bị 409 kèm v2; chốt v2 thành công, `frozen_script_version_id = v2`.
 
-#### SCR-42 · Autosave working copy vs Save immutable ScriptVersion (D9c) — DB + BE + FE · ✅ (commit `ae2bd99`)
-- [x] [DB + BE] Bảng `chapter_script_working_copies` lưu working copy khả biến của Writer cho autosave (debounce). Autosave cập nhật bản working copy này, tuyệt đối không tạo bản ghi mới trong `script_versions` (Quyết định 2026-11-15 (D9c)). Migration `20261126044204_AddRefreezeScriptAndWorkingCopies`.
+#### SCR-42 · Autosave working copy vs Save immutable ScriptVersion (D9c) — DB + BE + FE · 🟡 (rà soát 2026-11-28: mới có bảng và lưu phiên bản)
+- [ ] [DB + BE] Bảng `chapter_script_working_copies` lưu working copy khả biến của Writer cho autosave (debounce). Autosave cập nhật bản working copy này, tuyệt đối không tạo bản ghi mới trong `script_versions` (Quyết định 2026-11-15 (D9c)). Migration `20261126044204_AddRefreezeScriptAndWorkingCopies`. *(Rà soát 2026-11-28: bảng có, nhưng không có code nào ghi vào; `GET .../working-copy` dựng lại từ dữ liệu sống.)*
 - [x] [BE] Nút "Save" (Lưu phiên bản thủ công): tạo một bản ghi `ScriptVersion` bất biến (commit snapshot bất biến kèm mã băm SHA-256).
-- [x] [BE] Nút "Submit Script" tại Gate 1: trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (D2).
-- [x] [FE] Tích hợp debounce autosave (3-5s) gọi endpoint `/working-copy`; nút "Lưu phiên bản" (Save) gọi `POST /script-versions`; nút "Nộp kịch bản" (Submit) kiểm tra working copy đã lưu thành version rồi gọi submit.
+- [ ] [BE] Nút "Submit Script" tại Gate 1: trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (D2). *(Rà soát 2026-11-28: chưa có entity/bảng/code — DontPassAway/PanelForge_FA26SE251#29.)*
+- [ ] [FE] Tích hợp debounce autosave (3-5s) gọi endpoint `/working-copy`; nút "Lưu phiên bản" (Save) gọi `POST /script-versions`; nút "Nộp kịch bản" (Submit) kiểm tra working copy đã lưu thành version rồi gọi submit. *(Rà soát 2026-11-28: FE chỉ lưu tay / Ctrl+S, chưa có `POST /script-versions` — DontPassAway/PanelForge_FA26SE251#29.)*
 
 #### SCR-44 · Script Refreeze & Phân tách tác động kịch bản (Visual vs Lettering) — BE + FE · ✅ (BE `ae2bd99`, `78707f6`, `ff109fe`, `efb8d27`; FE `7c832daa`, `aa21e679`)
 - [x] [BE] Chặn `StartChapterProduction` chỉ được gọi khi chương ở `PreProduction` (ném 409 nếu chương đã `InProduction`).

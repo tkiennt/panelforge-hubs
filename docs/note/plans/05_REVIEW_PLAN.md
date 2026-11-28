@@ -26,18 +26,21 @@
 ## 2. Task
 
 #### REV-01 · `FindIntersectingPanelIds` ≥ 15% — (Huỷ theo Q35 — Editor chọn Panel đích) — BE + FE · ❌ · cũ P2-01
+- Đã làm trước Q35 (lưới V3, 2026-11-28, BE `733278a`, FE `09e4792`, cần sửa theo Q35): `POST task-grid/tasks/{id}/request-changes` nhận `changes[]` (như V2); mỗi vùng thành một CR gắn ô (`change_requests.stage_task_id`, `assignment_id` thành nullable, check đúng một trong hai — migration `AddStageTaskChangeRequests`) cho từng khung giao ≥ 15%, chung `GroupId`. Màn duyệt gửi vùng khoanh lên server thay vì gộp vào nhận xét.
 - [ ] (Huỷ theo Q35 — thay bằng Editor chọn Panel đích, bỏ công thức giao thoa 15%) Hàm Domain thuần: `OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel))`; trả PanelId có ratio ≥ 0.15 (Quyết định 2026-11-15 (D8)).
 - [ ] `ReturnWorkFromReviewCommand` / `RequestAssignmentChangesCommand`: không có `PanelId` thì tự tính từ `RegionJson`; **một CR mỗi Panel giao thoa**, các CR cùng vùng lỗi chung `ChangeRequest.GroupId` (Guid?, migration) — đã chốt 2026-11-12, không dùng bảng nối.
 - [ ] FE danh sách CR gom theo `GroupId`; đóng từng CR theo Panel.
 - [ ] Test: hộp vắt 2 panel 50/50 → 2 panel; lấn 10% → 1 panel.
 
-#### REV-02 · Định tuyến theo lớp lỗi Artwork / Lettering — DB + BE + FE · ❌ · cũ P2-02
+#### REV-02 · Định tuyến theo lớp lỗi Artwork / Lettering — DB + BE + FE · ✅ lưới V3 (2026-11-28) · cũ P2-02
+- Lưới V3: lớp Tranh → ô vẽ cuối nhánh tranh của trang; lớp Chữ → ô Lettering cùng trang (đã tự duyệt thì mở lại, Letterer được báo). Nộp lại ô = CR `Resolved`; duyệt ô cổng = `Verified` cho ô cổng + ô cuối nhánh song song cùng trang; còn CR `Open` thì duyệt 409.
 - [ ] `ChangeRequest.Layer` (`Artwork | Lettering`) + migration.
 - [ ] `Lettering` → Letterer được giao Page (fallback Artist của Page); `Artwork` → Artist giữ Panel (ưu tiên Panel > Page > Chapter).
 - [ ] CR Lettering không đổi trạng thái lớp Ink.
 - [ ] FE chọn lớp lỗi khi khoanh vùng.
 
-#### REV-03 · Check Balloon Fit khi Panel bị sửa nét — BE · ❌ · cũ P2-03
+#### REV-03 · Check Balloon Fit khi Panel bị sửa nét — BE · ✅ lưới V3 (2026-11-28) · cũ P2-03
+- Lưới V3: CR lớp Tranh trên khung có bóng thoại gọi `BalloonFitRules.FlagAsync`; duyệt bị chặn tới khi xác nhận (ART-06).
 - [ ] Dùng chung cơ chế [ART-06](04_ARTWORK_PLAN.md); CR `Artwork` tạo cho Panel X bật cờ.
 - [ ] Nộp lại Gate 2 bị chặn khi còn cờ chưa xác nhận (`PanelReworkRequired → CompositeUnderReview`).
 
