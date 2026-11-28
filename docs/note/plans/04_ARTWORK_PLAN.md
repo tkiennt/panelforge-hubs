@@ -28,15 +28,15 @@
 - [ ] Endpoint `PUT /panels/{id}/reading-order` cho Artist giữ trang; UI đổi số trên `ArtistDeskView`.
 - [ ] Unit test 3 hướng đọc.
 
-#### ART-02 · Self-Rollback Ink → Pencil (BR-27.1) — BE + FE · 🟡 BE xong · cũ P1-05
+#### ART-02 · Self-Rollback Ink → Pencil (BR-27.1) — BE + FE · ✅ · cũ P1-05
 - [x] `RollbackToPencilCommand(ChapterId, TaskId, UserId, Reason)` trên lưới V3, `POST /api/chapters/{chapterId}/task-grid/tasks/{taskId}/rollback-to-pencil`: chỉ Artist giữ ô Pencil, chỉ khi chưa ô nào `UnderReview`/đã duyệt ở cổng; Pencil → `ReworkRequired`, ô nhánh tranh của chính Artist quay về chờ, ô người khác gắn cờ đầu vào lỗi thời; nhánh chữ không bị chặn, Letterer được nhắc.
 - [x] Nếu trang đã có bóng thoại → bật cờ Check Balloon (ART-06).
-- [ ] FE nút `[↺ Quay lại sửa Pencil]` + lý do.
+- [x] FE nút `[↺ Quay lại sửa Pencil]` + lý do (dùng chỗ nút Rút bài trên header khi không có bài để rút).
 - [x] Test: trang `UnderReview` → 409.
 
 #### ART-03 · Script Coverage Counter trên bàn vẽ — FE · 🟡 🔍 · cũ P1-06
 - [ ] Xác minh `ArtistDeskView` có thanh coverage; nếu chưa, tái dùng logic từ màn Writer.
-- [ ] Chặn `Submit Pencil` khi < 100% dòng thoại của trang được gắn Panel (đồng bộ rule BE nếu có).
+- [x] Chặn `Submit Pencil` khi < 100% dòng thoại được gắn Panel. BE (lưới V3): dòng thoại chưa gắn khung của phân cảnh có mặt trên trang → 409. FE vẫn xét cả chương (chặt hơn).
 
 #### ART-04 · Letterer bị khoá Layout/Graphic (BR-31.2) — BE + FE · 🟡 🔍 · cũ P1-07
 - [ ] Xác minh `PanelsController` (create/update/delete/coordinates), `FrameTemplatesController.Apply`, `AssetsController.UploadArtwork` trả 403 cho Letterer.
