@@ -115,8 +115,8 @@ Câu C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 - [ ] [BE] Bỏ `SubscribeVip`, bỏ nhánh `HasActiveVipAsync` trong `ChapterReadAccess`; giữ bản ghi giao dịch cũ.
 - [ ] [FE] Bỏ breakdown VIP ở doanh thu.
 
-#### OPS-12 · Chống webhook SePay trùng — BE 🔍
-- [ ] [BE] Kiểm khoá duy nhất theo mã giao dịch ngân hàng; nhận trùng thì trả 200 không cộng lần hai.
+#### OPS-12 · Chống webhook SePay trùng — BE ✅
+- [x] [BE] Kiểm khoá duy nhất theo mã giao dịch ngân hàng; nhận trùng thì trả 200 không cộng lần hai. BE `55f6952`: cột `payment_transactions.provider_reference` (`sepay:{Id}`, unique có lọc, migration `AddPaymentProviderReference`). Cùng giao dịch gửi lại hoặc đơn đã duyệt tay → `IgnoredAlreadyProcessed`; giao dịch khác cho đơn đã xong → `IgnoredPaidTwice` + log cảnh báo để đối soát, không cộng.
 
 ### GĐ2 · Quản trị tài nguyên đầy đủ (phương án 1B, nhịp 2)
 
