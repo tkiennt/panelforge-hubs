@@ -103,12 +103,13 @@ BR-07, câu Q11 của tài liệu nguồn. BE đã gỡ bypass, FE chưa.
 
 ### GĐ1 · Chuẩn hoá tài chính Q13 (cần trả lời C1, C2)
 
-#### OPS-10 · Tài khoản ngân hàng của nền tảng — DB + BE + FE ❌
-- [ ] [DB] Bảng riêng `platform_bank_accounts` (một bản ghi đang dùng, lịch sử append-only); bỏ dần cột ngân hàng trên `studio_workspaces`.
-- [ ] [BE] Nạp ví không phụ thuộc Studio; cấu hình `SePay:DefaultBank` thành giá trị khởi tạo.
-- [ ] [BE] Đổi số tài khoản bắt nhập mã 2FA (đã có) và ghi audit.
-- [ ] [BE] Quyền cấu hình và duyệt VietQR theo phương án C1 (2A: Publisher cấu hình, chỉ Admin duyệt; 2B: Admin nắm hết).
-- [ ] [FE] Màn cấu hình ngân hàng nền tảng ở đúng vai trò; gỡ màn ngân hàng theo Studio của Producer.
+#### OPS-10 · Tài khoản ngân hàng của nền tảng — DB + BE + FE ✅ (28/11, C1 = Publisher cấu hình và duyệt)
+- [x] [DB] Bảng `platform_bank_accounts` append-only (bản ghi mới nhất là tài khoản đang dùng), migration `AddPlatformBankAccounts`. Cột ngân hàng cũ trên `studio_workspaces` đã bỏ ở migration `DropStudioBankColumns` (`0a3df74`); giá trị cũ được lưu vào `audit_logs` với action `STUDIO_BANK_INFO_ARCHIVED` trước khi bỏ.
+- [x] [BE] Nạp ví không gắn Studio (`workspace_id = null`); mở chương bằng VietQR vẫn gắn Studio của chương. `SePay:DefaultBank` là giá trị dùng khi chưa có bản ghi.
+- [x] [BE] `PUT /api/platform/payments/bank-account` bắt Publisher đã bật 2FA + mã TOTP/mã khôi phục, ghi audit `PLATFORM_BANK_ACCOUNT_CHANGED` (chỉ 4 số cuối).
+- [x] [BE] Quyền theo C1 (giữ đúng V2.6): ghi/duyệt chỉ Publisher; Admin chỉ đọc (`GET /api/platform/payments`, `GET .../bank-account`). Duyệt/từ chối toàn nền tảng: `POST /api/platform/payments/{id}/approve|reject`. Bỏ `GET/PUT /api/workspaces/{id}/payments/bank-settings`.
+- [x] [FE] `/publisher/revenue/payments`: cấu hình tài khoản nền tảng (ô mã 2FA, lịch sử, cảnh báo đang dùng tài khoản mặc định) + giao dịch toàn nền tảng; `/publisher/revenue/workspaces/:id` lọc theo Studio. Producer không còn màn ngân hàng.
+- Commit: BE `6d8544d`, FE `2a97d2d` trên `feature/admin-b2b`.
 
 #### OPS-11 · Gỡ VIP khỏi Backend — BE + FE ❌
 Câu C2 (Q6 nguồn). Flutter đã gỡ 20/11.
@@ -120,21 +121,39 @@ Câu C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 
 ### GĐ2 · Quản trị tài nguyên đầy đủ (phương án 1B, nhịp 2)
 
-#### OPS-20 · Chính sách hạn mức mặc định — DB + BE + FE ❌
-- [ ] [DB] Bảng chính sách (dung lượng, token AI/tháng, ảnh AI/tháng); OPS-01 đọc từ đây thay cho cấu hình.
-- [ ] [BE/FE] Admin sửa chính sách; không ảnh hưởng Studio đã được cấp riêng.
+#### OPS-20 · Chính sách hạn mức mặc định — DB + BE + FE ✅
+- [x] [DB] Bảng `quota_policies` (dung lượng, token AI/tháng, ảnh AI/tháng, người sửa), append-only: mỗi lần sửa thêm một dòng, dòng mới nhất là bản đang dùng. Migration `AddQuotaPoliciesAndIncreaseRequests`. Chưa có dòng nào thì dùng `WorkspaceDefaults:{StorageQuotaBytes,MonthlyTokenQuota,MonthlyImageQuota}`.
+- [x] [BE] `CreateWorkspace` lấy cả 3 mức từ chính sách (OPS-01 cũ chỉ lấy dung lượng). Mọi mức trong chính sách phải > 0 (check constraint): "0 = không giới hạn" chỉ đặt riêng từng Studio. Không đổi Studio đã có. BE `80b6a7a`.
+- [x] [FE] Thẻ "Hạn mức cho Studio mới" ở màn Tài nguyên (OPS-23). FE `c344704`.
 
-#### OPS-21 · Producer xin tăng hạn mức, Admin duyệt — DB + BE + FE ❌
-- [ ] [DB] `quota_increase_requests` (loại, mức xin, lý do, trạng thái Pending/Approved/Rejected, người duyệt).
-- [ ] [BE] Command gửi/duyệt/từ chối; thông báo cho Admin và Producer; audit.
-- [ ] [FE] Nút "Xin tăng hạn mức" trên `StudioGovernanceBar`; hàng chờ duyệt ở màn Admin.
+#### OPS-21 · Producer xin tăng hạn mức, Admin duyệt — DB + BE + FE ✅
+- [x] [DB] `quota_increase_requests` (loại `Storage|AiTokens|AiImages`, mức đang cấp, mức xin tuyệt đối, lý do, `Pending|Approved|Rejected`, người/lúc duyệt, ghi chú, mức cấp thật, `xmin`). Index unique có lọc: một yêu cầu đang chờ cho mỗi (Studio, loại).
+- [x] [BE] Gửi (Producer, 409 nếu trùng loại đang chờ; loại đang không giới hạn hoặc Studio chưa cấp AI → 400), duyệt (cấp đúng mức xin hoặc mức Admin chọn, đổi hạn mức trong cùng lần lưu), từ chối (bắt lý do). Thông báo `QuotaIncreaseRequested` cho mọi Admin, `QuotaIncreaseApproved/Rejected` cho Producer. Audit tự ghi. 16 test `QuotaGovernanceTests`. BE `80b6a7a`, `8f16fda`.
+- [x] [FE] `StudioGovernanceBar` có prop tuỳ chọn `onRequestQuotaIncrease` (hiện nút "Xin tăng hạn mức") + `QuotaIncreaseRequestModal` (chọn loại, mức mới, lý do, lịch sử 5 yêu cầu gần nhất). Hàng chờ duyệt ở màn Admin. FE `c344704`.
+- [x] [FE] Nối vào `StudioOverviewView`: chỉ Producer có nút, render `QuotaIncreaseRequestModal` với Studio đang mở. FE `931a0d9` (trên OPS-04 `403eac8`).
 
-#### OPS-22 · Reset AI đầu tháng và dọn file mồ côi — BE 🔍
-- [ ] [BE] Xác nhận reset tháng trong `CheckAvailabilityAsync` đủ dùng hay cần job.
-- [ ] [BE] Job tính lại `UsedStorageBytes` từ asset còn tham chiếu, dọn file mồ côi (chỉ xoá file, không xoá lịch sử).
+**Hợp đồng API (OPS-20..23)** — enum gửi dạng chuỗi.
 
-#### OPS-23 · Màn Admin Resources — FE ❌
-- [ ] [FE] Bảng Studio: dung lượng/AI đã dùng, mức cấp, yêu cầu đang chờ, sửa nhanh.
+| Endpoint | Vai trò | Body / kết quả |
+|---|---|---|
+| `GET /api/workspaces/{id}/quota-requests` | Producer | `QuotaIncreaseRequestDto[]` (50 mới nhất) |
+| `POST /api/workspaces/{id}/quota-requests` | Producer | `{ resourceType, requestedQuota, reason }` → 201 `QuotaIncreaseRequestDto`; 409 trùng |
+| `GET/PUT /api/admin/quota-policy` | Admin | `{ storageQuotaBytes, monthlyTokenQuota, monthlyImageQuota }` → `QuotaPolicyDto` (+ `isFromSettings`, `updatedAt`, `updatedByName`) |
+| `GET /api/admin/quota-requests?status=Pending` | Admin | `QuotaIncreaseRequestDto[]` |
+| `POST /api/admin/quota-requests/{id}/approve` | Admin | `{ grantedQuota?: number, note?: string }`; 409 nếu đã xử lý |
+| `POST /api/admin/quota-requests/{id}/reject` | Admin | `{ note }` (bắt buộc) |
+| `GET /api/admin/resources` | Admin | `AdminWorkspaceResourceDto[]` (đã dùng/mức cấp 3 loại, `hasAiConfig`, `aiEnabled`, `pendingRequestCount`) |
+| `PUT /api/admin/workspaces/{id}/resources` | Admin | `{ storageQuotaBytes?, monthlyTokenQuota?, monthlyImageQuota? }`; null = giữ, 0 = không giới hạn |
+| `POST /api/admin/storage/reconcile?apply=false` | Admin | `StorageReconcileReportDto`: từng Studio `recordedBytes`, `computedBytes`, `orphanFiles/Bytes`, `derivedBytes`, `missingFiles`; file không thuộc Studio nào; tối đa 200 khoá mồ côi mẫu. `apply=true` ghi `UsedStorageBytes = computedBytes`; 409 nếu Studio vừa upload trong lúc quét. Không xoá file |
+
+#### OPS-22 · Reset AI đầu tháng và đối soát file mồ côi — BE + FE ✅
+- [x] [BE] Reset lười trong `AiUsageService` đủ cho việc chặn quota (mỗi lượt gọi đều kiểm tháng). Thiếu sót chỉ ở màn đọc: tháng mới chưa gọi AI thì còn hiện số tháng trước. Đã sửa: `GetWorkspaceUsage` và `GetAdminResources` coi bộ đếm của tháng cũ là 0 (`WorkspaceAiConfig.IsCountedThisMonth`). Không cần job. BE `687f503`.
+- [x] [BE] Admin bấm chạy (không phải job định kỳ): `ReconcileStorageCommand` quét kho một lần (`IAssetStorage.ListAsync`, R2 + local), gán file cho Studio theo khoá CAS, so với bản ghi còn tham chiếu (asset kể cả xoá mềm, ảnh bìa Studio/Series/avatar/banner/chương hiện tại, ảnh Bible theo SHA trong mọi cột Bible kể cả lịch sử). Ảnh `thumbs/` và `exports/` báo riêng, không tính vào hạn mức. Theo C6: **không xoá file nào**. 3 test `ReconcileStorageTests`. BE `e1110f5`.
+- [x] [FE] Thẻ "Đối soát dung lượng" cuối màn Tài nguyên (`StorageReconcileCard`): quét chỉ đọc, bảng Studio lệch số / có file mồ côi / thiếu file, danh sách khoá mồ côi, "Cập nhật dung lượng" phải xác nhận. FE `9e16ce0`.
+- [ ] Xoá file mồ côi: chỉ làm sau khi Admin xem báo cáo trên dữ liệu thật và chốt lại (C6).
+
+#### OPS-23 · Màn Admin Resources — FE ✅
+- [x] [FE] Tab `?tab=storage` của Admin thành "Tài nguyên & hạn mức" (`AdminResourcesView`, thay `StorageBackupSettings`): hàng chờ yêu cầu, chính sách cho Studio mới, bảng Studio với dung lượng/token/ảnh đã dùng so với mức cấp, số yêu cầu chờ, sửa nhanh 3 mức. FE `c344704`.
 
 ### GĐ3 · Để sau
 Tách dung lượng sản xuất và phát hành; giới hạn request/phút theo Studio; link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
@@ -158,8 +177,9 @@ OPS-22 độc lập sau OPS-02
 | # | Câu hỏi | Chặn task | Gợi ý |
 |---|---|---|---|
 | C0 | Nhánh tên "admin-b2b" có nghĩa là muốn làm B2B (bán gói cho Studio) không? | Toàn plan | Không; giữ V2.6, Admin cấp tài nguyên |
-| C1 | Ai nắm tài khoản ngân hàng và duyệt VietQR: 2A (đúng V2.6) hay 2B (Admin nắm hết, sửa spec)? | OPS-10 | 2A ngay, bàn 2B riêng |
+| C1 | Ai nắm tài khoản ngân hàng và duyệt VietQR: 2A (đúng V2.6) hay 2B (Admin nắm hết, sửa spec)? | OPS-10 | ✅ Chốt 28/11: Publisher cấu hình và duyệt (đúng BR-32 V2.6), Admin chỉ đọc |
 | C2 | Gỡ VIP khỏi Backend, giữ lịch sử giao dịch? | OPS-11 | Gỡ |
 | C3 | Gói export và ảnh `webp` dẫn xuất có tính vào dung lượng Studio không? | OPS-02 | Export: có, vì Studio tạo ra; `webp` cache: không |
 | C4 | Danh sách màn/endpoint Admin được đọc trong Studio | OPS-05 | Lập danh sách ở OPS-05 rồi chốt |
+| C6 | Dọn file mồ côi (OPS-22): chỉ tính lại `UsedStorageBytes` và báo cáo, hay xoá luôn file không còn tham chiếu khỏi R2 (không khôi phục được)? | OPS-22 | ✅ Chốt 28/11: tính lại + báo cáo, chưa xoá. Xoá sẽ hỏi lại sau khi xem báo cáo |
 | C5 | Phần quota Admin đang làm dở (gỡ khỏi `e79e061`) có đi theo hướng giữ chỗ ở OPS-02 không? | OPS-01..03 | Đọc OPS-02 trước khi commit tiếp |
