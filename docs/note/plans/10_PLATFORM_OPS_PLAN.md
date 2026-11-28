@@ -29,7 +29,7 @@ Tài liệu nguồn viết theo `feature/assign-automation` ngày 27/11. Cùng n
 | Quyền ghi thanh toán mở cho `Publisher,Admin` | 🟡 ghi chỉ còn Publisher; `GET` vẫn `Publisher,Admin` (`WorkspacePaymentsController.cs:43`). Duyệt VietQR do Publisher là **trái BR-32**, chờ Q1 | `06dba3b` |
 | Client tự gửi dung lượng khi tạo Studio, 0 = không giới hạn | ❌ còn nguyên | `CreateWorkspaceCommand.cs:16`, `StudioWorkspace.HasStorageCapacity` |
 | Chỉ 2 luồng giữ chỗ dung lượng | ❌ còn nguyên: 9 luồng gọi `IAssetStorage.SaveAsync`, 2 luồng giữ chỗ | §2, OPS-02 |
-| AI trừ token sau khi gọi | ❌ còn nguyên (chỉ `CheckAvailabilityAsync` trước khi gọi) | `RunThumbnailCommand.cs:90` |
+| AI trừ token sau khi gọi | ✅ 28/11: mọi lối gọi AI giữ chỗ token và đếm lượt trước khi gọi (OPS-03, OPS-24) | `IAiUsageService.TryStartRequestAsync` |
 | `StudioGovernanceBar` import nhưng không hiển thị | ❌ còn nguyên | FE `StudioOverviewView.tsx:38` |
 | Publisher không tải được file export | ❌ `Download` chỉ Producer, Editor | `ExportsController.cs` (`{jobId}/file`) |
 | Phát hành không thu hồi PreviewLink | ❌ không thấy thu hồi trong `PublishEdition*Command` | `Features/Chapters/Commands/Editions/` |
@@ -83,7 +83,8 @@ BR-22.
 #### OPS-03 · Trừ token AI nguyên tử — BE ✅ (28/11, một phần)
 - [x] [BE] `WorkspaceAiConfig` có `xmin`; `TryReserveTokens` / `SettleReservedTokens`; `AiUsageService` thử lại khi xung đột (3 lần). Migration `AddWorkspaceAiConfigConcurrencyToken`.
 - [x] [BE] Copilot giữ chỗ `AiAgentSettings.CopilotReservedTokens` (4000) trước khi gọi, chốt số thật sau.
-- [ ] [BE] Giới hạn còn lại: RunWorkflow và RecordAgentStep mới chỉ hết mất cập nhật (xmin), chưa giữ chỗ trước khi gọi.
+- [x] [BE] RunWorkflow giữ chỗ `WorkflowReservedTokens` (20000) ở cổng cuối, giữ trên run; step đầu có số token thật chốt lại; run không chạy được, xong mà không có step token, hoặc treo thì trả lại phần còn giữ. Migration `AddAiWorkflowRunReservedTokens`. BE `64d6a16`.
+- [x] [BE] Gộp giữ chỗ và đếm lượt vào `IAiUsageService.TryStartRequestAsync(workspaceId, reserveTokens)` (thay `TryReserveTokensAsync`), xem OPS-24. BE `f46c0b2`.
 - [x] [QA] `AiUsageServiceTests` (3 test mới).
 - Commit: BE `2be8323`.
 
@@ -166,8 +167,15 @@ C2 (Q6 nguồn). Flutter đã gỡ 20/11.
 - [x] [FE] Tab `?tab=storage` của Admin thành "Tài nguyên & hạn mức" (`AdminResourcesView`, thay `StorageBackupSettings`): hàng chờ yêu cầu, chính sách cho Studio mới, bảng Studio với dung lượng/token/ảnh đã dùng so với mức cấp, số yêu cầu chờ, sửa nhanh 3 mức. FE `c344704`.
 - [x] [BE+FE] Thay bằng màn của nhánh Danh (28/11): `?tab=resources` (`?tab=storage` tự chuyển), `modules/resources/ResourcesView.tsx` 4 tab Cấp phát theo Studio / Chính sách mặc định / Yêu cầu tăng / Đối soát dung lượng. Trạng thái Bình thường / Gần hết / Đã hết, tìm kiếm, lọc "Cần chú ý", hộp thoại cấu hình bắt lý do và cảnh báo khi thấp hơn mức đang dùng, bật/tắt AI từng Studio. Duyệt yêu cầu vẫn cấp được mức thấp hơn mức xin. Overview có 4 chỉ số tài nguyên và danh sách "Cần xử lý". Xem §6.
 
+#### OPS-24 · Giới hạn lượt gọi AI theo tháng và theo phút — DB + BE + FE ✅ (28/11)
+- [x] [DB] `workspace_ai_configs` thêm `monthly_request_quota`, `used_requests_current_month`, `requests_per_minute_limit`, `rate_window_started_at`, `requests_in_rate_window` (0 = không giới hạn). `quota_policies` thêm `monthly_request_quota` (mặc định 5000), `requests_per_minute` (20), cả hai > 0. Migration `AddAiRequestLimits`.
+- [x] [BE] `WorkspaceAiConfig.TryStartRequest`: kiểm token, lượt/tháng, lượt/phút (cửa sổ cố định 60 giây) rồi mới ghi cả ba, trong cùng lần lưu có `xmin`; lượt bị từ chối không tốn gì, trả 429 `AI_QUOTA_EXCEEDED` kèm lý do (có số giây chờ khi vượt lượt/phút). Một lượt = một lần người dùng gọi: workflow nhiều agent tính 1 lượt; Copilot, thumbnail, so ảnh nhất quán mỗi lần 1 lượt; step nội bộ của AI service không tính. Bộ đếm tháng về 0 cùng token.
+- [x] [BE] Studio mới lấy 2 mức từ chính sách; Studio có từ trước giữ không giới hạn tới khi Admin đặt. `PUT /api/admin/quota-policy` và `PUT /api/admin/workspaces/{id}/resources` nhận `monthlyRequestQuota`, `requestsPerMinute` (resources: null = giữ, audit ghi cũ/mới). `GET /api/admin/resources` thêm `aiRequests` (`UsageMeterDto`), `requestsPerMinuteLimit`, `totalRequestsThisMonth`; lượt/tháng tính vào trạng thái Gần hết/Đã hết. 9 test mới. BE `f46c0b2`.
+- [x] [BE+FE] Bỏ ô sửa quota token và ảnh trùng ở màn Cấu hình AI: Tài nguyên là nơi duy nhất. `PUT /api/admin/workspaces/{id}/ai-config` không bắt `monthlyTokenQuota` nữa (null = giữ). FE thêm cột "Lượt gọi AI" và 2 ô ở hộp thoại Studio, 2 ô ở Chính sách mặc định. FE `a0358ae`.
+- Chưa làm: Producer chưa xin tăng lượt gọi được (enum `QuotaResourceType` chưa có `AiRequests`); thanh hạn mức của Producer chưa hiện lượt gọi.
+
 ### GĐ3 · Để sau
-Tách dung lượng sản xuất và phát hành; giới hạn request AI mỗi tháng và mỗi phút theo Studio; giới hạn kích thước upload; trang chi tiết User/Studio và System Health cho Admin; bỏ ô sửa token quota trùng trong màn Cấu hình AI (đã có ở Tài nguyên); link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
+Tách dung lượng sản xuất và phát hành; giới hạn kích thước upload; trang chi tiết User/Studio và System Health cho Admin; link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
 
 ---
 
