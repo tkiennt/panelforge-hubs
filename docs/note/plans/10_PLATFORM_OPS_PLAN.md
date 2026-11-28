@@ -187,6 +187,20 @@ Spec V2.6 không đặc tả riêng các trang này; làm theo UC-01, UC-15, BR-
 | `GET /api/admin/workspaces/{id}` | Admin | `AdminWorkspaceDetailDto` (`resources` = `AdminWorkspaceResourceDto`, `members[]`, `series[]`, `quotaRequests[]`, `aiLast30Days`, `recentActivity[]`); 404 |
 | `GET /api/admin/system-health` | Admin | `SystemHealthDto`: `status` = mức xấu nhất `Healthy\|Degraded\|Down`, `dependencies[]` (`key` database/storage/ai, `provider`, `latencyMs`, `reason` SLOW/TIMEOUT/UNREACHABLE/SERVICE_KEY_MISSING, `queueDepth`), `signals[]` (`key`, `count`, `warning`, `oldestAt`), `serverStartedAt`, `version` |
 
+#### OPS-25 · Giới hạn kích thước một file tải lên — DB + BE + FE ✅ (28/11)
+Kéo từ GĐ3. Admin đặt cho toàn nền tảng, **áp ngay cho mọi Studio** (khác chính sách hạn mức chỉ áp cho Studio mới). File đã lưu không bị ảnh hưởng.
+- [x] [DB] Bảng `upload_limit_policies` append-only (`artwork_max_bytes`, `reference_image_max_bytes`, `cover_image_max_bytes`, người sửa; dòng mới nhất là bản đang dùng). Check constraint mỗi mức trong (0, trần]: trần 50 MB cho artwork, 20 MB cho ảnh, bằng `RequestSizeLimit` ở controller (không đổi lúc chạy). Chưa có dòng nào thì dùng mặc định cũ 25 / 10 / 5 MB. Migration `AddUploadLimitPolicies` (chỉ thêm bảng).
+- [x] [BE] `Quotas/Common/UploadLimits.CheckAsync` chạy trước khi giữ chỗ dung lượng ở cả 7 luồng nhận file của người dùng: artwork (`UploadArtwork`), ảnh trang gửi tách panel (`SplitArtwork`, dùng mức artwork, trước đây cố định 20 MB), ảnh tham chiếu Bible, bìa Series, avatar/banner Series, bìa Chương, bìa Studio. Vượt mức → mã `FILE_TOO_LARGE`, HTTP 413, không ghi file, không trừ dung lượng. Thumbnail AI, export và bản `webp` dẫn xuất do server tạo nên không tính.
+- [x] [BE] `GET /api/assets/upload-limits` (mọi người đã đăng nhập), `PUT /api/admin/upload-limits` (Admin). 9 test `UploadLimitTests` + test mới ở `ArtworkUploadTests`, `SplitArtworkQueryTests`. BE `9c0f7f6`.
+- [x] [FE] `useUploadLimit(kind)` đọc giới hạn một lần mỗi phiên, thay các mức ghi cứng 5/10/20/25 MB ở 8 màn upload (artwork, nhận diện panel, Bible thêm mục / chi tiết / bản sửa, bìa Studio, avatar/banner Series); chuỗi i18n dùng `{max}`. Axios đổi lỗi 413 / `FILE_TOO_LARGE` thành câu vi/en. Thẻ "Giới hạn kích thước file tải lên" ở tab Chính sách mặc định của màn Tài nguyên. FE `7e64ca9`.
+
+| Endpoint | Vai trò | Body / kết quả |
+|---|---|---|
+| `GET /api/assets/upload-limits` | Đã đăng nhập | `UploadLimitsDto` (`artworkMaxBytes`, `referenceImageMaxBytes`, `coverImageMaxBytes`, `artworkCeilingBytes`, `imageCeilingBytes`, `isDefault`, `updatedAt`, `updatedByName`) |
+| `PUT /api/admin/upload-limits` | Admin | `{ artworkMaxBytes, referenceImageMaxBytes, coverImageMaxBytes }` → `UploadLimitsDto`; 400 nếu ≤ 0 hoặc vượt trần |
+
+**Mobile:** app chưa có luồng tải file lên (góp ý review gửi qua JSON), nên chưa cần đổi. Khi thêm upload thì đọc `GET /api/assets/upload-limits` và xử lý 413.
+
 ### GĐ4 · Gói mở Studio cho độc giả (C0 đổi 28/11, spec D11)
 
 #### OPS-40 · Gói mở Studio — DB + BE + FE ✅ (28/11, BE `d41bf5d`, FE `7d11a55`)
@@ -206,7 +220,7 @@ Hợp đồng API:
 | `PUT /api/admin/studio-package/price` | Admin | `{ priceVnd }` → `AdminStudioPackageDto`; 400 ngoài khoảng |
 
 ### GĐ3 · Để sau
-Tách dung lượng sản xuất và phát hành; giới hạn kích thước upload; link R2 ký trực tiếp, CDN (thuộc `RDR`). Gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi (gói mở Studio một lần làm ở OPS-40).
+Tách dung lượng sản xuất và phát hành; link R2 ký trực tiếp, CDN (thuộc `RDR`). Gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi (gói mở Studio một lần làm ở OPS-40).
 
 ---
 
