@@ -65,37 +65,44 @@ Quy ước theo `README.md` §2: mỗi task một PR có test hồi quy, sub-tas
 
 ### GĐ0 · Vá phần P0 còn lại (không cần đổi spec)
 
-#### OPS-01 · Server tự đặt hạn mức khi tạo Studio — BE + FE ❌
-BR-22. Hiện client gửi `StorageQuotaBytes`, gửi 0 là không giới hạn.
-- [ ] [BE] Bỏ `StorageQuotaBytes` khỏi `CreateWorkspaceCommand` và request của `WorkspacesController`; lấy mặc định từ cấu hình `WorkspaceDefaults:StorageQuotaBytes` (và quota AI mặc định).
-- [ ] [BE] 0 = không giới hạn chỉ đặt được qua lệnh Admin `UpdateWorkspaceQuota`, ghi audit.
-- [ ] [FE] Bỏ ô dung lượng ở form tạo Studio (nếu có).
-- [ ] [QA] Test: client gửi quota bị bỏ qua; Studio mới nhận đúng mặc định.
+#### OPS-01 · Server tự đặt hạn mức khi tạo Studio — BE + FE ✅ (28/11)
+BR-22.
+- [x] [BE] `CreateWorkspaceCommand(OwnerId, Name)`; quota lấy từ `WorkspaceDefaults:StorageQuotaBytes` (mặc định 5 GB, âm thì báo lỗi khi khởi động).
+- [x] [BE] 0 = không giới hạn chỉ đặt qua lệnh Admin `UpdateWorkspaceQuota`.
+- [x] [FE] Bỏ ô chọn dung lượng ở `CreateWorkspaceModal`.
+- [x] [QA] `WorkspaceHandlerTests`.
+- Commit: BE `5ea5994`, FE `bb0c4ef`.
 
-#### OPS-02 · Giữ chỗ dung lượng cho mọi luồng ghi file — BE ❌
-Mẫu: giữ chỗ nguyên tử (`TryReserveStorage` + khoá `xmin`) → ghi file → lỗi/huỷ thì `ReleaseStorage`.
-- [ ] [BE] Bọc 5 luồng ❌ ở §2 (Bible, 3 loại bìa, ảnh Series); xử lý Export/DownloadAsset sau khi chốt C3.
-- [ ] [BE] `RunThumbnail`: giữ chỗ trước khi gọi AI, trả lại khi AI lỗi.
-- [ ] [BE] Ảnh thay thế (bìa mới đè bìa cũ): trả lại dung lượng bản cũ nếu không còn tham chiếu (CAS dùng chung hash).
-- [ ] [QA] Test hết hạn mức → 409/422 trước khi ghi file; lỗi ghi file → `UsedStorageBytes` không đổi.
+#### OPS-02 · Giữ chỗ dung lượng cho mọi luồng ghi file — BE ✅ (28/11)
+- [x] [BE] `Features/Assets/Common/StorageQuota.TryReserveAsync` (bỏ qua khoá CAS đã có) dùng ở bìa Series, ảnh Series, bìa Studio, bìa Chương, ảnh tham chiếu Bible; lưu xung đột `xmin` → 409.
+- [x] [BE] `RunThumbnail`: kiểm còn ≥ 2 MB trước khi gọi AI.
+- [ ] [BE] Trả lại dung lượng ảnh bị thay thế: chuyển sang OPS-22 (tính lại từ asset còn tham chiếu). Export/DownloadAsset chờ C3.
+- [x] [QA] SeriesCoverTests, SeriesImageTests, BibleReferenceAccessTests, ThumbnailTests.
+- Commit: BE `d383e3d`.
 
-#### OPS-03 · Trừ token AI nguyên tử — BE ❌
-- [ ] [BE] Giữ chỗ token ước lượng trước khi gọi, chốt số thật sau khi có `usage`, trả phần thừa; dùng cùng cơ chế khoá lạc quan như dung lượng.
-- [ ] [QA] Test hai yêu cầu song song không vượt hạn mức.
+#### OPS-03 · Trừ token AI nguyên tử — BE ✅ (28/11, một phần)
+- [x] [BE] `WorkspaceAiConfig` có `xmin`; `TryReserveTokens` / `SettleReservedTokens`; `AiUsageService` thử lại khi xung đột (3 lần). Migration `AddWorkspaceAiConfigConcurrencyToken`.
+- [x] [BE] Copilot giữ chỗ `AiAgentSettings.CopilotReservedTokens` (4000) trước khi gọi, chốt số thật sau.
+- [ ] [BE] Giới hạn còn lại: RunWorkflow và RecordAgentStep mới chỉ hết mất cập nhật (xmin), chưa giữ chỗ trước khi gọi.
+- [x] [QA] `AiUsageServiceTests` (3 test mới).
+- Commit: BE `2be8323`.
 
-#### OPS-04 · Hiện thanh hạn mức cho Producer — FE ❌
-- [ ] [FE] Render `StudioGovernanceBar` trong `StudioOverviewView` (đã viết sẵn), dữ liệu từ API quota hiện có.
-- [ ] [FE] i18n VI/EN, `npm run i18n:check`.
+#### OPS-04 · Hiện thanh hạn mức cho Producer — FE ✅ (28/11, agy)
+- [x] [FE] `StudioGovernanceBar` ở tab Series của `StudioOverviewView`; quota 0 hiện "không giới hạn". Nút "Xin tăng hạn mức" (OPS-21) gắn ở `931a0d9`.
+- [x] [FE] i18n VI/EN, `StudioOverviewView.test.tsx`.
+- Commit: FE `403eac8`.
 
-#### OPS-05 · Rà màn Admin rồi khoá route FE — FE + BE ❌
-BR-07, câu Q11 của tài liệu nguồn. BE đã gỡ bypass, FE chưa.
-- [ ] [BE] Lập danh sách endpoint Admin cần đọc (xem Studio, hỗ trợ, audit) — viết vào plan này, chờ team chốt.
-- [ ] [FE] `workspaceRoleGuard.ts` bỏ cho Admin vào mọi route Studio; màn Admin chỉ gọi API `/api/admin/*`.
-- [ ] [QA] Test Admin nhận 403/redirect ở route sản xuất.
+#### OPS-05 · Rà màn Admin rồi khoá route FE — FE + BE ✅ (28/11, agy, FE)
+BR-07.
+- [ ] [BE] Danh sách endpoint Admin cần đọc (xem Studio, hỗ trợ, audit): chờ team chốt.
+- [x] [FE] `workspaceRoleGuard.ts`: Admin chỉ vào route ghi rõ ADMIN/ADMINISTRATOR; bị từ chối thì về `/admin`. Bỏ ADMINISTRATOR khỏi `allowedRoles` của mọi route sản xuất Studio trong `routes.tsx`.
+- [x] [QA] `RequireWorkspaceRole.test.tsx`.
+- Commit: FE `35a62ed`.
 
-#### OPS-06 · Tách loại "Hoàn tiền" — DB + BE ❌
-- [ ] [DB] Thêm `PaymentTransactionType.Refund` (giá trị mới, không đổi số cũ); migration chuyển dữ liệu hoàn tiền cũ nếu nhận diện được.
-- [ ] [BE] `admin/refund` ghi đúng loại; báo cáo doanh thu không tính Refund là nạp.
+#### OPS-06 · Tách loại "Hoàn tiền" — DB + BE ✅ (28/11)
+- [x] [DB] `PaymentTransactionType.Refund = 4`; migration `ReclassifyAdminRefundTransactions` chuyển bản ghi `bank_bin = 'ADMIN_REFUND'`.
+- [x] [BE] `admin/refund` ghi Refund; Ví hiện "Hoàn tiền vào Ví"; `CreateTopup` từ chối Refund.
+- Commit: BE `03b62bd`.
 
 #### Phụ thuộc sang plan khác (GĐ0)
 - `REL`: thu hồi PreviewLink khi phát hành + watermark ở server; Publisher tải được export (`ExportsController` `Download`).
@@ -111,10 +118,11 @@ BR-07, câu Q11 của tài liệu nguồn. BE đã gỡ bypass, FE chưa.
 - [x] [FE] `/publisher/revenue/payments`: cấu hình tài khoản nền tảng (ô mã 2FA, lịch sử, cảnh báo đang dùng tài khoản mặc định) + giao dịch toàn nền tảng; `/publisher/revenue/workspaces/:id` lọc theo Studio. Producer không còn màn ngân hàng.
 - Commit: BE `6d8544d`, FE `2a97d2d` trên `feature/admin-b2b`.
 
-#### OPS-11 · Gỡ VIP khỏi Backend — BE + FE ❌
-Câu C2 (Q6 nguồn). Flutter đã gỡ 20/11.
-- [ ] [BE] Bỏ `SubscribeVip`, bỏ nhánh `HasActiveVipAsync` trong `ChapterReadAccess`; giữ bản ghi giao dịch cũ.
-- [ ] [FE] Bỏ breakdown VIP ở doanh thu.
+#### OPS-11 · Gỡ VIP khỏi Backend — BE + FE ✅ (28/11)
+C2 (Q6 nguồn). Flutter đã gỡ 20/11.
+- [x] [BE] Bỏ `SubscribeVip` và endpoint `subscribe-vip`, bỏ VIP trong `ChapterReadAccess` và catalog; `CreateTopup` từ chối VipSubscription; đơn VIP cũ được duyệt thì cộng Ví; `GetMyWallet` luôn `IsVip = false`. Giữ bản ghi giao dịch cũ.
+- [x] [FE] Bỏ dòng VIP ở KPI doanh thu Publisher.
+- Commit: BE `1438dff`, FE `50f5fcf`.
 
 #### OPS-12 · Chống webhook SePay trùng — BE ✅
 - [x] [BE] Kiểm khoá duy nhất theo mã giao dịch ngân hàng; nhận trùng thì trả 200 không cộng lần hai. BE `55f6952`: cột `payment_transactions.provider_reference` (`sepay:{Id}`, unique có lọc, migration `AddPaymentProviderReference`). Cùng giao dịch gửi lại hoặc đơn đã duyệt tay → `IgnoredAlreadyProcessed`; giao dịch khác cho đơn đã xong → `IgnoredPaidTwice` + log cảnh báo để đối soát, không cộng.
