@@ -90,7 +90,7 @@ REL-01 (ChapterStatus) ◄──┘ làm cùng SCR-08 (ScriptStatus)
                           │
 ASG-01 (giao Page tại Gate 1) ◄── cần SCR-10 (ApproveScript) + REL-01
 ASG-02 (Ink ∥ Lettering) ─► ART-08 (composite nền) ─► REV-* (Gate 2)
-REV-01 (giao thoa 15%) ─► REV-02 (lớp lỗi) ─► REV-03 (Check Balloon Fit, dùng chung ART-06)
+REV-01 (chọn Panel đích, bỏ 15% theo Q35) ─► REV-02 (lớp lỗi) ─► REV-03 (Check Balloon Fit, dùng chung ART-06)
 REL-02 (Gate 3 chặn trang chưa giao) ◄── ASG-01
 RDR-01..06 (analytics) độc lập
 ART-14 (ngôn ngữ Series + bản dịch) ─► ART-15 (kiểm tra & tiến độ dịch)

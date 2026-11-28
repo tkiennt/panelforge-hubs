@@ -1,6 +1,6 @@
 # 05 · GATE 2 — KIỂM DUYỆT TRANG & CÔ LẬP LỖI CẤP PANEL (`REV`)
 
-> **Spec:** Module 3, §5.2 máy trạng thái 2 và 3, §6.1 mục 1 (`FindIntersectingPanelIds`, ngưỡng 15%), BR-06/26 (4 mắt), BR-27.2.
+> **Spec:** Module 3, §5.2 máy trạng thái 2 và 3, §6.1 mục 1 (chọn Panel đích, bỏ ngưỡng 15% theo Q35), BR-06/26 (4 mắt), BR-27.2, BR-39..41.
 > **Thay cho:** plan tổng P2-01..P2-05, P6-01; UI GĐ8 của `ANTI_SLOP_REFACTOR_PLAN.md`; `UI_REFACTOR_CHECKLIST` B4; Lucian #302, #176, #180; `panelforge-fe/docs/implement-plan/ongoing/editor-review-screens.md`.
 > **Repo:** `PanelForge_FA26SE251`, `panelforge-fe`.
 
@@ -25,8 +25,8 @@
 
 ## 2. Task
 
-#### REV-01 · `FindIntersectingPanelIds` ≥ 15% — BE + FE · ❌ · cũ P2-01
-- [ ] Hàm Domain thuần: `OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel))`; trả PanelId có ratio ≥ 0.15 (Quyết định 2026-11-15 (D8)).
+#### REV-01 · `FindIntersectingPanelIds` ≥ 15% — (Huỷ theo Q35 — Editor chọn Panel đích) — BE + FE · ❌ · cũ P2-01
+- [ ] (Huỷ theo Q35 — thay bằng Editor chọn Panel đích, bỏ công thức giao thoa 15%) Hàm Domain thuần: `OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel))`; trả PanelId có ratio ≥ 0.15 (Quyết định 2026-11-15 (D8)).
 - [ ] `ReturnWorkFromReviewCommand` / `RequestAssignmentChangesCommand`: không có `PanelId` thì tự tính từ `RegionJson`; **một CR mỗi Panel giao thoa**, các CR cùng vùng lỗi chung `ChangeRequest.GroupId` (Guid?, migration) — đã chốt 2026-11-12, không dùng bảng nối.
 - [ ] FE danh sách CR gom theo `GroupId`; đóng từng CR theo Panel.
 - [ ] Test: hộp vắt 2 panel 50/50 → 2 panel; lấn 10% → 1 panel.

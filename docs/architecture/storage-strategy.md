@@ -184,7 +184,7 @@ Chi tiết task ở [02_BIBLE_PLAN.md](../note/plans/02_BIBLE_PLAN.md) (BIB-09..
 | `POST` | `.../revisions/{revisionId}/request-rework` | Writer, Editor, Producer | Bắt buộc nhận xét (Q22) |
 | `POST` | `.../revisions/{revisionId}/confirm` | Editor | Xác nhận = `CanonLocked` (thay `/endorse` + `/lock`); khác Artist nộp (BR-06) |
 | `POST` | `.../revisions/{revisionId}/supersede` | Writer | Bản thay thế cùng biến thể; bản cũ `Superseded` khi bản mới được khoá |
-| `POST` | `/api/chapters/{id}/submit-script` | Writer | Gửi duyệt gọi `ChapterCastGate.EvaluateSubmitAsync` (mục nháp đã định nghĩa hoặc Quần chúng — Q21) |
+| `POST` | `/api/chapters/{id}/script/submit` | Writer | Gửi duyệt gọi `ChapterCastGate.EvaluateSubmitAsync` (mục nháp đã định nghĩa hoặc Quần chúng — Q21; thay `submit-script` theo Q32) |
 | `POST` | `/api/chapters/{id}/freeze-script` | Producer | Gate 1 gọi `ChapterCastGate.EvaluateStartAsync` (mọi bản chương dùng — của chương và theo Panel — đã `CanonLocked`); thay endpoint `bible-gate` |
 
 ---

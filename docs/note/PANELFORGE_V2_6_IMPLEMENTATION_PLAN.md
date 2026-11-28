@@ -27,7 +27,7 @@
 | **M0** | Nền tảng chung (state machine, cấu trúc dữ liệu, realtime, audit) | 3 | 4 | 3 | Nền tảng vững, thiếu SignalR sản xuất & state machine V2.6 |
 | **M1** | Studio, Series Bible, Kịch bản, Gate 1 | 8 | 3 | 1 | Gần xong; Gate 1 chưa "1 chạm" |
 | **M2** | Bàn vẽ Layout/Pencil/Ink & Lettering | 6 | 4 | 6 | Lệch lớn nhất: BR-31 Artist đặt chữ, Ink ∥ Letter, Self-Rollback |
-| **M3** | Gate 2 – QC & cô lập lỗi cấp Panel | 5 | 3 | 5 | Thiếu thuật toán giao thoa 15%, định tuyến theo lớp, chế độ so sánh |
+| **M3** | Gate 2 – QC & cô lập lỗi cấp Panel | 5 | 3 | 5 | Bỏ thuật toán giao thoa 15% theo Q35 (chọn Panel đích), định tuyến theo lớp, chế độ so sánh |
 | **M4** | Sửa kịch bản muộn & truy vết | 6 | 1 | 0 | Cơ bản hoàn thành |
 | **M5** | Gate 3, Snapshot, Publisher, Analytics, Revenue | 4 | 4 | 6 | Thiếu toàn bộ Readership Analytics & Revenue Report |
 
@@ -96,7 +96,7 @@
 | M3-01 | Hàng đợi review của Editor | ✅ | `GetEditorReviewQueueQuery`, FE `roles/editor/views/ReviewView.tsx`, `EditorDeskView.tsx` |
 | M3-02 | Luật 4 mắt BR-06 (Reviewer ≠ Assignee ≠ Submitter → 403) | ✅ | `ReviewRules.cs:25-30` chặn cả Assignee và người từng nộp; P0-04 bổ sung cùng luật cho `ReturnWorkFromReviewCommand` (đường trả việc từ màn duyệt cả chương) |
 | M3-03 | Rework bắt buộc vùng khoanh + nhận xét | ✅ 🔍 | `ReturnWorkFromReviewCommand` + `ChangeRequest.ValidateRegion` |
-| M3-04 | **`FindIntersectingPanelIds()` – OverlapRatio ≥ 15%** | ❌ | `ChangeRequest.PanelId` là 1 giá trị do client gửi; không tính giao thoa |
+| M3-04 | **`FindIntersectingPanelIds()` – OverlapRatio ≥ 15%** | ❌ (Huỷ theo Q35) | Đã huỷ theo Q35 — Editor chọn Panel đích |
 | M3-05 | Chỉ Panel lỗi về `ReworkRequired`, Panel khác giữ Approved | 🟡 | `StageProgress` theo Panel có `ReopenForRework/RequestChanges`; cần nối với M3-04 và đảm bảo Assignment cấp Page không kéo cả trang về rework |
 | M3-06 | **Định tuyến theo lớp lỗi (Artwork vs Lettering)** | ❌ | `ChangeRequest` không có trường Layer; `ResponsibleUserId` lấy từ assignment đích |
 | M3-07 | Cờ `is_artwork_updated_alert` (⚠️ Check Balloon Fit) khi Panel bị sửa nét | ❌ | Liên quan M2-13 |
@@ -113,11 +113,11 @@
 |---|---|:-:|---|
 | M4-01 | Append-only event + CAS | ✅ | xem M0-02, M0-04 |
 | M4-02 | Restore tạo Version n+1 (BR-08) | ✅ | `RestorePageVersionCommand`, `Page.RestoreTo`, `RestoreScriptRevisionCommand` |
-| M4-03 | Unfreeze/Reopen Script **bắt buộc lý do** vào Audit | ✅ | P0-03: endpoint nhận body `{ reason }` (bắt buộc, ≤500 ký tự), ghi audit `UNFREEZE_SCRIPT`; FE `ScriptEditorView` dùng `ReasonForm` |
-| M4-04 | Chốt lại kịch bản (`Script Refreeze`) & phân tách tác động Visual vs Lettering | ✅ | `RefreezeScriptCommand`, `GetRefreezeScriptPreviewQuery`, `ScriptImpactClassifier`, `ChapterScriptSaver` deletion guard (409), bảo toàn `PanelId` (`efb8d27`) |
-| M4-05 | `FlagImpactReview` ⚑ lên Panel/Assignment khi sửa dòng đã gắn | ✅ | `Assignment.FlagScriptImpact`, `StageProgress.FlagScriptImpact`, `StageProgressRules.cs:291` |
-| M4-06 | Bóng thoại `isStale` | ✅ | `GetPageSnapshotQueryHandler.cs:57` |
-| M4-07 | Quyết định `Keep` / `Rework` | ✅ | `ResolveImpactReviewCommand` (`ImpactReviewDecision.Keep/Rework`) |
+| M4-03 | Unfreeze/Reopen Script **bắt buộc lý do** vào Audit | ⚪ (Huỷ theo Q32) | Đã huỷ theo Q32 — Kịch bản khoá cứng vĩnh viễn ở Gate 1, không mở lại |
+| M4-04 | Chốt lại kịch bản (`Script Refreeze`) & phân tách tác động Visual vs Lettering | ⚪ (Huỷ theo Q32) | Đã huỷ theo Q32 — Bỏ refreeze-script, refreeze-preview, ScriptImpactClassifier |
+| M4-05 | `FlagImpactReview` ⚑ lên Panel/Assignment khi sửa dòng đã gắn | ⚪ (Huỷ theo Q32) | Đã huỷ theo Q32 — Không còn cờ ảnh hưởng do kịch bản |
+| M4-06 | Bóng thoại `isStale` | ⚪ (Huỷ theo Q32) | Đã huỷ theo Q32 — Không còn cờ bóng thoại lỗi thời do sửa kịch bản |
+| M4-07 | Quyết định `Keep` / `Rework` | ⚪ (Huỷ theo Q32) | Đã huỷ theo Q32 — Không còn xử lý tác động sửa kịch bản |
 
 ### M5 — Gate 3, Snapshot, Publisher, Analytics & Revenue (CF5)
 
@@ -156,7 +156,7 @@
 |---|---|---|---|---|
 | P0 | P0-01 | BR-31: Artist đặt chữ | [04_ARTWORK](plans/04_ARTWORK_PLAN.md) (đã xong) | ✅ |
 | P0 | P0-02 | Gate 3: cờ ⚑, trang chưa giao | [06_RELEASE](plans/06_RELEASE_PLAN.md) → REL-02 (phần còn lại) | ✅ một phần |
-| P0 | P0-03 | Unfreeze bắt buộc lý do | [01_SCRIPT](plans/01_SCRIPT_PLAN.md) (đã xong) | ✅ |
+| P0 | P0-03 | Unfreeze bắt buộc lý do (Huỷ theo Q32) | [01_SCRIPT](plans/01_SCRIPT_PLAN.md) | ⚪ |
 | P0 | P0-04 | Luật 4 mắt | [05_REVIEW](plans/05_REVIEW_PLAN.md) (đã xong) | ✅ |
 | P0 | P0-05 | Audit transactional | đã có sẵn, M0-08 | ✅ |
 | P1 | P1-01 | Máy trạng thái Chương | REL-01 (làm cùng SCR-08) | 🟡 |
@@ -168,7 +168,7 @@
 | P1 | P1-07 | Letterer bị khoá Layout | ART-04 | 🟡 🔍 |
 | P1 | P1-08 | Series Bible chốt theo chương: tên bất biến và unique, không bí danh; tham chiếu bôi đen, Danh sách & Bản đồ thực thể chương, Gửi duyệt chốt Danh sách thực thể, Gate 1 kiểm Canon đúng biến thể (Q16, Q19, Q21, 1A–9A) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → SCR-11 → BIB-09 + BIB-11 → BIB-12 + BIB-13 → BIB-14 → BIB-15 → FE (BIB-03, BIB-16, BIB-15 FE) → BIB-17 | ✅ hoàn thành (BE `4e8fd57`, `66b80be`, `b90bde5`; FE `8c43b10`, `3a76596`); BIB-04..08 (tái cấu trúc màn Series Bible) vẫn mở, theo dõi riêng |
 | P1 | P1-09 | Duyệt concept: Editor xác nhận = khoá Canon, phiên bản concept, góp ý có trả lời (Q20) | [02_BIBLE](plans/02_BIBLE_PLAN.md) → BIB-10 (song song sau BIB-09) | ✅ |
-| P2 | P2-01 | Giao thoa 15% | REV-01 | ❌ |
+| P2 | P2-01 | Giao thoa 15% (Huỷ theo Q35) | REV-01 | ⚪ |
 | P2 | P2-02 | Lớp lỗi Artwork/Lettering | REV-02 | ❌ |
 | P2 | P2-03 | Check Balloon Fit | ART-06 + REV-03 | ❌ |
 | P2 | P2-04 | Cô lập Panel khi rework | REV-04 | 🟡 |
@@ -241,7 +241,7 @@
 | 1 | 🔴 | Kịch bản không còn liên kết Bible (D11) → Bible Gate luôn qua, Gate 1 không kiểm `CanonLocked` (spec §1.1, BR-21) | [BIB-09, BIB-11..BIB-17](plans/02_BIBLE_PLAN.md) · Q16 |
 | 2 | 🔴 | Gate 3 không kiểm 100% trang `Approved`: chương 0 việc vẫn `ApproveChapter` được, Snapshot trang chưa vẽ | [REL-02](plans/06_RELEASE_PLAN.md) |
 | 3 | 🔴 | Giao việc / bắt đầu vẽ được khi chương còn `PreProduction` (bỏ qua Gate 1) | [ASG-07](plans/03_ASSIGNMENT_PLAN.md) |
-| 4 | 🔴 | Producer mở lại kịch bản rồi chốt lại không gắn ⚑ Panel (chỉ đường xin mở lại V2.5 có); dò bằng `UpdatedAt` bỏ sót dòng xoá/thêm | [SCR-01](plans/01_SCRIPT_PLAN.md) |
+| 4 | ⚪ (Huỷ theo Q32) | Producer mở lại kịch bản rồi chốt lại không gắn ⚑ Panel (Huỷ theo Q32: không mở lại kịch bản) | [SCR-01](plans/01_SCRIPT_PLAN.md) |
 | 5 | 🔴 | `SCRIPT_NOT_FROZEN` chỉ cảnh báo → duyệt chương khi kịch bản đang sửa | [REL-02](plans/06_RELEASE_PLAN.md) |
 | 6 | 🟠 | Producer sửa được kịch bản (BE "Producer luôn được"; FE `canEditScript` mở khi chưa rõ vai trò) — trái BR-07 | [SCR-11](plans/01_SCRIPT_PLAN.md) · câu hỏi 24 |
 | 7 | 🟠 | Publish chỉ cho Publisher, Reopen cho cả Publisher — trái quyết định 1/11 | [REL-04](plans/06_RELEASE_PLAN.md) |

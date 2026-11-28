@@ -65,7 +65,7 @@ Chuẩn hóa các trạng thái cốt lõi của Chương: `PreProduction`, `InP
 - **Tạo, Xóa và Lưu trữ Chapter (`CreateChapter`, `DeleteChapter`, `ArchiveChapter` - Quyết định 2026-11-15 (D3)):** Duy nhất người dùng vai trò `Producer` hoặc `WorkspaceOwner` mới có quyền thực thi:
   - **Xóa vĩnh viễn (Hard Delete):** Chỉ được phép xóa cứng khi chương đang ở `PreProduction` và hoàn toàn rỗng (chưa có kịch bản, trang, hoặc tài sản nào).
   - **Lưu trữ (Archive):** Khi chương đã có kịch bản hoặc đã bước vào `InProduction` trở đi, hệ thống **cấm xóa vĩnh viễn** mà chuyển sang trạng thái `Archived` (ẩn khỏi danh sách làm việc, có thể khôi phục `RestoreChapter`, giữ nguyên toàn bộ lịch sử revision, audit log và provenance). Chương đã có ấn bản phát hành (`Published`) không bao giờ được xóa.
-- **Biên kịch (`EditScript`):** Độc quyền cho `Writer` được phân công (`Producer` chỉ đọc, không sửa kịch bản — BR-07). Nếu `IsScriptFrozen == true`, mọi vai trò (kể cả Writer) đều bị từ chối sửa nội dung trừ khi `Producer` thực hiện thao tác mở khóa kịch bản đặc quyền (`UnfreezeScriptCommand`).
+- **Biên kịch (`EditScript`):** Độc quyền cho `Writer` được phân công (`Producer` chỉ đọc, không sửa kịch bản — BR-07). Nếu `IsScriptFrozen == true`, mọi vai trò (kể cả Writer) đều bị từ chối sửa nội dung (Q32: kịch bản khoá cứng sau Gate 1, không mở lại).
 
 ### 2.3. Hợp Đồng API RESTful (API Contracts)
 
@@ -79,12 +79,12 @@ Chuẩn hóa các trạng thái cốt lõi của Chương: `PreProduction`, `InP
 | `POST` | `/api/chapters/{id}/archive` · `/restore` | **Producer** | Lưu trữ / Khôi phục chương (khi chương đã có dữ liệu / `InProduction`, D3) |
 | `GET` | `/api/chapters/{id}/script-versions` · `/working-copy` · `/{versionId}` | Thành viên Workspace | Danh sách phiên bản, bản đang sửa, một phiên bản (Q15) |
 | `POST` | `/api/chapters/{id}/script-versions` | **Writer** | Lưu = commit một `ScriptVersion` (trùng nội dung thì không tạo) |
-| `POST` | `/api/chapters/{id}/submit-script` · `/recall-script` | **Writer** | Gửi duyệt (`Draft/InReview → InReview`) · Hủy gửi (`InReview → Draft`) |
+| `POST` | `/api/chapters/{id}/script/submit` · `/recall-script` | **Writer** | Gửi duyệt (`Draft/InReview → InReview`) · Rút về bản thảo (`InReview → Draft`) (thay `submit-script` theo Q32) |
 | `GET` / `POST` | `/api/chapters/{id}/script-comments` | Thành viên / **Editor** | Góp ý theo dòng (không đổi trạng thái) |
 | `POST` | `/api/chapters/{id}/freeze-script` | **Producer** | Bắt đầu sản xuất (Gate 1): `InReview → Frozen`, chương `PreProduction → InProduction`; chặn nếu Bible chưa khoá Canon (BR-35) |
-| `POST` | `/api/chapters/{id}/unfreeze-script` | **Producer** | Mở lại kịch bản kèm lý do (`Frozen → Draft`) |
-| `GET` | `/api/chapters/{id}/refreeze-preview` | **Producer** | Xem trước diff thay đổi (trang thêm/bớt, tác động Nét vẽ vs Lời thoại) trước khi chốt lại kịch bản |
-| `POST` | `/api/chapters/{id}/refreeze-script` | **Producer** | Chốt lại kịch bản khi chương đang `InProduction`: kiểm tra mã băm kịch bản, Bible gate, chặn xóa trang/khung đang sản xuất (409), gắn cờ phân tách (Nét vẽ vs Lời thoại) và giao trang mới trong 1 ACID transaction |
+| ~~`POST`~~ | ~~/api/chapters/{id}/unfreeze-script~~ | ~~Producer~~ | (Đã bỏ theo Q32 — kịch bản khoá cứng sau Gate 1) |
+| ~~`GET`~~ | ~~/api/chapters/{id}/refreeze-preview~~ | ~~Producer~~ | (Đã bỏ theo Q32) |
+| ~~`POST`~~ | ~~/api/chapters/{id}/refreeze-script~~ | ~~Producer~~ | (Đã bỏ theo Q32) |
 
 > Endpoint `request/approve/reject-script-reopen` còn trong code sẽ bị gỡ (câu hỏi 25, SCR-09). Producer chỉ đọc nội dung kịch bản (BR-07).
 
@@ -177,23 +177,6 @@ Trình soạn thảo Screenplay Flow được thiết kế riêng biệt cho vi�
    - **Nộp kịch bản (Submit Script tại Gate 1):** Writer bấm **"Nộp kịch bản"**, hệ thống trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (lưu SHA-256 script + danh mục thực thể Bible và SHA-256 từng mục tại thời điểm nộp, D2).
 5. Khi hoàn tất và được Producer phê duyệt tại Gate 1, kịch bản sẽ được chuyển sang trạng thái **Đóng băng (Frozen)** (`IsScriptFrozen = true`) để bảo toàn nội dung, ngăn chặn việc sửa đổi kịch bản trong lúc họa sĩ đang vẽ Storyboard.
 
-### 4.4. Quy Trình Mở Lại & Chốt Lại Kịch Bản Trong Sản Xuất (Script Refreeze Workflow)
-Khi một chương đã bước vào giai đoạn sản xuất (`InProduction`) nhưng cần thay đổi kịch bản (ví dụ: bổ sung phân cảnh, đổi thoại, sửa lỗi logic):
-1. **Producer Mở lại kịch bản (`unfreeze-script`):** Producer nhập lý do bắt buộc (Audit Log) để mở khóa kịch bản từ `Frozen → Draft`. Trạng thái Chapter vẫn giữ nguyên là `InProduction`.
-2. **Writer sửa đổi & Lưu kịch bản:**
-   - **Bảo toàn danh tính Khung (`Panel Identity Preservation`):** Hệ thống bảo toàn nguyên vẹn `PanelId` của các khung tranh đã tạo từ trước khi lưu cấu trúc kịch bản mới (`ChapterScriptSaver`), không sinh ID mới làm mất liên kết với bản vẽ của Artist.
-   - **Ràng buộc bất biến dòng Suy nghĩ (`Thought Requires SpeakerLabel`):** Dòng kịch bản loại `Thought` bắt buộc phải có `SpeakerLabel` định danh người suy nghĩ, tương tự thoại trực tiếp (`Dialogue`).
-   - **Lá chắn chống xóa trang/khung đang sản xuất (Active Production Deletion Guard - 409):** Nếu Writer cố tình xóa một Trang hoặc Khung đang có tác vụ hoạt động (`InProgress`, `Submitted`, `UnderReview`, `Approved`), hệ thống lập tức từ chối với lỗi `409 Conflict`, yêu cầu Producer tái phân công hoặc hủy tác vụ trước.
-3. **Producer Xem trước Tác động (`refreeze-preview`):**
-   - Producer mở modal Chốt lại kịch bản, hệ thống gọi `GET /api/chapters/{id}/refreeze-preview` để phân tích diff giữa bản đóng băng cũ và bản sửa mới.
-   - **Tác động kịch bản phân tách (`Split Script Impact: Visual vs Lettering`):**
-     - **Tác động Nét vẽ (`Visual Impact`):** Khi thay đổi mô tả hành động (`Action`), thêm/bớt khung, sửa ghi chú đạo diễn $\rightarrow$ Đánh cờ Rework cho công đoạn vẽ tranh (`Storyboard`, `Pencil`, `Ink`), yêu cầu Artist vẽ lại.
-     - **Tác động Lời thoại (`Lettering Impact`):** Khi chỉ thay đổi câu thoại (`Dialogue`), suy nghĩ (`Thought`), lời dẫn (`Narration`) hoặc `SFX` mà không đổi mô tả khung $\rightarrow$ Chỉ gắn cờ bóng thoại lỗi thời (`isStale = true`) và nhiệm vụ `Lettering`, **tuyệt đối không đánh cờ Rework lên nét vẽ của Artist**.
-4. **Producer Chốt lại Kịch bản (`refreeze-script`):**
-   - Producer gọi `POST /api/chapters/{id}/refreeze-script` kèm `ExpectedScriptHash` (đảm bảo tính nhất quán mã băm, tránh xung đột lưu đè) và danh sách phân công cho các trang mới thêm (`NewPageAssignments`).
-   - Hệ thống thực thi trong một **ACID Transaction**:
-     - Kiểm tra cổng Bible Gate (`ChapterCastGate`): Mọi nhân vật/thực thể mới đều phải đạt chuẩn `CanonLocked` (trừ Quần chúng).
-     - Khóa kịch bản trở lại `Frozen`.
-     - Phân bổ ngay trang mới cho Artist được chỉ định.
-     - Kích hoạt thông báo liên đới đến các thành viên ê-kíp chịu ảnh hưởng.
+### 4.4. Kịch Bản Khoá Cứng Tại Gate 1 (Q32 — Bỏ Mở Lại & Chốt Lại Kịch Bản)
+Theo quyết định Q32 (chốt 2026-11-28), kịch bản khoá cứng tại Gate 1 là vĩnh viễn và chỉ đọc. Bỏ hoàn toàn các endpoint và quy trình `unfreeze-script`, `refreeze-preview`, `refreeze-script` cùng cơ chế cờ ảnh hưởng do sửa kịch bản khi đang sản xuất (`ScriptImpactClassifier`, cờ ⚑ kịch bản thay đổi, bóng thoại `isStale` do sửa kịch bản). Mọi sửa đổi kịch bản phải hoàn thành trước Gate 1; nếu muốn đổi nội dung sau Gate 1 thì thực hiện ở chương sau.
 

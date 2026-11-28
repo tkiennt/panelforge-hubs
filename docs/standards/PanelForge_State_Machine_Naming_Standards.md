@@ -244,10 +244,10 @@ stateDiagram-v2
 
 ---
 
-### 5.2. Script Lifecycle (`ScriptStatus`, Q15)
+### 5.2. Script Lifecycle (`ScriptStatus`, Q15, Q32)
 - **Thực thể sở hữu:** `Chapter.ScriptStatus` (+ `ScriptVersion` bất biến cho mỗi lần lưu)
-- **Người quyết định:** `Writer` (gửi / hủy gửi), `Producer` (bắt đầu sản xuất / mở lại)
-- **Nguyên tắc refactor:** Tách bạch khỏi `ChapterStatus` và khỏi Assignment. Không có luồng Writer xin mở lại (bỏ `ScriptReopenStatus`).
+- **Người quyết định:** `Writer` (gửi / rút về bản thảo), `Producer` (bắt đầu sản xuất tại Gate 1)
+- **Nguyên tắc refactor:** Tách bạch khỏi `ChapterStatus` và khỏi Assignment. `Frozen` là trạng thái cuối vĩnh viễn (Q32 — không mở lại, không chốt lại).
 
 ```mermaid
 stateDiagram-v2
@@ -256,18 +256,17 @@ stateDiagram-v2
     InReview --> InReview: script.resubmit [isWriter && isCastFinalized] / pushSubmittedVersion()
     InReview --> Draft: script.recall [isWriter]
     InReview --> Frozen: chapter.start_production [isProducer && isLiveEqualSubmitted && isCastCanonLocked] / lockScriptAndBindings()
-    Frozen --> Draft: script.reopen [isProducer && hasValidReason] / unlockScriptEditor()
-    Draft --> Frozen: script.refreeze [isProducer && isCastCanonLocked && isHashParity && !hasActiveProductionDeletion] / lockScriptAndFlagSplitImpact()
+    Frozen --> [*]: Khoá vĩnh viễn, chỉ đọc (Q32)
 ```
 
 #### Bảng chi tiết phần tử:
 - **States:**
   - `Draft`: Writer viết; mỗi lần lưu tạo `ScriptVersion` (băm SHA-256).
-  - `InReview`: Đã gửi; Editor đọc bản đã gửi và góp ý theo dòng; Writer vẫn sửa và gửi lại.
-  - `Frozen`: Chỉ đọc; Bản đồ thực thể chương khoá cùng lúc (BR-35).
-- **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`, `script.reopen`, `script.refreeze`.
-- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21/Q22: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể — mặc định hoặc Writer đã đổi), `isCastCanonLocked`, `hasValidReason`, `isHashParity` (mã băm kịch bản trùng khớp bản nộp), `hasActiveProductionDeletion` (chặn xóa trang/khung đang sản xuất, 409).
-- **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`, `unlockScriptEditor`, `lockScriptAndFlagSplitImpact` (phân tách tác động Nét vẽ vs Lời thoại, giao trang mới).
+  - `InReview`: Đã gửi; Editor đọc bản đã gửi và góp ý theo dòng; Writer vẫn sửa và gửi lại; Writer có nút *Rút về bản thảo* (`script.recall`).
+  - `Frozen`: Chỉ đọc, vĩnh viễn (Q32); Bản đồ thực thể chương khoá cùng lúc (BR-35).
+- **Events:** `script.submit`, `script.resubmit`, `script.recall`, `chapter.start_production`.
+- **Guards:** `isWriter`, `isProducer`, `isLiveEqualSubmitted`, `isCastFinalized` (Q21/Q22: không còn mục nháp chưa định nghĩa mà không Quần chúng; mọi mục không Quần chúng có biến thể — mặc định hoặc Writer đã đổi), `isCastCanonLocked`.
+- **Actions:** `pushSubmittedVersion`, `lockScriptAndBindings`.
 
 ---
 

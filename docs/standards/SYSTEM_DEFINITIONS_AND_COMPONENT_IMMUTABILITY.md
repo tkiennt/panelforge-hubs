@@ -53,7 +53,7 @@ flowchart TD
    - ❌ **CẤM** tự chế ra các vai trò mới, đổi tên vai trò hoặc thay đổi đường dẫn mặc định (`getRoleDefaultPath`) mà không có yêu cầu từ Master Spec V2.6.
 2. **Quy trình & Máy trạng thái (State Machines & Gates):**
    - Vòng đời sản xuất chương (`PreProduction` $\rightarrow$ `InProduction` $\rightarrow$ `ChapterApproved` $\rightarrow$ `ChapterPublished` / `ChapterHandedOff`).
-   - 4 Cổng kiểm soát chất lượng (Gates 1–4) và luồng phê duyệt Bible Revisions, Concept Art, Script Refreeze.
+   - 4 Cổng kiểm soát chất lượng (Gates 1–4) và luồng phê duyệt Bible Revisions, Concept Art (kịch bản khoá cứng sau Gate 1, Q32).
    - ❌ **CẤM** bỏ qua các điều kiện kiểm tra (gate checks), không tự ý đổi tên enum hoặc bỏ qua các bước trong state transition.
 3. **Hợp đồng Dữ liệu (DTOs & API Contracts):**
    - Không được tự ý xóa, đổi kiểu dữ liệu các trường DTO dùng chung giữa Backend, Frontend và Mobile.

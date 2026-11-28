@@ -40,10 +40,10 @@
 - [ ] Item gate trả kèm danh sách `PageId/PageNumber` vướng (thêm trường tuỳ chọn, không phá DTO).
 - [ ] **(Rà soát 2026-11-13, xác nhận lỗi)** `ChapterLockGate` không kiểm "100% Trang `Approved`" (BR-12): chỉ đếm `ASSIGNMENTS_NOT_APPROVED`. Chương **không có việc nào** → 0 việc chưa duyệt, `PAGES_WITHOUT_WORK` chỉ cảnh báo → `ApproveChapter` thành công và tạo Snapshot từ trang chưa vẽ. Không chờ ASG-01: chặn ngay khi chương không có việc Artist/Letterer nào; sau ASG-01 chặn theo từng trang.
 - [ ] Tính điều kiện theo trang: mọi Page phải có lượt duyệt Gate 2 `Approved` (StageProgress/Assignment Review của trang), không suy ra từ tổng số việc.
-- [ ] `SCRIPT_NOT_FROZEN` (`ChapterLockGate.cs:59`) chuyển từ cảnh báo thành **chặn**: hiện Producer mở lại kịch bản rồi vẫn duyệt chương được trong lúc Writer đang sửa → tranh lệch kịch bản.
+- [ ] `SCRIPT_NOT_FROZEN` (`ChapterLockGate.cs:59`): kịch bản bắt buộc phải `Frozen` (Q32: khoá cứng tại Gate 1, không mở lại).
 - [ ] **Ảnh cuối = bản đã duyệt (Q27):** `FinalArtwork.cs` (khoảng dòng 43–55) đang lấy `AssetReference` mới nhất theo `StageOrder`/`VersionNumber`, kể cả bản upload chưa duyệt. Đổi thành bản ảnh của **lần duyệt Gate 2 gần nhất** của từng trang; chương cũ chưa có lần duyệt nào giữ cách cũ làm dự phòng để Preview không trống.
 - [ ] Snapshot ghi `frozen_script_version_id` (Q26, [SCR-41](01_SCRIPT_PLAN.md), [BIB-14](02_BIBLE_PLAN.md)).
-- [ ] Test: chương 0 việc → 409; kịch bản đang `Draft` sau Unfreeze → 409; ảnh upload sau khi trang được duyệt không vào Snapshot.
+- [ ] Test: chương 0 việc → 409; kịch bản chưa `Frozen` → 409; ảnh upload sau khi trang được duyệt không vào Snapshot.
 
 #### REL-03 · `ChapterReleaseModal.tsx` — FE · ❌ · cũ M1-12 (Ảnh hưởng Quyết định 2026-11-15)
 - [ ] Khung modal Producer một chỗ với các tab: Gate 1 (ASG-01), Chuyển phạm vi, Gate 3 (danh sách item lock gate + nút Approve), Bàn giao sang Publisher (REL-05). Quyền phát hành ấn bản chuyển sang Publisher Portal của Publisher (REL-04).

@@ -18,7 +18,7 @@
 | **Q22** | Producer được **yêu cầu vẽ lại** concept; **giai đoạn mặc định** do hệ thống đề xuất, Writer chỉ đổi khi cần, không có bước xác nhận | BIB-10, BIB-11, BIB-13, BIB-14, BIB-16 |
 | **Q23** | Chương gắn **bản cụ thể** (có thể chưa khoá); **kế thừa về phía sau** từ chương gần nhất phía trước, tính lại tới khi chốt; **bản theo Panel** cho giai đoạn khác trong cùng chương (không kế thừa); Gate 1 kiểm mọi bản chương dùng; cảnh báo chương sau đã chốt lệch bản; huỷ bản thay thế chưa duyệt | BIB-09, BIB-11, BIB-13, BIB-14, BIB-15, BIB-16 |
 | **Q24** | (D1) Kế thừa theo chuỗi thay thế tới bản thay thế đã khoá mới nhất; (D2) giai đoạn theo Panel đi trong payload `syncScriptStructure`, không phải lệnh rời; (D3) lựa chọn bản của Writer (chương + Panel) thuộc `ScriptVersion` và mã băm, bản kế thừa thì không | BIB-11, BIB-12, BIB-13, BIB-14 |
-| **Q20** | **Editor xác nhận = khoá Canon** (bỏ `WriterEndorsed`); Writer + Editor góp ý và yêu cầu vẽ lại; Artist trả lời; mỗi lần nộp concept là một **phiên bản**; Producer chỉ đọc Bible, chỉ chốt / mở lại kịch bản | BIB-10 |
+| **Q20** | **Editor xác nhận = khoá Canon** (bỏ `WriterEndorsed`); Writer + Editor góp ý và yêu cầu vẽ lại; Artist trả lời; mỗi lần nộp concept là một **phiên bản**; Producer chỉ đọc Bible, chỉ chốt kịch bản (Q32: không mở lại) | BIB-10 |
 | 1A | Chỉ bôi đen trên dòng Action, Caption (Lời dẫn), SFX; không trên tiêu đề Panel (`Panel.Direction`) và lời thoại | BIB-12, BIB-16 |
 | 2A | Tham chiếu đi trong payload `BatchSaveScriptLines` (`refs[]`), không có lệnh bôi/gỡ rời | BIB-12, BIB-16 |
 | 3A | Tính lại Danh sách thực thể chương trong transaction của `CommitScriptVersion` (3B — gộp 4 request lưu thành một endpoint — để sau, xem 01_SCRIPT_PLAN) | BIB-12 |

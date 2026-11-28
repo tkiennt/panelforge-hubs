@@ -15,7 +15,7 @@
 | **CF1** | **Studio, Series, Bible & Script Setup** | Khởi tạo Studio Workspace, Series (RTL/LTR), soạn thảo kịch bản chữ thuần, tự động nhận diện thực thể Series Bible, thiết kế Model Sheet & khóa Canon. | **Gate 1** (Pre-Production Gate): Kịch bản `Frozen` ❄️, khóa `chapter_bible_bindings` 🔒, chuyển `InProduction`. |
 | **CF2** | **Chapter Production** | Phân bổ trang (Page-scoped ABAC), dựng layout, thuật toán đọc `panelIndex`, vẽ Pencil, tự động phân nhánh Ink (Graphic Layer) & Lettering (Vector Layer đa ngôn ngữ), ghép ảnh Composite. | Tự động hóa Pipeline & đồng bộ đa tầng; kiểm tra an toàn chữ BR-20; hỗ trợ `[↺ Self-Rollback]`. |
 | **CF3** | **Quality Control & Review** | Thẩm định ảnh Composite trên `ReviewView` (Luật 4 mắt BR-06), khoanh vùng lỗi Bounding Box $0..1$, thuật toán hình học Overlap $\ge 15\%$, cô lập lỗi cấp Panel, vòng đời `ChangeRequest`. | **Gate 2** (Quality & Composite Gate): 100% Panel `Approved` ➔ suy diễn `PageReviewStatus == Approved`. |
-| **CF4** | **Versioning & Provenance (Xương Sống)** | Lưu vết append-only (Marten Event Sourcing + PostgreSQL), định danh CAS SHA-256. Xử lý mở lại kịch bản muộn, AST Diff Engine phân tích tác động ⚑ (`FlagImpactReview`) và xử lý cô lập `Keep`/`Rework`. | Nền tảng truy vết lịch sử toàn hệ thống; Audit Log; kiểm soát phân kỳ kịch bản khi đang sản xuất. |
+| **CF4** | **Versioning & Provenance (Xương Sống)** | Lưu vết append-only (Marten Event Sourcing + PostgreSQL), định danh CAS SHA-256. Kịch bản khoá cứng sau Gate 1 (Q32; không mở lại kịch bản, giữ cờ mở lại ô tranh đã duyệt BR-27). | Nền tảng truy vết lịch sử toàn hệ thống; Audit Log bất biến. |
 | **CF5** | **Approval, Release & Reader Monetization** | Nghiệm thu Gate 3 (quét BR-12), đóng băng `ChapterSnapshot`, cấp `PreviewLink` Watermark, bàn giao Publisher (`ChapterHandedOff`), duyệt ấn bản ngôn ngữ, Publisher cấu hình giá VNĐ & phát hành, độc giả nạp ví & mở khóa. | **Gate 3** (Release Gate); Vòng đời `ChapterEdition` (`Draft` ➔ `Published`); Sổ cái Ví VNĐ append-only; Dashboard 360°. |
 
 ---
@@ -235,7 +235,6 @@ sequenceDiagram
     participant FE as 🖥️ ReviewView (Canvas Diff)
     participant API as ⚙️ Controllers (.NET 9)
     participant MediatR as 📬 Application (CQRS)
-    participant Geo as 📐 Geometry Engine (Overlap >= 15%)
     participant DB as 🗄️ PostgreSQL
     participant Hub as 📡 SignalR Hub
 
@@ -249,17 +248,12 @@ sequenceDiagram
     API-->>FE: HTTP 200 { compositeUrl, panels, balloons, modelSheets }
     Editor->>FE: Bật các chế độ kiểm tra: Side-by-side, Slider, Onion-skin, Pixel Diff
 
-    %% 2. Khoanh vùng lỗi & Thuật toán hình học
-    Note over Editor,Geo: 2. Editor kéo chuột khoanh vùng lỗi AnchorBox {x,y,w,h}
-    Editor->>FE: Kéo chuột khoanh vùng lỗi (Tọa độ chuẩn hóa [0..1] x [0..1])
-    Editor->>FE: Nhập nhận xét & chọn phân loại lỗi: [Lỗi Nét Vẽ] hoặc [Lỗi Bóng Thoại]
+    %% 2. Chọn Panel đích & lớp lỗi (Q35, thay D8)
+    Note over Editor,MediatR: 2. Editor bấm chọn Panel đích + lớp lỗi (Tranh/Chữ) + nhận xét (vùng khoanh tuỳ chọn, Q35)
+    Editor->>FE: Chọn Panel đích (ví dụ: Panel 2), lớp lỗi & nhập nhận xét (vùng khoanh tuỳ chọn)
     Editor->>FE: Bấm [Gửi Yêu Cầu Sửa Lỗi]
     FE->>API: POST /api/reviews/pages/{pageId}/change-requests
-    API->>MediatR: Send(new CreateChangeRequestCommand(pageId, errorBox, comment, type))
-    
-    MediatR->>Geo: FindIntersectingPanelIds(errorBox, pagePanels)
-    Geo->>Geo: OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel))
-    Geo-->>MediatR: Danh sách Panel có OverlapRatio >= 0.15 (ví dụ: Panel 2)
+    API->>MediatR: Send(new CreateChangeRequestCommand(pageId, panelIds, layer, comment, region))
 
     %% 3. Cô lập sửa lỗi cấp Panel
     Note over MediatR,DB: 3. Cô lập lỗi đúng Panel 2, bảo vệ các Panel khác
@@ -327,81 +321,11 @@ sequenceDiagram
 
 ---
 
-## CF4: Versioning, Provenance & Late Script Impact Review (Xương Sống)
+## CF4: Versioning, Provenance & Immutability (Xương Sống)
 
-Cơ chế quản lý phiên bản bất biến và xử lý sửa đổi kịch bản muộn: Mọi thay đổi trạng thái đều lưu vết Event Sourcing và Audit Log. Khi Producer mở lại kịch bản, `AST Diff Engine` phân tích cây kịch bản cũ vs mới để gắn cờ ảnh hưởng ⚑ (`FlagImpactReview`) lên các panel liên đới, hỗ trợ quyết định `Keep` (giữ nét vẽ) hoặc `Rework` (vẽ lại).
+Cơ chế quản lý phiên bản bất biến và tính toàn vẹn sự kiện: Mọi thay đổi trạng thái đều lưu vết Event Sourcing (Marten) và Audit Log trong cùng một transaction (BR-18).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Producer as 🎬 Producer
-    actor Writer as ✍️ Writer
-    actor Artist as 🎨 Artist
-    actor Letterer as 🔤 Letterer
-    participant FE as 🖥️ Studio Web Dashboard
-    participant API as ⚙️ Controllers (.NET 9)
-    participant MediatR as 📬 Application (CQRS)
-    participant AST as 🌳 AST Diff & Impact Engine
-    participant Marten as 🧱 Marten Event Store
-    participant DB as 🗄️ PostgreSQL
-    participant Hub as 📡 SignalR Hub
-
-    %% 1. Producer mở lại kịch bản (Unfreeze)
-    Note over Producer,MediatR: 1. Producer mở lại kịch bản đã đóng băng (kèm lý do Audit)
-    Producer->>FE: Bấm [Mở Lại Kịch Bản] (Unfreeze Script)
-    FE->>API: POST /api/chapters/{id}/reopen-script { reason: "Bổ sung tình tiết cao trào" }
-    API->>MediatR: Send(new ReopenScriptCommand(id, reason))
-    MediatR->>DB: Ghi nhật ký AuditLog (UserId, Action, Reason, Timestamp)
-    MediatR->>DB: Chuyển Chapter.ScriptStatus: Frozen -> Draft (Mở quyền sửa)
-    MediatR->>Marten: AppendEvent(new ScriptUnfrozenEvent(id, reason))
-    API-->>FE: HTTP 200 { isScriptFrozen: false, status: "Draft" }
-    API-)Writer: SignalR: Kịch bản đã được mở lại để chỉnh sửa
-
-    %% 2. Writer sửa kịch bản & Gửi duyệt lại
-    Note over Writer,MediatR: 2. Writer sửa kịch bản và bấm Gửi duyệt lại
-    Writer->>FE: Thay đổi lời thoại ở Panel 2, đổi hành động chiến đấu ở Panel 5
-    Writer->>FE: Bấm [Lưu Kịch Bản] (Commit tạo ScriptVersion v5)
-    Writer->>FE: Bấm [Gửi Duyệt Lại]
-    FE->>API: POST /api/scripts/{id}/resubmit-for-review { scriptVersionId: v5 }
-    API->>MediatR: Send(new ResubmitScriptCommand(id, v5))
-
-    %% 3. Phân tích tác động kịch bản (Impact Engine)
-    Note over MediatR,AST: 3. Phân tích sai khác AST giữa bản đóng băng cũ vs bản mới
-    MediatR->>AST: AnalyzeScriptImpact(oldFrozenVersion, newVersion)
-    AST->>AST: So sánh AST từng dòng trong từng Panel
-    AST-->>MediatR: Kết quả: Panel 2 sửa thoại; Panel 5 đổi toàn bộ hành động
-    
-    MediatR->>DB: Bật cờ tác động FlagImpactReview (⚑) lên Panel 2 và Panel 5
-    MediatR->>DB: Panel 2: Đánh dấu bong bóng thoại isStale = true (Lời thoại cũ)
-    MediatR->>DB: Panel 5: Chuyển PanelStageProgress -> ReworkRequired
-    MediatR->>Hub: Phát tín hiệu cảnh báo tác động đến Artist & Letterer
-
-    %% 4. Xử lý cô lập tác động (Keep vs Rework)
-    Note over Artist,Letterer: 4. Xử lý các Panel có cờ tác động ⚑
-    par Xử lý Panel 2 (Chỉ sửa lời thoại nhẹ)
-        Letterer->>FE: Mở Bàn vẽ Lettering, xem viền cờ ⚑ tại Panel 2
-        Letterer->>FE: Cập nhật lại câu chữ mới vào bóng thoại
-        Letterer->>FE: Bấm [Giữ Nguyên Tranh Vẽ (Keep)]
-        FE->>API: POST /api/panels/2/impact-resolve { decision: "Keep", updateText: true }
-        API->>MediatR: Send(new ResolveImpactFlagCommand(2, "Keep"))
-        MediatR->>DB: Gỡ cờ ⚑ khỏi Panel 2; Tranh vẽ giữ nguyên Approved 🔒
-    and Xử lý Panel 5 (Thay đổi nét vẽ lớn)
-        Artist->>FE: Mở ArtistDeskView, thấy Panel 5 yêu cầu vẽ lại
-        Artist->>FE: Vẽ lại khung tranh chiến đấu mới cho Panel 5 và nộp lại
-        FE->>API: POST /api/panels/5/impact-resolve { decision: "Rework", newAssetHash: "..." }
-        API->>MediatR: Send(new ResolveImpactFlagCommand(5, "Rework", newAssetHash))
-        MediatR->>DB: Gỡ cờ ⚑; Panel 5 chuyển sang InReview chờ Editor duyệt lại Gate 2
-    end
-
-    %% 5. Producer chốt lại Gate 1
-    Note over Producer,DB: 5. Chốt lại kịch bản khi 100% cờ ⚑ đã giải quyết
-    Producer->>FE: Mở màn hình Gate 1, kiểm tra: Số cờ ⚑ chưa giải quyết == 0
-    Producer->>FE: Bấm [Chốt Lại Kịch Bản & Tiếp Tục Sản Xuất]
-    FE->>API: POST /api/chapters/{id}/gate1-approve
-    API->>MediatR: Send(new ApproveGate1Command(id))
-    MediatR->>DB: Chapter.ScriptStatus: Draft -> Frozen ❄️
-    API-->>FE: HTTP 200 { status: "InProduction", isFrozen: true }
-```
+> **Quyết định Q32 (Chốt 2026-11-28):** Kịch bản khoá cứng tại Gate 1, `Frozen` vĩnh viễn và chỉ đọc. Bỏ hoàn toàn luồng Unfreeze / Refreeze kịch bản (`unfreeze-script`, `refreeze-script`, `refreeze-preview`) cùng cơ chế cờ ảnh hưởng do sửa kịch bản khi đang sản xuất (`ScriptImpactClassifier`, cờ ⚑ kịch bản thay đổi, bóng thoại `isStale` do sửa kịch bản). Mọi sửa đổi kịch bản dồn về trước Gate 1: Writer *Rút về bản thảo* khi cần, Producer thấy số góp ý còn mở trước khi bấm *Bắt đầu sản xuất*. Khi Producer mở lại ô tranh đã duyệt (BR-27), cờ `ImpactFlags` được kích hoạt cho các bước tiếp nối.
 
 ---
 
@@ -432,7 +356,7 @@ sequenceDiagram
     FE->>API: POST /api/chapters/{id}/gate3-approve
     API->>MediatR: Send(new Gate3ApproveCommand(id))
     MediatR->>Gate: ValidateChapterLockPreconditions(id)
-    Gate->>DB: Quét: 100% trang Approved, 0 CR mở, 0 cờ ⚑ chặn (BR-12)
+    Gate->>DB: Quét: 100% trang Approved, 0 CR mở, ImpactFlags == 0 (BR-12)
     Gate-->>MediatR: Hợp lệ
     MediatR->>DB: Chapter.ChapterStatus -> ChapterApproved 🔒
     MediatR->>DB: Ấn bản gốc (vi) tự động đạt Approved (D5)

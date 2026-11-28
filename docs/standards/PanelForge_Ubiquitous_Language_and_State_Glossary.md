@@ -32,12 +32,12 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | Thuật ngữ Tiếng Anh | Tiếng Việt chuẩn | Phạm vi | Mô tả trách nhiệm |
 |---|---|---|---|
 | **Administrator** | Quản trị viên hệ thống | Toàn hệ thống | Quản lý tài khoản (bao gồm duy nhất 1 tài khoản Publisher toàn hệ thống, Q12), tài khoản ngân hàng nền tảng (Q13), cấp quyền tạo Studio, quota AI. Không can thiệp nội dung. |
-| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace / Series | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*) và mở lại kịch bản; chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và bàn giao cho Publisher (Quyết định 2026-11-15: Producer bàn giao, Publisher phát hành; mở lại InProduction vẫn do Producer). Có quyền chuyển đổi bình luận trang (Pinned Page Comments) thành yêu cầu làm lại (Rework). |
+| **Producer** | Giám đốc sản xuất / Chủ Studio | Workspace / Series | Quản lý workspace, tạo Series, đóng băng kịch bản (Gate 1, *Bắt đầu sản xuất*); chỉ đọc Series Bible ngoài quyền yêu cầu vẽ lại concept (Q20, Q22), giao việc Page/Panel, nghiệm thu chương (Gate 3) và bàn giao cho Publisher (Quyết định 2026-11-15: Producer bàn giao, Publisher phát hành; mở lại InProduction vẫn do Producer). Có quyền chuyển đổi bình luận trang (Pinned Page Comments) thành yêu cầu làm lại (Rework). Kịch bản khoá cứng sau Gate 1, không mở lại kịch bản (Q32). |
 | **Member** | Thành viên Studio | Workspace | Thành viên nội bộ của Studio chưa phân công chuyên môn cụ thể hoặc tham gia chung; khi vào từng Series sẽ được gán vai trò chuyên môn (`SeriesRole`). |
 | **Writer** | Tác giả kịch bản | Series (gán qua `series_members`) | Độc quyền sáng tác kịch bản (`Page -> Panel -> Content`), bôi đen tham chiếu Bible, gắn cờ Quần chúng, viết định nghĩa mục nháp, đổi biến thể theo chương khi cần (mặc định tự đề xuất, Q22), góp ý / yêu cầu vẽ lại concept Bible (Q19, Q20). |
 | **Artist** | Họa sĩ (Chì / Mực) | Series (gán qua `series_members`) | Vẽ Concept Art Bible, thực hiện Pencil & Ink trên Page được giao (mặc định có cả `graphic:write` và `letter:write` theo BR-31). Khi kiêm nhiệm công đoạn Lettering, được miễn gate tải ảnh và kiểm tra bóng thoại vector (BR-19, BR-31). Bàn vẽ tự động kích hoạt `InProgress` khi mở (UIQ-11). |
 | **Letterer** | Người đặt thoại & SFX | Series (gán qua `series_members`) | Vai trò phụ việc tùy chọn (`letter:write` only): bố trí Position Record bóng thoại `{x,y,w,h}`, nội dung đa ngôn ngữ và SFX. |
-| **Editor** | Biên tập viên | Series (gán qua `series_members`) | Xác nhận concept Series Bible = khoá Canon (Q20); duyệt Gate 2 (`CompositeUnderReview`), khoanh vùng tạo Change Request (sinh nhiều CR chung `group_id` nếu vắt nhiều Panel ≥ 15%), duyệt bản dịch `ChapterEdition`. Hỗ trợ chế độ đọc truyện tranh liên tục (Series Continuous Reader) và Comic Review Mode (UIQ-11o). |
+| **Editor** | Biên tập viên | Series (gán qua `series_members`) | Xác nhận concept Series Bible = khoá Canon (Q20); duyệt Gate 2 (`CompositeUnderReview`), chọn Panel đích tạo Change Request (sinh nhiều CR chung `group_id` nếu nhiều Panel; bỏ ngưỡng 15% theo Q35), duyệt bản dịch `ChapterEdition`. Hỗ trợ chế độ đọc truyện tranh liên tục (Series Continuous Reader) và Comic Review Mode (UIQ-11o). |
 | **Publisher** | Đối tác phát hành (1 tài khoản duy nhất) | Publisher Portal | Xem/tải gói bàn giao & PreviewLink chỉ đọc; cấu hình tài khoản ngân hàng (không duyệt thanh toán VietQR); **quy định thương mại** (Free/Trả phí, `price_vnd`, `free_preview_pages`) và chọn phát hành ngay hoặc hẹn giờ theo từng ấn bản ngôn ngữ (Quyết định 2026-11-15: Publisher phát hành ấn bản sau bàn giao; không có lệnh trả về/từ chối bàn giao; không sửa nội dung sản xuất). Phát hành/hẹn giờ hỗ trợ tra cứu trực tiếp theo `editionId` (D1, BR-34). |
 | **External Reviewer** | Người đánh giá bên ngoài | Ngoài nền tảng | Nhận link xem thử có watermark (`PreviewLink`), gửi nhận xét trước ngày xuất bản. Không có tài khoản WS. |
 | **Reader** | Độc giả | Web Catalog / Mobile Reader | Đăng ký tài khoản `User`, chọn ngôn ngữ đọc, nạp Ví VNĐ (`wallets`) và mở khóa từng ấn bản ngôn ngữ (`edition_entitlements`). |
@@ -60,8 +60,8 @@ Theo hướng dẫn chuyên đề Workflow của Trường (*slide W03, W07, W13
 | **ChapterHandedOff** | Chapter | Sự kiện miền / bản ghi kiểm toán ghi nhận Producer bàn giao chương đã đạt Gate 3 cho Publisher (lưu `handed_off_at`, `handed_off_by`, D1). |
 | **ChapterEdition** | Chapter | Ấn bản ngôn ngữ của chương (`Draft`, `InReview`, `Reviewed`, `Approved`, `Published`); lưu con trỏ `current_published_snapshot_id` (D1, D5). |
 | **ScriptVersion** | Chapter | Phiên bản kịch bản bất biến tạo mỗi lần Writer lưu (mã băm SHA-256); chương giữ con trỏ bản đã gửi duyệt (Q15, D9c). |
-| **Script Refreeze** | Chapter | Quy trình Producer chốt lại kịch bản khi chương đang `InProduction`: kiểm tra mã băm, Bible gate, chặn xóa trang/khung đang sản xuất (409) và phân tách tác động (Visual vs Lettering). |
-| **Split Script Impact** | Script / Assignment | Cơ chế phân loại tác động sửa kịch bản: `Visual Impact` (thay đổi hành động/khung $\rightarrow$ yêu cầu vẽ lại) vs `Lettering Impact` (thay đổi câu thoại/suy nghĩ $\rightarrow$ chỉ gắn cờ bóng thoại lỗi thời, không vẽ lại). |
+| ~~**Script Refreeze**~~ | Chapter | (Đã bỏ theo Q32) Quy trình Producer chốt lại kịch bản cũ khi đang `InProduction`. Theo Q32, kịch bản khoá cứng sau Gate 1, không mở lại và không chốt lại. |
+| ~~**Split Script Impact**~~ | Script / Assignment | (Đã bỏ theo Q32) Cơ chế phân loại tác động do sửa kịch bản. Theo Q32, kịch bản không sửa sau Gate 1, không còn cờ ảnh hưởng do kịch bản. |
 | **Cross-Studio My Work Hub** | Toàn hệ thống (`/my-work`) | Trung tâm tổng hợp công việc cá nhân xuyên suốt mọi Studio (`GET /api/me/work`), gom nhóm theo trạng thái (Đang làm, Cần sửa, Chờ duyệt) và hỗ trợ lọc theo Studio / Role (UIQ-11q). |
 | **Series Continuous Reader** | Series (`/series/:id/read`) | Chế độ đọc truyện liên tục toàn bộ các chương của bộ truyện dành cho Producer và Editor, hỗ trợ xem trước sản phẩm thực tế như độc giả. |
 | **Pinned Page Comments** (`page_comments`) | Page / Series | Hệ thống bình luận định vị toạ độ trên trang tranh (`pinX`, `pinY`), hỗ trợ Producer chuyển đổi trực tiếp bình luận thành yêu cầu sửa bài (`ConvertCommentToRework`). |
@@ -149,17 +149,16 @@ stateDiagram-v2
     [*] --> Draft: Writer viết; mỗi lần Lưu tạo ScriptVersion (SHA-256)
     Draft --> InReview: Writer Gửi duyệt (push bản mới nhất; Danh sách thực thể chương đã chốt: mục nháp đã định nghĩa hoặc Quần chúng — Q21, Q22)
     InReview --> InReview: Writer lưu tiếp / Gửi duyệt lại; Editor góp ý theo dòng
-    InReview --> Draft: Writer Hủy gửi duyệt
+    InReview --> Draft: Writer Rút về bản thảo (recall-script)
     InReview --> Frozen: Producer Bắt đầu sản xuất (Gate 1; PreProduction -> InProduction; Bible đã khoá Canon)
-    Frozen --> Draft: Producer Mở lại kèm lý do (Audit Log)
-    Draft --> Frozen: Producer Chốt lại kịch bản (Script Refreeze; kiểm tra mã băm, Bible gate, cờ tác động kép)
+    Frozen --> [*]: Khoá vĩnh viễn, chỉ đọc (Q32)
 ```
 
 | Trạng thái | Ý nghĩa |
 |---|---|
-| `Draft` | Writer viết và lưu tự do; chưa gửi Editor. Khi mở lại từ `Frozen`, Writer chỉnh sửa tiếp tại đây. |
-| `InReview` | Đã gửi; Editor đọc đúng bản đã gửi và góp ý theo dòng (không đổi trạng thái, không bắt buộc). Writer vẫn sửa, lưu và gửi lại. |
-| `Frozen` | Kịch bản chỉ đọc (sửa trả **409**), chương `InProduction`. Chỉ Producer mở lại; khi chốt lại áp dụng quy trình `Script Refreeze` với phân loại tác động phân tách (`Visual vs Lettering`). |
+| `Draft` | Writer viết và lưu tự do; chưa gửi Editor. |
+| `InReview` | Đã gửi; Editor đọc đúng bản đã gửi và góp ý theo dòng (không đổi trạng thái, không bắt buộc). Writer vẫn sửa, lưu và gửi lại; Writer có thể Rút về bản thảo. |
+| `Frozen` | Kịch bản chỉ đọc (sửa trả **409**), chương `InProduction`. Khoá vĩnh viễn, chỉ đọc (Q32: không có unfreeze/refreeze). |
 
 `IsScriptFrozen` là cột phụ bằng `ScriptStatus == Frozen`, giữ cho truy vấn cũ. Producer chỉ đọc nội dung kịch bản (BR-07).
 
@@ -270,7 +269,7 @@ stateDiagram-v2
 | Mục so sánh | Trong Code hiện tại | Trong Commitment BM04 | Trong Report 3 (SRS) / Report 4 (SDD) | Điểm lệch & Nguy cơ | Giải pháp chuẩn hóa thống nhất |
 |---|---|---|---|---|---|
 | **1. Vòng đời Chapter** | `InProduction, Approved, Locked, Published` | `InProduction → Approved → Published` | Nhiều chỗ còn ghi `Locked` | Code và báo cáo còn tồn tại chữ `Locked` trong khi BM04 đã bỏ. | • Giữ BM04 theo chuẩn mới bỏ `Locked`.<br>• Cập nhật task **RF-16** xóa `Locked` khỏi code trước 20/11.<br>• Tìm và thay thế `Locked` $\rightarrow$ `Approved` trong SRS/SDD. |
-| **2. Kịch bản vs Chapter** | `Chapter.ScriptStatus` (`Draft / InReview / Frozen`); code còn `ScriptReopenStatus` (sẽ gỡ, SCR-09) | Ghi gộp: `Chapter: InProduction → Frozen → ReopenRequested...` | Một số sơ đồ vẽ lẫn vào Chapter | Nhầm thực thể cha (`Chapter`) với trạng thái kịch bản và tác vụ (`Assignment`). | • Viết tách: `Script: Draft ↔ InReview → Frozen → Draft (Producer mở lại)`; `Chapter: PreProduction → InProduction → ChapterApproved`; `Assignment: Approved → ReworkRequired → InProgress`. |
+| **2. Kịch bản vs Chapter** | `Chapter.ScriptStatus` (`Draft / InReview / Frozen`); code còn `ScriptReopenStatus` (sẽ gỡ, SCR-09) | Ghi gộp: `Chapter: InProduction → Frozen → ReopenRequested...` | Một số sơ đồ vẽ lẫn vào Chapter | Nhầm thực thể cha (`Chapter`) với trạng thái kịch bản và tác vụ (`Assignment`). | • Viết tách: `Script: Draft ↔ InReview → Frozen` (Q32: không mở lại); `Chapter: PreProduction → InProduction → ChapterApproved`; `Assignment: Approved → ReworkRequired → InProgress`. |
 | **3. Trạng thái duyệt việc** | `AssignmentStatus.UnderReview` | `Assignment: ... → Reviewing → ...` | SDD §4 ghi `UnderReview`, BM04 ghi `Reviewing` | Lệch danh từ giữa code (`UnderReview`) và BM04 (`Reviewing`). | • Chấp nhận `UnderReview` là mã nội bộ (Code enum), `Reviewing` là nhãn hiển thị nghiệp vụ (Display Label). Bổ sung chú thích này vào SDD. |
 | **4. Cờ hủy Assignment** | Chưa có enum `Cancelled` | BM04 ghi có `Cancelled` | State machine §6.4 có vẽ `Cancelled` | Code chưa định nghĩa giá trị enum `Cancelled = 8`. | • Nằm trong task **RF-17** (hạn 20/11) do Tâm phụ trách. Thêm `Cancelled = 8` vào `AssignmentStatus.cs`. |
 | **5. Tài khoản Reader** | `Catalog API` public; Reader là `User` có Ví VNĐ và quyền đọc theo ấn bản | Ghi: `Publisher and Reader have accounts (BR-07, BR-24)` | SRS phân định Web Reader và Mobile Reader | Dễ hiểu lầm phải đăng ký mới đọc được ấn bản Free. | • Theo BR-33: ấn bản Free đọc không cần mở khoá; ấn bản Trả phí cần tài khoản + Ví VNĐ để mở khoá đúng ấn bản ngôn ngữ đó. |

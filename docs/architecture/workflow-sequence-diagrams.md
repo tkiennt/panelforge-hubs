@@ -209,7 +209,6 @@ sequenceDiagram
     actor Letterer as 🔤 Letterer (Bóng thoại)
     participant FE as 🖥️ ReviewView (Canvas Diff)
     participant API as ⚙️ PanelForge API (.NET 9)
-    participant Geo as 📐 Geometry Engine (Overlap >= 15%)
     participant DB as 🗄️ PostgreSQL
     participant Hub as 📡 SignalR Realtime Hub
 
@@ -220,16 +219,11 @@ sequenceDiagram
     API-->>FE: Trả về ảnh Composite, tọa độ Panel, bóng thoại, Model Sheet đối chiếu
     Editor->>FE: Bật các chế độ kiểm tra: Side-by-side, Slider, Onion-skin, Pixel Diff
 
-    %% 2. Khoanh vùng lỗi & Thuật toán hình học
-    Note over Editor,Geo: 2. Editor kéo chuột khoanh vùng lỗi AnchorBox {x,y,w,h}
-    Editor->>FE: Kéo chuột khoanh vùng lỗi (Tọa độ chuẩn hóa [0..1] x [0..1])
-    Editor->>FE: Nhập nhận xét & chọn phân loại lỗi: [Lỗi Nét Vẽ] hoặc [Lỗi Bóng Thoại]
+    %% 2. Chọn Panel đích & lớp lỗi (Q35, thay D8)
+    Note over Editor,API: 2. Editor chọn Panel đích + lớp (Tranh/Chữ) + nhận xét (vùng khoanh tuỳ chọn, Q35)
+    Editor->>FE: Bấm chọn Panel đích (ví dụ: Panel 2), lớp lỗi & nhập nhận xét (vùng khoanh tuỳ chọn)
     Editor->>FE: Bấm [Gửi Yêu Cầu Sửa Lỗi]
-    FE->>API: POST /api/reviews/pages/{pageId}/change-requests (errorBox, comment, type)
-    
-    API->>Geo: FindIntersectingPanelIds(errorBox, pagePanels)
-    Geo->>Geo: OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel))
-    Geo-->>API: Trả về danh sách Panel có OverlapRatio >= 0.15 (ví dụ: Panel 2)
+    FE->>API: POST /api/reviews/pages/{pageId}/change-requests (panelIds, layer, comment, region)
 
     %% 3. Cô lập sửa lỗi cấp Panel
     Note over API,DB: 3. Cô lập lỗi đúng Panel 2, bảo vệ các Panel khác
@@ -552,73 +546,11 @@ sequenceDiagram
 
 ---
 
-## Workflow 8: Xử Lý Sửa Kịch Bản Muộn & Phân Tích Tác Động (Late Script Revision & Impact Review Flow - CF4)
+## Workflow 8: Kịch Bản Khoá Cứng Tại Gate 1 (Hard Script Freeze - Q32)
 
-> **Mục tiêu:** Mô tả quy trình khi Producer mở lại kịch bản đã chốt, Writer chỉnh sửa nội dung, hệ thống chạy thuật toán so sánh AST để tự động gắn cờ ảnh hưởng ⚑ (`FlagImpactReview`) lên đúng các Panel liên quan, và ê-kíp xử lý cô lập sửa chữa.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Producer as 🎬 Producer
-    actor Writer as ✍️ Writer
-    actor Artist as 🎨 Artist
-    actor Letterer as 🔤 Letterer
-    participant FE as 🖥️ Studio Web UI
-    participant API as ⚙️ PanelForge API (.NET 9)
-    participant AST as 🌳 AST Diff & Impact Engine
-    participant DB as 🗄️ PostgreSQL
-    participant Hub as 📡 SignalR Realtime Hub
-
-    %% 1. Mở lại kịch bản đã đóng băng
-    Note over Producer,API: 1. Producer mở lại kịch bản đã đóng băng (kèm lý do Audit)
-    Producer->>FE: Mở chương đang InProduction, bấm [Mở Lại Kịch Bản] (Unfreeze)
-    FE->>API: POST /api/chapters/{id}/reopen-script { reason: "Bổ sung tình tiết cao trào" }
-    API->>DB: Ghi nhận lý do vào Audit Log
-    API->>DB: Chuyển Chapter.ScriptStatus: Frozen -> Draft (Kịch bản mở quyền sửa)
-    API-->>FE: HTTP 200 { isScriptFrozen: false, status: "Draft" }
-    API-)Writer: SignalR: Kịch bản đã được mở lại để chỉnh sửa
-
-    %% 2. Writer sửa kịch bản & Gửi duyệt lại
-    Note over Writer,API: 2. Writer sửa kịch bản và bấm Gửi duyệt lại
-    Writer->>FE: Thay đổi lời thoại ở Panel 2, đổi hành động chiến đấu ở Panel 5
-    Writer->>FE: Bấm [Lưu Kịch Bản] (Commit tạo ScriptVersion v5)
-    Writer->>FE: Bấm [Gửi Duyệt Lại]
-    FE->>API: POST /api/scripts/resubmit-for-review { scriptVersionId: v5 }
-
-    %% 3. Phân tích tác động kịch bản (Impact Engine)
-    Note over API,AST: 3. Phân tích sai khác AST giữa bản đóng băng cũ vs bản mới
-    API->>AST: AnalyzeScriptImpact(oldFrozenVersion, newVersion)
-    AST->>AST: So sánh AST từng dòng trong từng Panel
-    AST-->>API: Phát hiện: Panel 2 sửa thoại; Panel 5 đổi toàn bộ hành động
-    
-    API->>DB: Bật cờ tác động FlagImpactReview (⚑) lên Panel 2 và Panel 5
-    API->>DB: Panel 2: Đánh dấu bong bóng thoại isStale = true (Lời thoại cũ)
-    API->>DB: Panel 5: Chuyển PanelStageProgress -> ReworkRequired
-    API->>Hub: Phát tín hiệu cảnh báo tác động đến Artist & Letterer
-
-    %% 4. Xử lý cô lập tác động (Keep vs Rework)
-    Note over Artist,Letterer: 4. Xử lý các Panel có cờ tác động ⚑
-    par Xử lý Panel 2 (Chỉ sửa lời thoại nhẹ)
-        Letterer->>FE: Mở Bàn vẽ Lettering, xem viền cờ ⚑ tại Panel 2
-        Letterer->>FE: Cập nhật lại câu chữ mới vào bóng thoại
-        Letterer->>FE: Bấm [Giữ Nguyên Tranh Vẽ (Keep)]
-        FE->>API: POST /api/panels/2/impact-resolve { decision: "Keep", updateText: true }
-        API->>DB: Gỡ cờ ⚑ khỏi Panel 2; Tranh vẽ giữ nguyên Approved 🔒
-    and Xử lý Panel 5 (Thay đổi nét vẽ lớn)
-        Artist->>FE: Mở ArtistDeskView, thấy Panel 5 yêu cầu vẽ lại
-        Artist->>FE: Vẽ lại khung tranh chiến đấu mới cho Panel 5 và nộp lại
-        FE->>API: POST /api/panels/5/impact-resolve { decision: "Rework", newAssetHash: "..." }
-        API->>DB: Gỡ cờ ⚑; Panel 5 chuyển sang InReview chờ Editor duyệt lại Gate 2
-    end
-
-    %% 5. Producer chốt lại Gate 1
-    Note over Producer,DB: 5. Chốt lại kịch bản khi 100% cờ ⚑ đã giải quyết
-    Producer->>FE: Mở màn hình Gate 1, kiểm tra: Số cờ ⚑ chưa giải quyết == 0
-    Producer->>FE: Bấm [Chốt Lại Kịch Bản & Tiếp Tục Sản Xuất]
-    FE->>API: POST /api/chapters/{id}/gate1-approve
-    API->>DB: Chapter.ScriptStatus: Draft -> Frozen ❄️
-    API-->>FE: HTTP 200 { status: "InProduction", isFrozen: true }
-```
+> **Mục tiêu:** Kịch bản khoá cứng tại Gate 1, `Frozen` vĩnh viễn và chỉ đọc.
+> 
+> **Quyết định Q32 (Chốt 2026-11-28):** Bỏ hoàn toàn luồng Unfreeze / Refreeze kịch bản (`unfreeze-script`, `refreeze-script`, `refreeze-preview`) cùng cơ chế cờ ảnh hưởng do sửa kịch bản khi đang sản xuất (`ScriptImpactClassifier`, cờ ⚑ kịch bản thay đổi, bóng thoại `isStale` do sửa kịch bản). Mọi sửa đổi kịch bản dồn về trước Gate 1: Writer có nút *Rút về bản thảo* (`recall-script`) khi cần, Producer thấy số góp ý còn mở trước khi bấm *Bắt đầu sản xuất*. Nếu cần đổi kịch bản sau Gate 1, các thay đổi phải làm ở chương sau. Cờ `ImpactFlags` do Producer mở lại ô tranh đã duyệt (BR-27) vẫn được giữ nguyên.
 
 ---
 
@@ -773,12 +705,12 @@ sequenceDiagram
 |---|---|---|---|---|
 | **Workflow 1: Tiền kỳ & Kịch bản** | Writer, Artist, Editor, Producer | **Gate 1** (Pre-Production Gate) | `ScriptVersion` (SHA-256), `SubmittedScriptManifest`, `CanonLocked` | BR-01, BR-06, BR-07, BR-15, BR-21, BR-35 |
 | **Workflow 2: Sản xuất Bàn vẽ** | Producer, Artist, Letterer | — | `PositionRecord {x,y,w,h}`, `GraphicAssetHash` | BR-05, BR-19, BR-20, BR-31 (Letterer miễn gate ảnh), BR-34 |
-| **Workflow 3: Kiểm định Gate 2** | Editor, Artist, Letterer | **Gate 2** (Quality & Composite) | Bounding Box $0..1$, `ChangeRequest` (group_id) | BR-06, BR-19, BR-26, OverlapRatio $\ge 15\%$ |
+| **Workflow 3: Kiểm định Gate 2** | Editor, Artist, Letterer | **Gate 2** (Quality & Composite) | Chọn Panel đích + lớp (vùng khoanh $0..1$ tuỳ chọn), `ChangeRequest` (group_id) | BR-06, BR-19, BR-26, BR-39 (Q35, thay D8) |
 | **Workflow 4: Nghiệm thu Gate 3** | Producer, Reviewer, Publisher | **Gate 3** (Release Gate) | `ChapterSnapshot` (SHA-256), `ChapterHandedOff` | BR-12, BR-18, BR-30, Watermark SVG |
 | **Workflow 5: Ấn bản Ngôn ngữ** | Letterer, Editor, Producer, Publisher | Gate Edition (Reviewed/Approved) | `EditionSnapshot` (current_published_snapshot_id) | BR-06, BR-12, BR-33, BR-34, Quyết định D1, D4, D5 |
 | **Workflow 6: Độc giả & Doanh thu** | Reader, Producer, Publisher | API Security Filter (403 N+1) | `edition_entitlements`, `wallets` (VNĐ append-only) | BR-32, BR-33, BR-34, Quyết định Q11, Q13 |
 | **Workflow 7: Kịch bản AI** | Writer, AI Orchestrator | Human-in-the-loop (Commit) | `ScriptVersion` (AiProposal), `AiWorkflowRun` | BR-02, BR-07, Quyết định Q25 |
-| **Workflow 8: Sửa Kịch bản Muộn** | Producer, Writer, Artist, Letterer | Gate 1 Re-approval | `FlagImpactReview` (⚑), `isStale` | BR-07, BR-12, Audit Log append-only |
+| **Workflow 8: Kịch bản Khoá cứng** | Producer, Writer | Gate 1 Pre-Production | `ScriptVersion` Frozen vĩnh viễn | BR-07, BR-12, BR-37 (Q32; không mở lại kịch bản) |
 | **Workflow 9: Direct Upload CAS** | Artist, Client, Storage Worker | Hash Check Deduplication | Content-Addressed Storage (`SHA-256`) | Pre-signed URL, SixLabors Image Processing |
 | **Workflow 10: Phân vai & My Work Hub** | Producer, Member, Artist, Editor | Phân quyền Series-Scoped ABAC | `series_members`, `workspace_members` | Spec D10, UIQ-11q, `/my-work`, `GET /api/me/work` |
 | **Workflow 11: Continuous Reader & Pinned Comments** | Editor, Producer, Artist | Review Gate / Pin Coordinates | `{pinX, pinY}`, `ChangeRequest` | UIQ-11r, `ConvertCommentToRework`, `/series/:id/read` |

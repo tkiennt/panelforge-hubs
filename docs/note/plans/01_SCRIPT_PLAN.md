@@ -1,5 +1,7 @@
 # 01 · KỊCH BẢN — SOẠN → DUYỆT → KHOÁ → SỬA MUỘN (`SCR`)
 
+> **Q32 (chốt 2026-11-28):** kịch bản khoá cứng vĩnh viễn ở Gate 1. Mọi mục trong plan này nói về mở lại (`unfreeze`, `ScriptReopen`), chốt lại (`refreeze`) hay cờ ảnh hưởng do sửa kịch bản là lịch sử và đã huỷ; không triển khai tiếp.
+
 > **Spec:** Module 1 (soạn kịch bản, Gate 1), Module 4 (mở lại / sửa muộn), §1.2 (Trang → Panel → Nội dung), §5.2.
 > **Thay cho:** `note/SCRIPT_FLOW_REFACTOR_PLAN.md` (ID `S0-01..S6-02`), plan tổng P4-01; liên quan P1-01/P1-02. Bỏ hẳn `SCRIPT_END_TO_END_REFACTOR_MASTER_PLAN.md`, `PAGE_BASED_SCRIPT_EDITOR_AND_DYNAMIC_ENTITY_LINKING_PLAN.md`.
 > **Repo:** `PanelForge_FA26SE251` (chính), `panelforge-fe` (chính). Mobile không ảnh hưởng.
@@ -43,11 +45,11 @@
 stateDiagram-v2
     direction LR
     [*] --> Draft: Tạo chương
-    Draft --> InReview: Writer nộp kịch bản (submit-script)
+    Draft --> InReview: Writer nộp kịch bản (`POST /script/submit`)
     InReview --> Draft: Writer thu hồi (recall-script)
     InReview --> InReview: Writer vẫn sửa & nộp lại (resubmit)
     InReview --> Frozen: GATE 1 — Producer Bắt đầu sản xuất (freeze-script)
-    Frozen --> Draft: Producer mở lại (unfreeze-script, lý do bắt buộc)
+    Frozen --> [*]: Khoá vĩnh viễn, chỉ đọc (Q32 — không mở lại)
 ```
 
 | Trạng thái | Writer sửa? | Ghi chú                                                                                                           |
@@ -117,7 +119,7 @@ Endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link
 
 ### Phase A — Sửa lỗi & dọn dẹp, không đổi hợp đồng (làm ngay)
 
-#### SCR-01 · Unfreeze trực tiếp phải kích hoạt phân tích ảnh hưởng (V4) — BE · ❌ · cũ S0-01
+#### SCR-01 · Unfreeze trực tiếp phải kích hoạt phân tích ảnh hưởng (V4) — (Huỷ theo Q32 — kịch bản khoá cứng sau Gate 1) — BE · ❌ · cũ S0-01
 
 - [ ] `Chapter.UnfreezeScript(userId, reason)`: đặt `ScriptReopenStatus = Approved`, `ScriptReopenRequestedAt = now`, `ScriptReopenReason = reason`.
 - [ ] `UnfreezeChapterScriptCommandHandler` truyền lý do vào domain (lý do đã bắt buộc từ P0-03).
@@ -184,7 +186,7 @@ Endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link
 - [ ] `IsScriptFrozen` thành thuộc tính tính toán (`ScriptStatus == Frozen`); migration chỉ thêm cột mặc định `Draft` (D6: không map trạng thái dữ liệu cũ).
 - [ ] Unit test mọi chuyển trạng thái: `Draft ↔ InReview → Frozen`, `Frozen → Draft`.
 
-#### SCR-09 · `ScriptReopen` append-only — DB + BE · ❌ · cũ S2-02
+#### SCR-09 · `ScriptReopen` append-only — (Huỷ theo Q32 — kịch bản khoá cứng sau Gate 1, không mở lại) — DB + BE · ❌ · cũ S2-02
 
 - [ ] Entity + bảng `script_reopens`. Không chuyển dữ liệu 4 cột `ScriptReopen*` (D6); xoá cột cũ ở SCR-23.
 - [ ] **Câu hỏi 25 đã chốt (2026-11-13): bỏ luồng Writer xin mở lại.** Chỉ Producer *Mở lại* kèm lý do (`Frozen → Draft`). Gỡ `RequestScriptReopen`/`ApproveScriptReopen`/`RejectScriptReopen` (domain, handler, 3 endpoint `request|approve|reject-script-reopen`, `chapter.service.ts` FE, enum `ScriptReopenStatus`); `script_reopens` chỉ ghi lịch sử các lần Producer mở lại (người, lúc, lý do, bản Frozen trước đó). Writer muốn sửa thì nhắn Producer ngoài hệ thống hoặc qua góp ý.
@@ -200,7 +202,7 @@ Endpoint cũ (`scenes/*`, `script-lines/*`, `pages/sync-script-structure`, `link
 #### SCR-11 · Luật quyền sửa kịch bản — BE + FE · ✅ · cũ S2-04 (BE merge `fa90712`, FE merge `0740a2a`)
 
 - [X] Viết lại `ScriptLineRules.AuthorizeAsync` theo `ScriptStatus` + quyền Writer: chỉ Writer được sửa/xoá kịch bản, Producer và các vai trò khác chỉ đọc (403).
-- [X] Producer chỉ đọc khi sửa kịch bản (BR-07/23, Q24); Producer chỉ góp ý theo dòng, Bắt đầu sản xuất, Mở lại kịch bản.
+- [X] Producer chỉ đọc khi sửa kịch bản (BR-07/23, Q24); Producer chỉ góp ý theo dòng và Bắt đầu sản xuất (Q32: không mở lại kịch bản).
 - [X] Test ma trận vai trò × trạng thái.
 - [X] [BE] Vai trò khác Writer/Producer (Artist, Letterer, Editor) luôn nhận 403 với mọi lệnh sửa dòng/cây kịch bản.
 - [X] [FE] `ScriptEditorView.tsx`: `canEditScript` chỉ mở quyền cho đúng vai trò Writer; Producer chỉ xem và góp ý.
@@ -463,7 +465,7 @@ Phím tắt: `Ctrl+Enter` Panel mới · `Ctrl+Shift+Enter` Trang mới · `Ctrl
 - [x] [BE] Nút "Submit Script" tại Gate 1: trỏ tới `ScriptVersion` mới nhất và tạo bản ghi đóng băng `SubmittedScriptManifest` (D2).
 - [x] [FE] Tích hợp debounce autosave (3-5s) gọi endpoint `/working-copy`; nút "Lưu phiên bản" (Save) gọi `POST /script-versions`; nút "Nộp kịch bản" (Submit) kiểm tra working copy đã lưu thành version rồi gọi submit.
 
-#### SCR-44 · Script Refreeze & Phân tách tác động kịch bản (Visual vs Lettering) — BE + FE · ✅ (BE `ae2bd99`, `78707f6`, `ff109fe`, `efb8d27`; FE `7c832daa`, `aa21e679`)
+#### SCR-44 · Script Refreeze & Phân tách tác động kịch bản (Visual vs Lettering) — (Huỷ theo Q32 — bỏ refreeze và phân tách tác động do sửa kịch bản) — BE + FE · ✅ (BE `ae2bd99`, `78707f6`, `ff109fe`, `efb8d27`; FE `7c832daa`, `aa21e679`)
 - [x] [BE] Chặn `StartChapterProduction` chỉ được gọi khi chương ở `PreProduction` (ném 409 nếu chương đã `InProduction`).
 - [x] [BE] API xem trước tác động `GET /api/chapters/{chapterId}/refreeze-preview`: Producer đối chiếu diff giữa bản chốt trước và bản sửa mới.
 - [x] [BE] Phân tách tác động `ScriptSnapshotDiffer` & `ScriptImpactClassifier`:

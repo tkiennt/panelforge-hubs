@@ -12,7 +12,7 @@
 2. [Flow 1: Tiền Kỳ, Kịch Bản & Gate 1 Pre-Production Gate](#2-flow-1-tiền-kỳ-kịch-bản--gate-1-pre-production-gate)
 3. [Flow 2: Sản Xuất Song Song (Pencil, Ink, Color) & Đặt Thoại (Lettering)](#3-flow-2-sản-xuất-song-song-pencil-ink-color--đặt-thoại-lettering)
 4. [Flow 3: Kiểm Định Chất Lượng Gate 2 & Cô Lập Lỗi Cấp Panel](#4-flow-3-kiểm-định-chất-lượng-gate-2--cô-lập-lỗi-cấp-panel)
-5. [Flow 4: Sửa Kịch Bản Muộn Trong Sản Xuất (Late Script Refreeze & Impact Review)](#5-flow-4-sửa-kịch-bản-muộn-trong-sản-xuất-late-script-refreeze--impact-review)
+5. [Flow 4: Kịch Bản Khoá Cứng Tại Gate 1 (Hard Script Freeze - Q32)](#5-flow-4-kịch-bản-khoá-cứng-tại-gate-1-hard-script-freeze---huỷ-sửa-kịch-bản-muộn-theo-q32)
 6. [Flow 5: Gate 3 Release Gate, Bàn Giao Publisher & Xuất Bản](#6-flow-5-gate-3-release-gate-bàn-giao-publisher--xuất-bản)
 7. [Flow 6: Quản Lý Ấn Bản Ngôn Ngữ, Cấu Hình Giá & Xuất Bản Độc Quyền](#7-flow-6-quản-lý-ấn-bản-ngôn-ngữ-cấu-hình-giá--xuất-bản-độc-quyền)
 8. [Flow 7: Thanh Toán Ví VNĐ (SePay), Bảo Vệ Paywall & Mua Ấn Bản](#8-flow-7-thanh-toán-ví-vnđ-sepay-bảo-vệ-paywall--mua-ấn-bản)
@@ -227,19 +227,12 @@ sequenceDiagram
     participant API as Backend API
     participant DB as PostgreSQL 16
 
-    Reviewer->>FE: Bật chế độ QC Layer -> Kéo vùng chọn Annotation
+    Reviewer->>FE: Bấm chọn Panel đích + lớp (Tranh/Chữ) + nhận xét (vùng khoanh tuỳ chọn, Q35)
     FE->>API: POST /api/pages/{pageId}/change-requests
-    Note over API: Thuật toán giao cắt khung tranh D8:<br/>OverlapRatio = Area(Error ∩ Panel) / min(Area(Error), Area(Panel)) >= 0.15
-    API->>API: Tính toán diện tích giao cắt với tất cả Panels trên trang
-    
-    alt Không giao cắt panel nào hoặc < 15% diện tích
-        API->>DB: Tạo ChangeRequest ở cấp Toàn Trang (Page-level)
-    else Giao cắt >= 2 Panels
-        API->>DB: Tự động tách thành nhiều ChangeRequest riêng lẻ
-        API->>DB: Gán chung GroupId để liên kết nghiệp vụ (Q2)
-        API->>DB: Chỉ chuyển các Panel bị giao cắt sang "ReworkRequired"
-        API->>DB: Các Panel khác giữ nguyên "Approved"
-    end
+    Note over API: Q35 (thay D8): Không dùng thuật toán 15% giao thoa.<br/>Editor bấm chọn Panel đích trực tiếp, Backend tạo CR theo từng Panel được chọn
+    API->>DB: Tạo ChangeRequest cho từng Panel được chọn (chung GroupId nếu nhiều Panel, Q2)
+    API->>DB: Chỉ chuyển các Panel được chọn sang "ReworkRequired"
+    API->>DB: Các Panel khác giữ nguyên "Approved"
     API-->>FE: 201 Created (ChangeRequest created)
     
     %% Artist sửa lỗi
@@ -274,64 +267,11 @@ sequenceDiagram
 
 ---
 
-## 5. Flow 4: Sửa Kịch Bản Muộn Trong Sản Xuất (Late Script Refreeze & Impact Review)
+## 5. Flow 4: Kịch Bản Khoá Cứng Tại Gate 1 (Hard Script Freeze - Q32)
 
-### 5.1 Sơ Đồ Tuần Tự (Sequence Diagram)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Producer as Nhà sản xuất (Producer)
-    actor Writer as Biên kịch (Writer)
-    actor Reviewer as Kiểm duyệt viên
-    participant FE as Management UI
-    participant API as Backend API
-    participant DB as PostgreSQL 16
-
-    Producer->>FE: Yêu cầu mở kịch bản (Unfreeze Script)
-    FE->>API: POST /api/chapters/{chapterId}/script/unfreeze (Lý do bắt buộc)
-    API->>DB: Script: Frozen -> Draft; Chapter ghi nhận cờ "RefreezeInProgress"
-    API-->>FE: 200 OK (Script Unlocked for Editing)
-
-    Writer->>FE: Sửa thoại hoặc cấu trúc khung tranh
-    Writer->>FE: Bấm "Nộp duyệt bản sửa đổi kịch bản"
-    FE->>API: POST /api/chapters/{chapterId}/script/refreeze
-    
-    %% Phân tách phân loại tác động (Impact Analysis)
-    Note over API: Phân tách tác động (BR-10, BR-14):<br/>1. Text Impact: Chỉ sửa thoại/narration.<br/>2. Visual Impact: Thêm/xóa panel, sửa mô tả hình ảnh.
-    
-    API->>API: So khớp AST Kịch Bản cũ và mới
-    alt Chỉ có Text Impact (Sửa lời thoại)
-        API->>DB: Đánh dấu các bóng thoại liên quan: IsStale = true
-        API->>DB: Giữ nguyên 100% các Layer vẽ của Artist (Không Rework)
-        API->>DB: Tạo Task Rework riêng cho Letterer
-    else Có Visual Impact (Đổi hành động / Đổi góc máy)
-        API->>DB: Đánh dấu Panel bị tác động cờ cảnh báo ⚑
-        API->>DB: Chuyển Task của Panel đó: Approved -> ReworkRequired
-    end
-    
-    alt Writer cố gắng xóa Khung tranh đã hoàn thiện tranh vẽ
-        API-->>FE: 409 Conflict (ERR_CANNOT_DELETE_PANEL_WITH_ARTWORK)
-        FE-->>Writer: Chặn: "Không thể xóa khung tranh P03 vì đã vẽ xong nét mực!"
-    else Hợp lệ
-        API->>DB: Cập nhật Hash kịch bản mới, Script: Draft -> Frozen
-        API-->>FE: 200 OK (Impact Manifest Generated)
-    end
-```
-
-### 5.2 Các Hướng Xử Lý Lỗi Điển Hình
-
-#### Case 5.1: Chặn Xóa Khung Tranh Đang Có Tác Phẩm Nghệ Thuật (Panel Deletion Guard)
-* **Mã lỗi:** `409 Conflict` (`ERR_CANNOT_DELETE_ACTIVE_ARTWORK_PANEL`).
-* **Nguyên nhân:** Bản sửa đổi kịch bản của Writer đã xóa bỏ hoàn toàn một Panel (ví dụ: Panel 04) trong khi Artist đã hoàn thành xong bản vẽ nét (Ink) hoặc lên màu (Color).
-* **Hướng xử lý:**
-  1. Backend từ chối phê duyệt bản kịch bản sửa đổi.
-  2. Trả về mã lỗi kèm danh sách các tác phẩm nghệ thuật sẽ bị phá hủy nếu xóa panel.
-  3. Producer phải vào can thiệp: Chọn phương án di dời bản vẽ sang mục "Lưu trữ phế phẩm" (Archive Scrap Artwork) và ký duyệt xác nhận hủy công sức (Producer Override Sign-off).
-
-#### Case 5.2: Tồn Tại Cờ Tác Động Chưa Xử Lý Khi Khóa Sản Xuất (Unresolved Impact Flag `⚑`)
-* **Mã lỗi:** `409 Conflict` (`ERR_UNRESOLVED_IMPACT_FLAGS`).
-* **Hướng xử lý:** Producer/Editor phải duyệt qua từng cờ `⚑`: Bấm chọn "Chấp nhận bản vẽ cũ không cần sửa" (Dismiss Impact) hoặc "Yêu cầu vẽ lại theo kịch bản mới" (Trigger Rework). Không được để sót bất kỳ cờ nào trước khi đóng lại Gate 2.
+> **Quyết định Q32 (Chốt 2026-11-28):** Kịch bản khoá cứng tại Gate 1, `Frozen` vĩnh viễn và chỉ đọc. `ScriptStatus` chỉ còn `Draft ↔ InReview → Frozen`. Bỏ hoàn toàn luồng Unfreeze / Refreeze kịch bản (`unfreeze-script`, `refreeze-script`, `refreeze-preview`) cùng cơ chế cờ ảnh hưởng do sửa kịch bản khi đang sản xuất (`ScriptImpactClassifier`, cờ ⚑ kịch bản thay đổi, bóng thoại `isStale` do sửa kịch bản). Mọi sửa đổi kịch bản dồn về trước Gate 1: Writer có nút *Rút về bản thảo* (`recall-script`) khi cần, Producer thấy số góp ý còn mở trước khi bấm *Bắt đầu sản xuất*. Nếu cần đổi kịch bản sau Gate 1, các thay đổi phải làm ở chương sau.
+> 
+> *Lưu ý:* Cờ `ImpactFlags` / `InputOutdated` khi Producer mở lại ô tranh đã duyệt (BR-27, BR-12) vẫn được giữ nguyên.
 
 ---
 
@@ -547,8 +487,8 @@ Dưới đây là bảng tổng hợp đầy đủ các mã lỗi nghiệp vụ 
 | `ERR_CAS_CHECKSUM_MISMATCH` | 400 | Asset / Cloud Storage | SHA-256 thực tế khi tải lên khác với Ticket khai báo. | Kiểm tra tính ổn định mạng, đọc lại file từ đĩa cục bộ và upload lại. |
 | `ERR_GEOMETRY_TEXT_OVERFLOW` | 400 | Lettering / Canvas | Text trong bóng thoại tràn ra ngoài ranh giới hình học. | Giảm cỡ chữ (Font size), kéo rộng bóng thoại hoặc ngắt bớt dòng. |
 | `ERR_OVERLAPS_KEY_ARTWORK` | 422 | Lettering / Canvas | Bóng thoại đặt đè lên khuôn mặt nhân vật quan trọng. | Kéo bóng thoại sang vị trí thoáng hơn theo hướng dẫn của hệ thống gợi ý. |
-| `ERR_CANNOT_DELETE_ACTIVE_ARTWORK` | 409 | Script Refreeze / Gate 2 | Xóa khung tranh khi đã có layer vẽ nét hoặc màu. | Producer phải xác nhận hủy công sức (Override) hoặc Writer giữ lại khung tranh. |
-| `ERR_UNRESOLVED_IMPACT_FLAGS` | 409 | Script Refreeze / Production | Còn cờ tác động `⚑` chưa được Producer/Editor giải quyết. | Mở danh sách cờ tác động và chọn "Chấp thuận bản cũ" hoặc "Yêu cầu vẽ lại". |
+| `ERR_CANNOT_DELETE_ACTIVE_ARTWORK` | 409 | Script / Gate 2 (Đã bỏ theo Q32) | Xóa khung tranh khi đã có layer vẽ nét hoặc màu. | Đã bỏ theo Q32: kịch bản khoá cứng sau Gate 1. |
+| `ERR_UNRESOLVED_IMPACT_FLAGS` | 409 | Gate 3 / Producer Reopen (BR-27) | Còn cờ tác động do Producer mở lại ô đã duyệt chưa giải quyết. | Đã bỏ phần kịch bản (Q32); chỉ áp dụng cho cờ mở lại ô tranh (BR-27). |
 | `ERR_GATE3_UNAPPROVED_TASKS` | 409 | Post-Production / Gate 3 | Còn ô Task trong TaskGrid chưa đạt `Approved` (BR-12). | Kiểm tra lại tiến độ các khâu (Pencil, Ink, Color, Lettering) để duyệt nốt. |
 | `ERR_GATE3_OPEN_CHANGE_REQUESTS`| 409 | Post-Production / Gate 3 | Còn yêu cầu sửa lỗi chưa được đóng hoàn toàn. | Hoàn thành sửa lỗi và Reviewer phải xác nhận `Verify` đóng Change Request. |
 | `ERR_PRICING_MODEL_REQUIRED` | 409 | Publishing / Edition | Xuất bản khi chưa cấu hình Free hoặc Paid (D4). | Vào phần Cấu hình giá thiết lập loại truy cập và giá tiền trước khi xuất bản. |
