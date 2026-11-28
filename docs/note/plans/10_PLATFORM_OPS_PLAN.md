@@ -5,7 +5,7 @@
 > **Repo:** `PanelForge_FA26SE251`, `panelforge-fe`, `panelforge-mobile`.
 > **Trạng thái:** chỉ là kế hoạch, **chưa code**. Bắt đầu khi người phụ trách duyệt.
 
-**Phạm vi.** Tên nhánh có chữ "b2b" nhưng tài liệu nguồn (mục 4.1) ghi rõ B2B, gói thuê bao, nhiều Publisher và chia doanh thu là **ngoài phạm vi**. Plan này theo đúng hướng đó: Admin **cấp tài nguyên và vận hành**, không bán gói. Nếu team muốn làm B2B thật thì phải sửa spec trước (xem §5, câu C0).
+**Phạm vi.** Tài liệu nguồn (mục 4.1) ghi B2B, gói thuê bao, nhiều Publisher và chia doanh thu là **ngoài phạm vi**; Admin **cấp tài nguyên và vận hành**. Ngoại lệ đã chốt 28/11 (C0, spec D11): độc giả mua **gói mở Studio** một lần bằng Ví (OPS-40).
 
 **Ranh giới với plan khác.** Vòng đời ấn bản (5A) thuộc `06_RELEASE_PLAN.md` (`REL`); link ảnh ký ngắn hạn và Flutter đọc trả phí (6A) thuộc `07_READER_PLAN.md` (`RDR`). Plan này chỉ ghi các việc đó ở dạng phụ thuộc, không nhân đôi task.
 
@@ -201,8 +201,26 @@ Kéo từ GĐ3. Admin đặt cho toàn nền tảng, **áp ngay cho mọi Studio
 
 **Mobile:** app chưa có luồng tải file lên (góp ý review gửi qua JSON), nên chưa cần đổi. Khi thêm upload thì đọc `GET /api/assets/upload-limits` và xử lý 413.
 
+### GĐ4 · Gói mở Studio cho độc giả (C0 đổi 28/11, spec D11)
+
+#### OPS-40 · Gói mở Studio — DB + BE + FE ✅ (28/11, BE `d41bf5d`, FE `7d11a55`)
+Độc giả (User chưa thuộc Studio, chưa có `CanCreateStudio`) mua gói một lần bằng Ví → được `CanCreateStudio` vĩnh viễn → tự tạo Studio làm Producer.
+- [x] [DB] Bảng append-only `studio_package_prices` (`id`, `price_vnd` int > 0, `changed_by_user_id`, `created_at`, `is_deleted`); giá hiện hành = bản ghi mới nhất. Enum `PaymentTransactionType.StudioPackage = 5`.
+- [x] [BE] `SetStudioPackagePriceCommand` (Admin): 1.000 ≤ giá ≤ 50.000.000, ghi Audit `STUDIO_PACKAGE_PRICE_CHANGED`.
+- [x] [BE] `PurchaseStudioPackageCommand`: chỉ `SystemRole.User`; đã có quyền → 409 `ALREADY_OWNED`; chưa đặt giá → 404; `expectedPriceVnd` khác giá hiện hành → 409 `PRICE_CHANGED`; thiếu tiền → 400; trừ Ví, ghi giao dịch `StudioPackage` (Approved, không gắn Workspace), `GrantStudioCreation()`, Audit `STUDIO_PACKAGE_PURCHASED`. Lịch sử Ví hiện "Mua gói mở Studio".
+- [x] [FE] `/catalog/open-studio`: giá, số dư, nút mua / nạp thêm; mua xong chuyển sang tạo Studio. Admin: ô đặt giá gói ở tab Người dùng & quyền. Migration `AddStudioPackagePrices`.
+
+Hợp đồng API:
+
+| Endpoint | Ai gọi | Request / Response |
+|---|---|---|
+| `GET /api/catalog/studio-package` | Ẩn danh | `StudioPackageDto { isOnSale, priceVnd (null nếu chưa bán) }` |
+| `POST /api/wallet/studio-package` | Đăng nhập (User) | `{ expectedPriceVnd }` → `PurchaseStudioPackageResponse { priceVnd, remainingBalanceVnd, orderCode, canCreateStudio: true }`; 400 thiếu tiền, 403 Admin/Publisher, 404 chưa bán, 409 `ALREADY_OWNED` / `PRICE_CHANGED` |
+| `GET /api/admin/studio-package` | Admin | `AdminStudioPackageDto { priceVnd?, changedAt?, changedByName?, purchaseCount }` |
+| `PUT /api/admin/studio-package/price` | Admin | `{ priceVnd }` → `AdminStudioPackageDto`; 400 ngoài khoảng |
+
 ### GĐ3 · Để sau
-Tách dung lượng sản xuất và phát hành; link R2 ký trực tiếp, CDN (thuộc `RDR`). B2B, gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi.
+Tách dung lượng sản xuất và phát hành; link R2 ký trực tiếp, CDN (thuộc `RDR`). Gói thuê bao, nhiều Publisher, chia doanh thu: ngoài phạm vi (gói mở Studio một lần làm ở OPS-40).
 
 ---
 
@@ -222,7 +240,7 @@ OPS-22 độc lập sau OPS-02
 
 | # | Câu hỏi | Chặn task | Gợi ý |
 |---|---|---|---|
-| C0 | Nhánh tên "admin-b2b" có nghĩa là muốn làm B2B (bán gói cho Studio) không? | Toàn plan | Không; giữ V2.6, Admin cấp tài nguyên |
+| C0 | Nhánh tên "admin-b2b" có nghĩa là muốn làm B2B (bán gói cho Studio) không? | Toàn plan, OPS-40 | ✅ Đổi 28/11 (spec D11): bán **gói mở Studio** cho độc giả, mua một lần vĩnh viễn bằng Ví, Admin đặt giá. Thuê bao, nhiều Publisher, chia doanh thu vẫn ngoài phạm vi |
 | C1 | Ai nắm tài khoản ngân hàng và duyệt VietQR: 2A (đúng V2.6) hay 2B (Admin nắm hết, sửa spec)? | OPS-10 | ✅ Chốt 28/11: Publisher cấu hình và duyệt (đúng BR-32 V2.6), Admin chỉ đọc |
 | C2 | Gỡ VIP khỏi Backend, giữ lịch sử giao dịch? | OPS-11 | Gỡ |
 | C3 | Gói export và ảnh `webp` dẫn xuất có tính vào dung lượng Studio không? | OPS-02 | Export: có, vì Studio tạo ra; `webp` cache: không |
