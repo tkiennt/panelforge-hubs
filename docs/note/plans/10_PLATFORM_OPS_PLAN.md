@@ -104,7 +104,7 @@ BR-07, câu Q11 của tài liệu nguồn. BE đã gỡ bypass, FE chưa.
 ### GĐ1 · Chuẩn hoá tài chính Q13 (cần trả lời C1, C2)
 
 #### OPS-10 · Tài khoản ngân hàng của nền tảng — DB + BE + FE ✅ (28/11, C1 = Publisher cấu hình và duyệt)
-- [x] [DB] Bảng `platform_bank_accounts` append-only (bản ghi mới nhất là tài khoản đang dùng), migration `AddPlatformBankAccounts`. Cột ngân hàng cũ trên `studio_workspaces` còn giữ (không ghi nữa), bỏ ở migration sau.
+- [x] [DB] Bảng `platform_bank_accounts` append-only (bản ghi mới nhất là tài khoản đang dùng), migration `AddPlatformBankAccounts`. Cột ngân hàng cũ trên `studio_workspaces` đã bỏ ở migration `DropStudioBankColumns` (`0a3df74`); giá trị cũ được lưu vào `audit_logs` với action `STUDIO_BANK_INFO_ARCHIVED` trước khi bỏ.
 - [x] [BE] Nạp ví không gắn Studio (`workspace_id = null`); mở chương bằng VietQR vẫn gắn Studio của chương. `SePay:DefaultBank` là giá trị dùng khi chưa có bản ghi.
 - [x] [BE] `PUT /api/platform/payments/bank-account` bắt Publisher đã bật 2FA + mã TOTP/mã khôi phục, ghi audit `PLATFORM_BANK_ACCOUNT_CHANGED` (chỉ 4 số cuối).
 - [x] [BE] Quyền theo C1 (giữ đúng V2.6): ghi/duyệt chỉ Publisher; Admin chỉ đọc (`GET /api/platform/payments`, `GET .../bank-account`). Duyệt/từ chối toàn nền tảng: `POST /api/platform/payments/{id}/approve|reject`. Bỏ `GET/PUT /api/workspaces/{id}/payments/bank-settings`.
